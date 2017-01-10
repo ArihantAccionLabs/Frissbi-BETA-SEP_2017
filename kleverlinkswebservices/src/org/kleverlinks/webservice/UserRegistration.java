@@ -45,9 +45,16 @@ public class UserRegistration {
 		Connection conn = null;
 		try {
 			conn = getDBConnection();
-			
-			  if(ServiceUtility.getUserDetailsByUserName(userName) != null){
-				  return "-2";
+			  System.out.println(userName+"============"+email);
+			  UserDTO userDTO = ServiceUtility.getUserDetailsByUserNameAndEmail(userName , email);
+			  if(userDTO != null){
+				  
+				  if(userDTO.getUserName() != null && userDTO.getUserName().equals(userName)){
+					  
+					  return "-2";
+				  }
+				  return "-3";
+
 			  }
 			
 			java.util.Date dateobj = new java.util.Date();

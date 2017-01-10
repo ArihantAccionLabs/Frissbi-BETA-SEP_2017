@@ -94,13 +94,14 @@ public class UserFriendList {
 			if (userDTO != null) {
 				userId2 = userDTO.getUserId();
 			}
-
+         
 			java.util.Date dateobj = new java.util.Date();
 			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
 			// put entry into the database as user1 is sending
 			// friend request to user2
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
+			conn = getDBConnection();
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId1);
 			callableStatement.setInt(2, userId2);
@@ -110,13 +111,13 @@ public class UserFriendList {
 			callableStatement.setDate(6, null);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
-
 			if (value == 1) {
 				UserNotifications userNotifications = new UserNotifications();
 				Date date = new Date();
 				Timestamp timestamp = new Timestamp(date.getTime());
 				String notificationId = userNotifications.insertUserNotifications(userId2, userId1,
 						NotificationsEnum.Friend_Pending_Requests.ordinal() + 1, 0, timestamp);
+				
 				JSONObject json = new JSONArray(
 						userNotifications.getUserNotifications(0, Integer.parseInt(notificationId))).getJSONObject(0);
 				String notificationMessage = json.getString("NotificationMessage");

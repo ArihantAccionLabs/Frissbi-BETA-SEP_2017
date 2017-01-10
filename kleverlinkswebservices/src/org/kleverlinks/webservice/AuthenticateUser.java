@@ -12,6 +12,9 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.sql.DataSource;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -58,28 +61,47 @@ public class AuthenticateUser {
 	//Testing any method
 	
 	@GET
-	@Path("/testMethod")
+	@Path("/doSomething")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String testMethod(){
-	
+	public void doSomething() throws Exception {
 		Connection conn = null;
-		CallableStatement cs = null;
-	   try {
-			conn = getDBConnection();
-			String storeProc = "{call first_procedure()}";
-			cs = conn.prepareCall(storeProc);
-			cs.execute();
-			ResultSet rs = cs.getResultSet();
-			System.out.println("=Name==============");
-			
-			while(rs.next()){
-				System.out.println("=Name=============="+rs.getString(1)+"=CMID="+rs.getString(2));
+		Statement stmt = null;
+		 try {
+	            Context initContext = new InitialContext();
+	            Context envContext = (Context) initContext.lookup("java:comp/env");
+	            DataSource ds = (DataSource) envContext.lookup("jdbc/testdb");
+	             conn = ds.getConnection();
+	             
+	            Statement statement = conn.createStatement();
+	            String sql = "select * from FrissDB.tbl_UserNotifications";
+	            ResultSet rs = statement.executeQuery(sql);
+	          while (rs.next()) {
+				System.out.println("rs============"+rs.getString(1));
+				
 			}
-		}catch (Exception e) {
-			System.out.println("EXceptiojkjh");
-			e.printStackTrace();
+	        
+	        } catch (SQLException ex) {
+	            System.err.println(ex);
+	        } finally {
+
+			if (stmt != null) {
+				try {
+					stmt.close();
+				} catch (Exception sqlex) {
+				}
+
+				stmt = null;
+			}
+
+			if (conn != null) {
+				try {
+					conn.close();
+				} catch (Exception sqlex) {
+				}
+
+				conn = null;
+			}
 		}
-		return "ok";
 	}
 	
 	@GET  

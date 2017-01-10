@@ -31,6 +31,20 @@ public class ServiceUtility {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
 		return null;
 	}
 
@@ -54,9 +68,64 @@ public class ServiceUtility {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
 		return userDTO;
 
 	}
+	
+	
+	public static UserDTO getUserDetailsByUserNameAndEmail(String userName , String emailId) {
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		UserDTO userDTO = null;
+		String sql;
+		try {
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			sql = "SELECT userId , userName , EmailName  FROM tbl_users WHERE userName ='" + userName + "' OR EmailName ='"+ emailId +"'" + " limit 1";
+			rs = stmt.executeQuery(sql);
+			while (rs.next()) {
+				userDTO = new UserDTO();
+				userDTO.setUserId(rs.getInt("userId"));
+				userDTO.setEmailId(rs.getString("emailName"));
+				userDTO.setUserName(rs.getString("userName"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finally {
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}
+		}
+		return userDTO;
+
+	}
+	
+	
 	
 	private static Connection getDBConnection() {
 
