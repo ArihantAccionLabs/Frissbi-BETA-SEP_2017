@@ -1,5 +1,6 @@
 package org.kleverlinks.webservice;
 
+import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -15,18 +16,22 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
+import org.kleverlinks.webservice.gcm.Message;
+import org.kleverlinks.webservice.gcm.Result;
+import org.kleverlinks.webservice.gcm.Sender;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 @Path("LocationVotingsService")
 public class LocationVotings {
 
 	// JDBC driver name and database URL
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	static final String DB_URL = "jdbc:mysql://frissdb.cloudapp.net/FrissDB";
-
-	// Database credentials
-	static final String USER = "Friss_App_User";
-	static final String PASS = "FrissApp2015!";
 	
 	@GET  
     @Path("/insertLocationVotings/{meetingId}/{latitude}/{longitude}/{userVotings}")
@@ -130,7 +135,7 @@ public class LocationVotings {
     @Path("/updateUserLocationVotings/{userId}/{userLocationVotingId}")
     @Produces(MediaType.TEXT_PLAIN)
 	public String updateUserLocationVotings(@PathParam("userId") int userId,
-			@PathParam("userLocationVotingId") String userLocationVotingId ){
+			@PathParam("userLocationVotingId") int userLocationVotingId ){
 		Connection conn = null;
 		Statement stmt = null;
 		String value="";
@@ -139,11 +144,88 @@ public class LocationVotings {
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_UpdateUserLocationVoting(?,?)}";
-			userLocationVotingId = userLocationVotingId.replace("@", "/");
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId);
-			callableStatement.setString(2, userLocationVotingId);
+			callableStatement.setInt(2, userLocationVotingId);
 			value = callableStatement.executeUpdate()+"";
+			
+			JSONObject jsonObject = new JSONObject( getUserLocationMeetingID(userLocationVotingId));
+			int meetingId = Integer.parseInt(jsonObject.getString("MeetingID"));
+			String latitude = jsonObject.getString("FeasibleLatitude");
+			String longitude = jsonObject.getString("FeasibleLongitude");
+			MeetingDetails meetingDetails = new MeetingDetails();
+			JSONArray jsonArray = new JSONArray(meetingDetails.getMeetingDetailsByMeetingID(meetingId));
+			String senderUserId = jsonArray.getJSONObject(0).getString("SenderUserID");
+			String meetingDescription = jsonArray.getJSONObject(0).getString("MeetingDescription");
+			String notificationMessage ="Meeting place has been choosen for meeting "+meetingDescription;
+			String NotificationName = "Place Change";
+			Sender sender = new Sender(Constants.GCM_APIKEY);
+			Message message = new Message.Builder()
+		     .timeToLive(3)
+		     .delayWhileIdle(true)
+		     .dryRun(true)
+		     .addData("message",notificationMessage )
+		     .addData("NotificationName",NotificationName )
+		     .addData("meetingId",meetingId+"" )
+		     .addData("userId",senderUserId )
+		     .build();
+
+			try {
+				AuthenticateUser authenticateUser = new AuthenticateUser();
+				JSONObject jsonRegistrationId = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(Integer.parseInt(senderUserId)));
+				String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+				Result result = sender.send(message, deviceRegistrationId, 1);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			JSONArray array = new JSONArray(meetingDetails.getRecipientDetailsByMeetingID(meetingId));
+			for(int i=0;i<array.length();i++){
+				JSONObject object = array.getJSONObject(i);
+				String userid =object.getString("UserId");
+				notificationMessage ="Meeting place has been choosen for meeting "+meetingDescription;
+				NotificationName = "Place Change";
+				sender = new Sender("AIzaSyCmJAbD3ijBFz_oFjOLvNJnh5e9chInBdc");
+				message = new Message.Builder()
+			     .timeToLive(3)
+			     .delayWhileIdle(true)
+			     .dryRun(true)
+			     .addData("message",notificationMessage )
+			     .addData("NotificationName",NotificationName )
+			     .addData("meetingId",meetingId+"" )
+			     .addData("userId",userId+"" )
+			     .build();
+
+				try {
+					AuthenticateUser authenticateUser = new AuthenticateUser();
+					JSONObject jsonRegistrationId = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(Integer.parseInt(userid)));
+					String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+					Result result = sender.send(message, deviceRegistrationId, 1);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			LocationDetails locationDetails = new LocationDetails();
+			try {
+				//Doing reverse geocoding
+				String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+latitude+","+longitude+"&key="+Constants.GCM_APIKEY;
+				ClientConfig config = new DefaultClientConfig();
+				Client client = Client.create(config);
+				WebResource service = client.resource(url);
+				JSONObject json = new JSONObject(
+						getOutputAsString(service));
+				JSONArray results = (JSONArray) json.get("results");
+				JSONObject resultsObject = (JSONObject) results.get(0);
+				String  formattedAddress = (String) resultsObject
+						.get("formatted_address");
+				System.out.println("Mid point location address is: "+formattedAddress );
+				locationDetails.insertMeetingLocationDetails(latitude, longitude, formattedAddress, meetingId);
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 
 		} catch (SQLException se) {
 			// Handle errors for JDBC
@@ -167,7 +249,9 @@ public class LocationVotings {
 		}// end try
 		return value;
 	}
-	
+	private static String getOutputAsString(WebResource service) {
+		return service.accept(MediaType.TEXT_PLAIN).get(String.class);
+	}
 	@GET  
     @Path("/getUserFeasibleLocationVotingCount/{meetingId}")
     @Produces(MediaType.TEXT_PLAIN)
@@ -262,6 +346,53 @@ public class LocationVotings {
 		return jsonResultsArray.toString();
 	}
 	
+	@GET  
+    @Path("/getUserLocationMeetingID/{userLocationVotingID}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getUserLocationMeetingID(@PathParam("userLocationVotingID") int userLocationVotingID
+			) {
+
+		Connection conn = null;
+		Statement stmt = null;
+		JSONObject jsonObject = new JSONObject();
+		try {
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			CallableStatement callableStatement = null;
+			String insertStoreProc = "{call usp_GetUserLocationMeetingID(?)}";
+			callableStatement = conn.prepareCall(insertStoreProc);
+			callableStatement.setInt(1, userLocationVotingID);
+			callableStatement.execute();
+			ResultSet rs = callableStatement.getResultSet();
+
+			while(rs.next()){
+				jsonObject.put("MeetingID", rs.getString("MeetingID"));
+				jsonObject.put("FeasibleLatitude", rs.getString("FeasibleLatitude"));
+				jsonObject.put("FeasibleLongitude", rs.getString("FeasibleLongitude"));
+			}
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			}// nothing we can do
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}// end finally try
+		}// end try
+		return jsonObject.toString();
+	}
+	
 	private static Connection getDBConnection() {
 		Connection dbConnection = null;
 		try {
@@ -270,7 +401,7 @@ public class LocationVotings {
 			System.out.println(e.getMessage());
 		}
 		try {
-			dbConnection = DriverManager.getConnection(DB_URL, USER, PASS);
+			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
 			return dbConnection;
 		} catch (SQLException e) {
 			System.out.println(e.getMessage());
@@ -280,8 +411,8 @@ public class LocationVotings {
 	
 	public static void main(String args[]){
 		LocationVotings locationVotings = new LocationVotings();
-		//String votingCount = locationVotings.getUserFeasibleLocationVotingCount(36);
-		//System.out.println(votingCount);
+		String votingCount = locationVotings.getUserFeasibleLocationVotingCount(36);
+		System.out.println(votingCount);
 		String locations = locationVotings.getUserFeasibleLocationVotingsByUserID(36, 10);
 		System.out.println(locations);
 	}

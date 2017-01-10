@@ -16,6 +16,7 @@ public class SMTPMailSender  {
 	
 	public static void main(String args[] ) throws Exception{
 		SMTPMailSender mailSender = new SMTPMailSender();
-		mailSender.sendMessage("dharmakolla85@gmail.com", "Email Verification","Please click on the link for email verification");
+		mailSender.sendMessage("dharmakolla85@gmail.com", "Frissbi Account Activation","Hi Dharmateja,\n\nPlease click on the activation button below to start using FRISSBI\nOR\nCopy & paste the below URL into your browser and hit ENTER"
+				+ "\nhttp://www.friss.bi/oiuopijopfjiasjpdf\n\n\n\n\n___________________________________________________________\n(c) Frissbi, product of Kleverlinks Network Pvt Ltd\nwww.friss.bi");
 	}
 }

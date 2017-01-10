@@ -7,6 +7,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 
@@ -38,6 +39,9 @@ import org.xml.sax.InputSource;
 
 @Path("LocationDetailsService")
 public class LocationDetails {
+	
+		// JDBC driver name and database URL
+		static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
 	@GET
 	@Path("/calculateMidpointOfParticipiants/{noOfParticipants}/{latitudeValues}/{longitudeValues}")
@@ -92,7 +96,7 @@ public class LocationDetails {
 				+ midLatitude
 				+ ","
 				+ midLongitude
-				+ "&key=AIzaSyCJE9LKLKMqMg8n8CNzpt5xdsS8VXumrhQ";
+				+ "&key="+Constants.GCM_APIKEY;
 		ClientConfig config = new DefaultClientConfig();
 		Client client = Client.create(config);
 		WebResource service = client.resource(url);
@@ -149,7 +153,7 @@ public class LocationDetails {
 				return "false";
 			}
 			if(jsonObject.get("Status").equals("1") && jsonObject.get("DestinationType").equals("3") ){
-				double lat = Double.parseDouble((String)jsonObject.get("olatitude"));
+				double lat = Double.parseDouble((String)jsonObject.get("oLatitude"));
 				double lng = Double.parseDouble((String)jsonObject.get("oLongitude"));
 				point = new Point2D(lat, lng);
 				Point2Ds.add( point);
@@ -172,7 +176,7 @@ public class LocationDetails {
 				+ midLatitude
 				+ ","
 				+ midLongitude
-				+ "&key=AIzaSyCJE9LKLKMqMg8n8CNzpt5xdsS8VXumrhQ";
+				+ "&key="+Constants.GCM_APIKEY;
 		ClientConfig config = new DefaultClientConfig();
 		Client client = Client.create(config);
 		WebResource service = client.resource(url);
@@ -201,6 +205,67 @@ public class LocationDetails {
 		return jsonObject.toString();
 	}
 	
+	@GET  
+    @Path("/insertMeetingLocationDetails/{latitude}/{longitude}/{destinationAddress}/{meetingId}")
+    @Produces(MediaType.TEXT_PLAIN)
+	public String insertMeetingLocationDetails(
+			@PathParam("latitude") String latitude, @PathParam("longitude") String longitude,
+			@PathParam("destinationAddress") String destinationAddress,@PathParam("meetingId") int meetingId
+			 ){
+		Connection conn = null;
+		Statement stmt = null;
+		String isError="";
+		try {
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			CallableStatement callableStatement = null;
+			String insertStoreProc = "{call usp_InsertMeetingLocationDetails(?,?,?,?,?)}";
+			callableStatement = conn.prepareCall(insertStoreProc);
+			callableStatement.setString(1, latitude);
+			callableStatement.setString(2, longitude);
+			callableStatement.setString(3, destinationAddress);
+			callableStatement.setInt(4, meetingId);
+			callableStatement.registerOutParameter(5, Types.INTEGER);
+			int value = callableStatement.executeUpdate();
+			isError = callableStatement.getInt(5)+"";
+
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			}// nothing we can do
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}// end finally try
+		}// end try
+		return isError;
+	}
+	private static Connection getDBConnection() {
+		Connection dbConnection = null;
+		try {
+			Class.forName(JDBC_DRIVER);
+		} catch (ClassNotFoundException e) {
+			System.out.println(e.getMessage());
+		}
+		try {
+			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
+			return dbConnection;
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+		return dbConnection;
+	}
 	private static String getOutputAsString(WebResource service) {
 		return service.accept(MediaType.TEXT_PLAIN).get(String.class);
 	}

@@ -18,19 +18,12 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
-
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
 	// JDBC driver name and database URL
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-	static final String DB_URL = "jdbc:mysql://frissdb.cloudapp.net/FrissDB";
 
-	// Database credentials
-	static final String USER = "Friss_App_User";
-	static final String PASS = "FrissApp2015!";
-	
 	private SecureRandom random = new SecureRandom();
 
 	private static Connection getDBConnection() {
@@ -49,7 +42,7 @@ public class AuthenticateUser {
 
 		try {
 
-			dbConnection = DriverManager.getConnection(DB_URL, USER, PASS);
+			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
 			return dbConnection;
 
 		} catch (SQLException e) {
@@ -61,22 +54,74 @@ public class AuthenticateUser {
 		return dbConnection;
 
 	}
-
-	public boolean authenticateUser(String userName, String password) {
+	
+	//Testing any method
+	
+	@GET
+	@Path("/testMethod")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String testMethod(){
+	
+		Connection conn = null;
+		CallableStatement cs = null;
+	   try {
+			conn = getDBConnection();
+			String storeProc = "{call first_procedure()}";
+			cs = conn.prepareCall(storeProc);
+			cs.execute();
+			ResultSet rs = cs.getResultSet();
+			System.out.println("=Name==============");
+			
+			while(rs.next()){
+				System.out.println("=Name=============="+rs.getString(1)+"=CMID="+rs.getString(2));
+			}
+		}catch (Exception e) {
+			System.out.println("EXceptiojkjh");
+			e.printStackTrace();
+		}
+		return "ok";
+	}
+	
+	@GET  
+    @Path("/authenticateUser/{userId}/{deviceRegistrationId}")  
+    @Produces(MediaType.TEXT_PLAIN)
+	public String authenticateUser(@PathParam("userId") int userId,@PathParam("deviceRegistrationId") String deviceRegistrationId) {
 		Connection conn = null;
 		Statement stmt = null;
+		boolean exists = false;
 		try {
 			conn = getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
-			sql = "SELECT userID from tbl_users where username ='" + userName
-					+ "'" + " and password ='" + password + "'" + " limit 1";
+			sql = "SELECT userID from tbl_usertransactions where userId ='" + userId + "'";
 			ResultSet rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
-				return true;
+				exists = true;
+			}
+			
+			if (exists){
+				java.util.Date dateobj = new java.util.Date();
+				java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
+				sql = "UPDATE tbl_usertransactions SET LastLoginDateTime = '"+ sqlDateNow +"'where userId ='" + userId
+						+ "'";
+				stmt.executeUpdate(sql);
+			}else{
+				java.util.Date dateobj = new java.util.Date();
+				java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
+				sql = "INSERT INTO FrissDB.tbl_usertransactions ( UserID ,LoginStatus,LastLoginDateTime,LastLoginIpAddress ) VALUES  ( '" + userId+"' ,1 "
+	                 +",'"+ sqlDateNow +"',null )";
+				stmt.executeUpdate(sql);
 			}
 
+			CallableStatement cs = null;
+			String storeProc = "{call usp_InsertUpdateUserGCMCode(?,?,?)}";
+			cs = conn.prepareCall(storeProc);
+			cs.setInt(1, userId);
+			cs.setString(2, deviceRegistrationId);
+			cs.registerOutParameter(3, Types.INTEGER);
+			cs.executeUpdate();
+			
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
@@ -97,21 +142,27 @@ public class AuthenticateUser {
 				se.printStackTrace();
 			}// end finally try
 		}// end try
-		return false;
+		return "1";
 	}
 
 	@GET  
-    @Path("/userAuthentication/{username}/{password}/{loginipaddress}")  
+    @Path("/userAuthentication/{username}/{password}/{loginipaddress}/{deviceRegistrationId}/{emailAddress}")  
     @Produces(MediaType.TEXT_PLAIN)
 	public String userAuthentication(@PathParam("username") String userName, @PathParam("password") String password,
-			@PathParam("loginipaddress") String loginIpAddress) {
+			@PathParam("loginipaddress") String loginIpAddress,@PathParam("deviceRegistrationId") String deviceRegistrationId
+			,@PathParam("emailAddress") String emailAddress) {
 		Connection conn = null;
 		Statement stmt = null;
 		JSONObject jsonObject = new JSONObject();
+		int userid = 0;
+		String isEmailVerified = isEmailVerified(userName);
+		if(isEmailVerified.equals("0")){
+			return "-2";
+		}
 		try {
 			conn = getDBConnection();
 			CallableStatement callableStatement = null;
-			String insertStoreProc = "{call usp_GetUserAuthentication(?,?,?,?,?,?,?,?)}";
+			String insertStoreProc = "{call usp_GetUserAuthentication(?,?,?,?,?,?,?,?,?)}";
 			java.util.Date dateobj = new java.util.Date();
 			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
 			callableStatement = conn.prepareCall(insertStoreProc);
@@ -119,13 +170,23 @@ public class AuthenticateUser {
 			callableStatement.setString(2, password);
 			callableStatement.setTimestamp(3, sqlDateNow);
 			callableStatement.setString(4, loginIpAddress);
-			callableStatement.registerOutParameter(5, Types.BIGINT);
-			callableStatement.registerOutParameter(6, Types.VARCHAR);
-			callableStatement.registerOutParameter(7, Types.BIT);
-			callableStatement.registerOutParameter(8, Types.INTEGER);
+			callableStatement.setString(5, emailAddress);
+			callableStatement.registerOutParameter(6, Types.BIGINT);
+			callableStatement.registerOutParameter(7, Types.VARCHAR);
+			callableStatement.registerOutParameter(8, Types.BIT);
+			callableStatement.registerOutParameter(9, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
-			jsonObject.put("UserId",callableStatement.getInt(5));
-			jsonObject.put("UserName", callableStatement.getString(6));
+			userid = callableStatement.getInt(6);
+			jsonObject.put("UserId",userid);
+			jsonObject.put("UserName", callableStatement.getString(7));
+			
+			CallableStatement cs = null;
+			String storeProc = "{call usp_InsertUpdateUserGCMCode(?,?,?)}";
+			cs = conn.prepareCall(storeProc);
+			cs.setInt(1, userid);
+			cs.setString(2, deviceRegistrationId);
+			cs.registerOutParameter(3, Types.INTEGER);
+			value = cs.executeUpdate();
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
@@ -238,6 +299,94 @@ public class AuthenticateUser {
 		return jsonObject.toString();
 	}
 	@GET  
+    @Path("/getUserAvatarPath/{userId}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getUserAvatarPath(@PathParam("userId") int userId ) {
+
+		Connection conn = null;
+		Statement stmt = null;
+		String encodedString = "";
+		try {
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			CallableStatement callableStatement = null;
+			String insertStoreProc = "{call usp_GetUserAvatarPath(?)}";
+			callableStatement = conn.prepareCall(insertStoreProc);
+			callableStatement.setInt(1, userId);
+			callableStatement.execute();
+			ResultSet rs = callableStatement.getResultSet();
+
+			while(rs.next()){
+				encodedString = rs.getString("AvatarPath");
+			}
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			}// nothing we can do
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}// end finally try
+		}// end try
+		return encodedString;
+	}
+	@GET  
+    @Path("/updateUserProfileSetting/{userId}/{firstName}/{lastName}/{gender}/{dateOfBirth}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String updateUserProfileSetting(@PathParam("userId") int userId,@PathParam("firstName") String firstName,
+			@PathParam("lastName") String lastName,@PathParam("gender") String gender,
+			@PathParam("dateOfBirth") Date dateOfBirth) {
+
+		Connection conn = null;
+		Statement stmt = null;
+		String isError ="";
+		try {
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			CallableStatement callableStatement = null;
+			String insertStoreProc = "{call usp_UpdateUserProfileSetting(?,?,?,?,?,?)}";
+			callableStatement = conn.prepareCall(insertStoreProc);
+			callableStatement.setInt(1, userId);
+			callableStatement.setString(2, firstName);
+			callableStatement.setString(3, lastName);
+			callableStatement.setString(4, gender);
+			callableStatement.setTimestamp(5, new Timestamp(dateOfBirth.getTime()));
+			int value = callableStatement.executeUpdate();
+			isError = callableStatement.getInt(6) +"";
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			}// nothing we can do
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}// end finally try
+		}// end try
+		return isError;
+	}
+	@GET  
     @Path("/forgetPassword/{emailname}")  
     @Produces(MediaType.TEXT_PLAIN)
 	public String forgetPassword(@PathParam("emailname") String emailname ){
@@ -248,13 +397,14 @@ public class AuthenticateUser {
 		try {
 			conn = getDBConnection();
 			CallableStatement callableStatement = null;
-			SMTPMailSender emailSender = new SMTPMailSender();
+			/*SMTPMailSender emailSender = new SMTPMailSender();
 			emailSender
 					.sendMessage(
 							emailname,
-							"Reset Password",
+							"Forgot Password",
 							"Your new password is: "+ newPassword
-									);
+									);*/
+			MyEmailer.SendMail(emailname,"Forgot Password","Your new password is: "+ newPassword) ;
 			
 			String insertStoreProc = "{call usp_UpdatePassword_ByEmailAddress(?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
@@ -290,11 +440,140 @@ public class AuthenticateUser {
 		return new BigInteger(130, random).toString(32);
 	}
 	
+	@GET  
+    @Path("/getGCMDeviceRegistrationId/{userId}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getGCMDeviceRegistrationId(@PathParam("userId") int userId ) {
+
+		Connection conn = null;
+		Statement stmt = null;
+		JSONObject jsonObject = new JSONObject();
+		try {
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			CallableStatement callableStatement = null;
+			String insertStoreProc = "{call usp_GetUserGCMCode(?)}";
+			callableStatement = conn.prepareCall(insertStoreProc);
+			callableStatement.setInt(1, userId);
+			callableStatement.execute();
+			ResultSet rs = callableStatement.getResultSet();
+
+			while(rs.next()){
+				jsonObject.put("UserID", rs.getString("UserID"));
+				jsonObject.put("DeviceRegistrationID", rs.getString("DeviceRegistrationID"));
+			}
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			}// nothing we can do
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}// end finally try
+		}// end try
+		return jsonObject.toString();
+	}
+	
+	@GET  
+    @Path("/updateUserPassword/{userId}/{oldPassword}/{newPassword}")  
+    @Produces(MediaType.TEXT_PLAIN)
+	public String updateUserPassword(@PathParam("userId") int userId,@PathParam("oldPassword") String oldPassword,@PathParam("newPassword") String newPassword ){
+		Connection conn = null;
+		Statement stmt = null;
+		String invalid = "";
+		try {
+			conn = getDBConnection();
+			CallableStatement callableStatement = null;
+			String insertStoreProc = "{call usp_UpdateUserPassword(?,?,?,?,?)}";
+			callableStatement = conn.prepareCall(insertStoreProc);
+			callableStatement.setInt(1, userId );
+			callableStatement.setString(2, oldPassword );
+			callableStatement.setString(3, newPassword );
+			callableStatement.registerOutParameter(4, Types.INTEGER);
+			callableStatement.registerOutParameter(5, Types.INTEGER);
+			int value = callableStatement.executeUpdate();
+			invalid = callableStatement.getInt(4) +"";
+		} catch (SQLException se) {
+			// Handle errors for JDBC
+			se.printStackTrace();
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			}// nothing we can do
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}// end finally try
+		}// end try
+		return invalid;
+	}
+	
+	@GET  
+    @Path("/isEmailVerified/{UserName}")  
+    @Produces(MediaType.TEXT_PLAIN)
+	public String isEmailVerified(@PathParam("UserName") String UserName ) {
+
+		Connection conn = null;
+		Statement stmt = null;
+		try {
+			conn = getDBConnection();
+			stmt = conn.createStatement();
+			String sql;
+			sql = "SELECT userID from tbl_users where UserName ='" + UserName
+					+ "'" + " and IsEmailVerified = 1 and IsActive = 1 limit 1";
+			ResultSet rs = stmt.executeQuery(sql);
+
+			while (rs.next()) {
+				return "1";
+			}
+		} catch (Exception e) {
+			// Handle errors for Class.forName
+			e.printStackTrace();
+		} finally {
+			// finally block used to close resources
+			try {
+				if (stmt != null)
+					stmt.close();
+			} catch (SQLException se2) {
+			}// nothing we can do
+			try {
+				if (conn != null)
+					conn.close();
+			} catch (SQLException se) {
+				se.printStackTrace();
+			}// end finally try
+		}// end try
+		return "0" ;
+	}
 	public static void main(String args[]){
 		AuthenticateUser authenticateUser = new AuthenticateUser();
 		//authenticateUser.forgetPassword("dharmakolla85@gmail.com");
 		
-		authenticateUser.userHoldFriendRequest(5,"dharma_kolla99@gmail.com","9902317358");
+		//authenticateUser.userHoldFriendRequest(5,"dharma_kolla99@gmail.com","9902317358");
+		java.util.Date dateobj = new java.util.Date();
+		java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
+		//System.out.println(authenticateUser.updateUserProfileSetting(40,"Dharmateja85","kolla85","M",sqlDateNow));
+		System.out.println(authenticateUser.updateUserPassword(50, "chandu", "teja") );
+		System.out.println(authenticateUser.authenticateUser(50, "test"));
 	}
+	
 }
-
