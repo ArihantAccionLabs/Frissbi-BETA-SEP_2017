@@ -27,25 +27,7 @@ import sun.misc.BASE64Encoder;
 
 @Path("UserNotificationsService")
 public class UserNotifications {
-	
-		// JDBC driver name and database URL
-		static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-		
-		private static Connection getDBConnection() {
-			Connection dbConnection = null;
-			try {
-				Class.forName(JDBC_DRIVER);
-			} catch (ClassNotFoundException e) {
-				System.out.println(e.getMessage());
-			}
-			try {
-				dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
-				return dbConnection;
-			} catch (SQLException e) {
-				System.out.println(e.getMessage());
-			}
-			return dbConnection;
-		}
+
 		
 		@GET  
 	    @Path("/insertUserNotifications/{userId}/{senderUserId}/{notificationMasterId}/{showStatus}/{notificationDateTime}")
@@ -57,7 +39,7 @@ public class UserNotifications {
 			Statement stmt = null;
 			String notificationId="";
 			try {
-				conn = getDBConnection();
+				conn = DataSourceConnection.getDBConnection();
 				stmt = conn.createStatement();
 				CallableStatement callableStatement = null;
 				String insertStoreProc = "{call usp_InsertUserNotification(?,?,?,?,?,?,?)}";
@@ -104,7 +86,7 @@ public class UserNotifications {
 			Statement stmt = null;
 			String isError="";
 			try {
-				conn = getDBConnection();
+				conn = DataSourceConnection.getDBConnection();
 				stmt = conn.createStatement();
 				CallableStatement callableStatement = null;
 				String insertStoreProc = "{call usp_UpdateUserNotification(?,?,?)}";
@@ -147,7 +129,7 @@ public class UserNotifications {
 			Statement stmt = null;
 			JSONArray jsonResultsArray = new JSONArray();
 			try {
-				conn = getDBConnection();
+				conn = DataSourceConnection.getDBConnection();
 				stmt = conn.createStatement();
 				CallableStatement callableStatement = null;
 				String insertStoreProc = "{call usp_GetUserNotification(?,?)}";

@@ -38,7 +38,7 @@ public class UserSettings {
 		Statement stmt = null;
 		String isError = "";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUserPreferredLocations(?,?,?,?,?,?,?)}";
@@ -90,7 +90,7 @@ public class UserSettings {
 		Statement stmt = null;
 		String isError = "";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_UpdateUserPreferredLocations(?,?,?,?,?,?,?,?)}";
@@ -138,7 +138,7 @@ public class UserSettings {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserPreferredLocations(?)}";
@@ -191,7 +191,7 @@ public class UserSettings {
 		Statement stmt = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetExistenceUserPreferredLocations(?,?)}";
@@ -238,7 +238,7 @@ public class UserSettings {
 		Statement stmt = null;
 		String isError = "";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUpdateUserAlarmSettings(?,?,?)}";
@@ -282,7 +282,7 @@ public class UserSettings {
 		Statement stmt = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserAlarmSettings(?)}";
@@ -327,7 +327,7 @@ public class UserSettings {
 		Statement stmt = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetFrissbiPrivacyPolicy(?)}";
@@ -374,7 +374,7 @@ public class UserSettings {
 		Statement stmt = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetFrissbiPrivacyPolicy(?)}";
@@ -410,23 +410,7 @@ public class UserSettings {
 		}// end try
 		return jsonObject.toString();
 	}
-	
-	private static Connection getDBConnection() {
-		Connection dbConnection = null;
-		try {
-			Class.forName(JDBC_DRIVER);
-		} catch (ClassNotFoundException e) {
-			System.out.println(e.getMessage());
-		}
-		try {
-			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
-			return dbConnection;
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-		return dbConnection;
-	}
-	
+
 	public static void main(String []args){
 		UserSettings userSettings = new UserSettings();
 		//System.out.println(userSettings.getUserPreferredOriginsByUserID(54));

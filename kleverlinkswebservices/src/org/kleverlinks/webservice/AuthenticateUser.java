@@ -28,80 +28,14 @@ public class AuthenticateUser {
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
 	private SecureRandom random = new SecureRandom();
-
-	private static Connection getDBConnection() {
-
-		Connection dbConnection = null;
-
-		try {
-
-			Class.forName(JDBC_DRIVER);
-
-		} catch (ClassNotFoundException e) {
-
-			System.out.println(e.getMessage());
-
-		}
-
-		try {
-
-			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
-			return dbConnection;
-
-		} catch (SQLException e) {
-
-			System.out.println(e.getMessage());
-
-		}
-
-		return dbConnection;
-
-	}
 	
 	//Testing any method
 	
 	@GET
-	@Path("/doSomething")
+	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public void doSomething() throws Exception {
-		Connection conn = null;
-		Statement stmt = null;
-		 try {
-	            Context initContext = new InitialContext();
-	            Context envContext = (Context) initContext.lookup("java:comp/env");
-	            DataSource ds = (DataSource) envContext.lookup("jdbc/testdb");
-	             conn = ds.getConnection();
-	             
-	            Statement statement = conn.createStatement();
-	            String sql = "select * from FrissDB.tbl_UserNotifications";
-	            ResultSet rs = statement.executeQuery(sql);
-	          while (rs.next()) {
-				System.out.println("rs============"+rs.getString(1));
-				
-			}
-	        
-	        } catch (SQLException ex) {
-	            System.err.println(ex);
-	        } finally {
-
-			if (stmt != null) {
-				try {
-					stmt.close();
-				} catch (Exception sqlex) {
-				}
-
-				stmt = null;
-			}
-
-			if (conn != null) {
-				try {
-					conn.close();
-				} catch (Exception sqlex) {
-				}
-
-				conn = null;
-			}
-		}
+		
 	}
 	
 	@GET  
@@ -112,7 +46,7 @@ public class AuthenticateUser {
 		Statement stmt = null;
 		boolean exists = false;
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userID from tbl_usertransactions where userId ='" + userId + "'";
@@ -182,7 +116,7 @@ public class AuthenticateUser {
 			return "-2";
 		}
 		try {
-			conn = getDBConnection();
+			conn =  DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserAuthentication(?,?,?,?,?,?,?,?,?)}";
 			java.util.Date dateobj = new java.util.Date();
@@ -241,7 +175,7 @@ public class AuthenticateUser {
 		Statement stmt = null;
 		String isError ="";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
 			java.util.Date dateobj = new java.util.Date();
 			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
@@ -285,7 +219,7 @@ public class AuthenticateUser {
 		Statement stmt = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserDetails_ByUserID(?)}";
@@ -329,7 +263,7 @@ public class AuthenticateUser {
 		Statement stmt = null;
 		String encodedString = "";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserAvatarPath(?)}";
@@ -374,7 +308,7 @@ public class AuthenticateUser {
 		Statement stmt = null;
 		String isError ="";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_UpdateUserProfileSetting(?,?,?,?,?,?)}";
@@ -417,7 +351,7 @@ public class AuthenticateUser {
 		String isError = "";
 		String newPassword = nextSessionId().substring(0,7);
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
 			/*SMTPMailSender emailSender = new SMTPMailSender();
 			emailSender
@@ -471,7 +405,7 @@ public class AuthenticateUser {
 		Statement stmt = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserGCMCode(?)}";
@@ -515,7 +449,7 @@ public class AuthenticateUser {
 		Statement stmt = null;
 		String invalid = "";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_UpdateUserPassword(?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
@@ -557,7 +491,7 @@ public class AuthenticateUser {
 		Connection conn = null;
 		Statement stmt = null;
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userID from tbl_users where UserName ='" + UserName

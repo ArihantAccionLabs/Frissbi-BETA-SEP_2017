@@ -44,7 +44,7 @@ public class UserRegistration {
 			@PathParam("lastname") String lastName,@PathParam("isGmaillogin") int isGmaillogin) {
 		Connection conn = null;
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			  System.out.println(userName+"============"+email);
 			  UserDTO userDTO = ServiceUtility.getUserDetailsByUserNameAndEmail(userName , email);
 			  if(userDTO != null){
@@ -137,7 +137,7 @@ public class UserRegistration {
 		Connection conn = null;
 		Statement stmt = null;
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userID from tbl_users where username ='" + userName
@@ -186,7 +186,7 @@ public class UserRegistration {
 			email = null;
 		}
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetExistenceStatusFor_UserName_Email(?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
@@ -228,7 +228,7 @@ public class UserRegistration {
 		Statement stmt = null;
 		String isError = "";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
 //			BufferedImage image = null;
 //			byte[] imageInByte = avatarPath.getBytes(Charset.forName("UTF-8"));
@@ -304,7 +304,7 @@ public class UserRegistration {
 		String dbVerificationCode = "";
 		String txt="";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUpdateVerificationCode(?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
@@ -363,7 +363,7 @@ public class UserRegistration {
 		Statement stmt = null;
 		String isEmailVerified="";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_CheckUserEmailVerification(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
@@ -396,36 +396,6 @@ public class UserRegistration {
 		}// end try
 		return isEmailVerified;
 	}
-
-	private static Connection getDBConnection() {
-
-		Connection dbConnection = null;
-
-		try {
-
-			Class.forName(JDBC_DRIVER);
-
-		} catch (ClassNotFoundException e) {
-
-			System.out.println(e.getMessage());
-
-		}
-
-		try {
-
-			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
-			return dbConnection;
-
-		} catch (SQLException e) {
-
-			System.out.println(e.getMessage());
-
-		}
-
-		return dbConnection;
-
-	}
-
 	@GET  
     @Path("/getUsername/{userid}")  
     @Produces(MediaType.TEXT_PLAIN)
@@ -434,7 +404,7 @@ public class UserRegistration {
 		Statement stmt = null;
 		String username = null;
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userName from tbl_users where userID = " + userID
@@ -476,7 +446,7 @@ public class UserRegistration {
 		Statement stmt = null;
 		String userId = null;
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userID from tbl_users where userName = '" + userName
@@ -519,7 +489,7 @@ public class UserRegistration {
 		Statement stmt = null;
 		String isError ="";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_UpdateUserTransactionDetails(?,?,?)}";
@@ -624,7 +594,7 @@ public class UserRegistration {
 		Statement stmt = null;
 		String encodedString ="";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserImage(?)}";

@@ -1,8 +1,5 @@
 package org.kleverlinks.webservice;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -16,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 
-import javax.imageio.ImageIO;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -31,35 +27,11 @@ import org.kleverlinks.webservice.gcm.Sender;
 import org.service.dto.UserDTO;
 import org.util.service.ServiceUtility;
 
-import sun.misc.BASE64Encoder;
-
 @Path("FriendListService")
 public class UserFriendList {
 	// JDBC driver name and database URL
 	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
-	private static Connection getDBConnection() {
-
-		Connection dbConnection = null;
-
-		try {
-			Class.forName(JDBC_DRIVER);
-
-		} catch (ClassNotFoundException e) {
-			System.out.println(e.getMessage());
-		}
-
-		try {
-			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
-			return dbConnection;
-
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-
-		return dbConnection;
-
-	}
 
 	@GET
 	@Path("/sendFriendRequest/{username1}/{username2}")
@@ -101,7 +73,7 @@ public class UserFriendList {
 			// friend request to user2
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId1);
 			callableStatement.setInt(2, userId2);
@@ -175,7 +147,7 @@ public class UserFriendList {
 		String value = "";
 
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			UserDTO userDTO1 = ServiceUtility.getUserDetailsByUserName(userName1);
 			  if(userDTO1 != null){
 				    userId1 = userDTO1.getUserId();
@@ -234,7 +206,7 @@ public class UserFriendList {
 		int userId2 = 0;
 
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			/*stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userID,emailName,firstName,lastName FROM tbl_users WHERE username ='" + userName1 + "'"
@@ -357,7 +329,7 @@ public class UserFriendList {
 		int userId1 = 0;
 		int userId2 = 0;
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userID from tbl_users where username ='" + userName1 + "'" + " limit 1";
@@ -427,7 +399,7 @@ public class UserFriendList {
 		int userId1 = 0;
 		int userId2 = 0;
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userID from tbl_users where username ='" + userName1 + "'" + " limit 1";
@@ -498,7 +470,7 @@ public class UserFriendList {
 		ArrayList<Integer> userIds = new ArrayList<Integer>();
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userID from tbl_users where username ='" + userName + "'" + " limit 1";
@@ -579,7 +551,7 @@ public class UserFriendList {
 		ArrayList<Integer> userIds = new ArrayList<Integer>();
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userID from tbl_users where username ='" + userName + "'" + " limit 1";
@@ -652,7 +624,7 @@ public class UserFriendList {
 		ArrayList<Integer> userIds = new ArrayList<Integer>();
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userID from tbl_users where username ='" + userName + "'" + " limit 1";
@@ -717,7 +689,7 @@ public class UserFriendList {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "Select * from tbl_users  AS U LEFT OUTER JOIN FrissDB.tbl_usertransactions AS UT ON U.UserID = UT.UserID where ( FirstName like '%"
@@ -772,7 +744,7 @@ public class UserFriendList {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetSearchBoxResults(?,?,?,?)}";
@@ -831,7 +803,7 @@ public class UserFriendList {
 		ArrayList<Integer> userIds = new ArrayList<Integer>();
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT userID from tbl_users where username ='" + userName + "'" + " limit 1";
@@ -913,7 +885,7 @@ public class UserFriendList {
 		ArrayList<Integer> userIds = new ArrayList<Integer>();
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
 			sql = "SELECT RequestStatus from tbl_userfriendlist where userID1 ='" + userID1 + "'and userID2 ='"

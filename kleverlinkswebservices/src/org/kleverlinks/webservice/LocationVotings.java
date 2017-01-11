@@ -43,7 +43,7 @@ public class LocationVotings {
 		Statement stmt = null;
 		String isError="";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUserLocationVotings(?,?,?,?,?)}";
@@ -91,7 +91,7 @@ public class LocationVotings {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserFeasibleLocations(?)}";
@@ -140,7 +140,7 @@ public class LocationVotings {
 		Statement stmt = null;
 		String value="";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_UpdateUserLocationVoting(?,?)}";
@@ -261,7 +261,7 @@ public class LocationVotings {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserFeasibleLocationVotings(?)}";
@@ -308,7 +308,7 @@ public class LocationVotings {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserFeasibleLocationVotings_ByUserID(?,?)}";
@@ -356,7 +356,7 @@ public class LocationVotings {
 		Statement stmt = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserLocationMeetingID(?)}";
@@ -392,23 +392,7 @@ public class LocationVotings {
 		}// end try
 		return jsonObject.toString();
 	}
-	
-	private static Connection getDBConnection() {
-		Connection dbConnection = null;
-		try {
-			Class.forName(JDBC_DRIVER);
-		} catch (ClassNotFoundException e) {
-			System.out.println(e.getMessage());
-		}
-		try {
-			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
-			return dbConnection;
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-		return dbConnection;
-	}
-	
+
 	public static void main(String args[]){
 		LocationVotings locationVotings = new LocationVotings();
 		String votingCount = locationVotings.getUserFeasibleLocationVotingCount(36);

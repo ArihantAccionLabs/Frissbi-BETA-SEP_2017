@@ -167,7 +167,7 @@ public class GooglePlaces {
 		Statement stmt = null;
 		System.out.println("Giomagic getting triggered");
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetMeetingIDForGEOTrigger()}";
@@ -312,7 +312,7 @@ public class GooglePlaces {
 		Statement stmt = null;
 		String isError = "";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_UpdateGeoMagicTriggerFlag(?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
@@ -523,21 +523,6 @@ public class GooglePlaces {
 			return "";
 		}
 	}
-	
-	private static Connection getDBConnection() {
-		Connection dbConnection = null;
-		try {
-			Class.forName(JDBC_DRIVER);
-		} catch (ClassNotFoundException e) {
-			System.out.println(e.getMessage());
-		}
-		try {
-			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
-			return dbConnection;
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-		return dbConnection;
-	}
+
 	
 }

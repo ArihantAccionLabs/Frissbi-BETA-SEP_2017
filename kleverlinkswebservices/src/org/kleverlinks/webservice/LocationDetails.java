@@ -216,7 +216,7 @@ public class LocationDetails {
 		Statement stmt = null;
 		String isError="";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertMeetingLocationDetails(?,?,?,?,?)}";
@@ -251,21 +251,7 @@ public class LocationDetails {
 		}// end try
 		return isError;
 	}
-	private static Connection getDBConnection() {
-		Connection dbConnection = null;
-		try {
-			Class.forName(JDBC_DRIVER);
-		} catch (ClassNotFoundException e) {
-			System.out.println(e.getMessage());
-		}
-		try {
-			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
-			return dbConnection;
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-		return dbConnection;
-	}
+
 	private static String getOutputAsString(WebResource service) {
 		return service.accept(MediaType.TEXT_PLAIN).get(String.class);
 	}

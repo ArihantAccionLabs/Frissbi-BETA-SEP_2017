@@ -60,7 +60,7 @@ public class MeetingDetails {
 		Statement stmt = null;
 		String meetingId = "";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			RecipientDetails = RecipientDetails.replace("@", "/");
@@ -190,7 +190,7 @@ public class MeetingDetails {
 		Statement stmt = null;
 		String recipientXML = "";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetRecipientXML_ByMeetingID(?,?)}";
@@ -230,7 +230,7 @@ public class MeetingDetails {
 		Statement stmt = null;
 		String isError = "";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			recipientDetails = recipientDetails.replace("@", "/");
@@ -279,7 +279,7 @@ public class MeetingDetails {
 		Statement stmt = null;
 		String isError = "";
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			boolean updateFlag = false;
@@ -485,7 +485,7 @@ public class MeetingDetails {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetRecipientDetails_ByUserID(?,?)}";
@@ -552,7 +552,7 @@ public class MeetingDetails {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetRecipientDetails_ByMeetingID(?)}";
@@ -618,7 +618,7 @@ public class MeetingDetails {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetMeetingDetails_ByUserID(?,?,?)}";
@@ -684,7 +684,7 @@ public class MeetingDetails {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetConflicatedMeetingDetails_ByUserID(?,?,?,?)}";
@@ -763,7 +763,7 @@ public class MeetingDetails {
 		JSONObject json = new JSONObject();
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetMeetingSummaryDetails_ByMeetingID(?)}";
@@ -838,7 +838,7 @@ public class MeetingDetails {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetPendingMeetingRequests(?)}";
@@ -891,7 +891,7 @@ public class MeetingDetails {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetMeetingDetails_ByMeetingID(?)}";
@@ -953,7 +953,7 @@ public class MeetingDetails {
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserDetails_ByMeetingID(?,?)}";
@@ -1004,23 +1004,7 @@ public class MeetingDetails {
 		}// end try
 		return jsonResultsArray.toString();
 	}
-	private static Connection getDBConnection() {
 
-		Connection dbConnection = null;
-		try {
-			Class.forName(JDBC_DRIVER);
-		} catch (ClassNotFoundException e) {
-			System.out.println(e.getMessage());
-		}
-		try {
-			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
-			return dbConnection;
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-		return dbConnection;
-	}
-	
 	public static void main(String args[]){
 		MeetingDetails meetingDetails = new MeetingDetails();
 		String meetingdetails = meetingDetails.getRecipientDetailsByUserID(42,3);
@@ -1039,12 +1023,5 @@ public class MeetingDetails {
 		//System.out.println(meetingDetails.getPendingMeetingRequests(50));
 		//System.out.println(meetingDetails.getMeetingSummary(84));
 	}
-	
-	//Testing method
-	
-	public void testMethod(){
-		
-	}
-	
-	
+
 }

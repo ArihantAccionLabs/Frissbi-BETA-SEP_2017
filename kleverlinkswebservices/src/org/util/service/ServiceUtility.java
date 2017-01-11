@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 import org.kleverlinks.webservice.Constants;
+import org.kleverlinks.webservice.DataSourceConnection;
 import org.service.dto.UserDTO;
 
 public class ServiceUtility {
@@ -18,7 +19,7 @@ public class ServiceUtility {
 		UserDTO userDTO = null;
 		String sql;
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			sql = "SELECT emailName,firstName,lastName FROM tbl_users WHERE userId ='" + userId + "'" + " limit 1";
 			rs = stmt.executeQuery(sql);
@@ -55,7 +56,7 @@ public class ServiceUtility {
 		UserDTO userDTO = null;
 		String sql;
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			sql = "SELECT userId,emailName,firstName,lastName FROM tbl_users WHERE userName ='" + userName + "'" + " limit 1";
 			rs = stmt.executeQuery(sql);
@@ -94,7 +95,7 @@ public class ServiceUtility {
 		UserDTO userDTO = null;
 		String sql;
 		try {
-			conn = getDBConnection();
+			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			sql = "SELECT userId , userName , EmailName  FROM tbl_users WHERE userName ='" + userName + "' OR EmailName ='"+ emailId +"'" + " limit 1";
 			rs = stmt.executeQuery(sql);
@@ -124,29 +125,5 @@ public class ServiceUtility {
 		return userDTO;
 
 	}
-	
-	
-	
-	private static Connection getDBConnection() {
 
-		Connection dbConnection = null;
-
-		try {
-			Class.forName(Constants.JDBC_DRIVER);
-
-		} catch (ClassNotFoundException e) {
-			System.out.println(e.getMessage());
-		}
-
-		try {
-			dbConnection = DriverManager.getConnection(Constants.DB_URL, Constants.USER, Constants.PASS);
-			return dbConnection;
-
-		} catch (SQLException e) {
-			System.out.println(e.getMessage());
-		}
-
-		return dbConnection;
-
-	}
 }
