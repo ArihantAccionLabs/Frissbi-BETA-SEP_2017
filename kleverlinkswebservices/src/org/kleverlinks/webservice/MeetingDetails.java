@@ -35,9 +35,6 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 @Path("MeetingDetailsService")
 public class MeetingDetails {
 
-	// JDBC driver name and database URL
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-
 	@GET  
     @Path("/insertMeetingDetails/{senderUserId}/{requestDateTime}/{senderFromDateTime}/{senderToDateTime}"
     		+ "/{scheduledTimeSlot}/{meetingDescription}/{RecipientDetails}"

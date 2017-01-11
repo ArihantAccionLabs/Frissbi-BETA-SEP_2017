@@ -44,9 +44,9 @@ public class MyEmailer {
 		 message.setContent(multipart);
 		Transport transport = mailSession.getTransport();
 		transport.connect();
-		System.out.println("mail sent successfully");
 		transport.send(message);
 		transport.close();
+		System.out.println("mail sent successfully");
 
 	}
 
