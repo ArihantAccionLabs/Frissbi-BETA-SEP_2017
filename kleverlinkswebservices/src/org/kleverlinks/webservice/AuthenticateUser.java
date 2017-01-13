@@ -18,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
+import org.util.service.FreeTimeTracker;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
 	// JDBC driver name and database URL
@@ -32,6 +33,7 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public void doSomething() throws Exception {
            System.out.println("doSomething===========");
+           FreeTimeTracker.getUserFreeTime();
 			
 	}
 	

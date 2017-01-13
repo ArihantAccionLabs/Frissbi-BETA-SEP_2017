@@ -3,7 +3,6 @@ package org.kleverlinks.webservice;
 import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -115,7 +114,6 @@ public class MeetingDetails {
 						Result result = sender.send(message, deviceRegistrationId, 1);
 						System.out.println(result);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					
@@ -146,7 +144,6 @@ public class MeetingDetails {
 								.get("formatted_address");
 						locationDetails.insertMeetingLocationDetails(Latitude, Longitude, formattedAddress, Integer.parseInt(meetingId));
 					} catch (JSONException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}

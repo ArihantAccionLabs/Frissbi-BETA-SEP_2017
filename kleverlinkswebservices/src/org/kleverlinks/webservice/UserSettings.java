@@ -133,7 +133,7 @@ public class UserSettings {
     @Path("/getUserPreferredLocations/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getUserPreferredLocations(@PathParam("userId") int userId) {
-
+System.out.println("coming====================");
 		Connection conn = null;
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
