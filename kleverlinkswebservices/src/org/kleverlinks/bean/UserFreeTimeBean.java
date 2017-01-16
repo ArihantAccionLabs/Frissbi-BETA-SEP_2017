@@ -9,6 +9,9 @@ public class UserFreeTimeBean {
 	private Date freeToTime;
 	private String description;
 	
+	private Integer startTime;
+	private Integer endTime;
+	
 	public Integer getUserId() {
 		return userId;
 	}
@@ -32,6 +35,18 @@ public class UserFreeTimeBean {
 	}
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	public Integer getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(Integer startTime) {
+		this.startTime = startTime;
+	}
+	public Integer getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(Integer endTime) {
+		this.endTime = endTime;
 	}
 	@Override
 	public String toString() {

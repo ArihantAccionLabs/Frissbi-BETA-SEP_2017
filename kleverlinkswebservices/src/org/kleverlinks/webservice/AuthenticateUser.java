@@ -10,6 +10,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +35,35 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public void doSomething() throws Exception {
            System.out.println("doSomething===========");
+           
+      /*     List<String> arList = new ArrayList<String>();
+           arList.add("a");
+           arList.add("b");
+           arList.add("c");
+           arList.add("d");
+           List<String> ar2List = new ArrayList<String>();
+           ar2List.add("1");
+           ar2List.add("2");
+           ar2List.add("3");
+           ar2List.add("4");
+        
+           List<List<String>> lastList = new ArrayList<List<String>>();
+           lastList.add(arList);
+           lastList.add(ar2List);
+           String arrays[][] = new String[2][4];  //just like this,but you must change it with your code
+           for (int i = 0; i < lastList.size(); i++) {
+               List<String> list = lastList.get(i);
+               for (int j = 0; j < list.size(); j++) {
+                   arrays[i][j] = list.get(j);
+        
+               }
+           }
+           for(int i=0; i<arrays.length; i++) {
+               for(int j=0; j<arrays[i].length; j++) {
+                   System.out.println("Values at arr["+i+"]["+j+"] is "+arrays[i][j]);
+               }
+           }*/
+           
            FreeTimeTracker.getUserFreeTime();
 			
 	}
