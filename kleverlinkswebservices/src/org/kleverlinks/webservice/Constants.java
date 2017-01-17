@@ -10,9 +10,9 @@ public class Constants {
 	public static final String PASS = "test";
 	
 	//server db configuration
-	//  public static final String DB_URL = "jdbc:mysql://frissbijava.cloudapp.net/frissdb";
-	//	public static final String USER = "Friss_App_User";
-	//	public static final String PASS = "FrissApp2015!";
+	/*  public static final String DB_URL = "jdbc:mysql://frissbijava.cloudapp.net/frissdb";
+		public static final String USER = "Friss_App_User";
+		public static final String PASS = "FrissApp2015!";*/
 	public static final String GCM_APIKEY = "AIzaSyA4GRicJNhmwQbTMGOYx75RcfRgKWWPSts";
 	
 	//sending mails constant

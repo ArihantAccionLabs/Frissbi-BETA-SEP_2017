@@ -8,6 +8,8 @@ public class UserFreeTimeBean {
 	private Date freeFromTime;
 	private Date freeToTime;
 	private String description;
+	private String firstName;
+	private String lastName;
 	
 	private Integer startTime;
 	private Integer endTime;
@@ -47,6 +49,18 @@ public class UserFreeTimeBean {
 	}
 	public void setEndTime(Integer endTime) {
 		this.endTime = endTime;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	public String getFirstName() {
+		return firstName;
+	}
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
 	@Override
 	public String toString() {
