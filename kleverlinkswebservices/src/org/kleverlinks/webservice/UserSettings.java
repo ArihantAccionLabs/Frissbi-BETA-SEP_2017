@@ -33,10 +33,10 @@ public class UserSettings {
 			@PathParam("locationName") String locationName,@PathParam("locationType") int locationType,
 			@PathParam("isDefault") int isDefault
 			) {
-
+		JSONObject finalJson =new JSONObject();
 		Connection conn = null;
 		Statement stmt = null;
-		String isError = "";
+		int isError = 0;
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
@@ -50,9 +50,14 @@ public class UserSettings {
 			callableStatement.setInt(5, locationType);
 			callableStatement.setInt(6, isDefault);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
-			int value = callableStatement.executeUpdate();
-			isError = callableStatement.getInt(7)+"";
-
+			int value = callableStatement.executeUpdate	();
+			isError = callableStatement.getInt(7);
+            System.out.println("isError====="+isError+"  value==="+value);
+            if(isError == 0 && value == 1){
+            	finalJson.put("status", true);
+            	finalJson.put("message", "Preferred location inserted successfully");
+            	return finalJson.toString();
+            }
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
@@ -73,7 +78,9 @@ public class UserSettings {
 				se.printStackTrace();
 			}// end finally try
 		}// end try
-		return isError;
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		return finalJson.toString();
 	}
 	
 	@GET  
@@ -133,9 +140,9 @@ public class UserSettings {
     @Path("/getUserPreferredLocations/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getUserPreferredLocations(@PathParam("userId") int userId) {
-System.out.println("coming====================");
 		Connection conn = null;
 		Statement stmt = null;
+		JSONObject finalJson =new JSONObject();
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
 			conn = DataSourceConnection.getDBConnection();
@@ -150,7 +157,7 @@ System.out.println("coming====================");
 			while(rs.next()){
 				JSONObject jsonObject = new JSONObject();
 				jsonObject.put("UserPreferredLocationID", rs.getString("UserPreferredLocationID"));
-				jsonObject.put("UserID", rs.getString("UserID"));
+				jsonObject.put("UserID", rs.getInt("UserID"));
 				jsonObject.put("Latitude", rs.getString("Latitude"));
 				jsonObject.put("Longitude", rs.getString("Longitude"));
 				jsonObject.put("LocationName", rs.getString("LocationName"));
@@ -158,6 +165,13 @@ System.out.println("coming====================");
 				jsonObject.put("IsDefault", rs.getString("IsDefault"));
 				jsonResultsArray.put(jsonObject);
 			}
+			
+
+			finalJson.put("status", true);
+			finalJson.put("message", "Getting friendlist successfully");
+			finalJson.put("preferred_location_arry", jsonResultsArray);
+			return finalJson.toString();
+			
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
@@ -178,7 +192,9 @@ System.out.println("coming====================");
 				se.printStackTrace();
 			}// end finally try
 		}// end try
-		return jsonResultsArray.toString();
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		return finalJson.toString();
 	}
 	
 	@GET  
@@ -190,6 +206,7 @@ System.out.println("coming====================");
 		Connection conn = null;
 		Statement stmt = null;
 		JSONObject jsonObject = new JSONObject();
+		JSONObject finalJson =new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
@@ -205,6 +222,12 @@ System.out.println("coming====================");
 				jsonObject.put("IfLocationExists", rs.getString("IfLocationExists"));
 				jsonObject.put("IsDefaultExists", rs.getString("IsDefaultExists"));
 			}
+			
+			finalJson.put("status", true);
+			finalJson.put("message", "Getting friendlist successfully");
+			finalJson.put("existence_preferred_location", jsonObject);
+			return finalJson.toString();
+			
 		} catch (SQLException se) {
 			// Handle errors for JDBC
 			se.printStackTrace();
@@ -225,7 +248,9 @@ System.out.println("coming====================");
 				se.printStackTrace();
 			}// end finally try
 		}// end try
-		return jsonObject.toString();
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		return finalJson.toString();
 	}
 	@GET  
     @Path("/insertUpdateUserAlarmSettings/{userId}/{alarmTime}")  

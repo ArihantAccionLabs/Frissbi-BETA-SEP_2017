@@ -303,7 +303,7 @@ public class FreeTimeTracker {
 			   }
 		   }
 		   message += " and " + (indexList.size()-counter) +" others are free . You want to meet him";
-		   ServiceUtility.sendNotification(beanList.get(indexList.get(i)).getUserId() ,message);
+		   NotificationService.sendMeetingSuggestionNotification(beanList.get(indexList.get(i)).getUserId() ,message);//sending notification
 		   message = ""; 
 	  }
 	   

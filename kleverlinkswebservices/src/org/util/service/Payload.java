@@ -2,29 +2,27 @@ package org.util.service;
 
 import java.io.Serializable;
 
-public class Payload<T extends Object> implements Serializable{
+public class Payload implements Serializable{
 
-	private Boolean response = false;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	private Boolean status = false;
 	private String message;
-	private T jsonObject;
 	
-	public Boolean getResponse() {
-		return response;
+	
+	public Boolean getStatus() {
+		return status;
 	}
-	public void setResponse(Boolean response) {
-		this.response = response;
+	public void setStatus(Boolean status) {
+		this.status = status;
 	}
+
 	public String getMessage() {
 		return message;
 	}
 	public void setMessage(String message) {
 		this.message = message;
 	}
-	public T getJsonObject() {
-		return jsonObject;
-	}
-	public void setJsonObject(T jsonObject) {
-		this.jsonObject = jsonObject;
-	}
-
 }

@@ -21,6 +21,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
 import org.util.service.FreeTimeTracker;
+import org.util.service.SmartReminderNotification;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
 	// JDBC driver name and database URL
@@ -34,9 +35,11 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
+		
            System.out.println("doSomething===========");
-           FreeTimeTracker.getUserFreeTime();
-           //System.err.println("================="+DataSourceConnection.getDBConnection());
+          // FreeTimeTracker.getUserFreeTime();
+           
+           SmartReminderNotification.checkingMeetingOnCurrentDate();
            return "ok";
 			
 	}

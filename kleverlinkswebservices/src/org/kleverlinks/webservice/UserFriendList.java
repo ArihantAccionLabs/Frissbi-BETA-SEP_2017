@@ -3,7 +3,6 @@ package org.kleverlinks.webservice;
 import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -461,27 +460,28 @@ public class UserFriendList {
 	}
 
 	@GET
-	@Path("/friendsList/{username}")
+	@Path("/friendsList/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String friendsList(@PathParam("username") String userName) {
+	public String friendsList(@PathParam("userId") Integer userId) {
 		Connection conn = null;
 		Statement stmt = null;
-		int userId = 0;
+		
 		ArrayList<Integer> userIds = new ArrayList<Integer>();
 		JSONArray jsonResultsArray = new JSONArray();
+		JSONObject finalJson =new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
-			sql = "SELECT userID from tbl_users where username ='" + userName + "'" + " limit 1";
+			/*sql = "SELECT userID from tbl_users where username ='" + userId + "'" + " limit 1";
 			ResultSet rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
 				userId = rs.getInt("userId");
-			}
+			}*/
 			sql = "Select * from tbl_userfriendlist  where UserID1 ='" + userId + "' and requestStatus = 1";
 
-			rs = stmt.executeQuery(sql);
+			ResultSet rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
 				userIds.add(rs.getInt("UserID2"));
@@ -503,26 +503,19 @@ public class UserFriendList {
 				rs = stmt.executeQuery(sql);
 
 				while (rs.next()) {
-					JSONObject jsonObject = new JSONObject();
-					jsonObject.put("UserId", rs.getString("UserId"));
-					jsonObject.put("UserName", rs.getString("UserName"));
-					jsonObject.put("FirstName", rs.getString("FirstName"));
-					jsonObject.put("LastName", rs.getString("LastName"));
-					jsonObject.put("EmailName", rs.getString("EmailName"));
-					if (rs.getString("AvatarPath") == null) {
-						jsonObject.put("AvatarPath", "");
-					} else {
-						jsonObject.put("AvatarPath", rs.getString("AvatarPath"));
-					}
-					jsonResultsArray.put(jsonObject);
+					JSONObject json = new JSONObject();
+					json.put("UserId", rs.getInt("UserId"));
+					json.put("UserName", rs.getString("UserName"));
+					
+					jsonResultsArray.put(json);
 				}
 			}
 
-		} catch (SQLException se) {
-			// Handle errors for JDBC
-			se.printStackTrace();
-		} catch (Exception e) {
-			// Handle errors for Class.forName
+			finalJson.put("status", true);
+			finalJson.put("message", "Getting friendlist successfully");
+			finalJson.put("friends_array", jsonResultsArray);
+			return finalJson.toString();
+		}  catch (Exception e) {
 			e.printStackTrace();
 		} finally {
 			// finally block used to close resources
@@ -538,7 +531,9 @@ public class UserFriendList {
 				se.printStackTrace();
 			} // end finally try
 		} // end try
-		return jsonResultsArray.toString();
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		return finalJson.toString();
 	}
 
 	@GET
@@ -932,28 +927,5 @@ public class UserFriendList {
 		return requestStatus;
 	}
 
-	public void test() {
-		// sendFriendRequest("dharmakolla96", "dharmakolla98");
-		// approveFriendRequest("dharmakolla96","dharmakolla98");
-		// rejectFriendRequest("dharmakolla123","dharmakolla23");
-		// unFriendRequest("dharmakolla123","dharmakolla23");
 
-		// search("a");
-		// friendsList("dharmakolla96");
-		// friendsList("dharmakolla98");
-
-		// searchFriends("dharmakolla98", "a");
-		// friendStatus(41,40);
-		searchResults(40, "a", 8, 1);
-	}
-
-	public static void main(String[] args) {
-		Connection conn = null;
-		Statement stmt = null;
-
-		UserFriendList friendList = new UserFriendList();
-		// friendList.test();
-		System.out.println(friendList.friendsList("Chandu"));
-
-	}
 }
