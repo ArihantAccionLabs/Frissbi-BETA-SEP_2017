@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;
+import org.util.service.ServiceUtility;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -60,25 +61,12 @@ public class LocationVotings {
 			isError = callableStatement.getInt(5)+"";
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return isError;
 	}
 	

@@ -1,17 +1,12 @@
 package org.kleverlinks.webservice;
 
-import java.io.ByteArrayInputStream;
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-
-import javafx.geometry.Point2D;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -22,20 +17,14 @@ import javax.ws.rs.core.MediaType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.util.service.ServiceUtility;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.DocumentBuilder;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
-import org.xml.sax.InputSource;
+import javafx.geometry.Point2D;
 
 @Path("LocationDetailsService")
 public class LocationDetails {
@@ -230,25 +219,12 @@ public class LocationDetails {
 			isError = callableStatement.getInt(5)+"";
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return isError;
 	}
 

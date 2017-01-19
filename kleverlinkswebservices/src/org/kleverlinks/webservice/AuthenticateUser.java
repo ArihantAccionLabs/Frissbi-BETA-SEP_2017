@@ -5,13 +5,14 @@ import java.security.SecureRandom;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,15 +21,11 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
-import org.util.service.FreeTimeTracker;
-import org.util.service.SmartReminderNotification;
+import org.util.service.ServiceUtility;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
-	// JDBC driver name and database URL
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 
 	private SecureRandom random = new SecureRandom();
-	
 	//Testing any method
 	
 	@GET
@@ -37,9 +34,38 @@ public class AuthenticateUser {
 	public String doSomething() throws Exception {
 		
            System.out.println("doSomething===========");
-          // FreeTimeTracker.getUserFreeTime();
+			PreparedStatement pstmt = null;
+			String sql = "SELECT * FROM tbl_MeetingDetails WHERE SenderUserID=? AND SenderFromDateTime BETWEEN ? AND ? limit 1" ;
+			 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+		        Calendar now = Calendar.getInstance();
+		        now.set(Calendar.HOUR, 0);
+		        now.set(Calendar.MINUTE, 0);
+		        now.set(Calendar.SECOND, 0);
+		        now.set(Calendar.HOUR_OF_DAY, 0);
+		        
+		        Calendar tomorrow = Calendar.getInstance();
+		        tomorrow.setTime(now.getTime());
+		        tomorrow.add(Calendar.DATE, 1);
+		      
+		    System.out.println(sdf.format(now.getTime())+"     now==="+"===="+sdf.format(tomorrow.getTime()));
+			pstmt = DataSourceConnection.getDBConnection().prepareStatement(sql);
+			pstmt.setInt(1, 197);
+			pstmt.setString(2, sdf.format(now.getTime()));
+			pstmt.setString(3, sdf.format(tomorrow.getTime()));
+
+			ResultSet rs = pstmt.executeQuery();
+		    
+			while (rs.next()) {
+				System.out.println("MeetingID====="+rs.getInt("MeetingID")+"  SenderFromDateTime=="+rs.getDate("SenderFromDateTime")+"===="+rs.getDate("SenderToDateTime"));
+			}
            
-           SmartReminderNotification.checkingMeetingOnCurrentDate();
+           
+           
+           //ServiceUtility.calculateTimeBetweenLatLng(17.4401f, 78.3489f , 17.4375f, 78.4483f);
+           
+          // FreeTimeTracker.getUserFreeTime();
+          // SmartReminderNotification.checkingMeetingOnCurrentDate();
            return "ok";
 			
 	}
@@ -85,25 +111,12 @@ public class AuthenticateUser {
 			cs.executeUpdate();
 			
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return "1";
 	}
 
@@ -150,25 +163,12 @@ public class AuthenticateUser {
 			cs.registerOutParameter(3, Types.INTEGER);
 			value = cs.executeUpdate();
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonObject.toString();
 	}
 	
@@ -178,11 +178,10 @@ public class AuthenticateUser {
 	public String userHoldFriendRequest(@PathParam("actionUserId") int actionUserId, @PathParam("emailAddressRequest") String emailAddressRequest,
 			@PathParam("contactNumberRequest") String contactNumberRequest) {
 		Connection conn = null;
-		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		String isError ="";
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			CallableStatement callableStatement = null;
 			java.util.Date dateobj = new java.util.Date();
 			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
 			String insertStoreProc = "{call usp_InsertHoldFriendRequest(?,?,?,?,?)}";
@@ -195,25 +194,12 @@ public class AuthenticateUser {
 			callableStatement.executeUpdate();
 			isError = callableStatement.getInt(5)+"";
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeCallableSatetment(callableStatement);
 		return isError;
 	}
 	@GET  
@@ -222,12 +208,10 @@ public class AuthenticateUser {
 	public String getUserDetailsByUserID(@PathParam("userId") int userId ) {
 
 		Connection conn = null;
-		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserDetails_ByUserID(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId);
@@ -239,25 +223,12 @@ public class AuthenticateUser {
 				jsonObject.put("LastName", rs.getString("LastName"));
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeCallableSatetment(callableStatement);
 		return jsonObject.toString();
 	}
 	@GET  
@@ -267,11 +238,10 @@ public class AuthenticateUser {
 
 		Connection conn = null;
 		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		String encodedString = "";
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserAvatarPath(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId);
@@ -282,25 +252,12 @@ public class AuthenticateUser {
 				encodedString = rs.getString("AvatarPath");
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeCallableSatetment(callableStatement);
 		return encodedString;
 	}
 	@GET  
@@ -311,12 +268,10 @@ public class AuthenticateUser {
 			@PathParam("dateOfBirth") Date dateOfBirth) {
 
 		Connection conn = null;
-		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		String isError ="";
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_UpdateUserProfileSetting(?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId);
@@ -327,25 +282,12 @@ public class AuthenticateUser {
 			int value = callableStatement.executeUpdate();
 			isError = callableStatement.getInt(6) +"";
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeCallableSatetment(callableStatement);
 		return isError;
 	}
 	@GET  
@@ -353,12 +295,11 @@ public class AuthenticateUser {
     @Produces(MediaType.TEXT_PLAIN)
 	public String forgetPassword(@PathParam("emailname") String emailname ){
 		Connection conn = null;
-		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		String isError = "";
 		String newPassword = nextSessionId().substring(0,7);
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			CallableStatement callableStatement = null;
 			/*SMTPMailSender emailSender = new SMTPMailSender();
 			emailSender
 					.sendMessage(
@@ -366,7 +307,7 @@ public class AuthenticateUser {
 							"Forgot Password",
 							"Your new password is: "+ newPassword
 									);*/
-			MyEmailer.SendMail(emailname,"Forgot Password","Your new password is: "+ newPassword) ;
+			MyEmailer.SendMail(emailname,"Forgot Password", "Your new password is: "+ newPassword) ;
 			
 			String insertStoreProc = "{call usp_UpdatePassword_ByEmailAddress(?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
@@ -376,25 +317,12 @@ public class AuthenticateUser {
 			int value = callableStatement.executeUpdate();
 			isError = callableStatement.getInt(3) +"";
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeCallableSatetment(callableStatement);
 		return isError;
 	}
 	
@@ -408,12 +336,10 @@ public class AuthenticateUser {
 	public String getGCMDeviceRegistrationId(@PathParam("userId") int userId ) {
 
 		Connection conn = null;
-		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserGCMCode(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId);
@@ -425,25 +351,12 @@ public class AuthenticateUser {
 				jsonObject.put("DeviceRegistrationID", rs.getString("DeviceRegistrationID"));
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeCallableSatetment(callableStatement);
 		return jsonObject.toString();
 	}
 	
@@ -452,11 +365,10 @@ public class AuthenticateUser {
     @Produces(MediaType.TEXT_PLAIN)
 	public String updateUserPassword(@PathParam("userId") int userId,@PathParam("oldPassword") String oldPassword,@PathParam("newPassword") String newPassword ){
 		Connection conn = null;
-		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		String invalid = "";
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_UpdateUserPassword(?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId );
@@ -467,25 +379,12 @@ public class AuthenticateUser {
 			int value = callableStatement.executeUpdate();
 			invalid = callableStatement.getInt(4) +"";
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeCallableSatetment(callableStatement);
 		return invalid;
 	}
 	
@@ -507,23 +406,13 @@ public class AuthenticateUser {
 			while (rs.next()) {
 				return "1";
 			}
+		} catch (SQLException se) {
+			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return "0" ;
 	}
 	public static void main(String args[]){

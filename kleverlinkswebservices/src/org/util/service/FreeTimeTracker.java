@@ -13,15 +13,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.jgrapht.UndirectedGraph;
@@ -33,7 +28,7 @@ import org.kleverlinks.webservice.DataSourceConnection;
 
 /*
  * @Author -> Sunil Verma
- * @Purpos -> Tracking free time slot in hours for the users who posted their free time  ,getting friend list and sending notification 
+ * @Purpose -> Tracking free time slot in hours for the users who posted their free time  ,getting friend list and sending notification 
  * 
  */
 

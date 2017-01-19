@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.util.service.ServiceUtility;
 
 @Path("UserSettingsService")
 public class UserSettings {
@@ -55,29 +56,17 @@ public class UserSettings {
             System.out.println("isError====="+isError+"  value==="+value);
             if(isError == 0 && value == 1){
             	finalJson.put("status", true);
-            	finalJson.put("message", "Preferred location inserted successfully");
+            	finalJson.put("isInserted", true);
+            	finalJson.put("message", "Location saved successfully");
             	return finalJson.toString();
             }
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);//closing connection
+		ServiceUtility.closeSatetment(stmt);//closing Statement
 		finalJson.put("status", false);
 		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
@@ -114,25 +103,12 @@ public class UserSettings {
 			isError = callableStatement.getInt(8)+"";
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);//closing connection
+		ServiceUtility.closeSatetment(stmt);//closing Statement
 		return isError;
 	}
 	
@@ -168,30 +144,17 @@ public class UserSettings {
 			
 
 			finalJson.put("status", true);
-			finalJson.put("message", "Getting friendlist successfully");
-			finalJson.put("preferred_location_arry", jsonResultsArray);
+			finalJson.put("message", "Getting preferred locations successfully");
+			finalJson.put("preferred_location_array", jsonResultsArray);
 			return finalJson.toString();
 			
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);//closing connection
+		ServiceUtility.closeSatetment(stmt);//closing Statement
 		finalJson.put("status", false);
 		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
@@ -224,30 +187,17 @@ public class UserSettings {
 			}
 			
 			finalJson.put("status", true);
-			finalJson.put("message", "Getting friendlist successfully");
+			finalJson.put("message", "Getting existence location successfully");
 			finalJson.put("existence_preferred_location", jsonObject);
 			return finalJson.toString();
 			
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);//closing connection
+		ServiceUtility.closeSatetment(stmt);//closing Statement
 		finalJson.put("status", false);
 		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
@@ -260,12 +210,10 @@ public class UserSettings {
 			) {
 
 		Connection conn = null;
-		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		String isError = "";
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUpdateUserAlarmSettings(?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId);
@@ -275,25 +223,12 @@ public class UserSettings {
 			isError = callableStatement.getInt(3)+"";
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);//closing connection
+		ServiceUtility.closeCallableSatetment(callableStatement);//closing Statement
 		return isError;
 	}
 	
@@ -304,12 +239,10 @@ public class UserSettings {
 			) {
 
 		Connection conn = null;
-		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserAlarmSettings(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId);
@@ -320,25 +253,12 @@ public class UserSettings {
 				jsonObject.put("AlarmTime", rs.getString("AlarmTime"));
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);//closing connection
+		ServiceUtility.closeCallableSatetment(callableStatement);//closing Statement
 		return jsonObject.toString();
 	}
 	
@@ -349,12 +269,10 @@ public class UserSettings {
 			) {
 
 		Connection conn = null;
-		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetFrissbiPrivacyPolicy(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId);
@@ -367,25 +285,12 @@ public class UserSettings {
 				}
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);//closing connection
+		ServiceUtility.closeCallableSatetment(callableStatement);//closing Statement
 		return jsonObject.toString();
 	}
 	
@@ -396,12 +301,10 @@ public class UserSettings {
 			) {
 
 		Connection conn = null;
-		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetFrissbiPrivacyPolicy(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId);
@@ -414,25 +317,12 @@ public class UserSettings {
 				}
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);//closing connection
+		ServiceUtility.closeCallableSatetment(callableStatement);//closing Statement
 		return jsonObject.toString();
 	}
 

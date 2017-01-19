@@ -3,12 +3,16 @@ package org.kleverlinks.webservice;
 import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 import javax.ws.rs.GET;
@@ -53,12 +57,11 @@ public class MeetingDetails {
 			) {
 
 		Connection conn = null;
-		Statement stmt = null;
+		CallableStatement callableStatement = null;
 		String meetingId = "";
+		
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
 			RecipientDetails = RecipientDetails.replace("@", "/");
 			String insertStoreProc = "{call usp_InsertMeetingDetails(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
@@ -148,27 +151,13 @@ public class MeetingDetails {
 					}
 				}
 			}
-
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeCallableSatetment(callableStatement);
 		return meetingId;
 	}
 	private static String getOutputAsString(WebResource service) {
@@ -194,25 +183,12 @@ public class MeetingDetails {
 			int value = callableStatement.executeUpdate();
 			recipientXML = callableStatement.getString(2);
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return recipientXML;
 	}
 	@GET  
@@ -235,27 +211,13 @@ public class MeetingDetails {
 			callableStatement.registerOutParameter(3, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
 			isError = callableStatement.getInt(3)+"";
-
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return isError;
 	}
 	
@@ -446,27 +408,13 @@ public class MeetingDetails {
 					}
 				}
 			}
-
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return isError;
 	}
 	
@@ -515,25 +463,12 @@ public class MeetingDetails {
 				jsonResultsArray.put(jsonObject);
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 	
@@ -581,25 +516,12 @@ public class MeetingDetails {
 				jsonResultsArray.put(jsonObject);
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 	
@@ -647,25 +569,12 @@ public class MeetingDetails {
 				jsonResultsArray.put(jsonObject);
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 	
@@ -710,25 +619,12 @@ public class MeetingDetails {
 				jsonResultsArray.put(jsonObject);
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 	
@@ -801,25 +697,12 @@ public class MeetingDetails {
 			json.put("Longitude", Longitude);
 			json.put("DestinationAddress", DestinationAddress);
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return json.toString();
 	}
 	
@@ -854,25 +737,12 @@ public class MeetingDetails {
 				jsonResultsArray.put(jsonObject);
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 	
@@ -916,25 +786,12 @@ public class MeetingDetails {
 				jsonResultsArray.put(jsonObject);
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 
@@ -977,25 +834,12 @@ public class MeetingDetails {
 				jsonResultsArray.put(jsonObject);
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			}// nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}// end finally try
-		}// end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 

@@ -112,25 +112,12 @@ public class UserFriendList {
 			}
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return "0";
 	}
 
@@ -172,25 +159,12 @@ public class UserFriendList {
 			callableStatement.registerOutParameter(7, Types.INTEGER);
 			value = callableStatement.executeUpdate() + "";
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return value;
 	}
 
@@ -294,27 +268,13 @@ public class UserFriendList {
 
 				return "1";
 			}
-
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return "0";
 	}
 
@@ -365,27 +325,13 @@ public class UserFriendList {
 				System.out.println("Stored procedure executed");
 				return "1";
 			}
-
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return "0";
 	}
 
@@ -437,25 +383,12 @@ public class UserFriendList {
 			}
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return "0";
 	}
 
@@ -515,22 +448,13 @@ public class UserFriendList {
 			finalJson.put("message", "Getting friendlist successfully");
 			finalJson.put("friends_array", jsonResultsArray);
 			return finalJson.toString();
-		}  catch (Exception e) {
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		finalJson.put("status", false);
 		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
@@ -587,25 +511,12 @@ public class UserFriendList {
 			}
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 
@@ -654,25 +565,12 @@ public class UserFriendList {
 			}
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 
@@ -708,25 +606,12 @@ public class UserFriendList {
 			}
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 
@@ -765,25 +650,12 @@ public class UserFriendList {
 				jsonResultsArray.put(jsonObject);
 			}
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 
@@ -846,27 +718,13 @@ public class UserFriendList {
 					jsonResultsArray.put(jsonObject);
 				}
 			}
-
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return jsonResultsArray.toString();
 	}
 
@@ -905,25 +763,12 @@ public class UserFriendList {
 			}
 
 		} catch (SQLException se) {
-			// Handle errors for JDBC
 			se.printStackTrace();
 		} catch (Exception e) {
-			// Handle errors for Class.forName
 			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+		} 
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return requestStatus;
 	}
 

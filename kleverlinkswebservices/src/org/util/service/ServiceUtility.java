@@ -1,13 +1,25 @@
 package org.util.service;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kleverlinks.webservice.AuthenticateUser;
@@ -41,8 +53,7 @@ public class ServiceUtility {
 			return userDTO;
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally {
+		} finally {
 			try {
 				if (stmt != null)
 					stmt.close();
@@ -68,37 +79,26 @@ public class ServiceUtility {
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
-			sql = "SELECT userId,emailName,firstName,lastName FROM tbl_users WHERE userName ='" + userName + "'" + " limit 1";
+			sql = "SELECT userId,emailName,firstName,lastName FROM tbl_users WHERE userName ='" + userName + "'"
+					+ " limit 1";
 			rs = stmt.executeQuery(sql);
 			while (rs.next()) {
 				userDTO = new UserDTO();
 				userDTO.setEmailId(rs.getString("emailName"));
 				userDTO.setUserId(rs.getInt("userId"));
-				userDTO.setFullName(rs.getString("firstName")+"" + rs.getString("lastName")+"");
+				userDTO.setFullName(rs.getString("firstName") + "" + rs.getString("lastName") + "");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		finally {
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}
-		}
+		// closing db resources
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return userDTO;
 
 	}
-	
-	
-	public static UserDTO getUserDetailsByUserNameAndEmail(String userName , String emailId) {
+
+	public static UserDTO getUserDetailsByUserNameAndEmail(String userName, String emailId) {
 		Connection conn = null;
 		Statement stmt = null;
 		ResultSet rs = null;
@@ -107,7 +107,8 @@ public class ServiceUtility {
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
-			sql = "SELECT userId , userName , EmailName  FROM tbl_users WHERE userName ='" + userName + "' OR EmailName ='"+ emailId +"'" + " limit 1";
+			sql = "SELECT userId , userName , EmailName  FROM tbl_users WHERE userName ='" + userName
+					+ "' OR EmailName ='" + emailId + "'" + " limit 1";
 			rs = stmt.executeQuery(sql);
 			while (rs.next()) {
 				userDTO = new UserDTO();
@@ -118,22 +119,70 @@ public class ServiceUtility {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		finally {
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			}
-		}
+		// closing db resources
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 		return userDTO;
 
 	}
-	
+
+	public static void closeConnection(Connection connection) {
+		try {
+			if (connection != null)
+				connection.close();
+		} catch (SQLException se) {
+			se.printStackTrace();
+		}
+	}
+
+	public static void closeSatetment(Statement statement) {
+		try {
+			if (statement != null)
+				statement.close();
+		} catch (SQLException se) {
+			se.printStackTrace();
+		}
+	}
+
+	public static void closeCallableSatetment(CallableStatement callableStatement) {
+		try {
+			if (callableStatement != null)
+				callableStatement.close();
+		} catch (SQLException se) {
+			se.printStackTrace();
+		}
+	}
+
+	public static void calculateTimeBetweenLatLng(float lat1,float lng1,float lat2 ,float lng2){
+	   final String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="+ lat1 + ","+ lng1 + "&destinations="+ lat2 + "," + lng2 +"&mode=driving&key="+Constants.GOOGLE_DISTANCE_MATRIX_APIKEY;
+		final HttpClient httpclient = org.apache.http.impl.client.HttpClientBuilder.create().build();
+		final HttpPost httppost = new HttpPost(url);
+		final List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+		nameValuePairs.add(new BasicNameValuePair("action", "getjson"));
+		try {
+			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+		} catch (UnsupportedEncodingException e1) {
+		}
+		HttpResponse response = null;
+		try {
+			response = httpclient.execute(httppost);
+		} catch (IOException e) {
+		}
+		String json_string = null;
+		try {
+			json_string = EntityUtils.toString(response.getEntity());
+			System.out.println("coming====================="+json_string);
+			
+			 final JSONObject jsonObject = new JSONObject(json_string);
+			 System.out.println("===="+jsonObject.getJSONArray("rows").length());
+		       if(jsonObject.getJSONArray("rows").length() > 0){
+		    	   final int obj = jsonObject.getJSONArray("rows").getJSONObject(0).getJSONArray("elements").getJSONObject(0).getJSONObject("duration").getInt("value");
+			
+		 	  System.out.println(">>>>>>>>>>>>>>>"+obj);
+			
+		    }	
+		} catch (Exception e) {
+		}
+		
+	}
 }

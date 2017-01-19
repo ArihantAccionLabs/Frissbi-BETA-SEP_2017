@@ -1,19 +1,13 @@
 package org.kleverlinks.webservice;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 
-import javax.imageio.ImageIO;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -22,8 +16,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-
-import sun.misc.BASE64Encoder;
+import org.util.service.ServiceUtility;
 
 @Path("UserNotificationsService")
 public class UserNotifications {
@@ -55,25 +48,12 @@ public class UserNotifications {
 				notificationId = callableStatement.getInt(6)+"";
 
 			} catch (SQLException se) {
-				// Handle errors for JDBC
 				se.printStackTrace();
 			} catch (Exception e) {
-				// Handle errors for Class.forName
 				e.printStackTrace();
-			} finally {
-				// finally block used to close resources
-				try {
-					if (stmt != null)
-						stmt.close();
-				} catch (SQLException se2) {
-				}// nothing we can do
-				try {
-					if (conn != null)
-						conn.close();
-				} catch (SQLException se) {
-					se.printStackTrace();
-				}// end finally try
-			}// end try
+			} 
+			ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 			return notificationId;
 		}
 		
@@ -98,25 +78,12 @@ public class UserNotifications {
 				isError = callableStatement.getInt(3)+"";
 
 			} catch (SQLException se) {
-				// Handle errors for JDBC
 				se.printStackTrace();
 			} catch (Exception e) {
-				// Handle errors for Class.forName
 				e.printStackTrace();
-			} finally {
-				// finally block used to close resources
-				try {
-					if (stmt != null)
-						stmt.close();
-				} catch (SQLException se2) {
-				}// nothing we can do
-				try {
-					if (conn != null)
-						conn.close();
-				} catch (SQLException se) {
-					se.printStackTrace();
-				}// end finally try
-			}// end try
+			} 
+			ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 			return isError;
 		}
 		
@@ -155,25 +122,12 @@ public class UserNotifications {
 					jsonResultsArray.put(jsonObject);
 				}
 			} catch (SQLException se) {
-				// Handle errors for JDBC
 				se.printStackTrace();
 			} catch (Exception e) {
-				// Handle errors for Class.forName
 				e.printStackTrace();
-			} finally {
-				// finally block used to close resources
-				try {
-					if (stmt != null)
-						stmt.close();
-				} catch (SQLException se2) {
-				}// nothing we can do
-				try {
-					if (conn != null)
-						conn.close();
-				} catch (SQLException se) {
-					se.printStackTrace();
-				}// end finally try
-			}// end try
+			} 
+			ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
 			return jsonResultsArray.toString();
 		}
 }
