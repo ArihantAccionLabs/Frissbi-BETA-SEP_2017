@@ -35,7 +35,7 @@ public class AuthenticateUser {
 		
            System.out.println("doSomething===========");
 			PreparedStatement pstmt = null;
-			String sql = "SELECT * FROM tbl_MeetingDetails WHERE SenderUserID=? AND SenderFromDateTime BETWEEN ? AND ? limit 1" ;
+			String sql = "SELECT * FROM tbl_MeetingDetails WHERE SenderUserID=? AND SenderFromDateTime BETWEEN ? AND ? ORDER BY MeetingID DESC limit 1" ;
 			 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 		        Calendar now = Calendar.getInstance();
@@ -58,6 +58,8 @@ public class AuthenticateUser {
 		    
 			while (rs.next()) {
 				System.out.println("MeetingID====="+rs.getInt("MeetingID")+"  SenderFromDateTime=="+rs.getDate("SenderFromDateTime")+"===="+rs.getDate("SenderToDateTime"));
+			
+			
 			}
            
            

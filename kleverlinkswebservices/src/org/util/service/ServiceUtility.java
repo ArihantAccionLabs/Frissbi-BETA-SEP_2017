@@ -21,16 +21,25 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.kleverlinks.webservice.AuthenticateUser;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
+import org.kleverlinks.webservice.LocationDetails;
+import org.kleverlinks.webservice.MeetingDetails;
+import org.kleverlinks.webservice.MyEmailer;
 import org.kleverlinks.webservice.NotificationsEnum;
 import org.kleverlinks.webservice.UserNotifications;
 import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;
 import org.service.dto.UserDTO;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 public class ServiceUtility {
 
@@ -183,6 +192,72 @@ public class ServiceUtility {
 		    }	
 		} catch (Exception e) {
 		}
-		
 	}
+	
+	public static void sendingMails(JSONArray  mailsArray , int senderUserId) throws Exception{
+	
+		 for (int i = 0; i < mailsArray.length(); i++) {
+			 
+				MyEmailer.SendMail(mailsArray.getString(i), "Your meeting request " ,"");
+						
+			}	
+	}
+	
+	public static void sendingMeetingCreationNotification(JSONObject  meetingInsertionObject , int meetingId){
+		
+		int DestinationType = 0;
+		String recipientDetails = new MeetingDetails().getRecipientDetailsByMeetingID(meetingId);
+		JSONArray jsonArray = new JSONArray(recipientDetails);
+		for (int i = 0; i < jsonArray.length(); i++) {
+			JSONObject jsonObject = jsonArray.getJSONObject(i);
+			int recipientId = Integer.parseInt(jsonObject.getString("UserId"));
+			UserNotifications userNotifications = new UserNotifications();
+			Timestamp timestamp = new Timestamp( new Date().getTime());
+			String notificationId = userNotifications.insertUserNotifications(recipientId, meetingInsertionObject.getInt("senderUserId"),
+					NotificationsEnum.Meeting_Pending_Requests.ordinal() + 1, 0, timestamp);
+			JSONObject json = new JSONArray(
+					userNotifications.getUserNotifications(0, Integer.parseInt(notificationId)))
+							.getJSONObject(0);
+			String notificationMessage = json.getString("NotificationMessage");
+			String NotificationName = json.getString("NotificationName");
+			Sender sender = new Sender(Constants.GCM_APIKEY);
+			Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
+					.addData("message", notificationMessage).addData("NotificationName", NotificationName)
+					.addData("meetingId", meetingId + "").build();
+
+			try {
+				AuthenticateUser authenticateUser = new AuthenticateUser();
+				JSONObject jsonRegistrationId = new JSONObject(
+						authenticateUser.getGCMDeviceRegistrationId(recipientId));
+				String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+				Result result = sender.send(message, deviceRegistrationId, 1);
+				System.out.println(result);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+		}
+		if (DestinationType == 1) {
+			LocationDetails locationDetails = new LocationDetails();
+			try {
+				// Doing reverse geocoding
+				String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + meetingInsertionObject.getString("latitude") + ","
+						+ meetingInsertionObject.getString("longitude") + "&key=" + Constants.GCM_APIKEY;
+				ClientConfig config = new DefaultClientConfig();
+				Client client = Client.create(config);
+				WebResource service = client.resource(url);
+				JSONObject json = new JSONObject(MeetingDetails.getOutputAsString(service));
+				JSONArray results = (JSONArray) json.get("results");
+				JSONObject resultsObject = (JSONObject) results.get(0);
+				String formattedAddress = (String) resultsObject.get("formatted_address");
+				locationDetails.insertMeetingLocationDetails(meetingInsertionObject.getString("latitude"), meetingInsertionObject.getString("longitude"), formattedAddress,
+						meetingId);
+			} catch (JSONException e) {
+				e.printStackTrace();
+
+			}
+		}
+	}
+ 
+	
 }
