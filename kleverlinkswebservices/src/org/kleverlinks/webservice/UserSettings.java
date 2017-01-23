@@ -2,14 +2,16 @@ package org.kleverlinks.webservice;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -19,45 +21,69 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.util.service.ServiceUtility;
 
+
 @Path("UserSettingsService")
 public class UserSettings {
 
-	// JDBC driver name and database URL
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	
-	@GET  
-    @Path("/insertUserPreferredLocations/{userId}/{latitude}/{longitude}/{locationName}/{locationType}/{isDefault}"
-    		)  
-    @Produces(MediaType.TEXT_PLAIN)
-	public String insertUserPreferredLocations(@PathParam("userId") int userId,
-			@PathParam("latitude") String latitude,@PathParam("longitude") String longitude,
-			@PathParam("locationName") String locationName,@PathParam("locationType") int locationType,
-			@PathParam("isDefault") int isDefault
-			) {
+	@POST  
+    @Path("/insertUserPreferredLocations")  
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String insertUserPreferredLocations(String locationInsertionData) {
+		
+		JSONObject locationObject = new JSONObject(locationInsertionData);
+		System.out.println(""+locationObject.toString());
 		JSONObject finalJson =new JSONObject();
 		Connection conn = null;
-		Statement stmt = null;
+		PreparedStatement psmt = null;
+		CallableStatement callableStatement = null;
 		int isError = 0;
-		try {
+		
+		try{
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
+			
+			String sql = "SELECT * FROM tbl_UserPreferredLocations WHERE UserID=? AND LocationName=? limit 1";
+			psmt = conn.prepareStatement(sql);
+			psmt.setInt(1, locationObject.getInt("userId"));
+			psmt.setString(2,locationObject.getString("locationName"));
+			ResultSet rs  = psmt.executeQuery();
+
+			while(rs.next()){
+				finalJson.put("isExist", true);
+				finalJson.put("status", true);
+            	finalJson.put("message", "Location "+locationObject.getString("locationName")+" already exist ");
+            	
+            	return finalJson.toString();
+			}
+		}catch (Exception e) {
+			e.printStackTrace();
+			finalJson.put("status", false);
+			finalJson.put("message", "Oops something went wrong");
+			return finalJson.toString();
+		}
+		
+		
+		
+		try {
 			String insertStoreProc = "{call usp_InsertUserPreferredLocations(?,?,?,?,?,?,?)}";
+			conn = null;
+			conn = DataSourceConnection.getDBConnection();
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId);
-			callableStatement.setString(2, latitude);
-			callableStatement.setString(3, longitude);
-			callableStatement.setString(4, locationName);
-			callableStatement.setInt(5, locationType);
-			callableStatement.setInt(6, isDefault);
+			callableStatement.setInt(1, locationObject.getInt("userId"));
+			callableStatement.setString(2, locationObject.getString("latitude"));
+			callableStatement.setString(3, locationObject.getString("longitude"));
+			callableStatement.setString(4, locationObject.getString("locationName"));
+			callableStatement.setInt(5, 0);
+			callableStatement.setInt(6, 0);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
 			int value = callableStatement.executeUpdate	();
 			isError = callableStatement.getInt(7);
             System.out.println("isError====="+isError+"  value==="+value);
             if(isError == 0 && value == 1){
             	finalJson.put("status", true);
+            	finalJson.put("isExist", false);
             	finalJson.put("isInserted", true);
-            	finalJson.put("message", "Location saved successfully");
+            	finalJson.put("message", "Location "+locationObject.getString("locationName")+" saved successfully");
             	return finalJson.toString();
             }
 		} catch (SQLException se) {
@@ -66,7 +92,7 @@ public class UserSettings {
 			e.printStackTrace();
 		} 
 		ServiceUtility.closeConnection(conn);//closing connection
-		ServiceUtility.closeSatetment(stmt);//closing Statement
+		ServiceUtility.closeCallableSatetment(callableStatement);//closing Statement
 		finalJson.put("status", false);
 		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
@@ -160,7 +186,7 @@ public class UserSettings {
 		return finalJson.toString();
 	}
 	
-	@GET  
+/*	@GET  
     @Path("/getExistenceUserPreferredLocations/{userId}/{locationName}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getExistenceUserPreferredLocations(@PathParam("userId") int userId,
@@ -201,7 +227,7 @@ public class UserSettings {
 		finalJson.put("status", false);
 		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
-	}
+	}*/
 	@GET  
     @Path("/insertUpdateUserAlarmSettings/{userId}/{alarmTime}")  
     @Produces(MediaType.TEXT_PLAIN)

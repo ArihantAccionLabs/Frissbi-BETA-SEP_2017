@@ -1,13 +1,16 @@
 package org.util.service;
 
+import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -162,12 +165,15 @@ public class ServiceUtility {
 		}
 	}
 
-	public static void calculateTimeBetweenLatLng(float lat1,float lng1,float lat2 ,float lng2){
-	   final String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins="+ lat1 + ","+ lng1 + "&destinations="+ lat2 + "," + lng2 +"&mode=driving&key="+Constants.GOOGLE_DISTANCE_MATRIX_APIKEY;
+	public static int calculateTimeBetweenLatLng(float lat1, float lng1, float lat2, float lng2) {
+		final String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + lat1 + "," + lng1
+				+ "&destinations=" + lat2 + "," + lng2 + "&mode=driving&key=" + Constants.GOOGLE_DISTANCE_MATRIX_APIKEY;
 		final HttpClient httpclient = org.apache.http.impl.client.HttpClientBuilder.create().build();
 		final HttpPost httppost = new HttpPost(url);
 		final List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 		nameValuePairs.add(new BasicNameValuePair("action", "getjson"));
+
+		int timeToBeTaken = 0;
 		try {
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 		} catch (UnsupportedEncodingException e1) {
@@ -180,44 +186,147 @@ public class ServiceUtility {
 		String json_string = null;
 		try {
 			json_string = EntityUtils.toString(response.getEntity());
-			System.out.println("coming====================="+json_string);
-			
-			 final JSONObject jsonObject = new JSONObject(json_string);
-			 System.out.println("===="+jsonObject.getJSONArray("rows").length());
-		       if(jsonObject.getJSONArray("rows").length() > 0){
-		    	   final int obj = jsonObject.getJSONArray("rows").getJSONObject(0).getJSONArray("elements").getJSONObject(0).getJSONObject("duration").getInt("value");
-			
-		 	  System.out.println(">>>>>>>>>>>>>>>"+obj);
-			
-		    }	
+			System.out.println("coming=====================" + json_string);
+
+			final JSONObject jsonObject = new JSONObject(json_string);
+			System.out.println("====" + jsonObject.getJSONArray("rows").length());
+			if (jsonObject.getJSONArray("rows").length() > 0) {
+				timeToBeTaken = jsonObject.getJSONArray("rows").getJSONObject(0).getJSONArray("elements")
+						.getJSONObject(0).getJSONObject("duration").getInt("value");
+
+				System.out.println(">>>>>>>>>>>>>>>" + timeToBeTaken);
+
+				return timeToBeTaken;
+			}
 		} catch (Exception e) {
 		}
+		return timeToBeTaken;
 	}
-	
-	public static void sendingMails(JSONArray  mailsArray , int senderUserId) throws Exception{
-	
-		 for (int i = 0; i < mailsArray.length(); i++) {
-			 
-				MyEmailer.SendMail(mailsArray.getString(i), "Your meeting request " ,"");
-						
-			}	
+
+	public static void insertingAndSendingMails(JSONArray mailsArray, int senderUserId, int meetingId)
+			throws Exception {
+
+		Connection connection = null;
+		connection = DataSourceConnection.getDBConnection();
+		connection.setAutoCommit(false);
+		PreparedStatement ps = null;
+		String query = "INSERT into tbl_MeetingEmails(MeetingID,SenderUserID,UserEmailID) values(?,?,?)";
+		ps = connection.prepareStatement(query);
+
+		for (int i = 0; i < mailsArray.length(); i++) {
+
+			MyEmailer.SendMail(mailsArray.getString(i), "Your meeting request ", "");
+
+			ps.setInt(1, meetingId);
+			ps.setInt(2, senderUserId);
+			ps.setString(3, mailsArray.getString(i));
+
+			ps.addBatch();
+
+		}
+		int[] insertedRow = ps.executeBatch();
+		for (int i = 0; i < insertedRow.length; i++) {
+			System.out.println("insertedRow[i]=========" + insertedRow[i]);
+
+		}
 	}
-	
-	public static void sendingMeetingCreationNotification(JSONObject  meetingInsertionObject , int meetingId){
+
+	public static void insertMeetingContactNumbers(JSONArray contactArray, int senderUserId, int meetingId)
+			throws IOException, SQLException, PropertyVetoException {
+		Connection connection = null;
+		connection = DataSourceConnection.getDBConnection();
+		connection.setAutoCommit(false);
+		PreparedStatement ps = null;
+		String query = "INSERT into tbl_MeetingContacts(MeetingID,SenderUserID,ContactNumber) values(?,?,?)";
+		ps = connection.prepareStatement(query);
+
+		for (int i = 0; i < contactArray.length(); i++) {
+
+			ps.setInt(1, meetingId);
+			ps.setInt(2, senderUserId);
+			ps.setString(3, contactArray.getString(i));
+			ps.addBatch();
+
+		}
+		int[] insertedRow = ps.executeBatch();
+		for (int i = 0; i < insertedRow.length; i++) {
+			System.out.println("insertedRow[i]=========" + insertedRow[i]);
+
+		}
+
+	}
+
+	public static void sendingMeetingCreationNotification(JSONObject meetingInsertionObject, int meetingId) {
+
+		JSONArray friendsArray = meetingInsertionObject.getJSONArray("friendsIdJsonArray");
+		List<Integer> userIds = new ArrayList<Integer>();
+		for (int i = 0; i < friendsArray.length(); i++) {
+			userIds.add(friendsArray.getInt(i));
+		}
+		// sending the meeting request to all memeber
+		sendNotification(userIds, meetingInsertionObject.getInt("senderUserId"),
+				NotificationsEnum.Meeting_Pending_Requests.ordinal() + 1, meetingId);
+		LocationDetails locationDetails = new LocationDetails();
+		try {
+			// Doing reverse geocoding
+			String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
+					+ meetingInsertionObject.getString("latitude") + "," + meetingInsertionObject.getString("longitude")
+					+ "&key=" + Constants.GCM_APIKEY;
+			ClientConfig config = new DefaultClientConfig();
+			Client client = Client.create(config);
+			WebResource service = client.resource(url);
+			JSONObject json = new JSONObject(MeetingDetails.getOutputAsString(service));
+			JSONArray results = (JSONArray) json.get("results");
+			JSONObject resultsObject = (JSONObject) results.get(0);
+			String formattedAddress = (String) resultsObject.get("formatted_address");
+			locationDetails.insertMeetingLocationDetails(meetingInsertionObject.getString("latitude"),
+					meetingInsertionObject.getString("longitude"), formattedAddress, meetingId);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static void deleteUserFromMeeting(int meetingId, int senderUserId)
+			throws IOException, SQLException, PropertyVetoException {
+
+		Connection connection = null;
+		connection = DataSourceConnection.getDBConnection();
+		PreparedStatement preparedStatement = null;
+
+		String sql = "DELETE FROM tbl_RecipientsDetails WHERE MeetingID=? AND UserID=?;";
+		preparedStatement = connection.prepareStatement(sql);
+		preparedStatement.setInt(1, meetingId);
+		preparedStatement.setInt(2, senderUserId);
 		
-		int DestinationType = 0;
-		String recipientDetails = new MeetingDetails().getRecipientDetailsByMeetingID(meetingId);
-		JSONArray jsonArray = new JSONArray(recipientDetails);
-		for (int i = 0; i < jsonArray.length(); i++) {
-			JSONObject jsonObject = jsonArray.getJSONObject(i);
-			int recipientId = Integer.parseInt(jsonObject.getString("UserId"));
+		preparedStatement.executeUpdate();
+		
+		preparedStatement = null;
+		sql               = null;  
+		sql = "SELECT UserID FROM tbl_RecipientsDetails WHERE MeetingID=?";
+		preparedStatement = connection.prepareStatement(sql);
+		preparedStatement.setInt(1, meetingId);
+		
+		ResultSet  rs = preparedStatement.executeQuery();
+		List<Integer> userIds = new ArrayList<Integer>();
+		while(rs.next()){
+			userIds.add(rs.getInt("UserID"));
+		}
+		System.out.println("<<<<<<<<<<<<<<<<<<"+userIds.toString());
+		// sending notification
+		sendNotification(userIds, senderUserId, NotificationsEnum.Meeting_Rejected.ordinal() + 1, meetingId);
+	}
+
+	// Generic type method to send notification
+	public static void sendNotification(List<Integer> userIds, int senderUserId, int notificationType, int meetingId) {
+
+		for (Integer recipientId : userIds) {
+
 			UserNotifications userNotifications = new UserNotifications();
-			Timestamp timestamp = new Timestamp( new Date().getTime());
-			String notificationId = userNotifications.insertUserNotifications(recipientId, meetingInsertionObject.getInt("senderUserId"),
-					NotificationsEnum.Meeting_Pending_Requests.ordinal() + 1, 0, timestamp);
-			JSONObject json = new JSONArray(
-					userNotifications.getUserNotifications(0, Integer.parseInt(notificationId)))
-							.getJSONObject(0);
+			Timestamp timestamp = new Timestamp(new Date().getTime());
+			String notificationId = userNotifications.insertUserNotifications(recipientId, senderUserId,
+					NotificationsEnum.Meeting_Rejected.ordinal() + 1, 0, timestamp);
+			JSONObject json = new JSONArray(userNotifications.getUserNotifications(0, Integer.parseInt(notificationId)))
+					.getJSONObject(0);
 			String notificationMessage = json.getString("NotificationMessage");
 			String NotificationName = json.getString("NotificationName");
 			Sender sender = new Sender(Constants.GCM_APIKEY);
@@ -235,29 +344,6 @@ public class ServiceUtility {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			
-		}
-		if (DestinationType == 1) {
-			LocationDetails locationDetails = new LocationDetails();
-			try {
-				// Doing reverse geocoding
-				String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + meetingInsertionObject.getString("latitude") + ","
-						+ meetingInsertionObject.getString("longitude") + "&key=" + Constants.GCM_APIKEY;
-				ClientConfig config = new DefaultClientConfig();
-				Client client = Client.create(config);
-				WebResource service = client.resource(url);
-				JSONObject json = new JSONObject(MeetingDetails.getOutputAsString(service));
-				JSONArray results = (JSONArray) json.get("results");
-				JSONObject resultsObject = (JSONObject) results.get(0);
-				String formattedAddress = (String) resultsObject.get("formatted_address");
-				locationDetails.insertMeetingLocationDetails(meetingInsertionObject.getString("latitude"), meetingInsertionObject.getString("longitude"), formattedAddress,
-						meetingId);
-			} catch (JSONException e) {
-				e.printStackTrace();
-
-			}
 		}
 	}
- 
-	
 }

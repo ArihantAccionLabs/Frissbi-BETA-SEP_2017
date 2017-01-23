@@ -12,7 +12,11 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -21,6 +25,9 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
+import org.kleverlinks.bean.UserFreeTimeBean;
+import org.service.dto.UserDTO;
+import org.util.service.FreeTimeTracker;
 import org.util.service.ServiceUtility;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
@@ -33,9 +40,9 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
 		
-           System.out.println("doSomething===========");
-			PreparedStatement pstmt = null;
-			String sql = "SELECT * FROM tbl_MeetingDetails WHERE SenderUserID=? AND SenderFromDateTime BETWEEN ? AND ? ORDER BY MeetingID DESC limit 1" ;
+          System.out.println("doSomething===========");
+           	PreparedStatement pstmt = null;
+			String sql = "SELECT * FROM tbl_MeetingDetails WHERE SenderUserID=? AND SenderFromDateTime BETWEEN ? AND ? ORDER BY MeetingID" ;
 			 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 		        Calendar now = Calendar.getInstance();
@@ -55,14 +62,48 @@ public class AuthenticateUser {
 			pstmt.setString(3, sdf.format(tomorrow.getTime()));
 
 			ResultSet rs = pstmt.executeQuery();
-		    
+			List<UserDTO> timePostedFriendList = new ArrayList<UserDTO>();
 			while (rs.next()) {
-				System.out.println("MeetingID====="+rs.getInt("MeetingID")+"  SenderFromDateTime=="+rs.getDate("SenderFromDateTime")+"===="+rs.getDate("SenderToDateTime"));
+				System.out.println("MeetingID====="+rs.getInt("MeetingID")+"  SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
 			
-			
+				UserDTO userDto = new UserDTO();
+				userDto.setUserId(rs.getInt("SenderUserID"));
+
+				LocalDateTime fromTime = LocalDateTime.ofInstant(rs.getTimestamp("SenderFromDateTime").toInstant(),ZoneId.systemDefault());
+				LocalDateTime toTime = LocalDateTime.ofInstant(rs.getTimestamp("SenderToDateTime").toInstant(),ZoneId.systemDefault());
+				userDto.setStartTime(Float.parseFloat(fromTime.getHour()+"."+fromTime.getMinute()));
+				userDto.setEndTime(Float.parseFloat(toTime.getHour()+"."+toTime.getMinute()));
+				timePostedFriendList.add(userDto);
+				
 			}
+			JSONObject finalJson = new JSONObject();
+			
+			
+			//logic for avoiding the time collapse b/w meetings
+			
+			Float meetingStartTime = 13.30f;
+			Float meetingEndTime = 14.30f;
+			
            
-           
+		 System.out.println("====="+timePostedFriendList.toString());
+		for (UserDTO userDTO : timePostedFriendList) {
+			
+			if((userDTO.getStartTime() < meetingStartTime && userDTO.getStartTime() < meetingEndTime) || (userDTO.getEndTime() < meetingStartTime && meetingStartTime < userDTO.getEndTime())){
+				
+				finalJson.put("status", true);
+				finalJson.put("message", "Meeting from "+ meetingStartTime+" to "+meetingEndTime +" is collapsing with meeting "+userDTO.getStartTime()+" to "+userDTO.getEndTime()+" on Date "+ new java.util.Date());
+				
+				return finalJson.toString();
+						
+			}
+			
+		}
+		
+		 
+          
+		 
+		 
+		 
            
            //ServiceUtility.calculateTimeBetweenLatLng(17.4401f, 78.3489f , 17.4375f, 78.4483f);
            

@@ -7,14 +7,17 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.sql.Time;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -25,19 +28,14 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.kleverlinks.bean.UserFreeTimeBean;
 import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;
 import org.service.dto.UserDTO;
 import org.util.service.ServiceUtility;
 
-import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 @Path("MeetingDetailsService")
 public class MeetingDetails {
@@ -50,28 +48,95 @@ public class MeetingDetails {
 	public String createTrackInJSON(String meetingInsertion) {
         JSONObject finalJson = new JSONObject();
 		try {
+			
 			JSONObject meetingInsertionObject = new JSONObject(meetingInsertion);
-			
-			System.out.println("meetingInsertionObject============================"+meetingInsertionObject.toString());
-			
-			String date = meetingInsertionObject.getString("meetingDateTime");
-			DateFormat formatter = new SimpleDateFormat("YYYY-MM-dd hh:mm a");
+			if(meetingInsertionObject.has("meetingId") && meetingInsertionObject.getInt("meetingId") != 0){
+				int meetingId = meetingInsertionObject.getInt("meetingId");
+				System.out.println(meetingInsertionObject.getInt("senderUserId")+"==<---SenderId====meetingId========================"+meetingId);
+				ServiceUtility.deleteUserFromMeeting(meetingId , meetingInsertionObject.getInt("senderUserId"));
+			}
+			String meetingDate = meetingInsertionObject.getString("meetingDateTime");
+			DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd hh:mm a");
 			String durationTime = meetingInsertionObject.getString("duration");
 			String []timeArray = durationTime.split(":");
 			String duration = timeArray[0]+":"+timeArray[1]+":00";
-			LocalDateTime senderToDateTime = LocalDateTime.ofInstant(formatter.parse(date).toInstant(),ZoneId.systemDefault()).plusHours(Integer.parseInt(timeArray[0])).plusMinutes(Integer.parseInt(timeArray[1]));
-
+			LocalDateTime senderFromDateTime = LocalDateTime.ofInstant(formatter.parse(meetingDate).toInstant(),ZoneId.systemDefault());
+			LocalDateTime senderToDateTime = LocalDateTime.ofInstant(formatter.parse(meetingDate).toInstant(),ZoneId.systemDefault()).plusHours(Integer.parseInt(timeArray[0])).plusMinutes(Integer.parseInt(timeArray[1]));
 			
+			//Testing 
+			
+			if(!(meetingInsertionObject.has("meetingId") && meetingInsertionObject.getInt("meetingId") != 0)){
+				
+			  System.out.println(senderFromDateTime+"====doSomething==========Testing="+senderToDateTime);
+	           	PreparedStatement pstmt = null;
+				String sql = "SELECT * FROM tbl_MeetingDetails WHERE SenderUserID=? AND SenderFromDateTime BETWEEN ? AND ? ORDER BY MeetingID" ;
+				 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+			        Calendar now = Calendar.getInstance();
+			        now.setTime(formatter.parse(meetingDate));
+			        now.set(Calendar.HOUR, 0);
+			        now.set(Calendar.MINUTE, 0);
+			        now.set(Calendar.SECOND, 0);
+			        now.set(Calendar.HOUR_OF_DAY, 0);
+			        
+			        Calendar tomorrow = Calendar.getInstance();
+			        tomorrow.setTime(now.getTime());
+			        tomorrow.add(Calendar.DATE, 1);
+			      
+				pstmt = DataSourceConnection.getDBConnection().prepareStatement(sql);
+				pstmt.setInt(1, meetingInsertionObject.getInt("senderUserId"));
+				pstmt.setString(2, sdf.format(now.getTime()));
+				pstmt.setString(3, sdf.format(tomorrow.getTime()));
+
+				ResultSet rs = pstmt.executeQuery();
+				List<UserDTO> timePostedFriendList = new ArrayList<UserDTO>();
+				while (rs.next()) {
+					//System.out.println("MeetingID====="+rs.getInt("MeetingID")+"  SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
+				
+					UserDTO userDto = new UserDTO();
+					userDto.setMeetingId(rs.getInt("MeetingID"));
+					userDto.setUserId(rs.getInt("SenderUserID"));
+					LocalDateTime fromTime = LocalDateTime.ofInstant(rs.getTimestamp("SenderFromDateTime").toInstant(),ZoneId.systemDefault());
+					LocalDateTime toTime = LocalDateTime.ofInstant(rs.getTimestamp("SenderToDateTime").toInstant(),ZoneId.systemDefault());
+					userDto.setMeetingFromTime(fromTime);
+					userDto.setMeetingToTime(toTime);
+					userDto.setStartTime(Float.parseFloat(fromTime.getHour()+"."+fromTime.getMinute()));
+					userDto.setEndTime(Float.parseFloat(toTime.getHour()+"."+toTime.getMinute()));
+					userDto.setLatitude(rs.getString("latitude"));
+					userDto.setLongitude(rs.getString("longitude"));
+					
+					timePostedFriendList.add(userDto);
+					
+				}
+				
+				//logic for avoiding the time collapse b/w meetings
+				Float meetingStartTime = Float.parseFloat(senderFromDateTime.getHour()+"."+senderFromDateTime.getMinute());
+				Float meetingEndTime = Float.parseFloat(senderToDateTime.getHour()+"."+senderToDateTime.getMinute());
+	           
+			 System.out.println(meetingStartTime+"====="+meetingEndTime+"    "+timePostedFriendList.size());
+			for (UserDTO userDTO : timePostedFriendList) {
+				if((userDTO.getStartTime() < meetingStartTime && meetingStartTime < userDTO.getEndTime()) || (userDTO.getStartTime() < meetingEndTime && meetingEndTime < userDTO.getEndTime())){
+					
+					finalJson.put("status", true);
+					finalJson.put("meetingId" , userDTO.getMeetingId());
+					finalJson.put("message", "Meeting from "+ senderFromDateTime.getHour()+":"+senderToDateTime.getMinute()+" to "+senderToDateTime.getHour()+":"+senderToDateTime.getMinute() +" is conflicting with meeting "+userDTO.getMeetingFromTime().getHour()+":"+userDTO.getMeetingFromTime().getMinute()+" to "+userDTO.getMeetingToTime().getHour()+":"+userDTO.getMeetingToTime().getMinute()+" on Date "+ senderFromDateTime.toLocalDate());
+					
+					return finalJson.toString();
+							
+				}
+				
+			}
+		}//checking meetingId if block closed
 			Connection connection = null;
 			connection = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
 			int meetingId = 0;
-
+			
 				String insertStoreProc = "{call usp_InsertMeetingDetails(?,?,?,?,?,?,?,?,?,?,?)}";
 				callableStatement = connection.prepareCall(insertStoreProc);
 				callableStatement.setInt(1, meetingInsertionObject.getInt("senderUserId"));
 				callableStatement.setTimestamp(2, new Timestamp(new Date().getTime()));
-				callableStatement.setTimestamp(3, new java.sql.Timestamp(formatter.parse(date).getTime()));
+				callableStatement.setTimestamp(3, new Timestamp(formatter.parse(meetingDate).getTime()));
 				callableStatement.setTimestamp(4, Timestamp.valueOf(senderToDateTime));
 				callableStatement.setTime(5, java.sql.Time.valueOf(duration));
 				callableStatement.setString(6, meetingInsertionObject.getString("meetingTitle"));
@@ -88,7 +153,7 @@ public class MeetingDetails {
 
 				
 				JSONArray jsonArrayData = meetingInsertionObject.getJSONArray("friendsIdJsonArray");
-				System.out.println(">>>>>>>>>>>>>" + jsonArrayData.length());
+				//System.out.println(">>>>>>>>>>>>>" + jsonArrayData.length());
 
 				connection.setAutoCommit(false);
 				PreparedStatement ps = null;
@@ -100,7 +165,7 @@ public class MeetingDetails {
 					  ps.setInt(1, meetingId);
 					  ps.setInt(2, jsonArrayData.getInt(i));
 					  ps.setString(3, "0");
-					  ps.setTimestamp(4, new java.sql.Timestamp(formatter.parse(date).getTime()));
+					  ps.setTimestamp(4, new java.sql.Timestamp(formatter.parse(meetingDate).getTime()));
 					  ps.setTimestamp(5, Timestamp.valueOf(senderToDateTime));
 					  ps.setString(6, meetingInsertionObject.getString("latitude"));
 					  ps.setString(7, meetingInsertionObject.getString("longitude"));
@@ -112,18 +177,15 @@ public class MeetingDetails {
 				  }
 				  int [] insertedRow = ps.executeBatch();
 				  for (int i = 0; i < insertedRow.length; i++) {
-					System.out.println("insertedRow[i]========="+insertedRow[i]);
+					//System.out.println("insertedRow[i]========="+insertedRow[i]);
 					
 				}
 				 connection.commit();
 				// return Response.status(201).entity(i).build();
-
-				 
 				 if (insertedRow != null) {
-					 
 					// sending mails to meeting creator
 						try {
-							ServiceUtility.sendingMails(meetingInsertionObject.getJSONArray("emailIdJsonArray") , meetingInsertionObject.getInt("senderUserId"));
+							ServiceUtility.insertingAndSendingMails(meetingInsertionObject.getJSONArray("emailIdJsonArray") , meetingInsertionObject.getInt("senderUserId") , meetingId);
 						} catch (Exception e) {
 							e.printStackTrace();
 							finalJson.put("status", false);
@@ -131,8 +193,11 @@ public class MeetingDetails {
 							
 							return finalJson.toString();
 						}
-						
+						//Inserting the EmailIds of the user who is not on the Fissbi and sending the emails also 
 						ServiceUtility.sendingMeetingCreationNotification(meetingInsertionObject, meetingId);
+						
+						//Inserting the contact number of the user who is not on the Fissbi 
+						ServiceUtility.insertMeetingContactNumbers(meetingInsertionObject.getJSONArray("contactsJsonArray"), meetingInsertionObject.getInt("senderUserId"), meetingId);
 				 }	 
 				 
 			
@@ -897,13 +962,9 @@ public class MeetingDetails {
 				jsonObject.put("LocationID", rs.getString("LocationID"));
 				jsonObject.put("ScheduledTimeSlot", rs.getString("ScheduledTimeSlot"));
 				jsonObject.put("MeetingDescription", rs.getString("MeetingDescription"));
-				jsonObject.put("RecipientDetails", rs.getString("RecipientDetails"));
 				jsonObject.put("Latitude", rs.getString("Latitude"));
 				jsonObject.put("Longitude", rs.getString("Longitude"));
-				jsonObject.put("olatitude", rs.getString("olatitude"));
-				jsonObject.put("oLongitude", rs.getString("oLongitude"));
 				jsonObject.put("UserPreferredLocationID", rs.getString("UserPreferredLocationID"));
-				jsonObject.put("GeoDateTime", rs.getString("GeoDateTime"));
 				jsonObject.put("GoogleAddress", rs.getString("GoogleAddress"));
 				jsonObject.put("DestinationType", rs.getString("DestinationType"));
 				jsonResultsArray.put(jsonObject);
@@ -966,27 +1027,70 @@ public class MeetingDetails {
 		return jsonResultsArray.toString();
 	}
 
-	public static void main(String args[]) {
-		MeetingDetails meetingDetails = new MeetingDetails();
-		String meetingdetails = meetingDetails.getRecipientDetailsByUserID(42, 3);
-		// System.out.println("meetingdetails: "+ meetingdetails);
-		Date date = new Date();
-		Timestamp fromTimestamp = new Timestamp(date.getTime() - 1500000000);
-		Timestamp toTimestamp = new Timestamp(date.getTime() + 100000000);
-		// Timestamp fromTimestamp = new Timestamp(2015, 06, 06, 12, 00, 00,
-		// 00);
-		// Timestamp toTimestamp = new Timestamp(2015, 06, 28, 12, 00, 00, 00);
-		// Timestamp timeStamp = new Timestamp
-		// meetingDetails.getMeetingDetailsByUserID(42, fromTimestamp,
-		// toTimestamp);
-		System.out.println(meetingDetails.getRecipientDetailsByMeetingID(45));
-		// meetingDetails.updateRecipientXML(51,50,fromTimestamp,toTimestamp,1);
-		// System.out.println(meetingDetails.getRecipientDetailsByMeetingID(52));
-		// System.out.println(meetingDetails.getMeetingDetailsByUserID(77,fromTimestamp,toTimestamp)
-		// );
-		// System.out.println(meetingDetails.getPendingMeetingRequests(50));
-		// System.out.println(meetingDetails.getMeetingSummary(84));
-	}
-
-
+	
+	/*//logic for checking the source and destination  distance wrt Time
+	if(! timePostedFriendList.isEmpty()){
+		
+		Float startSubTime = 0f;
+		Float endSubTime = 0f;
+		 
+		java.util.Map<String , UserDTO> map = new HashMap<String , UserDTO>();
+		
+		for (UserDTO userDTO : timePostedFriendList) {
+			
+			if(meetingStartTime > userDTO.getEndTime()){
+				if(startSubTime == 0f){
+					startSubTime = userDTO.getEndTime();
+					map.put("startDto", userDTO)	;
+				}else if(startSubTime < userDTO.getEndTime()){
+					startSubTime = userDTO.getEndTime();
+					map.put("startDto", userDTO)	;
+				}
+				
+			}
+			
+			if(meetingEndTime < userDTO.getStartTime()){
+				
+				if(endSubTime == 0f){
+					endSubTime = userDTO.getStartTime();
+					map.put("endDto", userDTO)	;
+				}else if(endSubTime < userDTO.getStartTime()){
+					endSubTime = userDTO.getStartTime();
+					map.put("endDto", userDTO)	;
+				}
+			}
+		}
+		
+		//logic for the checking the checking the source and destination  distance wrt Time
+		if(! map.isEmpty()){
+			if(map.get("startDto") != null){
+			int startTimeToBeTaken = ServiceUtility.calculateTimeBetweenLatLng(Float.parseFloat(map.get("startDto").getLatitude()), Float.parseFloat(map.get("startDto").getLatitude()), Float.parseFloat(meetingInsertionObject.getString("latitude")), Float.parseFloat(meetingInsertionObject.getString("longitude")));
+			
+			if(startTimeToBeTaken != 0 && startTimeToBeTaken > map.get("startDto").getMeetingFromTime().getHour()+map.get("startDto").getMeetingFromTime().getMinute()){
+			
+				finalJson.put("status", true);
+				finalJson.put("message", "Meeting from "+ senderFromDateTime.getHour()+":"+senderToDateTime.getMinute()+" to "+senderToDateTime.getHour()+":"+senderToDateTime.getMinute() +" will take more time "+map.get("startDto").getMeetingFromTime().getHour()+":"+map.get("startDto").getMeetingFromTime().getMinute()+" to "+map.get("startDto").getMeetingFromTime().getHour()+":"+map.get("startDto").getMeetingFromTime().getMinute()+" on Date "+ senderFromDateTime.toLocalDate());
+				
+				return finalJson.toString();	
+				
+			}
+			
+			}
+			if(map.get("endDto") != null){
+				
+				int endTimeToBeTaken = ServiceUtility.calculateTimeBetweenLatLng(Float.parseFloat(map.get("endDto").getLatitude()), Float.parseFloat(map.get("endDto").getLatitude()), Float.parseFloat(meetingInsertionObject.getString("latitude")), Float.parseFloat(meetingInsertionObject.getString("longitude")));
+				
+				if(endTimeToBeTaken != 0 && endTimeToBeTaken > map.get("endDto").getMeetingToTime().getHour()+map.get("endDto").getMeetingToTime().getMinute()){
+					
+					finalJson.put("status", true);
+					finalJson.put("message", "Meeting from "+ senderFromDateTime.getHour()+":"+senderToDateTime.getMinute()+" to "+senderToDateTime.getHour()+":"+senderToDateTime.getMinute() +" will take more time "+map.get("endDto").getMeetingFromTime().getHour()+":"+map.get("endDto").getMeetingFromTime().getMinute()+" to "+map.get("endDto").getMeetingFromTime().getHour()+":"+map.get("endDto").getMeetingFromTime().getMinute()+" on Date "+ senderFromDateTime.toLocalDate());
+					
+					return finalJson.toString();	
+					
+				}
+			}
+		}
+		
+	}*/
+	
 }

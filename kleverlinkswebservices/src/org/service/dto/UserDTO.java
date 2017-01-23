@@ -1,12 +1,22 @@
 package org.service.dto;
 
+import java.time.LocalDateTime;
+
 public class UserDTO {
 
 	private Integer userId;
+	private Integer meetingId;
 	private String emailId;
 	private String fullName;
 	private String userName;
-
+	private Float startTime;
+	private Float endTime;
+	private LocalDateTime meetingFromTime;
+	private LocalDateTime meetingToTime;
+	
+	private String latitude ;
+	private String longitude ;
+	
 	public String getEmailId() {
 		return emailId;
 	}
@@ -39,10 +49,66 @@ public class UserDTO {
 		this.userName = userName;
 	}
 
+	public Float getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Float startTime) {
+		this.startTime = startTime;
+	}
+
+	public Float getEndTime() {
+		return endTime;
+	}
+
+	public void setEndTime(Float endTime) {
+		this.endTime = endTime;
+	}
+
+	public Integer getMeetingId() {
+		return meetingId;
+	}
+
+	public void setMeetingId(Integer meetingId) {
+		this.meetingId = meetingId;
+	}
+
+	public LocalDateTime getMeetingFromTime() {
+		return meetingFromTime;
+	}
+
+	public void setMeetingFromTime(LocalDateTime meetingFromTime) {
+		this.meetingFromTime = meetingFromTime;
+	}
+
+	public LocalDateTime getMeetingToTime() {
+		return meetingToTime;
+	}
+
+	public void setMeetingToTime(LocalDateTime meetingToTime) {
+		this.meetingToTime = meetingToTime;
+	}
+
+	public String getLatitude() {
+		return latitude;
+	}
+
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
+	}
+
+	public String getLongitude() {
+		return longitude;
+	}
+
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
+
 	@Override
 	public String toString() {
 		return "UserDTO [userId=" + userId + ", emailId=" + emailId + ", fullName=" + fullName + ", userName="
-				+ userName + "]";
+				+ userName + ", startTime=" + startTime + ", endTime=" + endTime + "]";
 	}
 
 }
