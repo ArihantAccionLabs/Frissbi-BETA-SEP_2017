@@ -39,76 +39,7 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
-		
-          System.out.println("doSomething===========");
-           	PreparedStatement pstmt = null;
-			String sql = "SELECT * FROM tbl_MeetingDetails WHERE SenderUserID=? AND SenderFromDateTime BETWEEN ? AND ? ORDER BY MeetingID" ;
-			 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
-		        Calendar now = Calendar.getInstance();
-		        now.set(Calendar.HOUR, 0);
-		        now.set(Calendar.MINUTE, 0);
-		        now.set(Calendar.SECOND, 0);
-		        now.set(Calendar.HOUR_OF_DAY, 0);
-		        
-		        Calendar tomorrow = Calendar.getInstance();
-		        tomorrow.setTime(now.getTime());
-		        tomorrow.add(Calendar.DATE, 1);
-		      
-		    System.out.println(sdf.format(now.getTime())+"     now==="+"===="+sdf.format(tomorrow.getTime()));
-			pstmt = DataSourceConnection.getDBConnection().prepareStatement(sql);
-			pstmt.setInt(1, 197);
-			pstmt.setString(2, sdf.format(now.getTime()));
-			pstmt.setString(3, sdf.format(tomorrow.getTime()));
-
-			ResultSet rs = pstmt.executeQuery();
-			List<UserDTO> timePostedFriendList = new ArrayList<UserDTO>();
-			while (rs.next()) {
-				System.out.println("MeetingID====="+rs.getInt("MeetingID")+"  SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
-			
-				UserDTO userDto = new UserDTO();
-				userDto.setUserId(rs.getInt("SenderUserID"));
-
-				LocalDateTime fromTime = LocalDateTime.ofInstant(rs.getTimestamp("SenderFromDateTime").toInstant(),ZoneId.systemDefault());
-				LocalDateTime toTime = LocalDateTime.ofInstant(rs.getTimestamp("SenderToDateTime").toInstant(),ZoneId.systemDefault());
-				userDto.setStartTime(Float.parseFloat(fromTime.getHour()+"."+fromTime.getMinute()));
-				userDto.setEndTime(Float.parseFloat(toTime.getHour()+"."+toTime.getMinute()));
-				timePostedFriendList.add(userDto);
-				
-			}
-			JSONObject finalJson = new JSONObject();
-			
-			
-			//logic for avoiding the time collapse b/w meetings
-			
-			Float meetingStartTime = 13.30f;
-			Float meetingEndTime = 14.30f;
-			
-           
-		 System.out.println("====="+timePostedFriendList.toString());
-		for (UserDTO userDTO : timePostedFriendList) {
-			
-			if((userDTO.getStartTime() < meetingStartTime && userDTO.getStartTime() < meetingEndTime) || (userDTO.getEndTime() < meetingStartTime && meetingStartTime < userDTO.getEndTime())){
-				
-				finalJson.put("status", true);
-				finalJson.put("message", "Meeting from "+ meetingStartTime+" to "+meetingEndTime +" is collapsing with meeting "+userDTO.getStartTime()+" to "+userDTO.getEndTime()+" on Date "+ new java.util.Date());
-				
-				return finalJson.toString();
-						
-			}
-			
-		}
-		
-		 
-          
-		 
-		 
-		 
-           
-           //ServiceUtility.calculateTimeBetweenLatLng(17.4401f, 78.3489f , 17.4375f, 78.4483f);
-           
-          // FreeTimeTracker.getUserFreeTime();
-          // SmartReminderNotification.checkingMeetingOnCurrentDate();
+           FreeTimeTracker.getUserFreeTime();
            return "ok";
 			
 	}

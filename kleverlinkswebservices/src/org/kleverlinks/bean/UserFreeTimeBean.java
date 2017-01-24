@@ -11,8 +11,8 @@ public class UserFreeTimeBean {
 	private String firstName;
 	private String lastName;
 	
-	private Integer startTime;
-	private Integer endTime;
+	private Float startTime;
+	private Float endTime;
 	
 	public Integer getUserId() {
 		return userId;
@@ -38,16 +38,16 @@ public class UserFreeTimeBean {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public Integer getStartTime() {
+	public Float getStartTime() {
 		return startTime;
 	}
-	public void setStartTime(Integer startTime) {
+	public void setStartTime(Float startTime) {
 		this.startTime = startTime;
 	}
-	public Integer getEndTime() {
+	public Float getEndTime() {
 		return endTime;
 	}
-	public void setEndTime(Integer endTime) {
+	public void setEndTime(Float endTime) {
 		this.endTime = endTime;
 	}
 	public String getLastName() {

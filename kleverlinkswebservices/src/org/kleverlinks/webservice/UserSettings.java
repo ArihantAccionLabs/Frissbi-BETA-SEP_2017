@@ -65,7 +65,7 @@ public class UserSettings {
 		
 		
 		try {
-			String insertStoreProc = "{call usp_InsertUserPreferredLocations(?,?,?,?,?,?,?)}";
+			String insertStoreProc = "{call usp_InsertUserPreferredLocations(?,?,?,?,?,?,?,?)}";
 			conn = null;
 			conn = DataSourceConnection.getDBConnection();
 			callableStatement = conn.prepareCall(insertStoreProc);
@@ -73,11 +73,12 @@ public class UserSettings {
 			callableStatement.setString(2, locationObject.getString("latitude"));
 			callableStatement.setString(3, locationObject.getString("longitude"));
 			callableStatement.setString(4, locationObject.getString("locationName"));
-			callableStatement.setInt(5, 0);
+			callableStatement.setString(5, locationObject.getString("address"));
 			callableStatement.setInt(6, 0);
-			callableStatement.registerOutParameter(7, Types.INTEGER);
+			callableStatement.setInt(7, 0);
+			callableStatement.registerOutParameter(8, Types.INTEGER);
 			int value = callableStatement.executeUpdate	();
-			isError = callableStatement.getInt(7);
+			isError = callableStatement.getInt(8);
             System.out.println("isError====="+isError+"  value==="+value);
             if(isError == 0 && value == 1){
             	finalJson.put("status", true);
@@ -164,7 +165,8 @@ public class UserSettings {
 				jsonObject.put("Longitude", rs.getString("Longitude"));
 				jsonObject.put("LocationName", rs.getString("LocationName"));
 				jsonObject.put("LocationType", rs.getString("LocationType"));
-				jsonObject.put("IsDefault", rs.getString("IsDefault"));
+				jsonObject.put("address", rs.getString("IsDefault"));
+				jsonObject.put("address", rs.getString("Address"));
 				jsonResultsArray.put(jsonObject);
 			}
 			

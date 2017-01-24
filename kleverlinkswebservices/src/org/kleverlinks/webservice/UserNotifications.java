@@ -46,14 +46,14 @@ public class UserNotifications {
 				callableStatement.registerOutParameter(7, Types.INTEGER);
 				int value = callableStatement.executeUpdate();
 				notificationId = callableStatement.getInt(6)+"";
-
+              System.out.println("notificationId============="+notificationId);
 			} catch (SQLException se) {
 				se.printStackTrace();
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
 			ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(stmt);
+		   ServiceUtility.closeSatetment(stmt);
 			return notificationId;
 		}
 		
@@ -90,15 +90,12 @@ public class UserNotifications {
 		@GET  
 	    @Path("/getUserNotifications/{userId}/{notificationId}")
 	    @Produces(MediaType.TEXT_PLAIN)
-		public String getUserNotifications(@PathParam("userId") Integer userId,@PathParam("notificationId") Integer notificationId
-				){
+		public String getUserNotifications(@PathParam("userId") Integer userId,@PathParam("notificationId") Integer notificationId){
 			Connection conn = null;
-			Statement stmt = null;
+			CallableStatement callableStatement = null;
 			JSONArray jsonResultsArray = new JSONArray();
 			try {
 				conn = DataSourceConnection.getDBConnection();
-				stmt = conn.createStatement();
-				CallableStatement callableStatement = null;
 				String insertStoreProc = "{call usp_GetUserNotification(?,?)}";
 				callableStatement = conn.prepareCall(insertStoreProc);
 				callableStatement.setInt(1, userId);
@@ -119,6 +116,7 @@ public class UserNotifications {
 					}
 					jsonObject.put("NotificationName", rs.getString("NotificationName"));
 					jsonObject.put("NotificationMessage", rs.getString("NotificationMessage"));
+					System.out.println( rs.getString("NotificationName")+"===========getUserNotifications==============="+rs.getString("NotificationMessage"));
 					jsonResultsArray.put(jsonObject);
 				}
 			} catch (SQLException se) {
@@ -127,7 +125,7 @@ public class UserNotifications {
 				e.printStackTrace();
 			} 
 			ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(stmt);
+		   ServiceUtility.closeCallableSatetment(callableStatement);
 			return jsonResultsArray.toString();
 		}
 }

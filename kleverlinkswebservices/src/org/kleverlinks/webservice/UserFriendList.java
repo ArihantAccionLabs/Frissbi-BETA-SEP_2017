@@ -28,9 +28,6 @@ import org.util.service.ServiceUtility;
 
 @Path("FriendListService")
 public class UserFriendList {
-	// JDBC driver name and database URL
-	static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-
 
 	@GET
 	@Path("/sendFriendRequest/{username1}/{username2}")
@@ -43,19 +40,6 @@ public class UserFriendList {
 		int userId2 = 0;
 
 		try {
-			/*
-			 * conn = getDBConnection(); stmt = conn.createStatement(); String
-			 * sql; sql = "SELECT userID from tbl_users where username ='" +
-			 * userName1 + "'" + " limit 1"; ResultSet rs =
-			 * stmt.executeQuery(sql);
-			 * 
-			 * while (rs.next()) { userId1 = rs.getInt("userid"); } /*sql =
-			 * "SELECT userID from tbl_users where username ='" + userName2 +
-			 * "'" + " limit 1"; rs = stmt.executeQuery(sql);
-			 * 
-			 * while (rs.next()) { userId2 = rs.getInt("userid"); }
-			 */
-
 			UserDTO userDTO = ServiceUtility.getUserDetailsByUserName(userName1);
 			if (userDTO != null) {
 				userId1 = userDTO.getUserId();
@@ -83,32 +67,8 @@ public class UserFriendList {
 			callableStatement.registerOutParameter(7, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
 			if (value == 1) {
-				UserNotifications userNotifications = new UserNotifications();
-				Date date = new Date();
-				Timestamp timestamp = new Timestamp(date.getTime());
-				String notificationId = userNotifications.insertUserNotifications(userId2, userId1,
-						NotificationsEnum.Friend_Pending_Requests.ordinal() + 1, 0, timestamp);
-				
-				JSONObject json = new JSONArray(
-						userNotifications.getUserNotifications(0, Integer.parseInt(notificationId))).getJSONObject(0);
-				String notificationMessage = json.getString("NotificationMessage");
-				String NotificationName = json.getString("NotificationName");
-				Sender sender = new Sender(Constants.GCM_APIKEY);
-				Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
-						.addData("message", notificationMessage).addData("NotificationName", NotificationName)
-						.addData("userName", userName1).build();
-
-				try {
-					AuthenticateUser authenticateUser = new AuthenticateUser();
-					JSONObject jsonObject = new JSONObject(authenticateUser.getGCMDeviceRegistrationId(userId2));
-					String deviceRegistrationId = jsonObject.getString("DeviceRegistrationID");
-					Result result = sender.send(message, deviceRegistrationId, 1);
-					System.out.println(result);
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				return "1";
+			ServiceUtility.sendNotificationToOneUser(userId2 , userId1 , NotificationsEnum.Friend_Pending_Requests.ordinal() + 1 , 0);	
+			return "1";
 			}
 
 		} catch (SQLException se) {
@@ -735,8 +695,7 @@ public class UserFriendList {
 		Connection conn = null;
 		Statement stmt = null;
 		String requestStatus = "-1";
-		ArrayList<Integer> userIds = new ArrayList<Integer>();
-		JSONArray jsonResultsArray = new JSONArray();
+        System.out.println("userID1==="+userID1+"====="+userID2);
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();

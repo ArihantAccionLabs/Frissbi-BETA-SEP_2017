@@ -69,6 +69,8 @@ public class FreeTimeTracker {
 				userIdList.add(userFreeTimeBean);
 			}
 			
+			System.out.println("userIdList=================="+userIdList.size());
+			
 			for (UserFreeTimeBean userFreeTimeBean : userIdList) {  // getting friendlist for every users
 				Set<Integer> friendList = new HashSet<>();
 				sql = null;
@@ -87,13 +89,13 @@ public class FreeTimeTracker {
 						friendList.add(rs.getInt("UserID2"));
 					}
 				}
+				System.out.println("friendList=================="+friendList.size());
 				if (friendList.size() > 2) { // if friendlist is more than 2
 					
-					List<UserFreeTimeBean> timePostedFriendList = timePostedFriendList(// calling method who will provide friend list who posted
-							friendList.stream().collect(Collectors.toList()));
-
+					List<UserFreeTimeBean> timePostedFriendList = timePostedFriendList(friendList.stream().collect(Collectors.toList()));// calling method who will provide friend list who posted
+					   System.out.println("timePostedFriendList=="+timePostedFriendList.size());
 					List<UserFreeTimeBean> checkingFreePostedDateMatchingList = checkingFreePostedDateMatching(timePostedFriendList);	// timePostedFriendList(friendList);
-			
+			        System.out.println("checkingFreePostedDateMatchingList=="+checkingFreePostedDateMatchingList.size());
 			      checkingFreeTimeSlot(checkingFreePostedDateMatchingList);// checking their free time slot is matching or not
 
 				}
@@ -132,13 +134,13 @@ public class FreeTimeTracker {
 						ZoneId.systemDefault());
 				LocalDateTime toTime = LocalDateTime.ofInstant(userFreeTimeBean.getFreeToTime().toInstant(),
 						ZoneId.systemDefault());
-				userFreeTimeBean.setStartTime(fromTime.getHour());
-				userFreeTimeBean.setEndTime(toTime.getHour());
-				// System.out.println("userFreeTimeBean===" +
-				// userFreeTimeBean.toString());
+				userFreeTimeBean.setStartTime(Float.parseFloat(fromTime.getHour()+"."+fromTime.getMinute()));
+				userFreeTimeBean.setEndTime(Float.parseFloat(toTime.getHour()+"."+toTime.getMinute()));
+
 				timePostedFriendList.add(userFreeTimeBean);
 			}
 		}
+		System.out.println("timePostedFriendList====="+timePostedFriendList.size());
 		return timePostedFriendList;
 	}
 
@@ -178,7 +180,7 @@ public class FreeTimeTracker {
 
 	public static void checkingFreeTimeSlot(List<UserFreeTimeBean> freePostedDateMatchingFriendList) {
 	
-		int arrays[][] = new int[freePostedDateMatchingFriendList.size()][freePostedDateMatchingFriendList.size()];
+		Float arrays[][] = new Float[freePostedDateMatchingFriendList.size()][freePostedDateMatchingFriendList.size()];
 		for (int i = 0; i < freePostedDateMatchingFriendList.size(); i++) {
 			
 			for (int j = 0; j < freePostedDateMatchingFriendList.size(); j++) {
@@ -215,7 +217,7 @@ public class FreeTimeTracker {
 				list.add(Integer.parseInt(arr[i].trim()));
 			}
 			if(list.size() > 2){
-				int min = 25;
+				Float min = 25f;
 				int index1 = -1;
 				int index2 = -1;
 				for (int i = 0; i < list.size(); i++) {
@@ -234,17 +236,17 @@ public class FreeTimeTracker {
 
 	}
 
-	public static int getMatrix(UserFreeTimeBean user1, UserFreeTimeBean user2) {
+	public static Float getMatrix(UserFreeTimeBean user1, UserFreeTimeBean user2) {
 
 		if (user1.getUserId().equals(user2.getUserId())) {
-			return -1;
+			return -1f;
 		}
 
 		if (user1.getStartTime() < user2.getEndTime() && user2.getStartTime() < user1.getEndTime()) {
 			return user2.getEndTime() - user1.getStartTime() > user1.getEndTime() - user2.getStartTime()
 					? user1.getEndTime() - user2.getStartTime() : user2.getEndTime() - user1.getStartTime();
 		} else {
-			return 0;
+			return 0f;
 		}
 
 	}
@@ -259,10 +261,10 @@ public class FreeTimeTracker {
 		
 		Collections.sort(indexList);
 		
-		int startFreeSlot = 0;
-		int endFreeSlot = 0;
-        int e2s1 = beanList.get(index2).getEndTime() - beanList.get(index1).getStartTime(); 
-        int e1s2 = beanList.get(index1).getEndTime() - beanList.get(index2).getStartTime(); 
+		Float startFreeSlot = 0f;
+		Float endFreeSlot = 0f;
+		Float e2s1 = beanList.get(index2).getEndTime() - beanList.get(index1).getStartTime(); 
+		Float e1s2 = beanList.get(index1).getEndTime() - beanList.get(index2).getStartTime(); 
         
         
 	   if(e2s1 > e1s2){

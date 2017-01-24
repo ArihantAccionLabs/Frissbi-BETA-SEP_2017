@@ -13,6 +13,8 @@ public class UserDTO {
 	private Float endTime;
 	private LocalDateTime meetingFromTime;
 	private LocalDateTime meetingToTime;
+	private String description;
+	
 	
 	private String latitude ;
 	private String longitude ;
@@ -103,6 +105,14 @@ public class UserDTO {
 
 	public void setLongitude(String longitude) {
 		this.longitude = longitude;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	@Override
