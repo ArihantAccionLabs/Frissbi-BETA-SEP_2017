@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_add_friends_to_meeting"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.frissbi.activities.AddFriendsToMeetingActivity">
+
+    <android.support.design.widget.TabLayout
+        android:id="@+id/add_friends_tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/bg_color"
+        app:tabIndicatorHeight="4dp" />
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/friends_viewPager"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/add_friends_tabLayout" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_friends_floating_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginRight="20dp"
+        android:src="@android:drawable/ic_menu_add"
+        app:backgroundTint="@color/bg_color" />
+
+
+</RelativeLayout>

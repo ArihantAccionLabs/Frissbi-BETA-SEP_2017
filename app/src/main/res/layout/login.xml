@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/gradient_drawable1"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+
+        android:orientation="vertical"
+        android:weightSum="9"
+
+        android:layout_height="fill_parent">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_gravity="center_horizontal"
+            android:gravity="center_horizontal"
+            android:layout_weight="6"
+            android:layout_height="0dp">
+            <ImageButton
+                android:id="@+id/img"
+                android:layout_width="180dp"
+                android:layout_height="55dp"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:background="@drawable/logo_frissbi" />
+
+        </LinearLayout>
+
+        <com.frissbi.Utility.MyTextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:textColor="@color/text_color_white"
+            android:textSize="@dimen/text_sizes_fiftin"
+
+            android:layout_gravity="center_horizontal"
+            android:id="@+id/loginErrorMsg"
+            android:layout_marginTop="@dimen/margin_sizes_ten" />
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="#ac5c58"
+            android:layout_weight="2"
+            android:layout_marginTop="10dp"
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical|center_horizontal">
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="#B86763"
+                android:orientation="vertical">
+
+                <com.frissbi.Utility.MyTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/text_color_white"
+                    android:layout_marginLeft="@dimen/text_sizes_townty"
+                    android:layout_marginTop="3dp"
+                    android:text="Username or E-mail" />
+
+                <EditText
+                    android:id="@+id/email"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:textColorHint="@color/text_color_white"
+                    android:hint="@string/username"
+                    android:background="#B86763"
+                    android:inputType="textEmailAddress"
+                    android:padding="20dp"
+                    android:textStyle="normal"
+                    android:typeface="sans"
+                    android:textSize="15dp">
+
+
+                </EditText>
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="0.5dp"
+                    android:background="#e3e3e3"/>
+            </LinearLayout>
+
+
+
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:background="#B86763"
+                android:orientation="vertical" >
+
+                <com.frissbi.Utility.MyTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="@dimen/text_sizes_townty"
+                    android:textColor="@color/text_color_white"
+                    android:layout_marginTop="5dp"
+                    android:text="Password" />
+                <EditText
+                    android:id="@+id/pword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ems="10"
+                    android:textColorHint="@color/text_color_white"
+                    android:background="#B86763"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/text_sizes_fiftin"
+                    android:hint="@string/passowrd"
+
+                    android:inputType="textPassword"
+                    android:padding="20dp" />
+                <View
+                    android:layout_width="fill_parent"
+                    android:layout_height="0.5dp"
+                    android:background="#e3e3e3"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginTop="5dp"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <ImageButton
+                        android:layout_width="220dp"
+                        android:layout_height="43dp"
+                        android:id="@+id/login"
+                        android:src="@drawable/singin"
+                        android:background="@drawable/background"/>
+
+                    <ImageButton
+                        android:layout_width="220dp"
+                        android:layout_height="43dp"
+                        android:layout_marginTop="6dp"
+                        android:id="@+id/gmail"
+                        android:background="@drawable/g1"/>
+
+
+
+                </LinearLayout>
+                <com.frissbi.Utility.MyTextView
+                    android:id="@+id/forgot"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="@dimen/margin_sizes_fiftin"
+                    android:text="Forgot Password ?"
+                    android:textSize="15dp"
+                    android:textStyle="bold"
+                 android:textColor="@drawable/text_color"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:gravity="center_vertical|center_horizontal"
+                android:padding="20dp"
+                android:layout_height="match_parent">
+                <com.frissbi.Utility.MyTextView
+                    android:id="@+id/registerbtn"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="20dp"
+                    android:textColor="@drawable/text_color"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:text="Create An Account" />
+
+
+
+
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+    </LinearLayout>
+</FrameLayout>

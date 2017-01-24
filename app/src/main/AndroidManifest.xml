@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.frissbi">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <!--
+ The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
+         Google Maps Android API v2, but are recommended.
+    -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.USE_CREDENTIALS" />
+
+    <permission
+        android:name="com.frissbi.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
+
+    <uses-permission android:name="com.frissbi.C2D_MESSAGE" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.GET_TASKS" />
+
+    <uses-feature
+        android:name="android.hardware.CAMERA"
+        android:required="false" />
+    <uses-feature android:name="android.hardware.bluetooth" />
+
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.TYPE_SYSTEM_ALERT" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS_PRIVILEGED" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+
+    <supports-screens
+        android:anyDensity="true"
+        android:largeScreens="true"
+        android:normalScreens="true"
+        android:resizeable="true"
+        android:smallScreens="true"
+        android:xlargeScreens="true" />
+
+    <application
+        android:name=".MainApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme">
+        <meta-data
+            android:name="DATABASE"
+            android:value="frissbi.db" />
+        <meta-data
+            android:name="VERSION"
+            android:value="4" />
+        <meta-data
+            android:name="QUERY_LOG"
+            android:value="true" />
+        <meta-data
+            android:name="DOMAIN_PACKAGE_NAME"
+            android:value="com.frissbi.models" />
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
+        <!--
+            <meta-data
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="@string/google_maps_key" />
+        -->
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+
+        <activity
+            android:name=".frissbi.SplashScreen"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".frissbi.Login"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
+            android:name=".frissbi.Update_profile"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_Meetings.Meetingrequst"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_Friends.Friend_PendingList"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_Meetings.MeetingSummary"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_Meetings.MeetingPendingList"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_Friends.FriendSerching"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="stateHidden|adjustResize" />
+        <activity
+            android:name=".locations.NearByPlacess"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".frissbi.Privacypolicy"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".frissbi.GetTermsandConditions"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_img_crop.CropImage"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_Friends.FriendList_CheckBox"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".frissbi.ForgotPassword"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".frissbi.UserProfileAccept"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".frissbi.Register"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MapLocations.SetLocationMap"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".MapLocations.ToLocationsformap"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".frissbi.Test"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".frissbi.Test1"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_Meetings.Meets"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_Meetings.MeetingAcept"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Gmail.GmailSyncActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Gmail.ProfileGetActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_Friends.Friends_list"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_profilePic.Profile_Pic"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_Meetings.Meeting_StatusPage"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".frissbi.UserProfile"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".Frissbi_Meetings.MeetingendTime"
+            android:screenOrientation="portrait" />
+        <activity android:name=".Notifications.GetIntent" />
+
+        <receiver
+            android:name=".GcmBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
+                <category android:name="com.frissbi" />
+            </intent-filter>
+        </receiver>
+
+        <service android:name=".GcmIntentService" />
+
+        <activity
+            android:name=".activities.HomeActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".TabActivity"
+            android:label="@string/title_activity_tab"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.MeetingActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".MyPlacesActivity" />
+        <activity
+            android:name=".activities.SelectLocationAndSaveActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.MySavedPlacesActivity"
+            android:label="Saved Places" />
+        <activity
+            android:name=".activities.FriendsListActivity"
+            android:label="Add Friends" />
+        <activity android:name=".activities.AddFriendsToMeetingActivity" />
+        <activity android:name=".activities.ProfileActivity"></activity>
+    </application>
+
+</manifest>

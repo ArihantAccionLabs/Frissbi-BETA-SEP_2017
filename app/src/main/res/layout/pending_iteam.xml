@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="80dp"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal"
+        android:weightSum="10.5">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="2">
+
+
+            <com.frissbi.Utility.RoundedImageView
+                android:id="@+id/imageView_round"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:layout_gravity="center_vertical|center_horizontal" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_weight="4">
+
+            <com.frissbi.Utility.MyTextView
+                android:id="@+id/peding"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|center_horizontal"
+                android:text="Chandar Rao Mallepalliiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@drawable/list_item_text_selector"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="2">
+
+            <Button
+                android:id="@+id/accept"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+
+                android:layout_height="30dp"
+                android:background="@drawable/accept" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center|right"
+            android:layout_marginLeft="10dp"
+            android:layout_weight="2">
+
+            <Button
+                android:id="@+id/ignore"
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:background="@drawable/ignore" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+      android:layout_marginTop="6dp"
+        android:background="#e3e3e3">
+
+    </View>
+</LinearLayout>

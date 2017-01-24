@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_color">#DE5549</color>
+   <!-- <color name="colorPrimary">#5F0200</color>-->
+    <color name="colorPrimary">#DE5549</color>
+    <color name="colorPrimaryDark">#5F0200</color>
+    <color name="textColorPrimary">#F1F5F7</color>
+    <color name="windowBackground">#f1f5f7</color>
+    <color name="navigationBarColor">#000000</color>
+    <color name="colorAccent">#FF80AB</color>
+
+    <color name="black">#000000</color>
+    <color name="symptom_color_selected">#003366</color>
+    <color name="reaction_color_selected">#003366</color>
+    <color name="static_text_color">#003366</color>
+    <color name="journal_entry_listitem_text_color">#003366</color>
+    <color name="note_text_disabled">#333333</color>
+    <color name="blue">#0000FF</color>
+    <color name="navy">#6699FF</color>
+    <color name="sky">#0099CC</color>
+    <color name="gray">#808080</color>
+    <color name="lightgray">#e7e7e7</color>
+    <color name="lightgray02">#bfbfbf</color>
+    <color name="dark">#000015</color>
+    <color name="lightgreen">#336666</color>
+    <color name="orrange">#e33d1b</color>
+    <color name="darkorrange">#cc2303</color>
+
+    <color name="blue_grey_500">#607D8B</color>
+    <color name="blue_grey_600">#546E7A</color>
+    <color name="blue_grey_700">#455A64</color>
+    <color name="blue_grey_800">#37474F</color>
+    <color name="blue_grey_900">#263238</color>
+
+        <color name="pressed_color">#4d90fe</color>
+        <color name="default_color">#ffffff</color>
+
+    <!---USER Interface Colors-->
+
+    <!--logain Screen Coors-->
+
+    <color name="text_color_white">#FFF</color>
+    <color name="text_color_black">#000000</color>
+   <color name="background_color">#d3d3d7</color>
+
+    <color name="cal_color">#50D2C2</color>
+
+
+    <color name="text_color_default">#00000C</color>
+    <color name="text_color_inverse">#DE5549</color>
+    <color name="white">#FFFFFF</color>
+    <color name="list_row_default_bg">#ffffff</color>
+    <color name="list_row_pressed_bg">#efefef</color>
+    <color name="list_row_selected_bg">#86d3f6</color>
+
+
+
+
+
+
+</resources>

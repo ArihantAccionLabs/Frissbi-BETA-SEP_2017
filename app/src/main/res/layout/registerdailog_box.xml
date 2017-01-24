@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+android:background="#ffffff"
+    android:layout_height="150dp">
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_gravity="right"
+        android:gravity="right"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:id="@+id/cls"
+
+            android:background="@drawable/clos"
+            android:gravity="right"
+            android:layout_gravity="right" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:orientation="horizontal"
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:layout_marginTop="10dp"
+       android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content">
+
+        <ImageButton
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:id="@+id/img"
+            android:background="@drawable/succ"/>
+            </LinearLayout>
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content">
+
+        <com.frissbi.Utility.MyTextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="hi"
+            android:layout_marginRight="10dp"
+            android:id="@+id/msg"
+            android:textColor="#000000"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+
+
+</LinearLayout>

@@ -1,0 +1,58 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <dimen name="text_sizes_ten">10dp</dimen>
+    <dimen name="text_sizes_fiftin">15dp</dimen>
+    <dimen name="text_sizes_townty">20dp</dimen>
+    <dimen name="text_sizes_towntyfive">25dp</dimen>
+
+    <dimen name="margin_sizes_five">5dp</dimen>
+    <dimen name="margin_sizes_ten">10dp</dimen>
+    <dimen name="margin_sizes_fiftin">15dp</dimen>
+    <dimen name="margin_sizes_townty">20dp</dimen>
+    <dimen name="margin_sizes_towntyfive">25dp</dimen>
+
+    <dimen name="layout_height_10">10dp</dimen>
+    <dimen name="layout_height_20">20dp</dimen>
+    <dimen name="layout_height_30">30dp</dimen>
+    <dimen name="layout_height_40">40dp</dimen>
+    <dimen name="layout_height_50">50dp</dimen>
+    <dimen name="layout_height_70">70dp</dimen>
+    <dimen name="layout_height_90">90dp</dimen>
+    <dimen name="layout_height_100">100dp</dimen>
+    <dimen name="layout_height_120">120dp</dimen>
+    <dimen name="layout_height_140dp">140dp</dimen>
+    <dimen name="layout_height_160dp">160dp</dimen>
+    <dimen name="layout_height_180dp">180dp</dimen>
+    <dimen name="layout_height_200dp">200dp</dimen>
+    <dimen name="layout_height_220dp">220dp</dimen>
+
+    <dimen name="layout_widh_10">10dp</dimen>
+    <dimen name="layout_widh_20">20dp</dimen>
+    <dimen name="layout_widh_30">30dp</dimen>
+    <dimen name="layout_widh_40">40dp</dimen>
+
+
+    <dimen name="layout_widh_50">50dp</dimen>
+    <dimen name="layout_widh_70">70dp</dimen>
+    <dimen name="layout_widh_90">90dp</dimen>
+    <dimen name="layout_widht_100">100dp</dimen>
+    <dimen name="layout_widh_120">120dp</dimen>
+    <dimen name="layout_widh_140dp">140dp</dimen>
+    <dimen name="layout_widh_160dp">160dp</dimen>
+    <dimen name="layout_widh_180dp">180dp</dimen>
+    <dimen name="layout_widh_200dp">200dp</dimen>
+    <dimen name="layout_widh_220dp">220dp</dimen>
+
+
+    <dimen name="g_top_margin">100dp</dimen>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="nav_header_vertical_spacing">16dp</dimen>
+    <dimen name="nav_header_height">160dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="appbar_padding_top">8dp</dimen>
+
+
+</resources>

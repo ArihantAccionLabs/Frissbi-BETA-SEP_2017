@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:id="@+id/buttonlayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#fff"
+        android:orientation="horizontal">
+
+
+         <LinearLayout
+            android:layout_width="fill_parent"
+             android:layout_gravity="center"
+             android:gravity="center"
+             android:layout_marginLeft="10dp"
+            android:layout_height="wrap_content"
+            android:weightSum="5">
+
+             <LinearLayout
+                 android:layout_width="wrap_content"
+                 android:layout_weight="1"
+                 android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/prevMonth"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:background="@drawable/cal_left_arrow_off"
+
+            android:layout_marginLeft="10sp">
+           </ImageView>
+             </LinearLayout>
+             <LinearLayout
+                 android:layout_width="wrap_content"
+                 android:layout_weight="1"
+                 android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/currentMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="60sp"
+            android:gravity="center"
+            android:text="Jan"
+
+            android:textColor="#000000"></TextView>
+        </LinearLayout>
+             <LinearLayout
+                 android:layout_width="wrap_content"
+                 android:layout_weight="1"
+                 android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/nextMonth"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_gravity="center"
+            android:background="@drawable/cal_right_arrow_off">
+            </ImageView>
+             </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="#50D2C2"
+        android:orientation="horizontal"
+        android:layout_gravity="center_vertical|center_horizontal"
+        android:gravity="center_vertical|center_horizontal"
+        android:weightSum="8">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/text_color_white"
+            android:text="Sun" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textColor="@color/text_color_white"
+            android:text="Mon" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_white"
+            android:layout_weight="1"
+            android:text="Tue" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_white"
+            android:layout_weight="1"
+            android:text="wed" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_white"
+            android:layout_weight="1"
+            android:text="Thu" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_white"
+            android:layout_weight="1"
+            android:text="Fri" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/text_color_white"
+            android:layout_marginLeft="3dp"
+            android:layout_weight="1"
+            android:text="Sat" />
+
+
+
+    </LinearLayout>
+<LinearLayout
+    android:layout_width="fill_parent"
+    android:orientation="vertical"
+    android:layout_height="fill_parent">
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:weightSum="5"
+        android:orientation="vertical"
+        android:layout_height="fill_parent">
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_weight="2"
+            android:layout_height="fill_parent">
+
+        <GridView
+            android:id="@+id/calendar"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:numColumns="7"
+            android:background="#50D2C2"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_weight="2"
+            android:layout_marginTop="2dp"
+            android:layout_height="fill_parent">
+
+            <ListView
+                android:id="@+id/meetinglist"
+                android:layout_width="fill_parent"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:listSelector="@drawable/list_selector_flatcolor"
+                android:layout_height="fill_parent" />
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+</LinearLayout>
+
+
+</LinearLayout>

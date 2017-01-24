@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" 
+    android:background="#ffffff"
+    android:weightSum="1">
+
+    <LinearLayout 
+           android:layout_height="200dp"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:background="@color/bg_color">
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:layout_marginTop="10dp"
+            android:orientation="horizontal">
+    <LinearLayout
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+
+        android:orientation="vertical">
+
+
+
+</LinearLayout>
+
+    <LinearLayout 
+           android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent" >
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content">
+
+
+            <com.frissbi.Utility.MyTextView
+                android:id="@+id/username"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20dp"
+                android:layout_marginLeft="20dp"
+                android:textStyle="bold"
+                android:textColor="@color/text_color_white"
+                android:text="Chandar Rao Mallepalli" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_gravity="right"
+            android:gravity="right"
+            android:layout_height="wrap_content">
+            <com.frissbi.Utility.RoundedImageView
+                android:id="@+id/imageView_round"
+                android:layout_width="50dp"
+                android:layout_marginRight="6dp"
+                android:layout_height="50dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    </LinearLayout>
+
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:weightSum="3"
+            android:layout_marginTop="30dp">
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="20dp"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="80dp"
+                    android:background="@drawable/addfrd"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:layout_height="80dp">
+
+                    <com.frissbi.Utility.MyTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/meet"
+                        android:textColor="@drawable/text_color"
+                        android:textStyle="bold"
+                        android:layout_gravity="center_vertical|center_horizontal"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:textSize="18dp"
+                        android:text="MEET"/>
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+                <LinearLayout
+                    android:layout_width="80dp"
+                    android:background="@drawable/addfrd"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:layout_height="80dp">
+
+                    <com.frissbi.Utility.MyTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="#FFFFFF"
+                        android:id="@+id/chat"
+                        android:textStyle="bold"
+                        android:layout_gravity="center_vertical|center_horizontal"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:textSize="18dp"
+                        android:text="CHAT"/>
+                </LinearLayout>
+                </LinearLayout>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_weight="1"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="80dp"
+                    android:background="@drawable/addfrd"
+                    android:layout_gravity="center_vertical|center_horizontal"
+                    android:gravity="center_vertical|center_horizontal"
+                    android:layout_height="80dp">
+
+                    <com.frissbi.Utility.MyTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@drawable/text_color"
+                        android:textStyle="bold"
+                        android:textSize="18dp"
+                        android:layout_gravity="center_vertical|center_horizontal"
+                        android:gravity="center_vertical|center_horizontal"
+                        android:id="@+id/add"
+                        android:text="ADD"/>
+                </LinearLayout>
+
+
+            </LinearLayout>
+        </LinearLayout>
+</LinearLayout>
+<LinearLayout 
+    android:layout_height="wrap_content"
+    android:layout_width="fill_parent"
+    android:layout_marginTop="30dp"
+    android:layout_marginRight="30dp"
+    android:layout_marginLeft="20dp"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        android:layout_height="wrap_content">
+
+        <com.frissbi.Utility.MyTextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:text="First Name  :"
+            android:textColor="#000000"/>
+
+
+        <com.frissbi.Utility.MyTextView
+            android:id="@+id/name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:textColor="#000000"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:background="#e3e3e3">
+
+    </View>
+
+
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        android:layout_marginTop="30dp"
+        android:layout_height="wrap_content">
+
+        <com.frissbi.Utility.MyTextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:text="Last Name  :"
+            android:textColor="#000000"/>
+
+
+        <com.frissbi.Utility.MyTextView
+            android:id="@+id/lastname"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:textColor="#000000"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:background="#e3e3e3">
+
+    </View>
+ <LinearLayout
+        android:layout_width="fill_parent"
+        android:orientation="horizontal"
+        android:weightSum="3"
+        android:layout_marginTop="30dp"
+        android:layout_height="wrap_content">
+
+        <com.frissbi.Utility.MyTextView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15dp"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:text="E-mail        :"
+            android:textColor="#000000"/>
+
+
+        <com.frissbi.Utility.MyTextView
+            android:id="@+id/email"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18dp"
+            android:layout_weight="1"
+            android:textStyle="bold"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
+            android:textColor="#000000"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:background="#e3e3e3">
+
+    </View>
+</LinearLayout>
+
+</LinearLayout>

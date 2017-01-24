@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_select_location_and_save"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.frissbi.activities.SelectLocationAndSaveActivity">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/search_cardView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="6dp">
+
+        <RelativeLayout
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="10dp">
+
+            <AutoCompleteTextView
+                android:id="@+id/location_search_autoCompleteTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/clk"
+                android:background="@null"
+                android:hint="Type a location"
+                android:padding="4dp" />
+
+            <ImageView
+                android:id="@+id/clk"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:padding="2dp"
+                android:src="@android:drawable/ic_menu_search" />
+
+
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+    <fragment
+        android:id="@+id/map"
+        class="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/search_cardView" />
+
+    <Button
+        android:id="@+id/done"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="50dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/done" />
+
+    <!--<android.support.design.widget.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="6dp"
+        android:padding="10dp"
+        android:layout_alignParentRight="true"
+        android:src="@drawable/right_mark"
+        app:backgroundTint="@color/bg_color" />-->
+
+
+</RelativeLayout>
