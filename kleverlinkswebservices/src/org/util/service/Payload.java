@@ -1,8 +1,9 @@
 package org.util.service;
 
 import java.io.Serializable;
+import java.util.List;
 
-public class Payload implements Serializable{
+public class Payload<T> implements Serializable{
 
 	/**
 	 * 
@@ -10,7 +11,8 @@ public class Payload implements Serializable{
 	private static final long serialVersionUID = 1L;
 	private Boolean status = false;
 	private String message;
-	
+	private T jsonObject;
+	private List<T> listObject;
 	
 	public Boolean getStatus() {
 		return status;
@@ -24,5 +26,17 @@ public class Payload implements Serializable{
 	}
 	public void setMessage(String message) {
 		this.message = message;
+	}
+	public T getJsonObject() {
+		return jsonObject;
+	}
+	public void setJsonObject(T jsonObject) {
+		this.jsonObject = jsonObject;
+	}
+	public List<T> getListObject() {
+		return listObject;
+	}
+	public void setListObject(List<T> listObject) {
+		this.listObject = listObject;
 	}
 }

@@ -10,7 +10,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,14 +18,15 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
@@ -176,6 +176,32 @@ public class ServiceUtility {
 		return fromTime;
 	}
 
+	public static Map<String , Date> getOneDayDate(String date){
+		
+		Map<String , Date> map = new HashMap<String , Date>();
+		try{
+		DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Calendar now = Calendar.getInstance();
+		now.setTime(formatter.parse(date));
+		now.set(Calendar.HOUR, 0);
+		now.set(Calendar.MINUTE, 0);
+		now.set(Calendar.SECOND, 0);
+		now.set(Calendar.HOUR_OF_DAY, 0);
+
+		Calendar tomorrow = Calendar.getInstance();
+		tomorrow.setTime(now.getTime());
+		tomorrow.add(Calendar.DATE, 1);
+		
+		map.put("today", now.getTime());
+		map.put("tomorrow", tomorrow.getTime());
+		}catch (Exception e) {
+		e.printStackTrace();
+		}
+		return map;
+	}
+	
+	
 	public static void closeConnection(Connection connection) {
 		try {
 			if (connection != null)
@@ -333,14 +359,18 @@ public class ServiceUtility {
 		}
 	}
 
-	public static void deleteUserFromMeeting(int meetingId, int senderUserId)
+	public static void deleteUserFromMeeting(int meetingId, int senderUserId , Boolean isMeetingCreator)
 			throws IOException, SQLException, PropertyVetoException {
 
 		Connection connection = null;
 		connection = DataSourceConnection.getDBConnection();
 		PreparedStatement preparedStatement = null;
-
-		String sql = "DELETE FROM tbl_RecipientsDetails WHERE MeetingID=? AND UserID=?;";
+		String sql = "";
+		if(isMeetingCreator){
+			sql = "UPDATE  tbl_RecipientsDetails SET isSenderRemoved=1 WHERE MeetingID=? AND UserID=?";
+		}else{
+			sql = "DELETE FROM tbl_RecipientsDetails WHERE MeetingID=? AND UserID=?";
+		}
 		preparedStatement = connection.prepareStatement(sql);
 		preparedStatement.setInt(1, meetingId);
 		preparedStatement.setInt(2, senderUserId);
@@ -360,27 +390,8 @@ public class ServiceUtility {
 		}
 		System.out.println("<<<<<<<<<<<<<<<<<<" + userIds.toString());
 		// sending notification
-		sendNotification(userIds, senderUserId, NotificationsEnum.Meeting_Rejected.ordinal() + 1, meetingId);// sending
-																												// notification
-																												// to
-																												// all
-																												// member
-																												// about
-																												// the
-																												// meeting
-																												// cancellation
-																												// about
-																												// a
-																												// user
-		sendNotificationToOneUser(senderUserId, 0, NotificationsEnum.Meeting_Rejected.ordinal() + 1, meetingId);// sending
-																												// notification
-																												// to
-																												// the
-																												// member
-																												// who
-																												// cancelled
-																												// his
-																												// meeting
+		sendNotification(userIds, senderUserId, NotificationsEnum.Meeting_Rejected.ordinal() + 1, meetingId);
+		sendNotificationToOneUser(senderUserId, 0, NotificationsEnum.Meeting_Rejected.ordinal() + 1, meetingId);
 	}
 
 	// Generic type method to send notification
@@ -406,9 +417,12 @@ public class ServiceUtility {
 					AuthenticateUser authenticateUser = new AuthenticateUser();
 					JSONObject jsonRegistrationId = new JSONObject(
 							authenticateUser.getGCMDeviceRegistrationId(recipientId));
-					String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
-					Result result = sender.send(message, deviceRegistrationId, 1);
-					System.out.println(result);
+					if(jsonRegistrationId.has("DeviceRegistrationID")){
+						
+						String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+						Result result = sender.send(message, deviceRegistrationId, 1);
+						System.out.println(result);
+					}
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
@@ -419,7 +433,7 @@ public class ServiceUtility {
 	// Generic type method to send notification
 	public static void sendNotificationToOneUser(int recipientId, int senderUserId, int notificationType,
 			int meetingId) {
-
+       try{
 		UserNotifications userNotifications = new UserNotifications();
 		Timestamp timestamp = new Timestamp(new Date().getTime());
 		String notificationId = userNotifications.insertUserNotifications(recipientId, senderUserId, notificationType,
@@ -434,66 +448,51 @@ public class ServiceUtility {
 			String NotificationName = json.getString("NotificationName");
 			Sender sender = new Sender(Constants.GCM_APIKEY);
 
-			UserDTO userDTO = getUserDetailsByUserId(recipientId, meetingId);
+			/*UserDTO userDTO = getUserDetailsByUserId(recipientId, meetingId);
 			if (userDTO != null) {
 				notificationMessage = "Dear " + userDTO.getFullName() + "you have cancelled the Meeting type : "
 						+ userDTO.getDescription() + " on date " + userDTO.getMeetingFromTime().toLocalDate();
-			}
+			}*/
 			Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
 					.addData("message", notificationMessage).addData("NotificationName", NotificationName).build();
-			System.out.println(">>>>>>>>>>>>>>>>>>." + message.toString());
-			try {
+			
 				AuthenticateUser authenticateUser = new AuthenticateUser();
 				JSONObject jsonRegistrationId = new JSONObject(
 						authenticateUser.getGCMDeviceRegistrationId(recipientId));
 				String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
 				Result result = sender.send(message, deviceRegistrationId, 1);
 				System.out.println(result);
-			} catch (IOException e) {
+			} 
+             }catch (IOException e) {
 				e.printStackTrace();
 			}
-		}
 	}
 
-	public static UserDTO checkingMeetingConfliction(int senderUserId, String meetingDate,
-			LocalDateTime senderFromDateTime, LocalDateTime senderToDateTime) throws ParseException {
-
-		DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd hh:mm a");
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Calendar now = Calendar.getInstance();
-		now.setTime(formatter.parse(meetingDate));
-		now.set(Calendar.HOUR, 0);
-		now.set(Calendar.MINUTE, 0);
-		now.set(Calendar.SECOND, 0);
-		now.set(Calendar.HOUR_OF_DAY, 0);
-
-		Calendar tomorrow = Calendar.getInstance();
-		tomorrow.setTime(now.getTime());
-		tomorrow.add(Calendar.DATE, 1);
+	public static List<UserDTO> checkingMeetingConfliction(int senderUserId, String meetingDate,
+		LocalDateTime senderFromDateTime, LocalDateTime senderToDateTime) throws ParseException {
+		Map<String , Date> map = getOneDayDate(meetingDate);
 		try {
-			PreparedStatement pstmt = null;
+			//usp_CheckingConflicatedMeetings
+			CallableStatement callableStatement = null;
 			Connection conn = null;
-
-			String sql = "SELECT * FROM tbl_MeetingDetails WHERE SenderUserID=? AND SenderFromDateTime BETWEEN ? AND ? ORDER BY MeetingID";
 			conn = DataSourceConnection.getDBConnection();
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, senderUserId);
-			pstmt.setString(2, sdf.format(now.getTime()));
-			pstmt.setString(3, sdf.format(tomorrow.getTime()));
-
-			ResultSet rs = pstmt.executeQuery();
-			List<UserDTO> timePostedFriendList = new ArrayList<UserDTO>();
+			String selectStoreProcedue = "{call usp_CheckingConflicatedMeetings(?,?,?)}";
+			System.out.println("from =="+new Timestamp(map.get("today").getTime())+"==="+new Timestamp(map.get("today").getTime()));
+			callableStatement = conn.prepareCall(selectStoreProcedue);
+			callableStatement.setInt(1, senderUserId);
+			callableStatement.setTimestamp(2, new Timestamp(map.get("today").getTime()));
+			callableStatement.setTimestamp(3, new Timestamp(map.get("tomorrow").getTime()));
+			
+			ResultSet rs = callableStatement.executeQuery();;
+			List<UserDTO> meetingList = new ArrayList<UserDTO>();
+			List<UserDTO> conflictedMeetingList = new ArrayList<UserDTO>();
 			while (rs.next()) {
-				// System.out.println("MeetingID====="+rs.getInt("MeetingID")+"
-				// SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
-
+				 System.out.println("MeetingID====="+rs.getInt("MeetingID")+"SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
 				UserDTO userDto = new UserDTO();
 				userDto.setMeetingId(rs.getInt("MeetingID"));
 				userDto.setUserId(rs.getInt("SenderUserID"));
-				LocalDateTime fromTime = LocalDateTime.ofInstant(rs.getTimestamp("SenderFromDateTime").toInstant(),
-						ZoneId.systemDefault());
-				LocalDateTime toTime = LocalDateTime.ofInstant(rs.getTimestamp("SenderToDateTime").toInstant(),
-						ZoneId.systemDefault());
+				LocalDateTime fromTime = convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
+				LocalDateTime toTime =   convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
 				userDto.setMeetingFromTime(fromTime);
 				userDto.setMeetingToTime(toTime);
 				userDto.setStartTime(Float.parseFloat(fromTime.getHour() + "." + fromTime.getMinute()));
@@ -501,26 +500,26 @@ public class ServiceUtility {
 				userDto.setLatitude(rs.getString("latitude"));
 				userDto.setLongitude(rs.getString("longitude"));
 				userDto.setDescription(rs.getString("MeetingDescription"));
-				timePostedFriendList.add(userDto);
-
+				
+				meetingList.add(userDto);
 			}
-
+           System.out.println("meetingList====="+meetingList.size());
 			// logic for avoiding the time collapse b/w meetings
 			Float meetingStartTime = Float
 					.parseFloat(senderFromDateTime.getHour() + "." + senderFromDateTime.getMinute());
 			Float meetingEndTime = Float.parseFloat(senderToDateTime.getHour() + "." + senderToDateTime.getMinute());
 
-			System.out.println(meetingStartTime + "=====" + meetingEndTime + "    " + timePostedFriendList.size());
-			for (UserDTO userDTO : timePostedFriendList) {
-				if ((userDTO.getStartTime() < meetingStartTime && meetingStartTime < userDTO.getEndTime())
-						|| (userDTO.getStartTime() < meetingEndTime && meetingEndTime < userDTO.getEndTime())) {
-					return userDTO;
+			System.out.println(meetingStartTime + "=====" + meetingEndTime + "    " + meetingList.size());
+			for (UserDTO userDTO : meetingList) {
+				if ((userDTO.getStartTime() <= meetingStartTime && meetingStartTime < userDTO.getEndTime())|| (userDTO.getStartTime() <= meetingEndTime && meetingEndTime < userDTO.getEndTime())) {
+					conflictedMeetingList.add(userDTO);
 				}
 			}
+			 System.out.println(conflictedMeetingList.toString()+" <-conList     meetingList====="+meetingList.size());
+			return conflictedMeetingList;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return null;
+		return new ArrayList<UserDTO>();
 	}
-
 }

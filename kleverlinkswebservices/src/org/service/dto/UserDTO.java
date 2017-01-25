@@ -117,8 +117,10 @@ public class UserDTO {
 
 	@Override
 	public String toString() {
-		return "UserDTO [userId=" + userId + ", emailId=" + emailId + ", fullName=" + fullName + ", userName="
-				+ userName + ", startTime=" + startTime + ", endTime=" + endTime + "]";
+		return "UserDTO [userId=" + userId + ", meetingId=" + meetingId + ", emailId=" + emailId + ", fullName="
+				+ fullName + ", userName=" + userName + ", startTime=" + startTime + ", endTime=" + endTime
+				+ ", meetingFromTime=" + meetingFromTime + ", meetingToTime=" + meetingToTime + ", description="
+				+ description + ", latitude=" + latitude + ", longitude=" + longitude + "]";
 	}
 
 }
