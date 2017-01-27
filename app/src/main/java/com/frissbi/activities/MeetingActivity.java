@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
+import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.MeetingTitleAdapter;
 import com.frissbi.adapters.SelectedContactsExpandableAdapter;
 import com.frissbi.interfaces.MeetingTitleSelectionListener;
@@ -44,11 +45,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 
 public class MeetingActivity extends AppCompatActivity implements View.OnClickListener, MeetingTitleSelectionListener {
@@ -361,7 +359,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.conform_meeting:
                 if (checkFieldsValidation()) {
-                    sendMeetingDetailsToServer(0);
+                    sendMeetingDetailsToServer(new JSONArray());
                 }
                 break;
 
@@ -416,7 +414,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         mAlertDialog.show();
     }
 
-    private void sendMeetingDetailsToServer(long meetingId) {
+    private void sendMeetingDetailsToServer(JSONArray meetingIdsJsonArray) {
         JSONArray friendsIdJsonArray = new JSONArray();
         JSONArray emailIdJsonArray = new JSONArray();
         JSONArray contactsJsonArray = new JSONArray();
@@ -439,12 +437,12 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
 
         JSONObject jsonObject = new JSONObject();
         try {
-            if (meetingId != 0) {
-                jsonObject.put("meetingId", meetingId);
+            if (meetingIdsJsonArray.length() > 0) {
+                jsonObject.put("meetingIdsJsonArray", meetingIdsJsonArray);
             }
             jsonObject.put("senderUserId", mUserId);
             jsonObject.put("meetingTitle", mMeetingTitleTextView.getText());
-            jsonObject.put("meetingDateTime", mMeetingDateTextView.getText().toString() + "  " + mMeetingTimeTextView.getText().toString());
+            jsonObject.put("meetingDateTime", mMeetingDateTextView.getText().toString() +"  "+ mMeetingTimeTextView.getText().toString());
             jsonObject.put("duration", mMeetingDurationTextView.getText().toString());
             if (mMeetingPlace != null) {
                 jsonObject.put("latitude", mMeetingPlace.getLatitude() + "");
@@ -476,31 +474,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                                 Intent intent = new Intent(MeetingActivity.this, HomeActivity.class);
                                 startActivity(intent);
                             } else {
-                                Log.d("MeetingActivity", "message" + responseJsonObject.getString("message"));
-                                String fromTime = convertTime(responseJsonObject.getString("from"));
-                                String toTime = convertTime(responseJsonObject.getString("to"));
-                                AlertDialog.Builder builder = new AlertDialog.Builder(MeetingActivity.this);
-                                builder.setTitle("Alert!");
-                                builder.setMessage(responseJsonObject.getString("message") + " from " + fromTime + " to " + toTime + "." + " Do you wish to accept new meeting request? (Former Meeting will be cancelled)");
-                                builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        try {
-                                            conformationAlert(responseJsonObject.getLong("meetingId"));
-                                            mConflictAlertDialog.dismiss();
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                });
-                                builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
-                                        mConflictAlertDialog.dismiss();
-                                    }
-                                });
-                                mConflictAlertDialog = builder.create();
-                                mConflictAlertDialog.show();
+                                showConflictingAlertDialog(responseJsonObject.getString("message"), responseJsonObject.getJSONArray("meetingIdsJsonArray"));
                             }
 
 
@@ -520,7 +494,48 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
 
     }
 
-    private void conformationAlert(final long meetingId) {
+    private void showConflictingAlertDialog(String message, final JSONArray meetingIdsJsonArray) {
+        String fromTime = "";
+        String toTime = "";
+        if (meetingIdsJsonArray.length() == 1) {
+            try {
+                JSONObject conflictJsonObject = meetingIdsJsonArray.getJSONObject(0);
+                fromTime = Utility.getInstance().convertTime(conflictJsonObject.getString("from"));
+                toTime = Utility.getInstance().convertTime(conflictJsonObject.getString("to"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Alert!");
+        if (meetingIdsJsonArray.length() > 1) {
+            builder.setMessage(message);
+        } else {
+            builder.setMessage(message + " from " + fromTime + " to " + toTime + "." + " Do you wish to accept new meeting request? (Former Meeting will be cancelled)");
+        }
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mConflictAlertDialog.dismiss();
+
+                conformationAlert(meetingIdsJsonArray);
+            }
+        });
+
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mConflictAlertDialog.dismiss();
+            }
+        });
+        mConflictAlertDialog = builder.create();
+        mConflictAlertDialog.show();
+
+    }
+
+
+    private void conformationAlert(final JSONArray meetingIdsJsonArray) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Alert!");
         builder.setMessage("Are you sure?");
@@ -535,12 +550,13 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mConfirmAlertDialog.dismiss();
-                sendMeetingDetailsToServer(meetingId);
+                sendMeetingDetailsToServer(meetingIdsJsonArray);
             }
         });
         mConfirmAlertDialog = builder.create();
         mConfirmAlertDialog.show();
     }
+
 
     @Override
     public void selectedMeetingTitle(String title) {
@@ -548,23 +564,5 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         mAlertDialog.dismiss();
     }
 
-    private String convertTime(String time) {
-        String convertedTime = null;
-
-
-        Date _24HourDt = null;
-        try {
-            SimpleDateFormat _24HourSDF = new SimpleDateFormat("HH:mm");
-            SimpleDateFormat _12HourSDF = new SimpleDateFormat("hh:mm a");
-            _24HourDt = _24HourSDF.parse(time);
-            convertedTime = _12HourSDF.format(_24HourDt);
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-
-        return convertedTime;
-    }
 
 }

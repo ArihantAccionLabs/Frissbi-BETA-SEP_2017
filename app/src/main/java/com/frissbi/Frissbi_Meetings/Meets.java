@@ -547,19 +547,20 @@ public class Meets extends AppCompatActivity implements View.OnClickListener {
                 }
                 // create apps list
 
+                if (aJson != null) {
+                    for (int i = 0; i < aJson.length(); i++) {
+                        JSONObject json = aJson.getJSONObject(i);
+                        MeetingConsrants app = new MeetingConsrants();
+                        app.setMeetingDescription(json.getString("MeetingDescription"));
+                        app.setMeetingID(json.getString("MeetingID"));
+                        app.setGoogleadrres(json.getString("GoogleAddress"));
+                        app.setSenderFromDateTime(json.getString("SenderFromDateTime"));
+                        app.setSenderToDateTime(json.getString("SenderToDateTime"));
+                        Log.d("valupedig............", json.getString("MeetingID"));
 
-                for (int i = 0; i < aJson.length(); i++) {
-                    JSONObject json = aJson.getJSONObject(i);
-                    MeetingConsrants app = new MeetingConsrants();
-                    app.setMeetingDescription(json.getString("MeetingDescription"));
-                    app.setMeetingID(json.getString("MeetingID"));
-                    app.setGoogleadrres(json.getString("GoogleAddress"));
-                    app.setSenderFromDateTime(json.getString("SenderFromDateTime"));
-                    app.setSenderToDateTime(json.getString("SenderToDateTime"));
-                    Log.d("valupedig............", json.getString("MeetingID"));
+                        list1.add(app);
 
-                    list1.add(app);
-
+                    }
                 }
                 return jsonStr;
                 //notify the activity that fetch data has been complete

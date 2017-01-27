@@ -49,7 +49,8 @@ public class Friss_Pojo {
 
     public static final String MEETING_INSERT = "/MeetingDetailsService/insertMeetingDetails/";
     public static final String MEETING_UPDATE = "/MeetingDetailsService/updateRecipientXML/";
-    public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getMeetingDetailsByMeetingID/";
+ //   public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getMeetingDetailsByMeetingID/";
+ public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getUserDetailsByMeetingID/";
 
     public static final String LOCATION_MIDPOINT = "/LocationDetailsService/calculateMidpointForMeeting/";
     public static final String NEARBY_PLACES = "/GooglePlacesService/nearByPlacesForMeeting/";

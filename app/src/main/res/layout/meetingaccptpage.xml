@@ -1,113 +1,175 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-android:background="#FFFFFF"
-    android:layout_height="fill_parent">
+    android:layout_height="fill_parent"
+    android:background="#FFFFFF">
 
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:orientation="vertical">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="120dp"
-        android:background="@color/bg_color"
-        android:gravity="center_vertical|center_horizontal"
-        android:id="@+id/relativeLayout">
 
-
-        <com.frissbi.Utility.MyTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Confirm Meeting Status"
-            android:id="@+id/textView4"
-            android:textStyle="bold"
-            android:textSize="30dp"
-            android:textColor="#FFFFFF"
-            android:layout_centerVertical="true"
-            android:layout_centerHorizontal="true" />
-    </LinearLayout>
-
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:id="@+id/maa"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="30dp"
-        android:gravity="bottom"
-        android:background="#FFFFFF"
-        android:layout_below="@+id/relativeLayout">
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="10dp"
-        android:layout_weight="2">
-
-        <com.frissbi.Utility.MyTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="15dp"
-            android:textColor="#000000"
-            android:hint="Meeting On"
-            android:background="#ffffff" />
-        <com.frissbi.Utility.MyTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textSize="12dp"
-            android:layout_marginTop="25dp"
-            android:textColor="#000000"
-            android:gravity="bottom"
-            android:hint="Meeting On"
-            android:background="#ffffff"
-
-            android:id="@+id/getdate" />
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:layout_marginTop="5dp"
-            android:background="#e3e3e3">
-
-        </View>
-        </LinearLayout>
-  </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:id="@+id/setime"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="bottom"
-        android:weightSum="2"
-        android:background="#FFFFFF">
         <LinearLayout
-            android:layout_width="wrap_content"
-            android:orientation="vertical"
-            android:layout_height="wrap_content"
-           android:padding="10dp"
-            android:layout_weight="2">
-            <com.frissbi.Utility.MyTextView
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:textSize="15dp"
-                android:textColor="#000000"
-                android:hint="From"
-                android:background="#ffffff" />
+            android:id="@+id/relativeLayout"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:background="@color/bg_color"
+            android:gravity="center_vertical|center_horizontal">
+
 
             <com.frissbi.Utility.MyTextView
+                android:id="@+id/textView4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="bottom"
-                android:hint="From"
-                android:background="#ffffff"
-                android:textSize="12dp"
-                android:textColor="#000000"
-                android:layout_marginTop="5dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="Confirm Meeting Status"
+                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textColor="#FFFFFF"
+                android:textSize="30dp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
-                android:id="@+id/getdate1" />
+
+        <LinearLayout
+            android:id="@+id/maa"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/relativeLayout"
+            android:layout_marginTop="30dp"
+            android:background="#FFFFFF"
+            android:gravity="bottom"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <com.frissbi.Utility.MyTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="#ffffff"
+                    android:hint="Meeting On"
+                    android:textColor="#000000"
+                    android:textSize="15dp" />
+
+                <com.frissbi.Utility.MyTextView
+                    android:id="@+id/getdate"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:background="#ffffff"
+                    android:gravity="bottom"
+                    android:hint="Meeting On"
+                    android:textColor="#000000"
+
+                    android:textSize="12dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:background="#e3e3e3">
+
+                </View>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/setime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FFFFFF"
+            android:gravity="bottom"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:orientation="vertical"
+                android:padding="10dp">
+
+                <com.frissbi.Utility.MyTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:background="#ffffff"
+                    android:hint="From"
+                    android:textColor="#000000"
+                    android:textSize="15dp" />
+
+                <com.frissbi.Utility.MyTextView
+                    android:id="@+id/getdate1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:background="#ffffff"
+                    android:gravity="bottom"
+                    android:hint="From"
+                    android:textColor="#000000"
+
+                    android:textSize="12dp" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="5dp"
+                    android:background="#e3e3e3"></View>
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="10dp">
+
+            <LinearLayout
+                android:id="@+id/linearLayout2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/setime"
+                android:background="#FFFFFF"
+                android:gravity="bottom"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="2"
+                    android:orientation="horizontal">
+
+                    <com.frissbi.Utility.MyTextView
+                        android:id="@+id/place"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="#ffffff"
+                        android:gravity="bottom"
+                        android:hint="Select Meeting Location" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:gravity="right">
+
+                    <ImageButton
+                        android:id="@+id/editplace"
+                        android:layout_width="20dp"
+                        android:layout_height="30dp"
+                        android:layout_marginRight="20dp"
+                        android:background="@drawable/location2" />
+                </LinearLayout>
+            </LinearLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -116,134 +178,42 @@ android:background="#FFFFFF"
         </LinearLayout>
 
 
-</LinearLayout>
-
-
-
-
-
-<LinearLayout
-    android:layout_width="fill_parent"
-    android:orientation="vertical"
-    android:padding="10dp"
-    android:layout_height="wrap_content">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-           android:orientation="horizontal"
-            android:gravity="bottom"
-            android:background="#FFFFFF"
-            android:layout_below="@+id/setime"
-            android:id="@+id/linearLayout2">
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_weight="2">
-                <com.frissbi.Utility.MyTextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="bottom"
-                    android:hint="Select Meeting Location"
-                    android:background="#ffffff"
-                    android:id="@+id/place" />
-           </LinearLayout>
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:gravity="right"
-                android:layout_weight="1">
-                <ImageButton
-                    android:layout_width="20dp"
-                    android:layout_height="30dp"
-                    android:layout_marginRight="20dp"
-                    android:id="@+id/editplace"
-                    android:background="@drawable/location2"/>
-            </LinearLayout>
-        </LinearLayout>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="5dp"
-        android:background="#e3e3e3"></View>
-</LinearLayout>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="30dp"
         android:layout_gravity="bottom|center"
-        android:gravity="bottom|center">
+        android:layout_marginBottom="30dp"
+        android:gravity="bottom|center"
+        android:orientation="horizontal">
+
         <LinearLayout
             android:layout_width="wrap_content"
 
             android:layout_height="wrap_content">
 
 
-        <Button
-            android:layout_width="80dp"
-            android:layout_height="41dp"
+            <Button
+                android:id="@+id/accept"
+                android:layout_width="80dp"
 
-            android:id="@+id/accept"
-            android:background="@drawable/accept" />
+                android:layout_height="41dp"
+                android:background="@drawable/accept" />
         </LinearLayout>
-    <LinearLayout
-        android:layout_width="wrap_content"
 
-        android:layout_marginLeft="60dp"
-        android:layout_height="wrap_content">
-        <Button
-            android:layout_width="80dp"
-            android:layout_height="41dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
 
-            android:background="@drawable/ignore"
-            android:id="@+id/reject"
-            />
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="60dp">
+
+            <Button
+                android:id="@+id/reject"
+                android:layout_width="80dp"
+
+                android:layout_height="41dp"
+                android:background="@drawable/ignore" />
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

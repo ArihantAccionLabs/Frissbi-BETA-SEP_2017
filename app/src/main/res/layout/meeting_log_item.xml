@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:id="@+id/meeting_cardView"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:cardBackgroundColor="@color/orange"
+    android:layout_height="wrap_content"
+    android:layout_margin="6dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="6dp">
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meeting_log_description_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Meeting Description"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/meeting_log_description_tv"
+            android:layout_marginTop="6dp">
+
+            <com.frissbi.CustomFontTextView
+                android:id="@+id/meeting_log_date_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/white"
+                android:text="Date:" />
+
+            <com.frissbi.CustomFontTextView
+                android:id="@+id/meeting_log_time_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:textColor="@color/white"
+                android:layout_toRightOf="@+id/meeting_log_date_tv"
+                android:text="Time:" />
+        </RelativeLayout>
+    </RelativeLayout>
+
+
+</android.support.v7.widget.CardView>

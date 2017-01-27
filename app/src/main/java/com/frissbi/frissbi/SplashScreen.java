@@ -64,10 +64,12 @@ public class SplashScreen extends Activity implements AnimationListener {
                     //username and password are present, do your stuff
                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                     startActivity(intent);
+                    finish();
                 } else {
 
                     Intent intent = new Intent(getApplicationContext(), Login.class);
                     startActivity(intent);
+                    finish();
                     // Check for login status Using SharedPreference
                 }
 

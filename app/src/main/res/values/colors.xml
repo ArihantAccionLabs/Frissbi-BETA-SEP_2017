@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="bg_color">#DE5549</color>
-   <!-- <color name="colorPrimary">#5F0200</color>-->
+    <!-- <color name="colorPrimary">#5F0200</color>-->
     <color name="colorPrimary">#DE5549</color>
     <color name="colorPrimaryDark">#5F0200</color>
     <color name="textColorPrimary">#F1F5F7</color>
@@ -32,8 +32,8 @@
     <color name="blue_grey_800">#37474F</color>
     <color name="blue_grey_900">#263238</color>
 
-        <color name="pressed_color">#4d90fe</color>
-        <color name="default_color">#ffffff</color>
+    <color name="pressed_color">#4d90fe</color>
+    <color name="default_color">#ffffff</color>
 
     <!---USER Interface Colors-->
 
@@ -41,7 +41,7 @@
 
     <color name="text_color_white">#FFF</color>
     <color name="text_color_black">#000000</color>
-   <color name="background_color">#d3d3d7</color>
+    <color name="background_color">#d3d3d7</color>
 
     <color name="cal_color">#50D2C2</color>
 
@@ -52,10 +52,10 @@
     <color name="list_row_default_bg">#ffffff</color>
     <color name="list_row_pressed_bg">#efefef</color>
     <color name="list_row_selected_bg">#86d3f6</color>
-
-
-
-
+    <color name="orange">#FF4500</color>
+    <color name="light_orange">#FFA07A</color>
+    <color name="red">#FF0000</color>
+    <color name="green">#008000</color>
 
 
 </resources>

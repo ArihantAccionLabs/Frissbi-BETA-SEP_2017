@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_meeting_details"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_margin="10dp"
+    tools:context="com.frissbi.activities.MeetingDetailsActivity">
+
+    <LinearLayout
+        android:id="@+id/meet_for_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:weightSum="5">
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meet_for_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="For"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meeting_details_title_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="Title"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/meet_for_ll"
+        android:layout_marginTop="10dp"
+        android:background="@color/gray" />
+
+    <LinearLayout
+        android:id="@+id/meet_date_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view"
+        android:layout_marginTop="10dp"
+        android:weightSum="5">
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meet_date_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="On"
+            android:textColor="@color/black"
+            android:textSize="16dp" />
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meeting_details_date_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="date"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/meet_date_ll"
+        android:layout_marginTop="10dp"
+        android:background="@color/gray" />
+
+    <LinearLayout
+        android:id="@+id/meet_time_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view1"
+        android:layout_marginTop="10dp"
+        android:weightSum="5">
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meet_time_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Time"
+            android:textColor="@color/black"
+            android:textSize="16dp" />
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meeting_details_time_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="time"
+            android:textColor="@color/black" />
+
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view2"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/meet_time_ll"
+        android:layout_marginTop="10dp"
+        android:background="@color/gray" />
+
+    <LinearLayout
+        android:id="@+id/meet_at_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view2"
+        android:layout_marginTop="10dp"
+        android:weightSum="5">
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meet_at_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="At"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meeting_details_at_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="Place"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view3"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/meet_at_ll"
+        android:layout_marginTop="10dp"
+        android:background="@color/gray" />
+
+    <LinearLayout
+        android:id="@+id/status_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view3"
+        android:layout_marginTop="10dp"
+        android:weightSum="5">
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meet_status_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Status"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meeting_details_status_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="3"
+            android:text="Pending"
+            android:textColor="@color/black" />
+
+
+    </LinearLayout>
+
+    <View
+        android:id="@+id/view4"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/status_ll"
+        android:layout_marginTop="10dp"
+        android:background="@color/gray" />
+
+    <LinearLayout
+        android:id="@+id/friends_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view4"
+        android:layout_marginTop="10dp"
+        android:weightSum="5">
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meet_friends_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="With"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/meeting_details_friend_tv"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="2"
+            android:text="Friends"
+            android:textColor="@color/black" />
+
+        <Button
+            android:minHeight="40dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@color/bg_color"
+            android:text="more"
+            android:textColor="@color/white" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/meeting_accept_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:layout_weight="1"
+            android:background="@color/journal_entry_listitem_text_color"
+            android:text="Accept"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/meeting_ignore_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="6dp"
+            android:layout_weight="1"
+            android:background="@color/bg_color"
+            android:text="Ignore"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
+
+
+</RelativeLayout>

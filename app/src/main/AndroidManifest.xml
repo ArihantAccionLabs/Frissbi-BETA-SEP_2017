@@ -211,7 +211,9 @@
             android:name=".activities.FriendsListActivity"
             android:label="Add Friends" />
         <activity android:name=".activities.AddFriendsToMeetingActivity" />
-        <activity android:name=".activities.ProfileActivity"></activity>
+        <activity android:name=".activities.ProfileActivity" />
+        <activity android:name=".activities.MeetingDetailsActivity"
+            android:label="Confirmation"/>
     </application>
 
 </manifest>

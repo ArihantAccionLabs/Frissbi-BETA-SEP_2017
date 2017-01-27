@@ -48,7 +48,7 @@ public class MeetingAcept extends Activity {
     OrzineAdapterList adp1;
     ListView orzinelist, des_list;
     List<Orzine_pojo> list = new ArrayList<Orzine_pojo>();
-    TextView getdate, getdate1, place, textset,anyplace;
+    TextView getdate, getdate1, place, textset, anyplace;
     Button done, reject, accept1;
     LinearLayout setonmap, myplace, des_setonmap, flex, defined, flexdate;
     EditText flextime;
@@ -70,6 +70,7 @@ public class MeetingAcept extends Activity {
     Boolean isInternetPresent = false;
     // Connection detector class
     ConnectionDetector cd;
+    private long mMeetingId;
 
 
     @Override
@@ -85,6 +86,7 @@ public class MeetingAcept extends Activity {
 
         accept1 = (Button) findViewById(R.id.accept);
         cd = new ConnectionDetector(getApplicationContext());
+        mMeetingId = getIntent().getExtras().getLong("meetingId");
      /*   preferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         editor = preferences.edit();
         String userid = preferences.getString("USERID_FROM", "editor");
@@ -197,7 +199,6 @@ public class MeetingAcept extends Activity {
                         place.setText("Anyplace");
 
 
-
                     }
                 });
 
@@ -280,12 +281,11 @@ public class MeetingAcept extends Activity {
         @Override
         protected String doInBackground(String... params) {
 
-
             try {
 
                 String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_UPDATE + Friss_Pojo.MeetingID + "/" + Friss_Pojo.UseridFrom + "/" + RecipientFromDateTime + "/" + RecipientToDateTime + "/" + Status + "/"
                         + null + "/" + Meetingrequest_Pojo.Meeting_geoDateTime + "/" + Meetingrequest_Pojo.Meeting_Latitude_To + "/" + Meetingrequest_Pojo.Meeting_Longitude_To + "/" +
-                        Meetingrequest_Pojo.Meeting_Latitude + "/" + Meetingrequest_Pojo.Meeting_Longitude+ "/" + Meetingrequest_Pojo.Meeting_DestinationType;
+                        Meetingrequest_Pojo.Meeting_Latitude + "/" + Meetingrequest_Pojo.Meeting_Longitude + "/" + Meetingrequest_Pojo.Meeting_DestinationType;
 
                 url = url.replace(" ", "%20");
                 ServiceHandler sh = new ServiceHandler();
@@ -357,7 +357,7 @@ public class MeetingAcept extends Activity {
 
             try {
 
-                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_SINGALDETAILS + Friss_Pojo.MeetingID;
+                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_SINGALDETAILS + mMeetingId;
                 ServiceHandler sh = new ServiceHandler();
                 Log.d("url: ", "> " + url);
                 Log.d("Response: ", "> " + jsonStr);
@@ -437,7 +437,6 @@ public class MeetingAcept extends Activity {
     }
 
 
-
     public class Destinaen extends AsyncTask<String, String, String> {
         @Override
         protected void onPreExecute() {
@@ -448,16 +447,15 @@ public class MeetingAcept extends Activity {
             dialogp.setCancelable(false);
             dialogp.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialogp.setContentView(R.layout.dailog_box);
-            ImageView imgView = (ImageView)dialogp.findViewById(R.id.animationImage);
+            ImageView imgView = (ImageView) dialogp.findViewById(R.id.animationImage);
             imgView.setVisibility(ImageView.VISIBLE);
             imgView.setBackgroundResource(R.drawable.frame_animation);
 
-            AnimationDrawable frameAnimation =(AnimationDrawable) imgView.getBackground();
+            AnimationDrawable frameAnimation = (AnimationDrawable) imgView.getBackground();
 
             if (frameAnimation.isRunning()) {
                 frameAnimation.stop();
-            }
-            else {
+            } else {
                 frameAnimation.stop();
                 frameAnimation.start();
             }
@@ -545,16 +543,15 @@ public class MeetingAcept extends Activity {
             dialogp.setCancelable(false);
             dialogp.requestWindowFeature(Window.FEATURE_NO_TITLE);
             dialogp.setContentView(R.layout.dailog_box);
-          ImageView imgView = (ImageView)dialogp.findViewById(R.id.animationImage);
+            ImageView imgView = (ImageView) dialogp.findViewById(R.id.animationImage);
             imgView.setVisibility(ImageView.VISIBLE);
             imgView.setBackgroundResource(R.drawable.frame_animation);
 
-            AnimationDrawable frameAnimation =(AnimationDrawable) imgView.getBackground();
+            AnimationDrawable frameAnimation = (AnimationDrawable) imgView.getBackground();
 
             if (frameAnimation.isRunning()) {
                 frameAnimation.stop();
-            }
-            else {
+            } else {
                 frameAnimation.stop();
                 frameAnimation.start();
             }
@@ -565,7 +562,7 @@ public class MeetingAcept extends Activity {
         @Override
         public String doInBackground(String... params) {
             try {
-                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_CONFLICT +  Friss_Pojo.MeetingID + "/" + Friss_Pojo.UseridFrom + "/" + RecipientFromDateTime + "/" + RecipientToDateTime;
+                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_CONFLICT + Friss_Pojo.MeetingID + "/" + Friss_Pojo.UseridFrom + "/" + RecipientFromDateTime + "/" + RecipientToDateTime;
                 url = url.replace(" ", "%20");
                 ServiceHandler sh = new ServiceHandler();
                 Log.d("Response: ", "> " + url);
@@ -598,7 +595,7 @@ public class MeetingAcept extends Activity {
             super.onPostExecute(string);
             dialogp.dismiss();
             if (list1.isEmpty()) {
-               // Toast.makeText(getApplicationContext(), "Data Not Found", Toast.LENGTH_LONG).show();
+                // Toast.makeText(getApplicationContext(), "Data Not Found", Toast.LENGTH_LONG).show();
 
                 new MeetingUpdates().execute();
             } else {
@@ -628,7 +625,6 @@ public class MeetingAcept extends Activity {
                 adp = new Meeting_Conflictadapter(getApplicationContext(), list1);
                 conflictlist.setAdapter(adp);
             }
-
 
 
         }

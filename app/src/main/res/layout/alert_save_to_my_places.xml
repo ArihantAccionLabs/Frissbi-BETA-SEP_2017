@@ -38,6 +38,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_weight="1"
+            android:textColor="@color/white"
             android:background="@color/bg_color"
             android:text="No" />
 
@@ -48,6 +49,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_weight="1"
+            android:textColor="@color/white"
             android:background="@color/sky"
             android:text="Yes" />
 
