@@ -71,9 +71,10 @@ public class ServiceUtility {
 			return userDTO;
 		} catch (Exception e) {
 			e.printStackTrace();
-		}
+		}finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return null;
 	}
 
@@ -99,8 +100,10 @@ public class ServiceUtility {
 			e.printStackTrace();
 		}
 		// closing db resources
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(stmt);
+		finally{		
+			ServiceUtility.closeConnection(conn);
+		    ServiceUtility.closeSatetment(stmt);
+		}
 		return userDTO;
 
 	}
@@ -127,8 +130,10 @@ public class ServiceUtility {
 			e.printStackTrace();
 		}
 		// closing db resources
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(stmt);
+		finally{
+			ServiceUtility.closeConnection(conn);
+		    ServiceUtility.closeSatetment(stmt);
+		    }
 		return userDTO;
 
 	}
@@ -164,6 +169,36 @@ public class ServiceUtility {
 
 	}
 
+	public static UserDTO getMeetingDetailsById(int meetingId) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		UserDTO userDTO = null;
+		String sql = "";
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			sql = "SELECT SenderFromDateTime,SenderToDateTime FROM tbl_MeetingDetails WHERE MeetingID=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, meetingId);
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				userDTO = new UserDTO();
+				LocalDateTime fromTime = convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
+				LocalDateTime toTime =   convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
+				userDTO.setStartTime(Float.parseFloat(fromTime.getHour() + "." + fromTime.getMinute()));
+				userDTO.setEndTime(Float.parseFloat(toTime.getHour() + "." + toTime.getMinute()));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+		// closing db resources
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(pstmt);
+		}
+		return userDTO;
+
+	}
+	
 	public static LocalDateTime convertStringToLocalDateTime(String date) {
 		LocalDateTime fromTime = null;
 		try {
@@ -178,6 +213,7 @@ public class ServiceUtility {
 
 	public static Map<String , Date> getOneDayDate(String date){
 		
+		System.out.println("date=============="+date);
 		Map<String , Date> map = new HashMap<String , Date>();
 		try{
 		DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
@@ -191,10 +227,14 @@ public class ServiceUtility {
 
 		Calendar tomorrow = Calendar.getInstance();
 		tomorrow.setTime(now.getTime());
-		tomorrow.add(Calendar.DATE, 1);
+		tomorrow.set(Calendar.HOUR, 23);
+		tomorrow.set(Calendar.MINUTE, 59);
+		tomorrow.set(Calendar.SECOND, 00);
+		//tomorrow.add(Calendar.DATE, 1);
 		
 		map.put("today", now.getTime());
 		map.put("tomorrow", tomorrow.getTime());
+		//System.out.println("map=================="+map.toString());
 		}catch (Exception e) {
 		e.printStackTrace();
 		}
@@ -359,7 +399,7 @@ public class ServiceUtility {
 		}
 	}
 
-	public static void deleteUserFromMeeting(int meetingId, int senderUserId , Boolean isMeetingCreator)
+	public static void deleteUserFromMeeting(JSONArray meetingArray , int senderUserId , Boolean isMeetingCreator)
 			throws IOException, SQLException, PropertyVetoException {
 
 		Connection connection = null;
@@ -369,20 +409,25 @@ public class ServiceUtility {
 		if(isMeetingCreator){
 			sql = "UPDATE  tbl_RecipientsDetails SET isSenderRemoved=1 WHERE MeetingID=? AND UserID=?";
 		}else{
-			sql = "DELETE FROM tbl_RecipientsDetails WHERE MeetingID=? AND UserID=?";
+			sql = "UPDATE tbl_RecipientsDetails SET Status=2 WHERE MeetingID=? AND UserID=?";
 		}
+		for (int i = 0; i < meetingArray.length(); i++) {
+			
 		preparedStatement = connection.prepareStatement(sql);
-		preparedStatement.setInt(1, meetingId);
+		preparedStatement.setInt(1, meetingArray.getJSONObject(i).getInt("meetingId"));
 		preparedStatement.setInt(2, senderUserId);
-
-		preparedStatement.executeUpdate();
-
-		preparedStatement = null;
+        
+		preparedStatement.addBatch();
+		}
+		
+		int [] updatedRow = preparedStatement.executeBatch();
+		System.out.println("updatedRow================"+updatedRow.toString());
+		/*preparedStatement = null;
 		sql = null;
 		sql = "SELECT UserID FROM tbl_RecipientsDetails WHERE MeetingID=?";
 		preparedStatement = connection.prepareStatement(sql);
 		preparedStatement.setInt(1, meetingId);
-
+	
 		ResultSet rs = preparedStatement.executeQuery();
 		List<Integer> userIds = new ArrayList<Integer>();
 		while (rs.next()) {
@@ -391,7 +436,7 @@ public class ServiceUtility {
 		System.out.println("<<<<<<<<<<<<<<<<<<" + userIds.toString());
 		// sending notification
 		sendNotification(userIds, senderUserId, NotificationsEnum.Meeting_Rejected.ordinal() + 1, meetingId);
-		sendNotificationToOneUser(senderUserId, 0, NotificationsEnum.Meeting_Rejected.ordinal() + 1, meetingId);
+		sendNotificationToOneUser(senderUserId, 0, NotificationsEnum.Meeting_Rejected.ordinal() + 1, meetingId);*/
 	}
 
 	// Generic type method to send notification
@@ -522,4 +567,108 @@ public class ServiceUtility {
 		}
 		return new ArrayList<UserDTO>();
 	}
+	
+	public static JSONObject getEmailIdByMeetingId(int meetingId){
+		
+		 Connection conn = null;
+		Statement statement = null;
+		 JSONObject finalJson = new JSONObject();
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String sql = "SELECT UserEmailID FROM tbl_MeetingEmails WHERE MeetingID="+meetingId;
+			statement = conn.createStatement();
+			ResultSet rs = statement.executeQuery(sql);
+			JSONArray emailIdsArray = new JSONArray();
+			while(rs.next()){
+				emailIdsArray.put(rs.getString("UserEmailID"));
+			}
+			finalJson.put("emails", emailIdsArray);
+		} catch(Exception  e){
+			e.printStackTrace();
+		}finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(statement);
+		}
+		return finalJson;
+	}
+	
+	
+	public static JSONObject getContactByMeetingId(int meetingId){
+		
+		 Connection conn = null;
+		Statement statement = null;
+		 JSONObject finalJson = new JSONObject();
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String sql = "SELECT ContactNumber FROM tbl_MeetingContacts WHERE MeetingID="+meetingId;
+			statement = conn.createStatement();
+			ResultSet rs = statement.executeQuery(sql);
+			JSONArray emailIdsArray = new JSONArray();
+			while(rs.next()){
+				emailIdsArray.put(rs.getString("ContactNumber"));
+			}
+			finalJson.put("contacts", emailIdsArray);
+		} catch(Exception  e){
+			e.printStackTrace();
+		}finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(statement);
+		}
+		return finalJson;
+	}
+	
+	public static JSONObject getMeetingDetailsByUserId(int userId){
+		
+		 Connection conn = null;
+		 Statement statement = null;
+		 JSONObject finalJson = new JSONObject();
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			
+			
+			String sql ="" ;
+			
+			ResultSet rs = statement.executeQuery(sql);
+			JSONArray friendsArray = new JSONArray();
+			while(rs.next()){
+				friendsArray.put(rs.getString("firstName")+" "+rs.getString("lastName"));
+				friendsArray.put(rs.getInt("Status"));
+			}
+			finalJson.put("friendsArray", friendsArray);
+		} catch(Exception  e){
+			e.printStackTrace();
+		}finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(statement);
+		}
+		return finalJson;
+	}
+	
+	
+
+	public static JSONObject getReceptionistByMeetingId(int meetingId){
+		
+		 Connection conn = null;
+		 Statement statement = null;
+		 JSONObject finalJson = new JSONObject();
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String sql = "SELECT tbl_users.firstName,tbl_users.lastName,tbl_RecipientsDetails.Status FROM tbl_RecipientsDetails INNER JOIN tbl_users ON  tbl_RecipientsDetails.UserID=tbl_users.UserID WHERE MeetingID="+meetingId;
+			statement = conn.createStatement();
+			ResultSet rs = statement.executeQuery(sql);
+			JSONArray friendsArray = new JSONArray();
+			while(rs.next()){
+				friendsArray.put(rs.getString("firstName")+" "+rs.getString("lastName"));
+				friendsArray.put(rs.getInt("Status"));
+			}
+			finalJson.put("friendsArray", friendsArray);
+		} catch(Exception  e){
+			e.printStackTrace();
+		}finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(statement);
+		}
+		return finalJson;
+	}
+	
 }

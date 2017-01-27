@@ -82,8 +82,10 @@ public class UserNotifications {
 			} catch (Exception e) {
 				e.printStackTrace();
 			} 
-			ServiceUtility.closeConnection(conn);
+			finally{
+		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 			return isError;
 		}
 		

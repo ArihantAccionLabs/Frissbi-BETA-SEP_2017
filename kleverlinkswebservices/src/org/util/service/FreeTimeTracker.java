@@ -104,6 +104,10 @@ public class FreeTimeTracker {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		finally{
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(pstmt);
+			}
 	}
 
 	// checking friend list who posted his time

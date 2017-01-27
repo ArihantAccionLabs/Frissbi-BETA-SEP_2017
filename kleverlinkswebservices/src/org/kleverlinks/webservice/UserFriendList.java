@@ -76,8 +76,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return "0";
 	}
 
@@ -123,8 +125,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return value;
 	}
 
@@ -233,8 +237,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return "0";
 	}
 
@@ -290,8 +296,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return "0";
 	}
 
@@ -347,8 +355,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return "0";
 	}
 
@@ -413,8 +423,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		finalJson.put("status", false);
 		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
@@ -475,8 +487,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return jsonResultsArray.toString();
 	}
 
@@ -529,8 +543,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return jsonResultsArray.toString();
 	}
 
@@ -570,8 +586,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return jsonResultsArray.toString();
 	}
 
@@ -614,8 +632,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return jsonResultsArray.toString();
 	}
 
@@ -683,8 +703,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return jsonResultsArray.toString();
 	}
 
@@ -726,8 +748,10 @@ public class UserFriendList {
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+		finally{
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
+		}
 		return requestStatus;
 	}
 

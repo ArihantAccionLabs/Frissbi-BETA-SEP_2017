@@ -17,6 +17,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Locale;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -39,7 +40,11 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
-           FreeTimeTracker.getUserFreeTime();
+          // FreeTimeTracker.getUserFreeTime();
+		
+		String date = "2017-01-28 08:32 PM";
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd hh:mm a" , Locale.getDefault());
+		System.out.println("date======="+sdf.parse(date));
            return "ok";
 			
 	}
