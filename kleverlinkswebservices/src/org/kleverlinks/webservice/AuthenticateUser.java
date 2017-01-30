@@ -41,10 +41,7 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
           // FreeTimeTracker.getUserFreeTime();
-		
-		String date = "2017-01-28 08:32 PM";
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-mm-dd hh:mm a" , Locale.getDefault());
-		System.out.println("date======="+sdf.parse(date));
+		ServiceUtility.getMeetingStatusByUserId(409 , 221);
            return "ok";
 			
 	}

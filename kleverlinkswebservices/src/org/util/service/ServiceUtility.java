@@ -369,152 +369,37 @@ public class ServiceUtility {
 		}
 	}
 
-	public static void sendingMeetingCreationNotification(JSONObject meetingInsertionObject, int meetingId) {
-
-		JSONArray friendsArray = meetingInsertionObject.getJSONArray("friendsIdJsonArray");
-		List<Integer> userIds = new ArrayList<Integer>();
-		for (int i = 0; i < friendsArray.length(); i++) {
-			userIds.add(friendsArray.getInt(i));
-		}
-		// sending the meeting request to all memeber
-		sendNotification(userIds, meetingInsertionObject.getInt("senderUserId"),
-				NotificationsEnum.Meeting_Pending_Requests.ordinal() + 1, meetingId);
-		LocationDetails locationDetails = new LocationDetails();
-		try {
-			// Doing reverse geocoding
-			String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
-					+ meetingInsertionObject.getString("latitude") + "," + meetingInsertionObject.getString("longitude")
-					+ "&key=" + Constants.GCM_APIKEY;
-			ClientConfig config = new DefaultClientConfig();
-			Client client = Client.create(config);
-			WebResource service = client.resource(url);
-			JSONObject json = new JSONObject(MeetingDetails.getOutputAsString(service));
-			JSONArray results = (JSONArray) json.get("results");
-			JSONObject resultsObject = (JSONObject) results.get(0);
-			String formattedAddress = (String) resultsObject.get("formatted_address");
-			locationDetails.insertMeetingLocationDetails(meetingInsertionObject.getString("latitude"),
-					meetingInsertionObject.getString("longitude"), formattedAddress, meetingId);
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-	}
-
-	public static void deleteUserFromMeeting(JSONArray meetingArray , int senderUserId , Boolean isMeetingCreator)
-			throws IOException, SQLException, PropertyVetoException {
+	public static void deleteUserFromMeeting(JSONArray meetingArray , int senderUserId)throws IOException, SQLException, PropertyVetoException {
 
 		Connection connection = null;
 		connection = DataSourceConnection.getDBConnection();
 		PreparedStatement preparedStatement = null;
 		String sql = "";
-		if(isMeetingCreator){
-			sql = "UPDATE  tbl_RecipientsDetails SET isSenderRemoved=1 WHERE MeetingID=? AND UserID=?";
-		}else{
-			sql = "UPDATE tbl_RecipientsDetails SET Status=2 WHERE MeetingID=? AND UserID=?";
-		}
+		connection.setAutoCommit(false);
 		for (int i = 0; i < meetingArray.length(); i++) {
-			
-		preparedStatement = connection.prepareStatement(sql);
-		preparedStatement.setInt(1, meetingArray.getJSONObject(i).getInt("meetingId"));
-		preparedStatement.setInt(2, senderUserId);
+			System.out.println("checking======"+(isMeetingCreatorRemoved(meetingArray.getJSONObject(i).getInt("meetingId"),senderUserId)));
+			if(isMeetingCreatorRemoved(meetingArray.getJSONObject(i).getInt("meetingId"),senderUserId)){
+				sql = "UPDATE  tbl_MeetingDetails SET isSenderRemoved=2 WHERE MeetingID=? AND SenderUserId=?";
+				preparedStatement = connection.prepareStatement(sql);
+				preparedStatement.setInt(1, meetingArray.getJSONObject(i).getInt("meetingId"));
+				preparedStatement.setInt(2, senderUserId);
+			}else{
+				sql = "UPDATE tbl_RecipientsDetails SET Status=2,ResponseDateTime=? WHERE MeetingID=? AND UserID=?";
+				preparedStatement = connection.prepareStatement(sql);
+				preparedStatement.setString(1, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
+				preparedStatement.setInt(2, meetingArray.getJSONObject(i).getInt("meetingId"));
+				preparedStatement.setInt(3, senderUserId);
+			}
         
 		preparedStatement.addBatch();
 		}
-		
 		int [] updatedRow = preparedStatement.executeBatch();
+		connection.commit();
 		System.out.println("updatedRow================"+updatedRow.toString());
-		/*preparedStatement = null;
-		sql = null;
-		sql = "SELECT UserID FROM tbl_RecipientsDetails WHERE MeetingID=?";
-		preparedStatement = connection.prepareStatement(sql);
-		preparedStatement.setInt(1, meetingId);
-	
-		ResultSet rs = preparedStatement.executeQuery();
-		List<Integer> userIds = new ArrayList<Integer>();
-		while (rs.next()) {
-			userIds.add(rs.getInt("UserID"));
-		}
-		System.out.println("<<<<<<<<<<<<<<<<<<" + userIds.toString());
-		// sending notification
-		sendNotification(userIds, senderUserId, NotificationsEnum.Meeting_Rejected.ordinal() + 1, meetingId);
-		sendNotificationToOneUser(senderUserId, 0, NotificationsEnum.Meeting_Rejected.ordinal() + 1, meetingId);*/
 	}
 
-	// Generic type method to send notification
-	public static void sendNotification(List<Integer> userIds, int senderUserId, int notificationType, int meetingId) {
 
-		for (Integer recipientId : userIds) {
-			if (!(senderUserId == recipientId)) {
-
-				UserNotifications userNotifications = new UserNotifications();
-				Timestamp timestamp = new Timestamp(new Date().getTime());
-				String notificationId = userNotifications.insertUserNotifications(recipientId, senderUserId,
-						notificationType, 0, timestamp);
-				JSONObject json = new JSONArray(
-						userNotifications.getUserNotifications(0, Integer.parseInt(notificationId))).getJSONObject(0);
-				String notificationMessage = json.getString("NotificationMessage");
-				String NotificationName = json.getString("NotificationName");
-				Sender sender = new Sender(Constants.GCM_APIKEY);
-				Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
-						.addData("message", notificationMessage).addData("NotificationName", NotificationName)
-						.addData("meetingId", meetingId + "").build();
-
-				try {
-					AuthenticateUser authenticateUser = new AuthenticateUser();
-					JSONObject jsonRegistrationId = new JSONObject(
-							authenticateUser.getGCMDeviceRegistrationId(recipientId));
-					if(jsonRegistrationId.has("DeviceRegistrationID")){
-						
-						String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
-						Result result = sender.send(message, deviceRegistrationId, 1);
-						System.out.println(result);
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
-
-	// Generic type method to send notification
-	public static void sendNotificationToOneUser(int recipientId, int senderUserId, int notificationType,
-			int meetingId) {
-       try{
-		UserNotifications userNotifications = new UserNotifications();
-		Timestamp timestamp = new Timestamp(new Date().getTime());
-		String notificationId = userNotifications.insertUserNotifications(recipientId, senderUserId, notificationType,
-				0, timestamp);
-
-		JSONArray jsonArray = new JSONArray(
-				userNotifications.getUserNotifications(0, Integer.parseInt(notificationId)));
-		if (jsonArray != null && jsonArray.length() > 0) {
-
-			JSONObject json = jsonArray.getJSONObject(0);
-			String notificationMessage = json.getString("NotificationMessage");
-			String NotificationName = json.getString("NotificationName");
-			Sender sender = new Sender(Constants.GCM_APIKEY);
-
-			/*UserDTO userDTO = getUserDetailsByUserId(recipientId, meetingId);
-			if (userDTO != null) {
-				notificationMessage = "Dear " + userDTO.getFullName() + "you have cancelled the Meeting type : "
-						+ userDTO.getDescription() + " on date " + userDTO.getMeetingFromTime().toLocalDate();
-			}*/
-			Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
-					.addData("message", notificationMessage).addData("NotificationName", NotificationName).build();
-			
-				AuthenticateUser authenticateUser = new AuthenticateUser();
-				JSONObject jsonRegistrationId = new JSONObject(
-						authenticateUser.getGCMDeviceRegistrationId(recipientId));
-				String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
-				Result result = sender.send(message, deviceRegistrationId, 1);
-				System.out.println(result);
-			} 
-             }catch (IOException e) {
-				e.printStackTrace();
-			}
-	}
-
-	public static List<UserDTO> checkingMeetingConfliction(int senderUserId, String meetingDate,
-		LocalDateTime senderFromDateTime, LocalDateTime senderToDateTime) throws ParseException {
+	public static List<UserDTO> checkingMeetingConfliction(int senderUserId, String meetingDate,LocalDateTime senderFromDateTime, LocalDateTime senderToDateTime) throws ParseException {
 		Map<String , Date> map = getOneDayDate(meetingDate);
 		try {
 			//usp_CheckingConflicatedMeetings
@@ -532,7 +417,7 @@ public class ServiceUtility {
 			List<UserDTO> meetingList = new ArrayList<UserDTO>();
 			List<UserDTO> conflictedMeetingList = new ArrayList<UserDTO>();
 			while (rs.next()) {
-				 System.out.println("MeetingID====="+rs.getInt("MeetingID")+"SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
+				 //System.out.println("MeetingID====="+rs.getInt("MeetingID")+"SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
 				UserDTO userDto = new UserDTO();
 				userDto.setMeetingId(rs.getInt("MeetingID"));
 				userDto.setUserId(rs.getInt("SenderUserID"));
@@ -550,17 +435,16 @@ public class ServiceUtility {
 			}
            System.out.println("meetingList====="+meetingList.size());
 			// logic for avoiding the time collapse b/w meetings
-			Float meetingStartTime = Float
-					.parseFloat(senderFromDateTime.getHour() + "." + senderFromDateTime.getMinute());
+			Float meetingStartTime = Float.parseFloat(senderFromDateTime.getHour() + "." + senderFromDateTime.getMinute());
 			Float meetingEndTime = Float.parseFloat(senderToDateTime.getHour() + "." + senderToDateTime.getMinute());
 
-			System.out.println(meetingStartTime + "=====" + meetingEndTime + "    " + meetingList.size());
 			for (UserDTO userDTO : meetingList) {
-				if ((userDTO.getStartTime() <= meetingStartTime && meetingStartTime < userDTO.getEndTime())|| (userDTO.getStartTime() <= meetingEndTime && meetingEndTime < userDTO.getEndTime())) {
-					conflictedMeetingList.add(userDTO);
+				//System.out.println(meetingStartTime + "=====" + meetingEndTime + "    " + userDTO.getStartTime()+"   "+userDTO.getEndTime()+"==="+((meetingStartTime < userDTO.getStartTime() && userDTO.getStartTime() < meetingEndTime)|| (meetingStartTime < userDTO.getEndTime()  && userDTO.getEndTime() < meetingEndTime)));
+				if ((meetingStartTime < userDTO.getStartTime() && userDTO.getStartTime() < meetingEndTime)|| (meetingStartTime < userDTO.getEndTime()  && userDTO.getEndTime() < meetingEndTime)) {
+				conflictedMeetingList.add(userDTO);
 				}
 			}
-			 System.out.println(conflictedMeetingList.toString()+" <-conList     meetingList====="+meetingList.size());
+			 System.out.println("conflictedMeetingList====="+conflictedMeetingList.size());
 			return conflictedMeetingList;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -568,107 +452,166 @@ public class ServiceUtility {
 		return new ArrayList<UserDTO>();
 	}
 	
-	public static JSONObject getEmailIdByMeetingId(int meetingId){
+	public static JSONArray getEmailIdByMeetingId(int meetingId){
 		
 		 Connection conn = null;
 		Statement statement = null;
-		 JSONObject finalJson = new JSONObject();
+		 JSONArray emailIdJsonArray = new JSONArray();
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			String sql = "SELECT UserEmailID FROM tbl_MeetingEmails WHERE MeetingID="+meetingId;
 			statement = conn.createStatement();
 			ResultSet rs = statement.executeQuery(sql);
-			JSONArray emailIdsArray = new JSONArray();
 			while(rs.next()){
-				emailIdsArray.put(rs.getString("UserEmailID"));
+				emailIdJsonArray.put(rs.getString("UserEmailID"));
 			}
-			finalJson.put("emails", emailIdsArray);
 		} catch(Exception  e){
 			e.printStackTrace();
 		}finally {
 			ServiceUtility.closeConnection(conn);
 			ServiceUtility.closeSatetment(statement);
 		}
-		return finalJson;
+		return emailIdJsonArray;
 	}
 	
 	
-	public static JSONObject getContactByMeetingId(int meetingId){
+	public static JSONArray getContactByMeetingId(int meetingId){
 		
 		 Connection conn = null;
-		Statement statement = null;
-		 JSONObject finalJson = new JSONObject();
+		  Statement statement = null;
+		 JSONArray contactsJsonArray = new JSONArray();
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			String sql = "SELECT ContactNumber FROM tbl_MeetingContacts WHERE MeetingID="+meetingId;
 			statement = conn.createStatement();
 			ResultSet rs = statement.executeQuery(sql);
-			JSONArray emailIdsArray = new JSONArray();
 			while(rs.next()){
-				emailIdsArray.put(rs.getString("ContactNumber"));
+				contactsJsonArray.put(rs.getString("ContactNumber"));
 			}
-			finalJson.put("contacts", emailIdsArray);
+			
 		} catch(Exception  e){
 			e.printStackTrace();
 		}finally {
 			ServiceUtility.closeConnection(conn);
 			ServiceUtility.closeSatetment(statement);
 		}
-		return finalJson;
+		return contactsJsonArray;
 	}
 	
-	public static JSONObject getMeetingDetailsByUserId(int userId){
+	public static Integer getMeetingStatusByUserId(int meetingId , int userId){
 		
 		 Connection conn = null;
-		 Statement statement = null;
-		 JSONObject finalJson = new JSONObject();
+		 PreparedStatement statement = null;
+		 Integer status = 0;
+		 System.out.println("meetingId"+meetingId+"   "+userId);
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			
-			
-			String sql ="" ;
-			
-			ResultSet rs = statement.executeQuery(sql);
-			JSONArray friendsArray = new JSONArray();
+			//"SELECT Status FROM tbl_RecipientsDetails WHERE tbl_RecipientsDetails.MeetingID="+meetingId+" AND tbl_RecipientsDetails.UserID="+userId;
+			String sql ="SELECT Status FROM tbl_RecipientsDetails WHERE tbl_RecipientsDetails.MeetingID=? AND tbl_RecipientsDetails.UserID=?";
+			statement = conn.prepareStatement(sql);
+			statement.setInt(1, meetingId);
+			statement.setInt(2, userId);
+			ResultSet rs = statement.executeQuery();
+			int count = 0;
 			while(rs.next()){
-				friendsArray.put(rs.getString("firstName")+" "+rs.getString("lastName"));
-				friendsArray.put(rs.getInt("Status"));
+				status = rs.getInt("Status");
+				count++;
 			}
-			finalJson.put("friendsArray", friendsArray);
+			System.out.println("count==="+count+" status =="+status);
+			if(count == 0 && isMeetingCreatorRemoved(meetingId,userId)){//Meeting creator is by default meeting accepted
+				status = 1;
+			}
 		} catch(Exception  e){
 			e.printStackTrace();
 		}finally {
 			ServiceUtility.closeConnection(conn);
 			ServiceUtility.closeSatetment(statement);
 		}
-		return finalJson;
+		return status;
 	}
-	
-	
 
-	public static JSONObject getReceptionistByMeetingId(int meetingId){
+	public static Boolean isMeetingCreatorRemoved(int meetingId , int userId){
 		
 		 Connection conn = null;
-		 Statement statement = null;
-		 JSONObject finalJson = new JSONObject();
+		 PreparedStatement statement = null;
+		 Integer isSenderRemoved = 0;
+		 Boolean status = false;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String sql = "SELECT tbl_users.firstName,tbl_users.lastName,tbl_RecipientsDetails.Status FROM tbl_RecipientsDetails INNER JOIN tbl_users ON  tbl_RecipientsDetails.UserID=tbl_users.UserID WHERE MeetingID="+meetingId;
+			//"SELECT Status FROM tbl_RecipientsDetails WHERE tbl_RecipientsDetails.MeetingID="+meetingId+" AND tbl_RecipientsDetails.UserID="+userId;
+			String sql ="SELECT isSenderRemoved FROM tbl_MeetingDetails WHERE tbl_MeetingDetails.MeetingID=? AND tbl_MeetingDetails.SenderUserID=?";
+			statement = conn.prepareStatement(sql);
+			statement.setInt(1, meetingId);
+			statement.setInt(2, userId);
+			ResultSet rs = statement.executeQuery();
+			while(rs.next()){
+				System.out.println("isSenderRemoved=================="+rs.getInt("isSenderRemoved"));
+				isSenderRemoved = rs.getInt("isSenderRemoved");
+			}
+			if(isSenderRemoved == 1){
+				status = true;
+			}
+		} catch(Exception  e){
+			e.printStackTrace();
+		}finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(statement);
+		}
+		return status;
+	}
+	
+	
+	public static Map<String , JSONArray> getReceptionistByMeetingId(int meetingId , int userId){
+		
+		 Connection conn = null;
+		 CallableStatement callableStatement = null;
+		 JSONArray friendsArray = new JSONArray();
+		 JSONArray userIdsArray = new JSONArray();
+		 Map<String , JSONArray> map = new HashMap<>();
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			//SELECT tbl_users.firstName,tbl_users.lastName,tbl_RecipientsDetails.Status FROM tbl_RecipientsDetails INNER JOIN tbl_users ON  tbl_RecipientsDetails.UserID=tbl_users.UserID WHERE MeetingID="+meetingId;
+			String storeProc = "{call usp_GetMeetingFriendsList_ByMeetingID(?)}"; 
+			callableStatement = conn.prepareCall(storeProc);
+			callableStatement.setInt(1, meetingId);
+			ResultSet rs = callableStatement.executeQuery();
+			while(rs.next()){
+				if(!(userId == rs.getInt("UserID"))){
+					friendsArray.put(rs.getString("firstName")+" "+rs.getString("lastName"));
+					userIdsArray.put(rs.getInt("UserID"));
+				}
+			}
+			map.put("friendsArray", friendsArray);
+			map.put("userIdsArray", userIdsArray);
+		} catch(Exception  e){
+			e.printStackTrace();
+		}finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		return map;
+	}
+	
+	public static Integer getSenderUserIdByMeetingId(int meetingId){
+		
+		 Connection conn = null;
+		Statement statement = null;
+		int userId = 0;
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String sql = "SELECT SenderUserID FROM tbl_MeetingDetails WHERE MeetingID="+meetingId;
 			statement = conn.createStatement();
 			ResultSet rs = statement.executeQuery(sql);
-			JSONArray friendsArray = new JSONArray();
 			while(rs.next()){
-				friendsArray.put(rs.getString("firstName")+" "+rs.getString("lastName"));
-				friendsArray.put(rs.getInt("Status"));
+				userId = rs.getInt("SenderUserID");
 			}
-			finalJson.put("friendsArray", friendsArray);
 		} catch(Exception  e){
 			e.printStackTrace();
 		}finally {
 			ServiceUtility.closeConnection(conn);
 			ServiceUtility.closeSatetment(statement);
 		}
-		return finalJson;
+		return userId;
 	}
 	
 }

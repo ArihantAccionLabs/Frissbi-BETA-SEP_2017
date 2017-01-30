@@ -24,6 +24,7 @@ import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;
 import org.service.dto.UserDTO;
+import org.util.service.NotificationService;
 import org.util.service.ServiceUtility;
 
 @Path("FriendListService")
@@ -67,7 +68,7 @@ public class UserFriendList {
 			callableStatement.registerOutParameter(7, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
 			if (value == 1) {
-			ServiceUtility.sendNotificationToOneUser(userId2 , userId1 , NotificationsEnum.Friend_Pending_Requests.ordinal() + 1 , 0);	
+			NotificationService.sendNotificationToOneUser(userId2 , userId1 , NotificationsEnum.Friend_Pending_Requests.ordinal() + 1 , 0);	
 			return "1";
 			}
 
