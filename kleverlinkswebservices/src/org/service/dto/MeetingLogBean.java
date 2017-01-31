@@ -5,24 +5,27 @@ import java.time.LocalDateTime;
 
 public class MeetingLogBean {
 
-	private Integer sendeUserId;
+	private Integer userId;
 	private Integer meetingId;
 	private String fullName;
 	private String userName;
 	private LocalDate date;
-	private String from;
-	private String to;
+	private LocalDateTime from;
+	private LocalDateTime to;
 	private String description;
 	private String address;
 	private String latitude;
 	private String longitude;
+	
+	
+	public Integer getUserId() {
+		return userId;
+	}
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
 	private int meetingStatus;
-	public Integer getSendeUserId() {
-		return sendeUserId;
-	}
-	public void setSendeUserId(Integer sendeUserId) {
-		this.sendeUserId = sendeUserId;
-	}
+
 	public Integer getMeetingId() {
 		return meetingId;
 	}
@@ -44,21 +47,22 @@ public class MeetingLogBean {
 	public LocalDate getDate() {
 		return date;
 	}
+	public LocalDateTime getFrom() {
+		return from;
+	}
+	public void setFrom(LocalDateTime from) {
+		this.from = from;
+	}
+	public LocalDateTime getTo() {
+		return to;
+	}
+	public void setTo(LocalDateTime to) {
+		this.to = to;
+	}
 	public void setDate(LocalDate date) {
 		this.date = date;
 	}
-	public String getFrom() {
-		return from;
-	}
-	public void setFrom(String from) {
-		this.from = from;
-	}
-	public String getTo() {
-		return to;
-	}
-	public void setTo(String to) {
-		this.to = to;
-	}
+
 	public String getDescription() {
 		return description;
 	}

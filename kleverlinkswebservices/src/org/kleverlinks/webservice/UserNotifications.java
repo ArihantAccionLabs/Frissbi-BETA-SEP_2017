@@ -118,7 +118,6 @@ public class UserNotifications {
 					}
 					jsonObject.put("NotificationName", rs.getString("NotificationName"));
 					jsonObject.put("NotificationMessage", rs.getString("NotificationMessage"));
-					System.out.println( rs.getString("NotificationName")+"===========getUserNotifications==============="+rs.getString("NotificationMessage"));
 					jsonResultsArray.put(jsonObject);
 				}
 			} catch (SQLException se) {

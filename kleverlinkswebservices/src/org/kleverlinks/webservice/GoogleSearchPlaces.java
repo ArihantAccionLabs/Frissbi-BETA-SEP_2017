@@ -1,37 +1,74 @@
 package org.kleverlinks.webservice;
 
-import java.util.List;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.nio.charset.Charset;
 
-import se.walkercrou.places.Place;
-
-import com.google.api.client.http.GenericUrl;
-import com.google.api.client.http.HttpRequest;
-import com.google.api.client.http.HttpRequestFactory;
-import com.google.api.client.http.HttpRequestInitializer;
-import com.google.api.client.http.HttpResponseException;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.http.apache.ApacheHttpTransport;
-import com.google.api.client.http.json.JsonHttpParser;
-import com.google.api.client.json.jackson.JacksonFactory;
-import com.google.api.client.util.Key;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class GoogleSearchPlaces {
 	
-	private static final String PLACES_SEARCH_URL =  "https://maps.googleapis.com/maps/api/place/search/json?";
-	 
+	
+	
+	public static void getGoogleSearchPlaces() throws IOException, JSONException {
+		
+		int radious = 1000;//in meter
+		String latitude = "17.430702666666665";
+		String longitude = "78.44064721111111";
+		String type = "bar";
+		String keyword = "bar";
+		
+       String PLACES_SEARCH_URL =  "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+latitude+","+longitude+"&radius="+radious+"&type="+type+"&keyword="+keyword+"&key=AIzaSyAgM-mwjfosilNEdn5aCe4FJ9aDOp_U7JM";
+		System.out.println("PLACES_SEARCH_URL======="+PLACES_SEARCH_URL);
+       JSONObject json = readJsonFromUrl(PLACES_SEARCH_URL);
+		System.out.println(json.toString());
+	}
+	
+	private static String readAll(Reader rd) throws IOException {
+	    StringBuilder sb = new StringBuilder();
+	    int cp;
+	    while ((cp = rd.read()) != -1) {
+	      sb.append((char) cp);
+	    }
+	    return sb.toString();
+	  }
+
+	private static JSONObject readJsonFromUrl(String url) throws IOException, JSONException {
+	    InputStream is = new URL(url).openStream();
+	    try {
+	      BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+	      String jsonText = readAll(rd);
+	      JSONObject json = new JSONObject(jsonText);
+	      return json;
+	    } finally {
+	      is.close();
+	    }
+	  }
+}
+
+
+
+
+
+	/* 
 	private static final boolean PRINT_AS_STRING = false;
 
 
-	 public void performSearch() throws Exception {
+	 public static void performSearch() throws Exception {
 	 try {
 	   System.out.println("Perform Search ....");
 	   System.out.println("-------------------");
-	   double latitude = 17.44374595;
-	   double longitude = 78.36257359999999;
+	   double latitude = 17.430702666666665;
+	   double longitude =78.44064721111111;
 	   HttpTransport transport = new ApacheHttpTransport();
 	   HttpRequestFactory httpRequestFactory = createRequestFactory(transport);
 	   HttpRequest request = httpRequestFactory.buildGetRequest(new GenericUrl(PLACES_SEARCH_URL));
-	   request.url.put("key", "AIzaSyCJE9LKLKMqMg8n8CNzpt5xdsS8VXumrhQ");
+	   request.url.put("key", Constants.GOOGLE_MAP_KEY);
 	   request.url.put("location", latitude + "," + longitude);
 	   request.url.put("radius", 500);
 	   request.url.put("sensor", "false");
@@ -43,7 +80,7 @@ public class GoogleSearchPlaces {
 //	   while(iterator.hasNext()){
 //		   Place place = iterator.next();
 //		   System.out.println("place: "+place);
-//	   }
+//	   }//https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=-33.8670522,151.1957362&radius=500&type=restaurant&keyword=cruise&key=YOUR_API_KEY
 //	   System.out.println();
 	   
 	   if (PRINT_AS_STRING) {
@@ -81,8 +118,6 @@ public class GoogleSearchPlaces {
 		  }
 		);
 	 }
-}
-
 class PlacesList {
 
 	 @Key
@@ -91,4 +126,4 @@ class PlacesList {
 	 @Key
 	 public List<Place> results;
 
-	}
+	}*/

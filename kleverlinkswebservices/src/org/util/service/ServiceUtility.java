@@ -43,6 +43,7 @@ import org.kleverlinks.webservice.UserNotifications;
 import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;
+import org.service.dto.MeetingLogBean;
 import org.service.dto.UserDTO;
 
 import com.sun.jersey.api.client.Client;
@@ -313,13 +314,12 @@ public class ServiceUtility {
 			connection = DataSourceConnection.getDBConnection();
 			connection.setAutoCommit(false);
 			PreparedStatement ps = null;
-			String query = "INSERT into tbl_MeetingEmails(MeetingID,SenderUserID,UserEmailID) values(?,?,?)";
+			String query = "INSERT into tbl_MeetingEmails(MeetingID,UserEmailID) values(?,?)";
 			ps = connection.prepareStatement(query);
 
 			for (int i = 0; i < mailsArray.length(); i++) {
 				ps.setInt(1, meetingId);
-				ps.setInt(2, senderUserId);
-				ps.setString(3, mailsArray.getString(i));
+				ps.setString(2, mailsArray.getString(i));
 
 				ps.addBatch();
 			}
@@ -347,14 +347,13 @@ public class ServiceUtility {
 		connection = DataSourceConnection.getDBConnection();
 		connection.setAutoCommit(false);
 		PreparedStatement ps = null;
-		String query = "INSERT into tbl_MeetingContacts(MeetingID,SenderUserID,ContactNumber) values(?,?,?)";
+		String query = "INSERT into tbl_MeetingContacts(MeetingID,ContactNumber) values(?,?)";
 		ps = connection.prepareStatement(query);
 
 		for (int i = 0; i < contactArray.length(); i++) {
 
 			ps.setInt(1, meetingId);
-			ps.setInt(2, senderUserId);
-			ps.setString(3, contactArray.getString(i));
+			ps.setString(2, contactArray.getString(i));
 			ps.addBatch();
 
 		}
@@ -372,9 +371,10 @@ public class ServiceUtility {
 	public static void deleteUserFromMeeting(JSONArray meetingArray , int senderUserId)throws IOException, SQLException, PropertyVetoException {
 
 		Connection connection = null;
-		connection = DataSourceConnection.getDBConnection();
 		PreparedStatement preparedStatement = null;
 		String sql = "";
+		try{
+		connection = DataSourceConnection.getDBConnection();
 		connection.setAutoCommit(false);
 		for (int i = 0; i < meetingArray.length(); i++) {
 			System.out.println("checking======"+(isMeetingCreatorRemoved(meetingArray.getJSONObject(i).getInt("meetingId"),senderUserId)));
@@ -396,6 +396,12 @@ public class ServiceUtility {
 		int [] updatedRow = preparedStatement.executeBatch();
 		connection.commit();
 		System.out.println("updatedRow================"+updatedRow.toString());
+		}catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			ServiceUtility.closeConnection(connection);
+			ServiceUtility.closeSatetment(preparedStatement);
+		}
 	}
 
 
@@ -417,7 +423,7 @@ public class ServiceUtility {
 			List<UserDTO> meetingList = new ArrayList<UserDTO>();
 			List<UserDTO> conflictedMeetingList = new ArrayList<UserDTO>();
 			while (rs.next()) {
-				 //System.out.println("MeetingID====="+rs.getInt("MeetingID")+"SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
+				 System.out.println("MeetingID====="+rs.getInt("MeetingID")+"SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
 				UserDTO userDto = new UserDTO();
 				userDto.setMeetingId(rs.getInt("MeetingID"));
 				userDto.setUserId(rs.getInt("SenderUserID"));
@@ -440,7 +446,7 @@ public class ServiceUtility {
 
 			for (UserDTO userDTO : meetingList) {
 				//System.out.println(meetingStartTime + "=====" + meetingEndTime + "    " + userDTO.getStartTime()+"   "+userDTO.getEndTime()+"==="+((meetingStartTime < userDTO.getStartTime() && userDTO.getStartTime() < meetingEndTime)|| (meetingStartTime < userDTO.getEndTime()  && userDTO.getEndTime() < meetingEndTime)));
-				if ((meetingStartTime < userDTO.getStartTime() && userDTO.getStartTime() < meetingEndTime)|| (meetingStartTime < userDTO.getEndTime()  && userDTO.getEndTime() < meetingEndTime)) {
+				if ((meetingStartTime <= userDTO.getStartTime() && userDTO.getStartTime() <= meetingEndTime)|| (meetingStartTime <= userDTO.getEndTime()  && userDTO.getEndTime() <= meetingEndTime)) {
 				conflictedMeetingList.add(userDTO);
 				}
 			}
@@ -592,26 +598,71 @@ public class ServiceUtility {
 		return map;
 	}
 	
-	public static Integer getSenderUserIdByMeetingId(int meetingId){
+	public static MeetingLogBean getMeetingDetailsByMeetingId(int meetingId){
 		
-		 Connection conn = null;
-		Statement statement = null;
-		int userId = 0;
+		Connection conn = null;
+		CallableStatement  callableStatement = null;
+		MeetingLogBean meetingLogBean = new MeetingLogBean();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String sql = "SELECT SenderUserID FROM tbl_MeetingDetails WHERE MeetingID="+meetingId;
-			statement = conn.createStatement();
-			ResultSet rs = statement.executeQuery(sql);
+			//usp_GetMeetingDetails_ByMeetingID
+			String meetingDetailsStoreProc = "{call usp_GetMeetingDetails_ByMeetingID(?)}";
+			callableStatement = conn.prepareCall(meetingDetailsStoreProc);
+			callableStatement.setInt(1, meetingId);
+			callableStatement.execute();
+			ResultSet rs = callableStatement.getResultSet();
 			while(rs.next()){
-				userId = rs.getInt("SenderUserID");
+				if(!(rs.getInt("isSenderRemoved") == 2)){
+					meetingLogBean.setUserId(rs.getInt("SenderUserID"));
+				}
+				LocalDateTime fromTime = convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
+				LocalDateTime toTime =   convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
+				meetingLogBean.setDate(fromTime.toLocalDate());
+				meetingLogBean.setFrom(fromTime);
+				meetingLogBean.setTo(toTime);
+				meetingLogBean.setDescription(rs.getString("MeetingDescription"));
+				meetingLogBean.setLatitude(rs.getString("Latitude"));
+				meetingLogBean.setLongitude(rs.getString("Longitude"));
+				meetingLogBean.setAddress(rs.getString("GoogleAddress"));
 			}
 		} catch(Exception  e){
 			e.printStackTrace();
 		}finally {
 			ServiceUtility.closeConnection(conn);
-			ServiceUtility.closeSatetment(statement);
+			ServiceUtility.closeCallableSatetment(callableStatement);
 		}
-		return userId;
+		return meetingLogBean;
+	}
+	
+       public static JSONArray getReceptionistDetailsByMeetingId(int meetingId){
+		
+		Connection conn = null;
+		CallableStatement  callableStatement = null;
+		JSONArray jsonArray = new JSONArray();
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			//usp_GetMeetingDetails_ByMeetingID
+			String meetingDetailsStoreProc = "{call usp_GetRecipientDetails_ByMeetingID(?)}";
+			callableStatement = conn.prepareCall(meetingDetailsStoreProc);
+			callableStatement.setInt(1, meetingId);
+			callableStatement.execute();
+			ResultSet rs = callableStatement.getResultSet();
+			while(rs.next()){
+			  if(rs.getInt("Status") == 1){
+				  JSONObject jsonObject = new JSONObject();
+				  jsonObject.put("userId" , rs.getInt("UserID"));
+				  jsonObject.put("fullName" , rs.getString("firstName") + rs.getString("lastName"));
+				  
+				  jsonArray.put(jsonObject);
+			  }
+			}
+		} catch(Exception  e){
+			e.printStackTrace();
+		}finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		return jsonArray;
 	}
 	
 }

@@ -6,7 +6,7 @@ public class Constants {
 	public static final String GOOGLE_DISTANCE_MATRIX_APIKEY = "AIzaSyBqdC9UjwJCZTDDJtLlHYNH87AJs8tkMAg";
 	public static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
 	//local db configuration
-	public static final String DB_URL = "jdbc:mysql://localhost:3306/Local_FrissDB";
+	public static final String DB_URL = "jdbc:mysql://localhost:3306/FrissDB";
 	public static final String USER = "root";
 	public static final String PASS = "test";
 	
@@ -24,10 +24,8 @@ public class Constants {
 	public static final String MAIL_SMTP_AUTH = "true";
 	public static final String SEND_EMAIL_FROM = "sunilvermaec@gmail.com";
 	
+	public static final String GOOGLE_MAP_KEY = "AIzaSyAgM-mwjfosilNEdn5aCe4FJ9aDOp_U7JM";
 	//local Server Urls
-	public static final String SERVER_URL = "http://192.168.2.71:9090";
+	public static final String SERVER_URL = "http://192.168.2.94:9090";
 	
-	public static String getDBURL(){
-		return DB_URL;
-	}
 }

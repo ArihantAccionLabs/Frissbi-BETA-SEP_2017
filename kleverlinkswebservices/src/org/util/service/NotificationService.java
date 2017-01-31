@@ -18,6 +18,7 @@ import org.kleverlinks.webservice.UserNotifications;
 import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;
+import org.service.dto.MeetingLogBean;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -118,11 +119,12 @@ public class NotificationService {
 
 				UserNotifications userNotifications = new UserNotifications();
 				Timestamp timestamp = new Timestamp(new Date().getTime());
-				String notificationId = userNotifications.insertUserNotifications(recipientId, senderUserId,
-						notificationType, 0, timestamp);
-				JSONObject json = new JSONArray(
-						userNotifications.getUserNotifications(0, Integer.parseInt(notificationId))).getJSONObject(0);
-				String notificationMessage = json.getString("NotificationMessage");
+				String notificationId = userNotifications.insertUserNotifications(recipientId, senderUserId,notificationType, 0, timestamp);
+				JSONObject json = new JSONArray(userNotifications.getUserNotifications(0, Integer.parseInt(notificationId))).getJSONObject(0);
+				if(json != null){
+					
+					String notificationMessage = json.getString("NotificationMessage");
+			
 				String NotificationName = json.getString("NotificationName");
 				Sender sender = new Sender(Constants.GCM_APIKEY);
 				Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
@@ -141,6 +143,7 @@ public class NotificationService {
 					}
 				} catch (IOException e) {
 					e.printStackTrace();
+				}
 				}
 			}
 		}
@@ -223,28 +226,34 @@ public class NotificationService {
 		    	    		  recipientId = jsonArray.getInt(j);
 						 }
 					   }else{
-						   recipientId = ServiceUtility.getSenderUserIdByMeetingId(meetingArray.getJSONObject(i).getInt("meetingId"));
+						   MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingArray.getJSONObject(i).getInt("meetingId"));
+						   if(meetingLogBean != null && meetingLogBean.getUserId() != null){
+							   recipientId = meetingLogBean.getUserId();
+						   }
 					   }
-					 UserNotifications userNotifications = new UserNotifications();
-					 Timestamp timestamp = new Timestamp(new Date().getTime());
-					 String notificationId = userNotifications.insertUserNotifications(recipientId, senderUserId, notificationType,0, timestamp);
-					 JSONArray jsonArray = new JSONArray(userNotifications.getUserNotifications(0, Integer.parseInt(notificationId)));
-					 
-					 if (jsonArray != null && jsonArray.length() > 0) {
-						 
-						JSONObject json = jsonArray.getJSONObject(0);
-						String notificationMessage = json.getString("NotificationMessage");
-						String NotificationName = json.getString("NotificationName");
-						Sender sender = new Sender(Constants.GCM_APIKEY);
-				
-						Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true).addData("message", notificationMessage).addData("NotificationName", NotificationName).build();
-						
-							AuthenticateUser authenticateUser = new AuthenticateUser();
-							JSONObject jsonRegistrationId = new JSONObject(authenticateUser.getGCMDeviceRegistrationId(recipientId));
-							String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
-							Result result = sender.send(message, deviceRegistrationId, 1);
-							System.out.println(result);
-						} 
+		    	     if(recipientId != 0){
+		    	    	 
+		    	    	 UserNotifications userNotifications = new UserNotifications();
+		    	    	 Timestamp timestamp = new Timestamp(new Date().getTime());
+		    	    	 String notificationId = userNotifications.insertUserNotifications(recipientId, senderUserId, notificationType,0, timestamp);
+		    	    	 JSONArray jsonArray = new JSONArray(userNotifications.getUserNotifications(0, Integer.parseInt(notificationId)));
+		    	    	 
+		    	    	 if (jsonArray != null && jsonArray.length() > 0) {
+		    	    		 
+		    	    		 JSONObject json = jsonArray.getJSONObject(0);
+		    	    		 String notificationMessage = json.getString("NotificationMessage");
+		    	    		 String NotificationName = json.getString("NotificationName");
+		    	    		 Sender sender = new Sender(Constants.GCM_APIKEY);
+		    	    		 
+		    	    		 Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true).addData("message", notificationMessage).addData("NotificationName", NotificationName).build();
+		    	    		 
+		    	    		 AuthenticateUser authenticateUser = new AuthenticateUser();
+		    	    		 JSONObject jsonRegistrationId = new JSONObject(authenticateUser.getGCMDeviceRegistrationId(recipientId));
+		    	    		 String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+		    	    		 Result result = sender.send(message, deviceRegistrationId, 1);
+		    	    		 System.out.println(result);
+		    	    	 } 
+		    	     }
 					   }
 				         }catch (Exception e) {
 							e.printStackTrace();

@@ -1,23 +1,21 @@
 package org.kleverlinks.webservice;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.math.BigInteger;
+import java.net.URL;
 import java.security.SecureRandom;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Locale;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -25,10 +23,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.commons.io.IOUtils;
+import org.json.JSONException;
 import org.json.JSONObject;
-import org.kleverlinks.bean.UserFreeTimeBean;
-import org.service.dto.UserDTO;
-import org.util.service.FreeTimeTracker;
+import org.json.JSONTokener;
 import org.util.service.ServiceUtility;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
@@ -41,11 +39,11 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
           // FreeTimeTracker.getUserFreeTime();
-		ServiceUtility.getMeetingStatusByUserId(409 , 221);
-           return "ok";
+		GoogleSearchPlaces.getGoogleSearchPlaces();
+		return "ok";
 			
 	}
-	
+
 	@GET  
     @Path("/authenticateUser/{userId}/{deviceRegistrationId}")  
     @Produces(MediaType.TEXT_PLAIN)
@@ -73,7 +71,7 @@ public class AuthenticateUser {
 			}else{
 				java.util.Date dateobj = new java.util.Date();
 				java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
-				sql = "INSERT INTO FrissDB.tbl_usertransactions ( UserID ,LoginStatus,LastLoginDateTime,LastLoginIpAddress ) VALUES  ( '" + userId+"' ,1 "
+				sql = "INSERT INTO tbl_usertransactions ( UserID ,LoginStatus,LastLoginDateTime,LastLoginIpAddress ) VALUES  ( '" + userId+"' ,1 "
 	                 +",'"+ sqlDateNow +"',null )";
 				stmt.executeUpdate(sql);
 			}

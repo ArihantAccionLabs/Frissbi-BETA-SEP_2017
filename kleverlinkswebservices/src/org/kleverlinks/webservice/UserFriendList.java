@@ -55,6 +55,8 @@ public class UserFriendList {
 			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
 			// put entry into the database as user1 is sending
 			// friend request to user2
+			
+			System.out.println("userId1=="+userId1+" userId2 "+userId2);
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
 			conn = DataSourceConnection.getDBConnection();
@@ -402,7 +404,7 @@ public class UserFriendList {
 			Iterator<Integer> iterator = userIds.iterator();
 			while (iterator.hasNext()) {
 				userId = iterator.next();
-				sql = "Select * from tbl_users  AS U LEFT OUTER JOIN FrissDB.tbl_usertransactions AS UT ON U.UserID = UT.UserID where U.UserID = '"
+				sql = "Select * from tbl_users  AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID where U.UserID = '"
 						+ userId + "'";
 				rs = stmt.executeQuery(sql);
 
@@ -463,7 +465,7 @@ public class UserFriendList {
 			Iterator<Integer> iterator = userIds.iterator();
 			while (iterator.hasNext()) {
 				userId = iterator.next();
-				sql = "Select * from tbl_users AS U LEFT OUTER JOIN FrissDB.tbl_usertransactions AS UT ON U.UserID = UT.UserID where U.UserID = '"
+				sql = "Select * from tbl_users AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID where U.UserID = '"
 						+ userId + "'";
 				rs = stmt.executeQuery(sql);
 
@@ -562,7 +564,7 @@ public class UserFriendList {
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
-			sql = "Select * from tbl_users  AS U LEFT OUTER JOIN FrissDB.tbl_usertransactions AS UT ON U.UserID = UT.UserID where ( FirstName like '%"
+			sql = "Select * from tbl_users  AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID where ( FirstName like '%"
 					+ search_criteria + "%' or LastName like '%" + search_criteria + "%' or UserName like '%"
 					+ search_criteria + "%') and U.UserID <> '" + userId1 + "'";
 			ResultSet rs = stmt.executeQuery(sql);
@@ -679,7 +681,7 @@ public class UserFriendList {
 			Iterator<Integer> iterator = userIds.iterator();
 			while (iterator.hasNext()) {
 				userId = iterator.next();
-				sql = "Select * from tbl_users AS U LEFT OUTER JOIN FrissDB.tbl_usertransactions AS UT ON U.UserID = UT.UserID where U.UserID = '"
+				sql = "Select * from tbl_users AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID where U.UserID = '"
 						+ userId + "' and ( FirstName like '%" + search_criteria + "%' or LastName like '%"
 						+ search_criteria + "%' or UserName like '%" + search_criteria + "%')";
 				rs = stmt.executeQuery(sql);

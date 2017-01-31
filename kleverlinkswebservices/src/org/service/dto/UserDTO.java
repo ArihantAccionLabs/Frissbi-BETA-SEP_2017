@@ -14,6 +14,7 @@ public class UserDTO {
 	private LocalDateTime meetingFromTime;
 	private LocalDateTime meetingToTime;
 	private String description;
+	private Boolean isLocationSelected;
 	
 	
 	private String latitude ;
@@ -113,6 +114,14 @@ public class UserDTO {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Boolean getIsLocationSelected() {
+		return isLocationSelected;
+	}
+
+	public void setIsLocationSelected(Boolean isLocationSelected) {
+		this.isLocationSelected = isLocationSelected;
 	}
 
 	@Override

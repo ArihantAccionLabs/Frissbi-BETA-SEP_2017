@@ -18,17 +18,15 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 public class Geomagic {
 
-	public static String[] locations = new String[]{ "Kothapet" ,"Manikonda", "Secunderabad","Mehdipatnam","Miyapur","Khairatabad","Himayathnagar","Begumpet","Ameerpet","Madhapur","Kukatapally"};
 
-	public String calculateMidPoint(int no_locations) {
+	public static String calculateMidPoint() {
+		  String[] locations = new String[]{ "Kothapet" ,"Manikonda", "Secunderabad","Mehdipatnam","Miyapur","Khairatabad","Himayathnagar","Begumpet","Ameerpet","Madhapur","Kukatapally"};
 		String midpointLocation = "";
 		Double midLatitude =0.0;
 		Double midLongitude=0.0;
 		ArrayList<Point2D> Point2Ds = new ArrayList<Point2D>();
-		for (int i = 0; i < no_locations; i++) {
-			String url = "https://maps.googleapis.com/maps/api/geocode/json?address="
-					+ locations[i]
-					+ "&region=es&key="+Constants.GCM_APIKEY;
+		for (int i = 0; i < locations.length; i++) {
+			String url = "https://maps.googleapis.com/maps/api/geocode/json?address="+ locations[i]+ "&region=es&key="+Constants.GCM_APIKEY;
 			ClientConfig config = new DefaultClientConfig();
 			Client client = Client.create(config);
 			WebResource service = client.resource(url);
@@ -104,6 +102,6 @@ public class Geomagic {
 
 	public static void main(String args[]) {
 		Geomagic geomagic = new Geomagic();
-		geomagic.calculateMidPoint(11);
+		//geomagic.calculateMidPoint(11);
 	}
 }

@@ -159,14 +159,14 @@ public class UserSettings {
 
 			while(rs.next()){
 				JSONObject jsonObject = new JSONObject();
-				jsonObject.put("UserPreferredLocationID", rs.getString("UserPreferredLocationID"));
-				jsonObject.put("UserID", rs.getInt("UserID"));
-				jsonObject.put("Latitude", rs.getString("Latitude"));
-				jsonObject.put("Longitude", rs.getString("Longitude"));
-				jsonObject.put("LocationName", rs.getString("LocationName"));
-				jsonObject.put("LocationType", rs.getString("LocationType"));
-				jsonObject.put("address", rs.getString("IsDefault"));
-				jsonObject.put("address", rs.getString("Address"));
+				jsonObject.put("userPreferredLocationID", rs.getString("UserPreferredLocationID"));
+				jsonObject.put("userID", rs.getInt("UserID"));
+				jsonObject.put("latitude", rs.getString("Latitude"));
+				jsonObject.put("longitude", rs.getString("Longitude"));
+				jsonObject.put("locationName", rs.getString("LocationName"));
+				jsonObject.put("locationType", rs.getString("LocationType"));
+				jsonObject.put("isDefault", rs.getString("IsDefault"));
+				jsonObject.put("address", rs.getString("GoogleAddress"));
 				jsonResultsArray.put(jsonObject);
 			}
 			

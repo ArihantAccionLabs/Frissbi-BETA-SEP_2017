@@ -114,7 +114,7 @@ public class GooglePlaces {
 		if( midpointForMeeting.equals("false")){
 			return "false";
 		}
-		JSONObject jsonObject = new JSONObject( midpointForMeeting );
+		JSONObject jsonObject = new JSONObject(midpointForMeeting);
 		double latitude = (Double)jsonObject.get("latitude");
 		double longitude = (Double)jsonObject.get("longitude");
 		String nearByPlaces = nearByPlaces( latitude, longitude, userId,meetingId,beginIndex, endIndex );
