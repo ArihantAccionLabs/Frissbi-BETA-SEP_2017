@@ -1,12 +1,7 @@
 package org.kleverlinks.webservice;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.math.BigInteger;
-import java.net.URL;
 import java.security.SecureRandom;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -23,10 +18,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.io.IOUtils;
-import org.json.JSONException;
+import org.json.JSONArray;
 import org.json.JSONObject;
-import org.json.JSONTokener;
+import org.kleverlinks.webservice.gcm.Message;
+import org.kleverlinks.webservice.gcm.Result;
+import org.kleverlinks.webservice.gcm.Sender;
 import org.util.service.ServiceUtility;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
@@ -39,7 +35,57 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
           // FreeTimeTracker.getUserFreeTime();
-		GoogleSearchPlaces.getGoogleSearchPlaces();
+		//GoogleSearchPlaces.getGoogleSearchPlaces();
+	/*	try {
+		UserNotifications userNotifications = new UserNotifications();
+		Timestamp timestamp = new Timestamp(new java.util.Date().getDate());
+		System.out.println("Notification   :   "+NotificationsEnum.Meeting_Pending_Requests.ordinal() + 1);
+		String notificationId = userNotifications.insertUserNotifications(188, 107,NotificationsEnum.Meeting_Pending_Requests.ordinal() + 1, 0, timestamp);
+		JSONObject json = new JSONArray(userNotifications.getUserNotifications(0, Integer.parseInt(notificationId))).getJSONObject(0);
+		if(json != null){
+			
+		String notificationMessage = json.getString("NotificationMessage");
+	
+		String NotificationName = json.getString("NotificationName");
+		System.out.println("notificationMessage   :   "+notificationMessage +" NotificationName "+NotificationName);
+		Sender sender = new Sender(Constants.GCM_APIKEY);
+		Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
+				.addData("message", notificationMessage).addData("NotificationName", NotificationName)
+				.addData("meetingId", 424 + "").build();
+
+			AuthenticateUser authenticateUser = new AuthenticateUser();
+			JSONObject jsonRegistrationId = new JSONObject(
+					authenticateUser.getGCMDeviceRegistrationId(188));
+			if(jsonRegistrationId.has("DeviceRegistrationID")){
+				
+				String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+				Result result = sender.send(message, deviceRegistrationId, 1);
+				System.out.println(result);
+			}
+		}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}*/
+		
+	Sender sender = new Sender(Constants.GCM_APIKEY);
+	  
+	  String notificationMessage = "You Have Meeting Request From Ganapathi KAMMANE NADIMINTI";
+	
+		String NotificationName = "Meeting Pending Requests";
+			Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
+				.addData("message", notificationMessage).addData("NotificationName", NotificationName)
+				.addData("meetingId", 424 + "").build();
+			
+			AuthenticateUser authenticateUser = new AuthenticateUser();
+			JSONObject jsonRegistrationId = new JSONObject(
+					authenticateUser.getGCMDeviceRegistrationId(188));
+			if(jsonRegistrationId.has("DeviceRegistrationID")){
+				
+				String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+				Result result = sender.send(message, deviceRegistrationId, 1);
+				System.out.println(result);
+			}
+		
 		return "ok";
 			
 	}
@@ -319,8 +365,8 @@ public class AuthenticateUser {
 			callableStatement.setInt(1, userId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
-
 			while(rs.next()){
+				System.out.println(""+rs.getString("UserID")+"  "+rs.getString("DeviceRegistrationID"));
 				jsonObject.put("UserID", rs.getString("UserID"));
 				jsonObject.put("DeviceRegistrationID", rs.getString("DeviceRegistrationID"));
 			}

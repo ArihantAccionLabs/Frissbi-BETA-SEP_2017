@@ -93,4 +93,11 @@ public class MeetingLogBean {
 	public void setMeetingStatus(int meetingStatus) {
 		this.meetingStatus = meetingStatus;
 	}
+	@Override
+	public String toString() {
+		return "MeetingLogBean [userId=" + userId + ", meetingId=" + meetingId + ", fullName=" + fullName
+				+ ", userName=" + userName + ", date=" + date + ", from=" + from + ", to=" + to + ", description="
+				+ description + ", address=" + address + ", latitude=" + latitude + ", longitude=" + longitude
+				+ ", meetingStatus=" + meetingStatus + "]";
+	}
 }

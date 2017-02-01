@@ -22,6 +22,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -62,12 +68,12 @@ public class ServiceUtility {
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
-			sql = "SELECT emailName,firstName,lastName FROM tbl_users WHERE userId ='" + userId + "'" + " limit 1";
+			sql = "SELECT emailName,FirstName,LastName FROM tbl_users WHERE userId ='" + userId + "'" + " limit 1";
 			rs = stmt.executeQuery(sql);
 			userDTO = new UserDTO();
 			while (rs.next()) {
 				userDTO.setEmailId(rs.getString("emailName"));
-				userDTO.setFullName(rs.getString("firstName") + rs.getString("lastName"));
+				userDTO.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
 			}
 			return userDTO;
 		} catch (Exception e) {
@@ -88,14 +94,14 @@ public class ServiceUtility {
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
-			sql = "SELECT userId,emailName,firstName,lastName FROM tbl_users WHERE userName ='" + userName + "'"
+			sql = "SELECT userId,emailName,FirstName,LastName FROM tbl_users WHERE userName ='" + userName + "'"
 					+ " limit 1";
 			rs = stmt.executeQuery(sql);
 			while (rs.next()) {
 				userDTO = new UserDTO();
 				userDTO.setEmailId(rs.getString("emailName"));
 				userDTO.setUserId(rs.getInt("userId"));
-				userDTO.setFullName(rs.getString("firstName") + "" + rs.getString("lastName") + "");
+				userDTO.setFullName(rs.getString("FirstName") + "" + rs.getString("LastName") + "");
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -599,7 +605,6 @@ public class ServiceUtility {
 	}
 	
 	public static MeetingLogBean getMeetingDetailsByMeetingId(int meetingId){
-		
 		Connection conn = null;
 		CallableStatement  callableStatement = null;
 		MeetingLogBean meetingLogBean = new MeetingLogBean();
@@ -609,21 +614,25 @@ public class ServiceUtility {
 			String meetingDetailsStoreProc = "{call usp_GetMeetingDetails_ByMeetingID(?)}";
 			callableStatement = conn.prepareCall(meetingDetailsStoreProc);
 			callableStatement.setInt(1, meetingId);
-			callableStatement.execute();
+			callableStatement.executeQuery();
 			ResultSet rs = callableStatement.getResultSet();
 			while(rs.next()){
+				System.out.println("===="+rs.getInt("SenderUserID")+"   "+rs.getInt("isSenderRemoved")+"   "+rs.getString("MeetingDescription"));
 				if(!(rs.getInt("isSenderRemoved") == 2)){
 					meetingLogBean.setUserId(rs.getInt("SenderUserID"));
+					meetingLogBean.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
+					LocalDateTime fromTime = convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
+					LocalDateTime toTime =   convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
+					meetingLogBean.setDate(fromTime.toLocalDate());
+					meetingLogBean.setFrom(fromTime);
+					meetingLogBean.setTo(toTime);
+					meetingLogBean.setDescription(rs.getString("MeetingDescription"));
+					meetingLogBean.setLatitude(rs.getString("Latitude"));
+					meetingLogBean.setLongitude(rs.getString("Longitude"));
+					meetingLogBean.setAddress(rs.getString("GoogleAddress"));
+					
+					System.out.println("==================="+meetingLogBean.toString());
 				}
-				LocalDateTime fromTime = convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
-				LocalDateTime toTime =   convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
-				meetingLogBean.setDate(fromTime.toLocalDate());
-				meetingLogBean.setFrom(fromTime);
-				meetingLogBean.setTo(toTime);
-				meetingLogBean.setDescription(rs.getString("MeetingDescription"));
-				meetingLogBean.setLatitude(rs.getString("Latitude"));
-				meetingLogBean.setLongitude(rs.getString("Longitude"));
-				meetingLogBean.setAddress(rs.getString("GoogleAddress"));
 			}
 		} catch(Exception  e){
 			e.printStackTrace();
@@ -664,5 +673,5 @@ public class ServiceUtility {
 		}
 		return jsonArray;
 	}
-	
+
 }

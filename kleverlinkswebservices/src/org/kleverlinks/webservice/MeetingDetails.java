@@ -15,13 +15,13 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import javax.management.ServiceNotFoundException;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -37,9 +37,9 @@ import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;
 import org.service.dto.MeetingLogBean;
+import org.service.dto.NotificationInfoDTO;
 import org.service.dto.UserDTO;
 import org.util.service.NotificationService;
-import org.util.service.Payload;
 import org.util.service.ServiceUtility;
 
 import com.sun.jersey.api.client.WebResource;
@@ -876,13 +876,14 @@ public class MeetingDetails {
 				LocalDateTime senderFromDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 				LocalDateTime senderToDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
 				jsonObject.put("meetingId" , rs.getInt("MeetingID"));
+				jsonObject.put("meetingSenderId" , rs.getInt("SenderUserID"));
 				jsonObject.put("date" , LocalDateTime.ofInstant(formatter.parse(rs.getString("SenderFromDateTime")).toInstant(), ZoneId.systemDefault()).toLocalDate());
 				jsonObject.put("from" , senderFromDateTime.getHour() + ":" + senderFromDateTime.getMinute());
 				jsonObject.put("to" , senderToDateTime.getHour() + ":" + senderToDateTime.getMinute());
 				jsonObject.put("description" , rs.getString("MeetingDescription"));
 				//jsonObject.put("meetingStatus" , rs.getInt("Status")); 
 				
-				if(!(rs.getString("Latitude").equalsIgnoreCase("null")) && !(rs.getString("Longitude").equalsIgnoreCase("null"))){
+				if(rs.getString("Latitude") != null && rs.getString("Latitude").trim().isEmpty()){
 					
 					jsonObject.put("isLocationSelected",true);
 					jsonObject.put("address" , rs.getString("GoogleAddress"));
@@ -1046,13 +1047,29 @@ public class MeetingDetails {
 			
 			MeetingLogBean meetingCreatorLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId) ;
 			JSONArray  jsonArray = ServiceUtility.getReceptionistDetailsByMeetingId(meetingId) ;
-			List<Integer> userIds = new ArrayList<>();
+			Set<Integer> userIdSet = new HashSet<>();
 			for (int i = 0; i < jsonArray.length(); i++) {
-					userIds.add(jsonArray.getJSONObject(i).getInt("userId"));
+				if(jsonArray.getJSONObject(i).getInt("userId") != 0){
+					userIdSet.add(jsonArray.getJSONObject(i).getInt("userId"));
+				}
 			}
-				userIds.add(meetingCreatorLogBean.getUserId());
-			
-			NotificationService.sendNotification(userIds, 0, NotificationsEnum.Meeting_Alarm.ordinal(),meetingId);
+			userIdSet.add(userId);
+			if(meetingCreatorLogBean.getUserId() != null){
+				userIdSet.add(meetingCreatorLogBean.getUserId());
+			}
+			System.out.println(userIdSet.toString()+" listc :   "+userIdSet.size());
+			if(!userIdSet.isEmpty()){
+				
+				String message = "You have meeting "+meetingCreatorLogBean.getDescription() +" with "+meetingCreatorLogBean.getFullName()+" on "+meetingCreatorLogBean.getDate() +" from "+meetingCreatorLogBean.getFrom()+" to "+meetingCreatorLogBean.getTo();
+				
+				NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
+				notificationInfoDTO.setMeetingId(meetingId);
+				notificationInfoDTO.setSenderUserId(0);
+				notificationInfoDTO.setNotificationType(NotificationsEnum.Meeting_Summary.toString());
+				notificationInfoDTO.setMessage(message);
+				
+				NotificationService.sendMeetingAlarmNotification(notificationInfoDTO, userIdSet.stream().collect(Collectors.toList())); 
+			}
 			/*finalJson.put("meetingID", meetingId);
 			finalJson.put("date", meetingCreatorLogBean.getDate());
 			finalJson.put("from", meetingCreatorLogBean.getFrom());

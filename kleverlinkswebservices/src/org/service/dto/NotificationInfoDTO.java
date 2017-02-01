@@ -2,11 +2,12 @@ package org.service.dto;
 
 public class NotificationInfoDTO {
 
+	private Integer senderUserId;
+	private Integer userId;
 	private String message;
 	private String notificationType;
-	private int meetingId;
-	private int receiverId;
-	private int senderUserId;
+	private String notificationDescription;
+	private Integer meetingId;
 	public String getMessage() {
 		return message;
 	}
@@ -16,32 +17,33 @@ public class NotificationInfoDTO {
 	public String getNotificationType() {
 		return notificationType;
 	}
+	public String getNotificationDescription() {
+		return notificationDescription;
+	}
+	public void setNotificationDescription(String notificationDescription) {
+		this.notificationDescription = notificationDescription;
+	}
 	public void setNotificationType(String notificationType) {
 		this.notificationType = notificationType;
 	}
-	public int getMeetingId() {
+	public Integer getMeetingId() {
 		return meetingId;
 	}
-	public void setMeetingId(int meetingId) {
+	public void setMeetingId(Integer meetingId) {
 		this.meetingId = meetingId;
 	}
-	public int getReceiverId() {
-		return receiverId;
-	}
-	public void setReceiverId(int receiverId) {
-		this.receiverId = receiverId;
-	}
-	public int getSenderUserId() {
+
+	public Integer getSenderUserId() {
 		return senderUserId;
 	}
-	public void setSenderUserId(int senderUserId) {
+	public Integer getUserId() {
+		return userId;
+	}
+	public void setUserId(Integer userId) {
+		this.userId = userId;
+	}
+	public void setSenderUserId(Integer senderUserId) {
 		this.senderUserId = senderUserId;
 	}
-	@Override
-	public String toString() {
-		return "NotificationInfoDTO [message=" + message + ", notificationType=" + notificationType + ", meetingId="
-				+ meetingId + ", receiverId=" + receiverId + ", senderUserId=" + senderUserId + "]";
-	}
-	
-	
+
 }

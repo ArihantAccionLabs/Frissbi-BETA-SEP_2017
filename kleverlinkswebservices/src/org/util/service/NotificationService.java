@@ -1,7 +1,10 @@
 package org.util.service;
 
 import java.io.IOException;
+import java.sql.CallableStatement;
+import java.sql.Connection;
 import java.sql.Timestamp;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -11,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.kleverlinks.webservice.AuthenticateUser;
 import org.kleverlinks.webservice.Constants;
+import org.kleverlinks.webservice.DataSourceConnection;
 import org.kleverlinks.webservice.LocationDetails;
 import org.kleverlinks.webservice.MeetingDetails;
 import org.kleverlinks.webservice.NotificationsEnum;
@@ -19,6 +23,7 @@ import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;
 import org.service.dto.MeetingLogBean;
+import org.service.dto.NotificationInfoDTO;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -249,9 +254,12 @@ public class NotificationService {
 		    	    		 
 		    	    		 AuthenticateUser authenticateUser = new AuthenticateUser();
 		    	    		 JSONObject jsonRegistrationId = new JSONObject(authenticateUser.getGCMDeviceRegistrationId(recipientId));
-		    	    		 String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
-		    	    		 Result result = sender.send(message, deviceRegistrationId, 1);
-		    	    		 System.out.println(result);
+		    	    		 if(jsonRegistrationId != null){
+		    	    			 
+		    	    			 String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+		    	    			 Result result = sender.send(message, deviceRegistrationId, 1);
+		    	    			 System.out.println(result);
+		    	    		 }
 		    	    	 } 
 		    	     }
 					   }
@@ -259,4 +267,96 @@ public class NotificationService {
 							e.printStackTrace();
 						}
 				}
+		
+		public static void sendNottification(NotificationInfoDTO notificationInfoDTO){
+			
+			Connection conn = null;
+			CallableStatement callableStatement = null;
+
+			try {
+				conn = DataSourceConnection.getDBConnection();
+				String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?,?,?)}";
+				callableStatement = conn.prepareCall(insertNotificationStoreProc);
+				callableStatement.setInt(1, notificationInfoDTO.getUserId());
+				callableStatement.setInt(2, notificationInfoDTO.getSenderUserId());
+				callableStatement.setInt(3, notificationInfoDTO.getMeetingId());
+				callableStatement.setString(4, notificationInfoDTO.getNotificationType());
+				callableStatement.setString(5, notificationInfoDTO.getNotificationDescription());
+				callableStatement.setTimestamp(6, new Timestamp(new Date().getTime()));
+	
+				callableStatement.registerOutParameter(7 , Types.INTEGER);
+				callableStatement.registerOutParameter(8 , Types.BIGINT);
+				
+			
+				int value = callableStatement.executeUpdate();
+				int isError = callableStatement.getInt(7);
+				int notificationId = callableStatement.getInt(8);
+			
+				 Sender sender = new Sender(Constants.GCM_APIKEY);
+				 
+	    		 Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true).addData("message", notificationInfoDTO.getMessage()).addData("NotificationName", notificationInfoDTO.getNotificationType()).build();
+	    		 
+	    		 AuthenticateUser authenticateUser = new AuthenticateUser();
+	    		 JSONObject jsonRegistrationId = new JSONObject(authenticateUser.getGCMDeviceRegistrationId(notificationInfoDTO.getUserId()));
+	    		 String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+	    		 Result result = sender.send(message, deviceRegistrationId, 1);
+	    		 System.out.println(result);
+				
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		}	
+			public static void sendMeetingAlarmNotification(NotificationInfoDTO notificationInfoDTO , List<Integer> userList){
+				
+				Connection conn = null;
+				CallableStatement callableStatement = null;
+
+				try {
+					conn = DataSourceConnection.getDBConnection();
+					String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?,?,?)}";
+					for (Integer userId : userList) {
+						callableStatement = conn.prepareCall(insertNotificationStoreProc);
+						callableStatement.setInt(1,userId);
+						callableStatement.setInt(2, notificationInfoDTO.getSenderUserId());
+						callableStatement.setInt(3, notificationInfoDTO.getMeetingId());
+						callableStatement.setString(4, notificationInfoDTO.getNotificationType());
+						callableStatement.setString(5, notificationInfoDTO.getMessage());
+						callableStatement.setTimestamp(6, new Timestamp(new Date().getTime()));
+						
+						callableStatement.registerOutParameter(7 , Types.INTEGER);
+						callableStatement.registerOutParameter(8 , Types.BIGINT);
+						
+						int value = callableStatement.executeUpdate();
+						int isError = callableStatement.getInt(7);
+						int notificationId = callableStatement.getInt(8);
+					}
+				
+			     for (Integer userID : userList) {
+			    	 System.out.println(notificationInfoDTO.getMeetingId() +"userID=========="+userID);
+						Sender sender = new Sender(Constants.GCM_APIKEY);
+					    String notificationMessage = "You Have Meeting Request From Ganapathi KAMMANE NADIMINTI";
+						String NotificationName = "Meeting Pending Requests";
+							Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
+								.addData("message", notificationMessage).addData("NotificationName", NotificationName)
+								.addData("meetingId", notificationInfoDTO.getMeetingId() + "").build();
+							
+							AuthenticateUser authenticateUser = new AuthenticateUser();
+							JSONObject jsonRegistrationId = new JSONObject(
+									authenticateUser.getGCMDeviceRegistrationId(userID));
+							if(jsonRegistrationId.has("DeviceRegistrationID")){
+								String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+								Result result = sender.send(message, deviceRegistrationId, 1);
+								//System.out.println(result);
+							}
+					  }
+	
+			} catch(Exception e){
+				e.printStackTrace();
+			}finally{
+				ServiceUtility.closeConnection(conn);
+				ServiceUtility.closeCallableSatetment(callableStatement);
+			}
+			
+		}
+		
 }
