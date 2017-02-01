@@ -31,6 +31,7 @@ import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.MapLocations.PlaceJSONParser;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
+import com.frissbi.Utility.TSLocationManager;
 import com.frissbi.models.MyPlaces;
 import com.frissbi.networkhandler.TSNetworkHandler;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -41,6 +42,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -169,7 +171,7 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (locationNameEt.getText().toString().trim().length() > 0) {
 
-                  //  checkIsLocationExist(locationNameEt.getText().toString().trim());
+                    //  checkIsLocationExist(locationNameEt.getText().toString().trim());
                     sendLocationDetailsToServer(locationNameEt.getText().toString().trim());
                 } else {
                     Toast.makeText(SelectLocationAndSaveActivity.this, "Enter location name", Toast.LENGTH_SHORT).show();
@@ -233,9 +235,9 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
                     if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
                         try {
                             JSONObject responseJsonObject = new JSONObject(response.response);
-                            if(responseJsonObject.getBoolean("isExist")){
+                            if (responseJsonObject.getBoolean("isExist")) {
                                 Toast.makeText(SelectLocationAndSaveActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-                            }else {
+                            } else {
                                 if (responseJsonObject.getBoolean("isInserted")) {
                                     sendLocationDetails(locationName);
                                     Toast.makeText(SelectLocationAndSaveActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
@@ -316,15 +318,15 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
         mGoogleMap.setMyLocationEnabled(true);
 
 
-        mLocation = getCurrentLocation();
+        mLocation = TSLocationManager.getInstance(SelectLocationAndSaveActivity.this).getCurrentLocation();
         Log.d("SelectLocation", "Location" + mLocation);
 
         if (mLocation != null) {
             double latitude = mLocation.getLatitude();
             double longitude = mLocation.getLongitude();
-
+            getLocationNameFromLatLng(latitude, longitude);
             setLocationOnMap(latitude, longitude);
-            Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+           /* Geocoder geocoder = new Geocoder(this, Locale.getDefault());
             List<Address> addresses1 = null;
             try {
                 addresses1 = geocoder.getFromLocation(mLatitude, mLongitude, 1);
@@ -334,12 +336,36 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
             String cityName = addresses1.get(0).getAddressLine(0);
             String stateName = addresses1.get(0).getAddressLine(1);
             String countryName = addresses1.get(0).getAddressLine(2);
-            mLocationSearchAutoCompleteTv.setText(cityName + "," + stateName + "," + countryName);
+            mLocationSearchAutoCompleteTv.setText(cityName + "," + stateName + "," + countryName);*/
         }
     }
 
+    private void getLocationNameFromLatLng(double latitude, double longitude) {
+        TSNetworkHandler.getInstance(this).getResponse("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + latitude + "," + longitude + "&key=" + "AIzaSyCmJAbD3ijBFz_oFjOLvNJnh5e9chInBdc", new JSONObject(), "GET", new TSNetworkHandler.ResponseHandler() {
+            @Override
+            public void handleResponse(TSNetworkHandler.TSResponse response) {
 
-    public Location getCurrentLocation() {
+                try {
+                    JSONObject responseJsonObject = new JSONObject(response.response);
+                    JSONArray results = (JSONArray) responseJsonObject.get("results");
+                    JSONObject resultsObject = (JSONObject) results.get(0);
+                    String formattedAddress = (String) resultsObject.get("formatted_address");
+                    mLocationSearchAutoCompleteTv.setText(formattedAddress);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+    }
+
+
+
+
+
+
+   /* public Location getCurrentLocation() {
 
         if (ActivityCompat.checkSelfPermission(SelectLocationAndSaveActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(SelectLocationAndSaveActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -373,7 +399,7 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
 
 
     }
-
+*/
 
     private void getLocationInfo(String input) {
 

@@ -11,7 +11,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frissbi.R;
-import com.frissbi.SelectedContacts;
 import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
 import com.frissbi.models.Friends;

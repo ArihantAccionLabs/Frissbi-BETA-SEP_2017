@@ -3,15 +3,17 @@ package com.frissbi.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by thrymr on 24/1/17.
  */
 
-public class Meeting implements Parcelable {
+public class Meeting implements Serializable {
 
     private Long meetingId;
-    private String senderFirstName;
-    private String senderLastName;
     private String date;
     private String fromTime;
     private String toTime;
@@ -20,15 +22,17 @@ public class Meeting implements Parcelable {
     private Double longitude;
     private String address;
     private int meetingStatus;
+    private boolean isLocationSelected;
+    private List<MeetingFriends> meetingFriendsList;
 
 
     public Meeting() {
 
     }
 
-    protected Meeting(Parcel in) {
-        senderFirstName = in.readString();
-        senderLastName = in.readString();
+    /*protected Meeting(Parcel in) {
+        List<MeetingFriends> list = new ArrayList<>();
+        senderFullName = in.readString();
         date = in.readString();
         fromTime = in.readString();
         toTime = in.readString();
@@ -38,9 +42,9 @@ public class Meeting implements Parcelable {
         latitude = in.readDouble();
         longitude = in.readDouble();
         meetingStatus = in.readInt();
-    }
+    }*/
 
-    public static final Creator<Meeting> CREATOR = new Creator<Meeting>() {
+   /* public static final Creator<Meeting> CREATOR = new Creator<Meeting>() {
         @Override
         public Meeting createFromParcel(Parcel in) {
             return new Meeting(in);
@@ -50,7 +54,7 @@ public class Meeting implements Parcelable {
         public Meeting[] newArray(int size) {
             return new Meeting[size];
         }
-    };
+    };*/
 
     public Long getMeetingId() {
         return meetingId;
@@ -60,21 +64,6 @@ public class Meeting implements Parcelable {
         this.meetingId = meetingId;
     }
 
-    public String getSenderFirstName() {
-        return senderFirstName;
-    }
-
-    public void setSenderFirstName(String senderFirstName) {
-        this.senderFirstName = senderFirstName;
-    }
-
-    public String getSenderLastName() {
-        return senderLastName;
-    }
-
-    public void setSenderLastName(String senderLastName) {
-        this.senderLastName = senderLastName;
-    }
 
     public String getDate() {
         return date;
@@ -141,13 +130,26 @@ public class Meeting implements Parcelable {
         this.meetingStatus = meetingStatus;
     }
 
+    public List<MeetingFriends> getMeetingFriendsList() {
+        return meetingFriendsList;
+    }
+
+    public void setMeetingFriendsList(List<MeetingFriends> meetingFriendsList) {
+        this.meetingFriendsList = meetingFriendsList;
+    }
+
+    public boolean isLocationSelected() {
+        return isLocationSelected;
+    }
+
+    public void setLocationSelected(boolean locationSelected) {
+        isLocationSelected = locationSelected;
+    }
 
     @Override
     public String toString() {
         return "Meeting{" +
                 "meetingId=" + meetingId +
-                ", senderFirstName='" + senderFirstName + '\'' +
-                ", senderLastName='" + senderLastName + '\'' +
                 ", date='" + date + '\'' +
                 ", fromTime='" + fromTime + '\'' +
                 ", toTime='" + toTime + '\'' +
@@ -156,18 +158,19 @@ public class Meeting implements Parcelable {
                 ", longitude=" + longitude +
                 ", address='" + address + '\'' +
                 ", meetingStatus=" + meetingStatus +
+                ", isLocationSelected=" + isLocationSelected +
+                ", meetingFriendsList=" + meetingFriendsList +
                 '}';
     }
 
-    @Override
+   /* @Override
     public int describeContents() {
         return 0;
     }
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(senderFirstName);
-        parcel.writeString(senderLastName);
+        parcel.writeString(senderFullName);
         parcel.writeString(date);
         parcel.writeString(fromTime);
         parcel.writeString(toTime);
@@ -177,5 +180,6 @@ public class Meeting implements Parcelable {
         parcel.writeDouble(latitude);
         parcel.writeDouble(longitude);
         parcel.writeInt(meetingStatus);
-    }
+        parcel.writeList(meetingFriendsList);
+    }*/
 }

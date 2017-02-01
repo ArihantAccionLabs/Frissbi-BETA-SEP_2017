@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.SelectLocationListener;
+import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.adapters.MyPlacesAdapter;
 import com.frissbi.models.MyPlaces;
 import com.frissbi.networkhandler.TSNetworkHandler;
@@ -47,6 +48,7 @@ public class MySavedPlacesActivity extends AppCompatActivity implements SelectLo
         mSelectLocationListener = (SelectLocationListener) this;
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         mMyPlacesRecyclerView.setLayoutManager(layoutManager);
+
         getMyPlacesFromServer();
         mAddLocationFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +64,7 @@ public class MySavedPlacesActivity extends AppCompatActivity implements SelectLo
         String userId = preferences.getString("USERID_FROM", "editor");
         Log.d("MySavedPlacesActivity", "UserId" + userId);
         String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.ORZIN_DESTLIST + userId;
-        TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
+        TSNetworkHandler.getInstance(this).getResponse(url, new JSONObject(),"GET", new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {
                 if (response != null) {
@@ -74,11 +76,11 @@ public class MySavedPlacesActivity extends AppCompatActivity implements SelectLo
                             for (int index = 0; index < savedLocJsonArray.length(); index++) {
                                 JSONObject placeJsonObject = savedLocJsonArray.getJSONObject(index);
                                 MyPlaces myPlaces = new MyPlaces();
-                                myPlaces.setLatitude(placeJsonObject.getDouble("Latitude"));
-                                myPlaces.setLongitude(placeJsonObject.getDouble("Longitude"));
-                                myPlaces.setName(placeJsonObject.getString("LocationName"));
+                                myPlaces.setLatitude(placeJsonObject.getDouble("latitude"));
+                                myPlaces.setLongitude(placeJsonObject.getDouble("longitude"));
+                                myPlaces.setName(placeJsonObject.getString("locationName"));
                                 myPlaces.setAddress(placeJsonObject.getString("address"));
-                                myPlaces.setPlaceId(placeJsonObject.getInt("UserPreferredLocationID"));
+                                myPlaces.setPlaceId(placeJsonObject.getInt("userPreferredLocationID"));
                                 mMyPlacesList.add(myPlaces);
                             }
 

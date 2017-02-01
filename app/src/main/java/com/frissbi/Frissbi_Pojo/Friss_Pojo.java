@@ -27,7 +27,7 @@ public class Friss_Pojo {
     public static final String User_Id = "UserId";
     public static String MeetingID;
     //public static final String REST_URI ="http://13.76.99.32/kleverlinkswebservices";
-    public static final String REST_URI = "http://192.168.2.71:9090/kleverlinkswebservices";//Sunil
+    public static final String REST_URI = "http://192.168.2.94:9090/kleverlinkswebservices";//Sunil
     //public static final String REST_URI ="http://192.168.43.63:9080/kleverlinkswebservices";
     public static final String USER_AUTHENTICATION = "/AuthenticateUserService/userAuthentication/";
     public static final String USER_REGISTRATION = "/UserRegistrationService/registerUser/";
@@ -49,8 +49,8 @@ public class Friss_Pojo {
 
     public static final String MEETING_INSERT = "/MeetingDetailsService/insertMeetingDetails/";
     public static final String MEETING_UPDATE = "/MeetingDetailsService/updateRecipientXML/";
- //   public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getMeetingDetailsByMeetingID/";
- public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getUserDetailsByMeetingID/";
+    //   public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getMeetingDetailsByMeetingID/";
+    public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getUserDetailsByMeetingID/";
 
     public static final String LOCATION_MIDPOINT = "/LocationDetailsService/calculateMidpointForMeeting/";
     public static final String NEARBY_PLACES = "/GooglePlacesService/nearByPlacesForMeeting/";
@@ -75,6 +75,8 @@ public class Friss_Pojo {
 
     public static final String Privacy_policy = "/UserSettingsService/getFrissbiPrivacyPolicy/";
     public static final String getTermsandCondition = "/UserSettingsService/getTermsandConditions/";
+
+    public static final String MEETING_SUMMARY_BY_LOCATION = "/MeetingDetailsService/getMeetingSummary/";
 
 
     public static TreeSet<String> getTreeSet() {

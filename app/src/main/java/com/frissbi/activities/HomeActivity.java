@@ -32,8 +32,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -58,6 +62,8 @@ import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
 import com.frissbi.models.Friends;
 import com.frissbi.networkhandler.TSNetworkHandler;
+import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
+import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -77,7 +83,7 @@ public class HomeActivity extends AppCompatActivity
     private SharedPreferences mSharedPreferences;
     private SharedPreferences.Editor mEditor;
     private TextView mUserNameTextView;
-
+    android.support.design.widget.FloatingActionButton fab;
     String value;
     List<Friend_list_Pojo> list = new ArrayList<Friend_list_Pojo>();
     List<Friend_list_Pojo> list1 = new ArrayList<Friend_list_Pojo>();
@@ -100,6 +106,10 @@ public class HomeActivity extends AppCompatActivity
     private String mUserName;
     private CustomProgressDialog mProgressDialog;
     private SharedPreferences mEmailSharedPreferences;
+    private LinearLayout mDimBackgroundLayout;
+    private FloatingActionMenu mFloatingActionMenu;
+    private Animation rotate_forward;
+    private Animation rotate_backward;
 
 
     @Override
@@ -176,7 +186,7 @@ public class HomeActivity extends AppCompatActivity
         mTabLayout.getTabAt(1).setIcon(R.drawable.calendar);
         mTabLayout.getTabAt(2).setIcon(R.drawable.group);
         mTabLayout.getTabAt(3).setIcon(R.drawable.notification);
-
+        mDimBackgroundLayout = (LinearLayout) findViewById(R.id.dim_background);
         mConnectionDetector = new ConnectionDetector(getApplicationContext());
         mIsInternetPresent = mConnectionDetector.isConnectingToInternet();
         progressDialog = new CustomProgressDialog(HomeActivity.this);
@@ -188,15 +198,112 @@ public class HomeActivity extends AppCompatActivity
         mUserNameTextView.setText(mUserName.toUpperCase());
         mAddMeetingButton = (Button) findViewById(R.id.add_meeting);
 
-       /* FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab = (android.support.design.widget.FloatingActionButton) findViewById(R.id.add_floating_button);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+            }
+        });
+        // Create an icon
+        ImageView icon = new ImageView(this);
+        icon.setImageResource(R.mipmap.icon);
+
+
+     /*   FloatingActionButton actionButton = new FloatingActionButton.Builder(this)
+                .setContentView(icon)
+                .build();*/
+
+
+        SubActionButton.Builder itemBuilder = new SubActionButton.Builder(this);
+        // repeat many times:
+        ImageView itemIcon1 = new ImageView(this);
+
+        itemIcon1.setImageResource(R.drawable.ic_action_location);
+
+        ImageView itemIcon2 = new ImageView(this);
+        itemIcon2.setImageResource(R.drawable.ic_action_add_red);
+
+        ImageView itemIcon3 = new ImageView(this);
+        itemIcon3.setImageResource(R.drawable.ic_action_camera);
+
+        ImageView itemIcon4 = new ImageView(this);
+        itemIcon4.setImageResource(R.drawable.ic_action_clock);
+
+        ImageView itemIcon5 = new ImageView(this);
+        itemIcon5.setImageResource(R.drawable.ic_action_user);
+
+        SubActionButton locationButton = itemBuilder.setContentView(itemIcon1).build();
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(100, 100);
+        locationButton.setLayoutParams(layoutParams);
+        SubActionButton addMeetingIcon = itemBuilder.setContentView(itemIcon2).build();
+        addMeetingIcon.setLayoutParams(layoutParams);
+        SubActionButton addPhotoButton = itemBuilder.setContentView(itemIcon3).build();
+        addPhotoButton.setLayoutParams(layoutParams);
+        SubActionButton button4 = itemBuilder.setContentView(itemIcon4).build();
+        button4.setLayoutParams(layoutParams);
+        SubActionButton button5 = itemBuilder.setContentView(itemIcon5).build();
+        button5.setLayoutParams(layoutParams);
+
+
+        locationButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        addMeetingIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDimBackgroundLayout.setVisibility(View.GONE);
+                mFloatingActionMenu.close(true);
                 Intent intent = new Intent(HomeActivity.this, MeetingActivity.class);
                 startActivity(intent);
             }
         });
-*/
+
+        //attach the sub buttons to the main button
+        mFloatingActionMenu = new FloatingActionMenu.Builder(this).setStartAngle(180).setEndAngle(360)
+                .addSubActionView(locationButton)
+                .addSubActionView(addMeetingIcon)
+                .addSubActionView(addPhotoButton)
+                .addSubActionView(button4)
+                .addSubActionView(button5)
+                .attachTo(fab)
+                .build();
+
+
+        mFloatingActionMenu.setStateChangeListener(new FloatingActionMenu.MenuStateChangeListener() {
+            @Override
+            public void onMenuOpened(FloatingActionMenu floatingActionMenu) {
+                mDimBackgroundLayout.setVisibility(View.VISIBLE);
+                // fab.setImageResource(R.drawable.ic_action_cancel);
+                rotate_forward = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_forward);
+                fab.setAnimation(rotate_forward);
+
+            }
+
+            @Override
+            public void onMenuClosed(FloatingActionMenu floatingActionMenu) {
+                mDimBackgroundLayout.setVisibility(View.GONE);
+                //fab.setImageResource(R.drawable.ic_action_add);
+                rotate_backward = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate_backward);
+                fab.setAnimation(rotate_backward);
+            }
+        });
+
+
+        mDimBackgroundLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mDimBackgroundLayout.setVisibility(View.GONE);
+                mFloatingActionMenu.close(true);
+            }
+        });
+
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -273,10 +380,15 @@ public class HomeActivity extends AppCompatActivity
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            if (mFloatingActionMenu.isOpen()) {
+                mFloatingActionMenu.close(true);
+            } else {
+                super.onBackPressed();
+            }
         }
     }
 

@@ -6,7 +6,11 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -16,15 +20,20 @@ import android.widget.Toast;
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.MeetingAlarmManager;
 import com.frissbi.Utility.Utility;
+import com.frissbi.adapters.MeetingFriendsAdapter;
 import com.frissbi.models.Meeting;
+import com.frissbi.models.MeetingFriends;
 import com.frissbi.networkhandler.TSNetworkHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MeetingDetailsActivity extends AppCompatActivity implements View.OnClickListener {
     private Meeting mMeeting;
@@ -38,6 +47,8 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
     private AlertDialog mConflictAlertDialog;
     private AlertDialog mConfirmAlertDialog;
     private TextView mMeetingDetailsAtTextView;
+    private AlertDialog mFriendsAlertDialog;
+    private List<MeetingFriends> mMeetingFriendsList;
 
 
     @Override
@@ -46,7 +57,9 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
         setContentView(R.layout.activity_meeting_details);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mProgressDialog = new CustomProgressDialog(this);
-        mMeeting = getIntent().getExtras().getParcelable("meeting");
+        mMeeting = (Meeting) getIntent().getExtras().getSerializable("meeting");
+        Log.d("MeetingDetailsActivity", "mMeeting" + mMeeting);
+        mMeetingFriendsList = mMeeting.getMeetingFriendsList();
         mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
         TextView meetingDetailsTitleTextView = (TextView) findViewById(R.id.meeting_details_title_tv);
@@ -54,7 +67,15 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
         TextView meetingDetailsTimeTextView = (TextView) findViewById(R.id.meeting_details_time_tv);
         mMeetingDetailsAtTextView = (TextView) findViewById(R.id.meeting_details_at_tv);
         mMeetingDetailsStatusTextView = (TextView) findViewById(R.id.meeting_details_status_tv);
-       // meetingDetailsFriendTextView = (TextView) findViewById(R.id.meeting_details_friend_tv);
+        Button moreFriendsButton = (Button) findViewById(R.id.more_friends_button);
+        TextView meetingDetailsFriendTextView = (TextView) findViewById(R.id.meeting_details_friend_tv);
+        if (mMeetingFriendsList.size() > 1) {
+            meetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
+            moreFriendsButton.setVisibility(View.VISIBLE);
+        } else {
+            meetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
+            moreFriendsButton.setVisibility(View.GONE);
+        }
 
         mMeetingAcceptButton = (Button) findViewById(R.id.meeting_accept_button);
         mMeetingIgnoreButton = (Button) findViewById(R.id.meeting_ignore_button);
@@ -62,6 +83,11 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
         meetingDetailsTitleTextView.setText(mMeeting.getDescription());
         meetingDetailsDateTextView.setText(mMeeting.getDate());
         meetingDetailsTimeTextView.setText(Utility.getInstance().convertTime(mMeeting.getFromTime()) + " to " + Utility.getInstance().convertTime(mMeeting.getToTime()));
+        if (mMeeting.isLocationSelected()) {
+            mMeetingDetailsAtTextView.setText(mMeeting.getAddress());
+        } else {
+            mMeetingDetailsAtTextView.setText("Any Place");
+        }
 
         if (mMeeting.getMeetingStatus() == Utility.STATUS_PENDING) {
             mMeetingDetailsStatusTextView.setText("PENDING");
@@ -82,10 +108,11 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.blue));
         }
 
-        getMeetingDetailsFromServer();
+        //getMeetingDetailsFromServer();
 
         mMeetingAcceptButton.setOnClickListener(this);
         mMeetingIgnoreButton.setOnClickListener(this);
+        moreFriendsButton.setOnClickListener(this);
 
     }
 
@@ -111,7 +138,27 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
                 showRejectConformationAlert();
 
                 break;
+            case R.id.more_friends_button:
+                showFriendsListAlertDialog();
+                break;
         }
+
+    }
+
+    private void showFriendsListAlertDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(MeetingDetailsActivity.this).inflate(R.layout.alert_meeting_tiltes, null);
+        builder.setView(view);
+        RecyclerView meetingFriendsRecyclerView = (RecyclerView) view.findViewById(R.id.meeting_title_recyclerView);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MeetingDetailsActivity.this);
+        meetingFriendsRecyclerView.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(meetingFriendsRecyclerView.getContext(),
+                DividerItemDecoration.VERTICAL);
+        meetingFriendsRecyclerView.addItemDecoration(dividerItemDecoration);
+        mFriendsAlertDialog = builder.create();
+        MeetingFriendsAdapter meetingFriendsAdapter = new MeetingFriendsAdapter(MeetingDetailsActivity.this, mMeetingFriendsList);
+        meetingFriendsRecyclerView.setAdapter(meetingFriendsAdapter);
+        mFriendsAlertDialog.show();
 
     }
 
@@ -174,6 +221,8 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
                                 mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
                                 mMeetingAcceptButton.setVisibility(View.GONE);
                                 Toast.makeText(MeetingDetailsActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
+                                MeetingAlarmManager.getInstance(MeetingDetailsActivity.this).setMeetingAlarm(responseJsonObject.getLong("meetingId"), responseJsonObject.getBoolean("isLocationSelected"),
+                                        mMeeting.getDate() + "  " + Utility.getInstance().convertTime(mMeeting.getFromTime()));
                             } else {
                                 showConflictingAlertDialog(responseJsonObject.getString("message"), responseJsonObject.getJSONArray("meetingIdsJsonArray"));
                             }

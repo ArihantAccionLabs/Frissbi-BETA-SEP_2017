@@ -7,6 +7,7 @@
     android:fitsSystemWindows="true"
     tools:context="com.frissbi.activities.HomeActivity">
 
+
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -47,9 +48,28 @@
         style="?android:attr/buttonStyleSmall"
         android:layout_width="50dp"
         android:layout_height="50dp"
+        android:layout_gravity="bottom"
         android:layout_margin="20dp"
-        android:layout_gravity="bottom|right"
-        android:background="@drawable/addbutton" />
+        android:background="@drawable/addbutton"
+        android:visibility="gone" />
+
+
+    <LinearLayout
+        android:id="@+id/dim_background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/darker_gray"
+        android:orientation="vertical"
+        android:visibility="gone" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/add_floating_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_marginBottom="20dp"
+        android:src="@drawable/ic_action_add"
+        app:backgroundTint="@color/bg_color" />
 
 
 </android.support.design.widget.CoordinatorLayout>

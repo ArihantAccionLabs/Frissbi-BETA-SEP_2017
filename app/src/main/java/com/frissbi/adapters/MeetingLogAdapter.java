@@ -9,12 +9,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.frissbi.Frissbi_Meetings.MeetingAcept;
-import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
 import com.frissbi.Utility.Utility;
 import com.frissbi.activities.MeetingDetailsActivity;
 import com.frissbi.models.Meeting;
+import com.frissbi.models.MeetingFriends;
 
 import java.util.List;
 
@@ -39,17 +38,22 @@ public class MeetingLogAdapter extends RecyclerView.Adapter<MeetingLogAdapter.Vi
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        holder.meetingLogDescriptionTv.setText(mMeetingsList.get(position).getDescription() + " with " + mMeetingsList.get(position).getSenderFirstName() + " " + mMeetingsList.get(position).getSenderLastName());
+        List<MeetingFriends> meetingFriendsList = mMeetingsList.get(position).getMeetingFriendsList();
+        if (meetingFriendsList.size() > 1) {
+            holder.meetingLogDescriptionTv.setText(mMeetingsList.get(position).getDescription() + " with " + mMeetingsList.get(position).getMeetingFriendsList().get(0).getName() + " and " + meetingFriendsList.size() + " others");
+        } else {
+            holder.meetingLogDescriptionTv.setText(mMeetingsList.get(position).getDescription() + " with " + mMeetingsList.get(position).getMeetingFriendsList().get(0).getName());
+        }
         holder.meetingLogDateTv.setText("Date : " + mMeetingsList.get(position).getDate());
         String time = "Time : " + Utility.getInstance().convertTime(mMeetingsList.get(position).getFromTime()) + " to " + Utility.getInstance().convertTime(mMeetingsList.get(position).getToTime());
         holder.meetingLogTimeTv.setText(time);
         if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_PENDING) {
             holder.meetingCardView.setBackgroundColor(mContext.getResources().getColor(R.color.light_orange));
-        }else if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_ACCEPT){
+        } else if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_ACCEPT) {
             holder.meetingCardView.setBackgroundColor(mContext.getResources().getColor(R.color.green));
-        }else if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_REJECT){
+        } else if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_REJECT) {
             holder.meetingCardView.setBackgroundColor(mContext.getResources().getColor(R.color.red));
-        }else if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_ACCEPT){
+        } else if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_ACCEPT) {
             holder.meetingCardView.setBackgroundColor(mContext.getResources().getColor(R.color.blue));
         }
 

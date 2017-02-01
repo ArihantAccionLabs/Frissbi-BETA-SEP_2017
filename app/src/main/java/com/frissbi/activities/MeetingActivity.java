@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
+import com.frissbi.Utility.MeetingAlarmManager;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.MeetingTitleAdapter;
 import com.frissbi.adapters.SelectedContactsExpandableAdapter;
@@ -361,6 +362,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 if (checkFieldsValidation()) {
                     sendMeetingDetailsToServer(new JSONArray());
                 }
+                //   MeetingAlarmManager.getInstance(this).setAlarmMgr();
                 break;
 
 
@@ -418,7 +420,6 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         JSONArray friendsIdJsonArray = new JSONArray();
         JSONArray emailIdJsonArray = new JSONArray();
         JSONArray contactsJsonArray = new JSONArray();
-        friendsIdJsonArray.put(mUserId);
         if (mFriendsList.size() > 0) {
             for (int i = 0; i < mFriendsList.size(); i++) {
                 friendsIdJsonArray.put(mFriendsList.get(i).getFriendId());
@@ -442,14 +443,15 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
             }
             jsonObject.put("senderUserId", mUserId);
             jsonObject.put("meetingTitle", mMeetingTitleTextView.getText());
-            jsonObject.put("meetingDateTime", mMeetingDateTextView.getText().toString() +"  "+ mMeetingTimeTextView.getText().toString());
+            jsonObject.put("meetingDateTime", mMeetingDateTextView.getText().toString() + "  " + mMeetingTimeTextView.getText().toString());
             jsonObject.put("duration", mMeetingDurationTextView.getText().toString());
             if (mMeetingPlace != null) {
                 jsonObject.put("latitude", mMeetingPlace.getLatitude() + "");
                 jsonObject.put("longitude", mMeetingPlace.getLongitude() + "");
                 jsonObject.put("address", mMeetingPlace.getAddress());
+                jsonObject.put("isLocationSelected", true);
             } else {
-                jsonObject.put("location", "any place");
+                jsonObject.put("isLocationSelected", false);
             }
             jsonObject.put("friendsIdJsonArray", friendsIdJsonArray);
             jsonObject.put("emailIdJsonArray", emailIdJsonArray);
@@ -471,6 +473,8 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                             final JSONObject responseJsonObject = new JSONObject(response.response);
                             if (responseJsonObject.getBoolean("isInserted")) {
                                 Toast.makeText(MeetingActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
+                                MeetingAlarmManager.getInstance(MeetingActivity.this).setMeetingAlarm(responseJsonObject.getLong("meetingId"), responseJsonObject.getBoolean("isLocationSelected"),
+                                        mMeetingDateTextView.getText().toString() + "  " + mMeetingTimeTextView.getText().toString());
                                 Intent intent = new Intent(MeetingActivity.this, HomeActivity.class);
                                 startActivity(intent);
                             } else {
