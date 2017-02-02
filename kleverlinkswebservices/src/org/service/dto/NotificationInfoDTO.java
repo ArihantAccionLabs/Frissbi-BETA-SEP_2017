@@ -1,5 +1,10 @@
 package org.service.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.json.JSONObject;
+
 public class NotificationInfoDTO {
 
 	private Integer senderUserId;
@@ -8,6 +13,10 @@ public class NotificationInfoDTO {
 	private String notificationType;
 	private String notificationDescription;
 	private Integer meetingId;
+	private JSONObject jsonObject;
+	
+	private List<Integer> userList = new ArrayList<>();
+	
 	public String getMessage() {
 		return message;
 	}
@@ -44,6 +53,25 @@ public class NotificationInfoDTO {
 	}
 	public void setSenderUserId(Integer senderUserId) {
 		this.senderUserId = senderUserId;
+	}
+	public JSONObject getJsonObject() {
+		return jsonObject;
+	}
+	public void setJsonObject(JSONObject jsonObject) {
+		this.jsonObject = jsonObject;
+	}
+
+	public List<Integer> getUserList() {
+		return userList;
+	}
+	public void setUserList(List<Integer> userList) {
+		this.userList = userList;
+	}
+	@Override
+	public String toString() {
+		return "NotificationInfoDTO [senderUserId=" + senderUserId + ", userId=" + userId + ", message=" + message
+				+ ", notificationType=" + notificationType + ", notificationDescription=" + notificationDescription
+				+ ", meetingId=" + meetingId + "]";
 	}
 
 }

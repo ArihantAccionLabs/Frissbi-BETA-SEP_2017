@@ -1,14 +1,15 @@
 package org.kleverlinks.webservice;
 
+
 public enum NotificationsEnum {
 	
-	Friend_Pending_Requests(1), Friend_Request_Acceptance(2), Meeting_Pending_Requests(3), Meeting_Request_Acceptance(4),
-	Meeting_Time_Changed(5), Meeting_Place_Changed(6), Meeting_Rejected(7) ,Meeting_Summary(8);
+	FRIEND_PENDING_REQUESTS(1), FRIEND_REQUEST_ACCEPTANCE(2), MEETING_PENDING_REQUESTS(3), MEETING_REQUEST_ACCEPTANCE(4),
+	MEETING_TIME_CHANGED(5), MEETING_PLACE_CHANGED(6), MEETING_REJECTED(7) ,MEETING_SUMMARY(8);
 
 	 private int value;
 
      private NotificationsEnum(int value) {
              this.value = value;
      }
-
+     
 }

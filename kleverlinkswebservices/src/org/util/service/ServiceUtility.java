@@ -22,12 +22,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -36,26 +30,12 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-import org.kleverlinks.webservice.AuthenticateUser;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
-import org.kleverlinks.webservice.LocationDetails;
-import org.kleverlinks.webservice.MeetingDetails;
 import org.kleverlinks.webservice.MyEmailer;
-import org.kleverlinks.webservice.NotificationsEnum;
-import org.kleverlinks.webservice.UserNotifications;
-import org.kleverlinks.webservice.gcm.Message;
-import org.kleverlinks.webservice.gcm.Result;
-import org.kleverlinks.webservice.gcm.Sender;
 import org.service.dto.MeetingLogBean;
 import org.service.dto.UserDTO;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.ClientConfig;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 public class ServiceUtility {
 
@@ -381,27 +361,42 @@ public class ServiceUtility {
 		String sql = "";
 		try{
 		connection = DataSourceConnection.getDBConnection();
-		connection.setAutoCommit(false);
-		for (int i = 0; i < meetingArray.length(); i++) {
-			System.out.println("checking======"+(isMeetingCreatorRemoved(meetingArray.getJSONObject(i).getInt("meetingId"),senderUserId)));
-			if(isMeetingCreatorRemoved(meetingArray.getJSONObject(i).getInt("meetingId"),senderUserId)){
+		Integer meetingId = 0;
+		if(meetingArray.length() == 1){
+			meetingId = meetingArray.getJSONObject(0).getInt("meetingId");
+			if(isMeetingCreatorRemoved(meetingId,senderUserId)){
 				sql = "UPDATE  tbl_MeetingDetails SET isSenderRemoved=2 WHERE MeetingID=? AND SenderUserId=?";
 				preparedStatement = connection.prepareStatement(sql);
-				preparedStatement.setInt(1, meetingArray.getJSONObject(i).getInt("meetingId"));
+				preparedStatement.setInt(1, meetingId);
 				preparedStatement.setInt(2, senderUserId);
 			}else{
 				sql = "UPDATE tbl_RecipientsDetails SET Status=2,ResponseDateTime=? WHERE MeetingID=? AND UserID=?";
 				preparedStatement = connection.prepareStatement(sql);
 				preparedStatement.setString(1, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
-				preparedStatement.setInt(2, meetingArray.getJSONObject(i).getInt("meetingId"));
+				preparedStatement.setInt(2, meetingId);
 				preparedStatement.setInt(3, senderUserId);
 			}
-        
-		preparedStatement.addBatch();
+			preparedStatement.executeUpdate();
+		}else{
+			
+			for (int i = 0; i < meetingArray.length(); i++) {
+				preparedStatement = null;
+				meetingId = meetingArray.getInt(i);
+				if(isMeetingCreatorRemoved(meetingId , senderUserId)){
+					sql = "UPDATE  tbl_MeetingDetails SET isSenderRemoved=2 WHERE MeetingID=? AND SenderUserId=?";
+					preparedStatement = connection.prepareStatement(sql);
+					preparedStatement.setInt(1, meetingId);
+					preparedStatement.setInt(2, senderUserId);
+				}else{
+					sql = "UPDATE tbl_RecipientsDetails SET Status=2,ResponseDateTime=? WHERE MeetingID=? AND UserID=?";
+					preparedStatement = connection.prepareStatement(sql);
+					preparedStatement.setString(1, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
+					preparedStatement.setInt(2, meetingId);
+					preparedStatement.setInt(3, senderUserId);
+				}
+				preparedStatement.executeUpdate();
+		  }
 		}
-		int [] updatedRow = preparedStatement.executeBatch();
-		connection.commit();
-		System.out.println("updatedRow================"+updatedRow.toString());
 		}catch (Exception e) {
 			e.printStackTrace();
 		}finally{
@@ -557,7 +552,7 @@ public class ServiceUtility {
 			statement.setInt(2, userId);
 			ResultSet rs = statement.executeQuery();
 			while(rs.next()){
-				System.out.println("isSenderRemoved=================="+rs.getInt("isSenderRemoved"));
+				//System.out.println("isSenderRemoved=================="+rs.getInt("isSenderRemoved"));
 				isSenderRemoved = rs.getInt("isSenderRemoved");
 			}
 			if(isSenderRemoved == 1){
@@ -604,6 +599,48 @@ public class ServiceUtility {
 		return map;
 	}
 	
+	
+	public static JSONObject getReceiverDetailsByMeetingId(int meetingId , int userId){
+		
+		 Connection conn = null;
+		 CallableStatement callableStatement = null;
+		 JSONArray friendsArray = new JSONArray();
+		 JSONObject finalJson = new JSONObject();
+		 Integer status = 0;
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			//SELECT tbl_users.firstName,tbl_users.lastName,tbl_RecipientsDetails.Status FROM tbl_RecipientsDetails INNER JOIN tbl_users ON  tbl_RecipientsDetails.UserID=tbl_users.UserID WHERE MeetingID="+meetingId;
+			String storeProc = "{call usp_GetUserDetails_ByMeetingID(?)}"; 
+			callableStatement = conn.prepareCall(storeProc);
+			callableStatement.setInt(1, meetingId);
+			ResultSet rs = callableStatement.executeQuery();
+			while(rs.next()){
+				if(!(userId == rs.getInt("UserID"))){
+					
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("userId", rs.getInt("UserID"));
+					jsonObject.put("fullName", rs.getString("firstName")+" "+rs.getString("lastName"));
+					jsonObject.put("status", rs.getInt("Status"));
+					friendsArray.put(jsonObject);
+					
+				} else {
+					 status = rs.getInt("Status");
+				}
+			}
+		   
+			finalJson.put("friendsArray", friendsArray);
+			finalJson.put("status", status);
+		} catch(Exception  e){
+			e.printStackTrace();
+		}finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		return finalJson;
+	}
+	
+	
+	
 	public static MeetingLogBean getMeetingDetailsByMeetingId(int meetingId){
 		Connection conn = null;
 		CallableStatement  callableStatement = null;
@@ -617,21 +654,23 @@ public class ServiceUtility {
 			callableStatement.executeQuery();
 			ResultSet rs = callableStatement.getResultSet();
 			while(rs.next()){
-				System.out.println("===="+rs.getInt("SenderUserID")+"   "+rs.getInt("isSenderRemoved")+"   "+rs.getString("MeetingDescription"));
 				if(!(rs.getInt("isSenderRemoved") == 2)){
-					meetingLogBean.setUserId(rs.getInt("SenderUserID"));
+					meetingLogBean.setSenderUserId(rs.getInt("SenderUserID"));
+					meetingLogBean.setMeetingId(rs.getInt("MeetingID"));
 					meetingLogBean.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
 					LocalDateTime fromTime = convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 					LocalDateTime toTime =   convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
 					meetingLogBean.setDate(fromTime.toLocalDate());
-					meetingLogBean.setFrom(fromTime);
-					meetingLogBean.setTo(toTime);
+					meetingLogBean.setFromDate(fromTime);
+					meetingLogBean.setToDate(toTime);
+					meetingLogBean.setStartTime(Float.parseFloat(fromTime.getHour() + "." + fromTime.getMinute()));
+					meetingLogBean.setEndTime(Float.parseFloat(toTime.getHour() + "." + toTime.getMinute()));
 					meetingLogBean.setDescription(rs.getString("MeetingDescription"));
 					meetingLogBean.setLatitude(rs.getString("Latitude"));
 					meetingLogBean.setLongitude(rs.getString("Longitude"));
 					meetingLogBean.setAddress(rs.getString("GoogleAddress"));
 					
-					System.out.println("==================="+meetingLogBean.toString());
+					System.out.println("==================="+rs.getString("Latitude"));
 				}
 			}
 		} catch(Exception  e){
@@ -657,11 +696,11 @@ public class ServiceUtility {
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 			while(rs.next()){
-			  if(rs.getInt("Status") == 1){
+			  if(rs.getInt("Status") == 1 || rs.getInt("Status") == 0){
 				  JSONObject jsonObject = new JSONObject();
 				  jsonObject.put("userId" , rs.getInt("UserID"));
 				  jsonObject.put("fullName" , rs.getString("firstName") + rs.getString("lastName"));
-				  
+				  jsonObject.put("status" , rs.getInt("Status"));
 				  jsonArray.put(jsonObject);
 			  }
 			}

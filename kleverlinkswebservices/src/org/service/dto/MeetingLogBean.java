@@ -5,25 +5,22 @@ import java.time.LocalDateTime;
 
 public class MeetingLogBean {
 
-	private Integer userId;
+	private Integer senderUserId;
 	private Integer meetingId;
 	private String fullName;
 	private String userName;
 	private LocalDate date;
-	private LocalDateTime from;
-	private LocalDateTime to;
+	private LocalDateTime fromDate;
+	private LocalDateTime toDate;
+	private Float startTime;
+	private Float endTime;
 	private String description;
 	private String address;
 	private String latitude;
 	private String longitude;
 	
 	
-	public Integer getUserId() {
-		return userId;
-	}
-	public void setUserId(Integer userId) {
-		this.userId = userId;
-	}
+
 	private int meetingStatus;
 
 	public Integer getMeetingId() {
@@ -47,18 +44,7 @@ public class MeetingLogBean {
 	public LocalDate getDate() {
 		return date;
 	}
-	public LocalDateTime getFrom() {
-		return from;
-	}
-	public void setFrom(LocalDateTime from) {
-		this.from = from;
-	}
-	public LocalDateTime getTo() {
-		return to;
-	}
-	public void setTo(LocalDateTime to) {
-		this.to = to;
-	}
+
 	public void setDate(LocalDate date) {
 		this.date = date;
 	}
@@ -90,14 +76,46 @@ public class MeetingLogBean {
 	public int getMeetingStatus() {
 		return meetingStatus;
 	}
+	public LocalDateTime getFromDate() {
+		return fromDate;
+	}
+	public void setFromDate(LocalDateTime fromDate) {
+		this.fromDate = fromDate;
+	}
+	public LocalDateTime getToDate() {
+		return toDate;
+	}
+	public void setToDate(LocalDateTime toDate) {
+		this.toDate = toDate;
+	}
+	public Float getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(Float startTime) {
+		this.startTime = startTime;
+	}
+	public Float getEndTime() {
+		return endTime;
+	}
+	public Integer getSenderUserId() {
+		return senderUserId;
+	}
+	public void setSenderUserId(Integer senderUserId) {
+		this.senderUserId = senderUserId;
+	}
+	public void setEndTime(Float endTime) {
+		this.endTime = endTime;
+	}
 	public void setMeetingStatus(int meetingStatus) {
 		this.meetingStatus = meetingStatus;
 	}
 	@Override
 	public String toString() {
-		return "MeetingLogBean [userId=" + userId + ", meetingId=" + meetingId + ", fullName=" + fullName
-				+ ", userName=" + userName + ", date=" + date + ", from=" + from + ", to=" + to + ", description="
-				+ description + ", address=" + address + ", latitude=" + latitude + ", longitude=" + longitude
-				+ ", meetingStatus=" + meetingStatus + "]";
+		return "MeetingLogBean [senderUserId=" + senderUserId + ", meetingId=" + meetingId + ", fullName=" + fullName
+				+ ", userName=" + userName + ", date=" + date + ", fromDate=" + fromDate + ", toDate=" + toDate
+				+ ", startTime=" + startTime + ", endTime=" + endTime + ", description=" + description + ", address="
+				+ address + ", latitude=" + latitude + ", longitude=" + longitude + ", meetingStatus=" + meetingStatus
+				+ "]";
 	}
+
 }

@@ -1,6 +1,5 @@
 package org.kleverlinks.webservice;
 
-import java.io.IOException;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.sql.CallableStatement;
@@ -18,7 +17,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;

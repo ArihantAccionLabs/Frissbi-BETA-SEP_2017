@@ -60,8 +60,7 @@ public class MeetingDetails {
 			 if(meetingInsertionObject.has("meetingIdsJsonArray")){
 				ServiceUtility.deleteUserFromMeeting(meetingInsertionObject.getJSONArray("meetingIdsJsonArray") , senderUserId);
 				//sending Notification
-				System.out.println("NotificationsEnum.Meeting_Rejected.ordinal()+1==="+NotificationsEnum.Meeting_Rejected);
-				NotificationService.sendNotification(meetingInsertionObject.getJSONArray("meetingIdsJsonArray"), senderUserId, NotificationsEnum.Meeting_Rejected.ordinal());
+				NotificationService.sendNotification(meetingInsertionObject.getJSONArray("meetingIdsJsonArray"), senderUserId, NotificationsEnum.MEETING_REJECTED.ordinal());
 			}
 			String meetingDate = meetingInsertionObject.getString("meetingDateTime");
 			DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd hh:mm a");
@@ -109,9 +108,10 @@ public class MeetingDetails {
 			Connection connection = null;
 			connection = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
-			int meetingId = 0;
+			Integer meetingId = 0;
+			String isSenderRemoved = "1";
 
-			String insertStoreProc = "{call usp_InsertMeetingDetails(?,?,?,?,?,?,?,?,?,?,?)}";
+			String insertStoreProc = "{call usp_InsertMeetingDetails(?,?,?,?,?,?,?,?,?,?,?,?)}";
 			callableStatement = connection.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, senderUserId);
 			callableStatement.setTimestamp(2, new Timestamp(new Date().getTime()));
@@ -128,12 +128,13 @@ public class MeetingDetails {
 				callableStatement.setString(8, null);
 				callableStatement.setString(9, null);
 			}
-			callableStatement.registerOutParameter(10, Types.INTEGER);
-			callableStatement.registerOutParameter(11, Types.BIGINT);
+			callableStatement.setString(10, isSenderRemoved);
+			callableStatement.registerOutParameter(11, Types.INTEGER);
+			callableStatement.registerOutParameter(12, Types.BIGINT);
 
 			int value = callableStatement.executeUpdate();
-			int isError = callableStatement.getInt(10);
-			meetingId = callableStatement.getInt(11);
+			int isError = callableStatement.getInt(11);
+			meetingId = callableStatement.getInt(12);
 			System.out.println(isError + "meetingId >>>>>>>>>>>>>>>>>> " + meetingId+"  value=="+value);
 
 			if (isError == 0) {
@@ -411,7 +412,7 @@ public class MeetingDetails {
 				Timestamp timestamp = new Timestamp(date.getTime());
 				if (status == 1) {
 					String notificationId = userNotifications.insertUserNotifications(senderUserId, recipientId,
-							NotificationsEnum.Meeting_Request_Acceptance.ordinal() + 1, 0, timestamp);
+							NotificationsEnum.MEETING_REQUEST_ACCEPTANCE.ordinal() + 1, 0, timestamp);
 					JSONObject json = new JSONArray(
 							userNotifications.getUserNotifications(0, Integer.parseInt(notificationId)))
 									.getJSONObject(0);
@@ -434,7 +435,7 @@ public class MeetingDetails {
 					}
 				} else if (status == 2) {
 					String notificationId = userNotifications.insertUserNotifications(senderUserId, recipientId,
-							NotificationsEnum.Meeting_Rejected.ordinal() + 1, 0, timestamp);
+							NotificationsEnum.MEETING_REJECTED.ordinal() + 1, 0, timestamp);
 					JSONObject json = new JSONArray(
 							userNotifications.getUserNotifications(0, Integer.parseInt(notificationId)))
 									.getJSONObject(0);
@@ -646,7 +647,13 @@ public class MeetingDetails {
 		CallableStatement callableStatement = null;
 		Connection conn = null;
 		try {
-			 if(meetingDetailsJsonObject.has("isAccepted") && meetingDetailsJsonObject.getBoolean("isAccepted")){
+			 if(meetingDetailsJsonObject.has("meetingIdsJsonArray")){
+				 
+					ServiceUtility.deleteUserFromMeeting(meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray") , meetingDetailsJsonObject.getInt("userId"));
+					NotificationService.sendNotification(meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray"), meetingDetailsJsonObject.getInt("userId"), NotificationsEnum.MEETING_REJECTED.ordinal());
+			
+			 }else if(meetingDetailsJsonObject.has("isAccepted") && meetingDetailsJsonObject.getBoolean("isAccepted")){
+				
 			     Map<String , Date> map = ServiceUtility.getOneDayDate(meetingDetailsJsonObject.getString("meetingDate"));
 			    conn = DataSourceConnection.getDBConnection();
 				String selectStoreProcedue = "{call usp_CheckingConflicatedMeetings(?,?,?)}";
@@ -717,28 +724,27 @@ public class MeetingDetails {
 				finalJson.put("meetingIdsJsonArray", jsonResultsArray);	
 					return finalJson.toString();
 			}
-			
-			//accepting the meeting request by updating the tbl_reception table
-			if(MeetingRequestUpdate(meetingId , meetingDetailsJsonObject.getInt("userId") , meetingDetailsJsonObject.getInt("meetingStatus")) != 0 ){
+         }
+			 //accepting the meeting request by updating the tbl_reception table
+			 if(MeetingRequestUpdate(meetingId , meetingDetailsJsonObject.getInt("userId") , meetingDetailsJsonObject.getString("meetingStatus")) != 0 ){
+					
+					//sending meeting notification to creator of meeting  //NotificationsEnum.Meeting_Pending_Requests.ordinal() + 1
+					NotificationService.sendNotificationToOneUser(meetingDetailsJsonObject.getInt("userId")  , meetingDetailsJsonObject.getInt("userId") , NotificationsEnum.FRIEND_REQUEST_ACCEPTANCE.ordinal()+1 , meetingId);
+					
+					finalJson.put("isAccepted", true);
+					finalJson.put("status", true);
+					finalJson.put("message", "Meeting accepted successfully");
+					return finalJson.toString();
 				
-				//sending meeting notification to creator of meeting  //NotificationsEnum.Meeting_Pending_Requests.ordinal() + 1
-				NotificationService.sendNotificationToOneUser(meetingDto.getUserId() , meetingDetailsJsonObject.getInt("userId") , NotificationsEnum.Friend_Request_Acceptance.ordinal()+1 , meetingDto.getMeetingId());
-				
-				finalJson.put("isAccepted", true);
-				finalJson.put("status", true);
-				finalJson.put("message", "Meeting accepted successfully");
-				return finalJson.toString();
-			}
-        }else if(meetingDetailsJsonObject.has("isRejected") && meetingDetailsJsonObject.getBoolean("isRejected")){
-        	if(MeetingRequestUpdate(meetingId , meetingDetailsJsonObject.getInt("userId") , meetingDetailsJsonObject.getInt("meetingStatus")) != 0 ){
-        		//ServiceUtility.sendNotificationToOneUser(meetingDto.getUserId() , meetingDetailsJsonObject.getInt("userId") , NotificationsEnum.Friend_Request_Acceptance.ordinal()+1 , meetingDto.getMeetingId());
-        		System.out.println("if=======================");
-				finalJson.put("message", "Meeting rejected successfully");
-				finalJson.put("isRejected", true);
-				finalJson.put("status", true);
-				return finalJson.toString();
-			}
-        }
+	        }else if(meetingDetailsJsonObject.has("isRejected") && meetingDetailsJsonObject.getBoolean("isRejected")){
+	        	if(MeetingRequestUpdate(meetingId , meetingDetailsJsonObject.getInt("userId") , meetingDetailsJsonObject.getString("meetingStatus")) != 0 ){
+	        		//ServiceUtility.sendNotificationToOneUser(meetingDto.getSenderUserId() , meetingDetailsJsonObject.getInt("userId") , NotificationsEnum.Friend_Request_Acceptance.ordinal()+1 , meetingDto.getMeetingId());
+					finalJson.put("message", "Meeting rejected successfully");
+					finalJson.put("isRejected", true);
+					finalJson.put("status", true);
+					return finalJson.toString();
+				}
+	        }
 		}catch (Exception e) {
 			e.printStackTrace();
 		}finally{
@@ -750,7 +756,7 @@ public class MeetingDetails {
 		return finalJson.toString();
 	}
 	
-	public int MeetingRequestUpdate(int meetingId , int userId , int status){
+	public int MeetingRequestUpdate(int meetingId , int userId , String status){
 		
 		
 		Connection conn = null;
@@ -760,10 +766,11 @@ public class MeetingDetails {
 			String sql = "UPDATE tbl_RecipientsDetails SET Status=?,ResponseDateTime=? WHERE MeetingID=? AND UserID=?"; 
 			conn = DataSourceConnection.getDBConnection();
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, status);
-			pstmt.setInt(2, meetingId);
-			pstmt.setInt(3, userId);
-			pstmt.setString(4, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
+			pstmt.setString(1, status);
+			pstmt.setString(2, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
+			pstmt.setInt(3, meetingId);
+			pstmt.setInt(4, userId);
+			
 		 updatedRow =	pstmt.executeUpdate();
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -834,14 +841,14 @@ public class MeetingDetails {
 				DestinationAddress = rs.getString("DestinationAddress");
 				jsonResultsArray.put(jsonObject);
 			}
-			json.put("Recipients", jsonResultsArray);
+		/*	json.put("Recipients", jsonResultsArray);
 			json.put("SenderFromDateTime", SenderFromDateTime);
 			json.put("SenderToDateTime", SenderToDateTime);
 			json.put("ScheduledTimeSlot", ScheduledTimeSlot);
 			json.put("MeetingDescription", MeetingDescription);
 			json.put("Latitude", Latitude);
 			json.put("Longitude", Longitude);
-			json.put("DestinationAddress", DestinationAddress);
+			json.put("DestinationAddress", DestinationAddress);*/
 		} catch (SQLException se) {
 			se.printStackTrace();
 		} catch (Exception e) {
@@ -978,53 +985,59 @@ public class MeetingDetails {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getUserDetailsByMeetingID(@PathParam("meetingId") int meetingId, @PathParam("userId") int userId) {
 
-		Connection conn = null;
-		Statement stmt = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
-			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
-			String insertStoreProc = "{call usp_GetUserDetails_ByMeetingID(?)}";
-			callableStatement = conn.prepareCall(insertStoreProc);
-			//callableStatement.setInt(1, userId);
-			callableStatement.setInt(1, meetingId);
-			callableStatement.execute();
-			ResultSet rs = callableStatement.getResultSet();
-			JSONArray jsonResultsArray = new JSONArray();
-			while (rs.next()) {
-				
-				LocalDateTime senderFromDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
-				LocalDateTime senderToDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
-				DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
-				jsonObject.put("MeetingID", rs.getString("MeetingID"));
-				jsonObject.put("UserName", rs.getString("UserName"));
-				jsonObject.put("FirstName", rs.getString("FirstName"));
-				jsonObject.put("LastName", rs.getString("LastName"));
-				jsonObject.put("date", LocalDateTime.ofInstant(formatter.parse(rs.getString("SenderFromDateTime")).toInstant(), ZoneId.systemDefault()).toLocalDate());
-				jsonObject.put("from", senderFromDateTime.getHour() + ":" + senderFromDateTime.getMinute());
-				jsonObject.put("to", senderToDateTime.getHour() + ":" + senderToDateTime.getMinute());
-				jsonObject.put("description", rs.getString("MeetingDescription"));
-				jsonObject.put("meetingStatus", rs.getString("Status"));
-				
-				jsonResultsArray.put(jsonObject);
-			}
+			MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId( meetingId);
 			
-			jsonObject.put("emailIdJsonArray", ServiceUtility.getEmailIdByMeetingId(meetingId));
-			jsonObject.put("contactsJsonArray", ServiceUtility.getContactByMeetingId(meetingId));
-			jsonObject.put("friendsJsonArray", ServiceUtility.getReceptionistByMeetingId(meetingId , userId).get("friendsArray"));
+			if(meetingLogBean != null){
+				 
+				 jsonObject.put("meetingId" , meetingLogBean.getMeetingId());
+				 jsonObject.put("meetingSenderId" , meetingLogBean.getSenderUserId());
+				 jsonObject.put("date" , meetingLogBean.getDate());
+				 jsonObject.put("from" , meetingLogBean.getFromDate().getHour()+":"+meetingLogBean.getFromDate().getMinute());
+				 jsonObject.put("to" , meetingLogBean.getToDate().getHour()+":"+meetingLogBean.getToDate().getMinute());
+				 jsonObject.put("description" , meetingLogBean.getDescription());
+				 if(meetingLogBean.getSenderUserId() != null && meetingLogBean.getSenderUserId() == userId){
+					 jsonObject.put("meetingStatus" , 1); 
+				 }
+
+					if(meetingLogBean.getLatitude() != null && !meetingLogBean.getLatitude().trim().isEmpty()){
+						
+						jsonObject.put("isLocationSelected",true);
+						jsonObject.put("address" , meetingLogBean.getAddress());
+						jsonObject.put("latitude" , meetingLogBean.getLatitude());
+						jsonObject.put("longitude" , meetingLogBean.getLongitude());
+					}else{
+						jsonObject.put("isLocationSelected",false);
+					}
+			 }
 			
-			jsonObject.put("status", true);
+			System.out.println("meetingLogBean======="+meetingLogBean.toString());
+			
+			 JSONObject friendsObject = ServiceUtility.getReceiverDetailsByMeetingId(meetingId , userId);
+			 
+			 JSONArray friendsArray = friendsObject.getJSONArray("friendsArray");
+			 if(friendsArray.length() == 0 && meetingLogBean != null){
+				 JSONObject jsonObject2 = new JSONObject();
+				 jsonObject2.put("userId", meetingLogBean.getSenderUserId());
+				 jsonObject2.put("fullName", meetingLogBean.getFullName());
+				 jsonObject2.put("status", "1");
+				 
+				 friendsArray.put(jsonObject2);
+			 }
+			 if(! jsonObject.has("meetingStatus")){
+				 jsonObject.put("meetingStatus" , friendsObject.get("status"));
+			 }
+			 jsonObject.put("emailIdJsonArray", ServiceUtility.getEmailIdByMeetingId(meetingId));
+			 jsonObject.put("contactsJsonArray", ServiceUtility.getContactByMeetingId(meetingId));
+			 jsonObject.put("friendsJsonArray", friendsArray);
+		
+			 
+			 jsonObject.put("status", true);
 			jsonObject.put("message", "Meeting Requests list fetched successfully");
 		   return jsonObject.toString();	
-		} catch (SQLException se) {
-			se.printStackTrace();
-		} catch (Exception e) {
+		}catch (Exception e) {
 			e.printStackTrace();
-		}
-		finally{
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(stmt);	
 		}
 		jsonObject.put("status", false);
 		jsonObject.put("message", "Oops something went wrong");
@@ -1040,7 +1053,9 @@ public class MeetingDetails {
 		
 		JSONObject finalJson = new JSONObject();
 		JSONObject meetingUserDetail = new JSONObject(meetingDetails);
+		
 	 try {
+		 
 		int userId = meetingUserDetail.getInt("userId");
 		int meetingId = meetingUserDetail.getInt("meetingId");
 		if(meetingUserDetail.getBoolean("isLocationSelected")){
@@ -1048,40 +1063,52 @@ public class MeetingDetails {
 			MeetingLogBean meetingCreatorLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId) ;
 			JSONArray  jsonArray = ServiceUtility.getReceptionistDetailsByMeetingId(meetingId) ;
 			Set<Integer> userIdSet = new HashSet<>();
+			
+			String fullName = "";
+			System.out.println("====================="+jsonArray.toString());
 			for (int i = 0; i < jsonArray.length(); i++) {
 				if(jsonArray.getJSONObject(i).getInt("userId") != 0){
 					userIdSet.add(jsonArray.getJSONObject(i).getInt("userId"));
+					fullName = jsonArray.getJSONObject(i).getString("fullName");
 				}
 			}
 			userIdSet.add(userId);
-			if(meetingCreatorLogBean.getUserId() != null){
-				userIdSet.add(meetingCreatorLogBean.getUserId());
+			if(meetingCreatorLogBean.getSenderUserId() != null){
+				userIdSet.add(meetingCreatorLogBean.getSenderUserId());
 			}
-			System.out.println(userIdSet.toString()+" listc :   "+userIdSet.size());
+			//System.out.println(userIdSet.toString()+" listc :   "+userIdSet.size());
+			
 			if(!userIdSet.isEmpty()){
-				
-				String message = "You have meeting "+meetingCreatorLogBean.getDescription() +" with "+meetingCreatorLogBean.getFullName()+" on "+meetingCreatorLogBean.getDate() +" from "+meetingCreatorLogBean.getFrom()+" to "+meetingCreatorLogBean.getTo();
+				String message = "You have meeting ";
+				if(userId == meetingCreatorLogBean.getSenderUserId()) {
+					 message += meetingCreatorLogBean.getDescription() +" with "+fullName+" and "+(userIdSet.size()-1)+" others on "+meetingCreatorLogBean.getDate() +" from "+meetingCreatorLogBean.getStartTime()+" to "+meetingCreatorLogBean.getEndTime();
+				} else {
+					message  += meetingCreatorLogBean.getDescription() +" with "+meetingCreatorLogBean.getFullName()+" on "+meetingCreatorLogBean.getDate() +" from "+meetingCreatorLogBean.getStartTime()+" to "+meetingCreatorLogBean.getEndTime();
+				}
 				
 				NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
 				notificationInfoDTO.setMeetingId(meetingId);
 				notificationInfoDTO.setSenderUserId(0);
-				notificationInfoDTO.setNotificationType(NotificationsEnum.Meeting_Summary.toString());
+				notificationInfoDTO.setNotificationType(NotificationsEnum.MEETING_SUMMARY.toString());
 				notificationInfoDTO.setMessage(message);
 				
-				NotificationService.sendMeetingAlarmNotification(notificationInfoDTO, userIdSet.stream().collect(Collectors.toList())); 
+				finalJson.put("meetingId", meetingId);
+				finalJson.put("date", meetingCreatorLogBean.getDate());
+				finalJson.put("from", meetingCreatorLogBean.getStartTime());
+				finalJson.put("to", meetingCreatorLogBean.getEndTime());
+				finalJson.put("description", meetingCreatorLogBean.getDescription());
+				finalJson.put("address", meetingCreatorLogBean.getAddress());
+				finalJson.put("latitude", meetingCreatorLogBean.getLatitude());
+				finalJson.put("longitude", meetingCreatorLogBean.getLongitude());
+				finalJson.put("friendsJsonArray", ServiceUtility.getReceptionistDetailsByMeetingId(meetingId));
+				
+				System.out.println("finalJson====="+finalJson.toString());
+				
+				notificationInfoDTO.setJsonObject(finalJson);
+				NotificationService.sendMeetingAlarmNotification(notificationInfoDTO , userIdSet.stream().collect(Collectors.toList())); 
 			}
-			/*finalJson.put("meetingID", meetingId);
-			finalJson.put("date", meetingCreatorLogBean.getDate());
-			finalJson.put("from", meetingCreatorLogBean.getFrom());
-			finalJson.put("to", meetingCreatorLogBean.getTo());
-			finalJson.put("description", meetingCreatorLogBean.getDescription());
-			finalJson.put("address", meetingCreatorLogBean.getAddress());
-			finalJson.put("latitude", meetingCreatorLogBean.getLatitude());
-			finalJson.put("longitude", meetingCreatorLogBean.getLongitude());
-			finalJson.put("friendsAcceptedArray", jsonArray);
 			finalJson.put("status", true);
-			finalJson.put("message", "Data fetched successfully");*/
-			
+			finalJson.put("message", "Data fetched successfully");
 			finalJson.put("isLocationSelected", meetingUserDetail.getBoolean("isLocationSelected"));
 			return finalJson.toString();
 		}

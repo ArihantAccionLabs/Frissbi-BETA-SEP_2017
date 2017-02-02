@@ -1,6 +1,5 @@
 package org.kleverlinks.webservice;
 
-import java.io.IOException;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -70,7 +69,7 @@ public class UserFriendList {
 			callableStatement.registerOutParameter(7, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
 			if (value == 1) {
-			NotificationService.sendNotificationToOneUser(userId2 , userId1 , NotificationsEnum.Friend_Pending_Requests.ordinal() + 1 , 0);	
+			NotificationService.sendNotificationToOneUser(userId2 , userId1 , NotificationsEnum.FRIEND_PENDING_REQUESTS.ordinal() + 1 , 0);	
 			return "1";
 			}
 
@@ -200,7 +199,7 @@ public class UserFriendList {
 				Date date = new Date();
 				Timestamp timestamp = new Timestamp(date.getTime());
 				String notificationId = userNotifications.insertUserNotifications(userId1, userId2,
-						NotificationsEnum.Friend_Request_Acceptance.ordinal() + 1, 0, timestamp);
+						NotificationsEnum.FRIEND_REQUEST_ACCEPTANCE.ordinal() + 1, 0, timestamp);
 				JSONArray jsonArray = new JSONArray(
 						userNotifications.getUserNotifications(0, Integer.parseInt(notificationId)));
 				if (jsonArray.length() > 0) {
