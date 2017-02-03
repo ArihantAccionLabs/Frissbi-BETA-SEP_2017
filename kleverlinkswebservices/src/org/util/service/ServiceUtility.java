@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.ws.rs.core.MediaType;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -30,12 +32,18 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
 import org.kleverlinks.webservice.MyEmailer;
 import org.service.dto.MeetingLogBean;
 import org.service.dto.UserDTO;
+
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 public class ServiceUtility {
 
@@ -552,10 +560,9 @@ public class ServiceUtility {
 			statement.setInt(2, userId);
 			ResultSet rs = statement.executeQuery();
 			while(rs.next()){
-				//System.out.println("isSenderRemoved=================="+rs.getInt("isSenderRemoved"));
 				isSenderRemoved = rs.getInt("isSenderRemoved");
 			}
-			if(isSenderRemoved == 1){
+			if(isSenderRemoved == 2){
 				status = true;
 			}
 		} catch(Exception  e){
@@ -654,7 +661,7 @@ public class ServiceUtility {
 			callableStatement.executeQuery();
 			ResultSet rs = callableStatement.getResultSet();
 			while(rs.next()){
-				if(!(rs.getInt("isSenderRemoved") == 2)){
+				if(rs.getInt("isSenderRemoved") != 2){
 					meetingLogBean.setSenderUserId(rs.getInt("SenderUserID"));
 					meetingLogBean.setMeetingId(rs.getInt("MeetingID"));
 					meetingLogBean.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
@@ -663,14 +670,13 @@ public class ServiceUtility {
 					meetingLogBean.setDate(fromTime.toLocalDate());
 					meetingLogBean.setFromDate(fromTime);
 					meetingLogBean.setToDate(toTime);
-					meetingLogBean.setStartTime(Float.parseFloat(fromTime.getHour() + "." + fromTime.getMinute()));
-					meetingLogBean.setEndTime(Float.parseFloat(toTime.getHour() + "." + toTime.getMinute()));
+					meetingLogBean.setStartTime(updateTime(fromTime.getHour(), fromTime.getMinute()));
+					meetingLogBean.setEndTime(updateTime(toTime.getHour(), toTime.getMinute()));
 					meetingLogBean.setDescription(rs.getString("MeetingDescription"));
 					meetingLogBean.setLatitude(rs.getString("Latitude"));
 					meetingLogBean.setLongitude(rs.getString("Longitude"));
 					meetingLogBean.setAddress(rs.getString("GoogleAddress"));
 					
-					System.out.println("==================="+rs.getString("Latitude"));
 				}
 			}
 		} catch(Exception  e){
@@ -713,4 +719,86 @@ public class ServiceUtility {
 		return jsonArray;
 	}
 
+       public static UserDTO getUserDetailsByMeetingIdAndUserId(int meetingId , int userId){
+   		
+   		Connection conn = null;
+   		CallableStatement  callableStatement = null;
+   		UserDTO userDto = new UserDTO();
+   		try {
+   			conn = DataSourceConnection.getDBConnection();
+   			//usp_GetMeetingDetails_ByMeetingID
+   			String userDetail= "{call usp_GetUserDetailsByMeetingId(?)}";
+   			callableStatement = conn.prepareCall(userDetail);
+   			callableStatement.setInt(1, meetingId);
+   			callableStatement.execute();
+   			ResultSet rs = callableStatement.getResultSet();
+   			while(rs.next()){
+   				userDto.setUserId(rs.getInt("UserID"));
+   				userDto.setFullName(rs.getString("firstName") + rs.getString("lastName"));
+   			}
+   		} catch(Exception  e){
+   			e.printStackTrace();
+   		}finally {
+   			ServiceUtility.closeConnection(conn);
+   			ServiceUtility.closeCallableSatetment(callableStatement);
+   		}
+   		return userDto;
+   	}
+       public static String updateTime(int hours, int mins) {
+
+    	    String timeSet = "";
+    	    if (hours > 12) {
+    	        hours -= 12;
+    	        timeSet = "PM";
+    	    } else if (hours == 0) {
+    	        hours += 12;
+    	        timeSet = "AM";
+    	    } else if (hours == 12)
+    	        timeSet = "PM";
+    	    else
+    	        timeSet = "AM";
+    	    String minutes = "";
+    	    String _hours = "";
+
+    	    if (hours < 10) {
+    	        _hours = "0" + hours;
+    	    } else {
+    	        _hours = String.valueOf(hours);
+    	    }
+
+    	    if (mins < 10)
+    	        minutes = "0" + mins;
+    	    else
+    	        minutes = String.valueOf(mins);
+
+    	    // Append in a StringBuilder
+    	    String aTime = new StringBuilder().append(_hours).append(':').append(minutes).append(" ").append(timeSet).toString();
+    	    return aTime;
+
+    	}
+   	private static String getOutputAsString(WebResource service) {
+		return service.accept(MediaType.TEXT_PLAIN).get(String.class);
+	}
+       
+       public static String getFulladdressBYLatLng(Double lat , Double lng){
+    	   
+    	String  formattedAddress = "";
+    	String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="+lat+","+lng+"&key="+Constants.GCM_APIKEY;;
+   		ClientConfig config = new DefaultClientConfig();
+   		Client client = Client.create(config);
+   		WebResource service = client.resource(url);
+   		
+   		try {
+   			JSONObject jsonObject = new JSONObject(
+   					getOutputAsString(service));
+   			JSONArray results = (JSONArray) jsonObject.get("results");
+   			JSONObject resultsObject = (JSONObject) results.get(0);
+   			  formattedAddress = (String) resultsObject.get("formatted_address");
+   			System.out.println("Mid point location address is: "+formattedAddress );
+   		} catch (JSONException e) {
+   			e.printStackTrace();
+   		}  
+   		
+   		return formattedAddress;
+       }
 }

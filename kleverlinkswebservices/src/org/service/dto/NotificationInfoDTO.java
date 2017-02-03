@@ -15,6 +15,8 @@ public class NotificationInfoDTO {
 	private Integer meetingId;
 	private JSONObject jsonObject;
 	
+	private MeetingLogBean meetingLogBean;
+	
 	private List<Integer> userList = new ArrayList<>();
 	
 	public String getMessage() {
@@ -66,6 +68,12 @@ public class NotificationInfoDTO {
 	}
 	public void setUserList(List<Integer> userList) {
 		this.userList = userList;
+	}
+	public MeetingLogBean getMeetingLogBean() {
+		return meetingLogBean;
+	}
+	public void setMeetingLogBean(MeetingLogBean meetingLogBean) {
+		this.meetingLogBean = meetingLogBean;
 	}
 	@Override
 	public String toString() {

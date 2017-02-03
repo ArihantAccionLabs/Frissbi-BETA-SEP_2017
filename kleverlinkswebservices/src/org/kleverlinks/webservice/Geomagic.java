@@ -84,7 +84,6 @@ public class Geomagic {
 					.get("formatted_address");
 			System.out.println("Mid point location address is: "+formattedAddress );
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		

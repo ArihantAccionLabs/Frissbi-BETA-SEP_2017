@@ -40,12 +40,18 @@ public class CronScheduler {
     	   JobDetail meetingSuggestionEveningDetail = JobBuilder.newJob(MeetingSuggestionCronJob.class).withIdentity(jobKeyBEvening).build();
     	   Trigger meetingSuggestionEveningTrigger = TriggerBuilder.newTrigger().withIdentity("dummyTriggerName3", "group2E").withSchedule(CronScheduleBuilder.cronSchedule("0 0 20 1/1 * ? *")).build();
     	   
+    	   //This scheduler will run every minute
+    	   JobKey meetingAddressJob = new JobKey("meetingAddressJob", "meetingAddressJob");
+    	   JobDetail meetingAddressJobDetail = JobBuilder.newJob(MeetingAddressCronJob.class).withIdentity(meetingAddressJob).build();
+    	   Trigger meetingAddressJobTrigger = TriggerBuilder.newTrigger().withIdentity("meetingAddressJobTrigger", "meetingAddressJob").withSchedule(CronScheduleBuilder.cronSchedule("0 0/1 * 1/1 * ? *")).build();
+    	   
     	   
     		Scheduler scheduler = new StdSchedulerFactory().getScheduler();
 			scheduler.start();
 			//scheduler.scheduleJob(smartMeetingReminderDetail, smartMeetingReminderTrigger);
 			scheduler.scheduleJob(meetingSuggestionMorningDetail, meetingSuggestionMorningTrigger);
 			scheduler.scheduleJob(meetingSuggestionEveningDetail, meetingSuggestionEveningTrigger);
+			scheduler.scheduleJob(meetingAddressJobDetail, meetingAddressJobTrigger);
 			
 	}
 }

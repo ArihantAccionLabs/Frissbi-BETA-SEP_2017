@@ -12,8 +12,8 @@ public class MeetingLogBean {
 	private LocalDate date;
 	private LocalDateTime fromDate;
 	private LocalDateTime toDate;
-	private Float startTime;
-	private Float endTime;
+	private String startTime;
+	private String endTime;
 	private String description;
 	private String address;
 	private String latitude;
@@ -85,37 +85,29 @@ public class MeetingLogBean {
 	public LocalDateTime getToDate() {
 		return toDate;
 	}
-	public void setToDate(LocalDateTime toDate) {
-		this.toDate = toDate;
-	}
-	public Float getStartTime() {
-		return startTime;
-	}
-	public void setStartTime(Float startTime) {
-		this.startTime = startTime;
-	}
-	public Float getEndTime() {
-		return endTime;
-	}
 	public Integer getSenderUserId() {
 		return senderUserId;
 	}
 	public void setSenderUserId(Integer senderUserId) {
 		this.senderUserId = senderUserId;
 	}
-	public void setEndTime(Float endTime) {
+	public String getStartTime() {
+		return startTime;
+	}
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+	public String getEndTime() {
+		return endTime;
+	}
+	public void setEndTime(String endTime) {
 		this.endTime = endTime;
 	}
+	public void setToDate(LocalDateTime toDate) {
+		this.toDate = toDate;
+	}
+
 	public void setMeetingStatus(int meetingStatus) {
 		this.meetingStatus = meetingStatus;
 	}
-	@Override
-	public String toString() {
-		return "MeetingLogBean [senderUserId=" + senderUserId + ", meetingId=" + meetingId + ", fullName=" + fullName
-				+ ", userName=" + userName + ", date=" + date + ", fromDate=" + fromDate + ", toDate=" + toDate
-				+ ", startTime=" + startTime + ", endTime=" + endTime + ", description=" + description + ", address="
-				+ address + ", latitude=" + latitude + ", longitude=" + longitude + ", meetingStatus=" + meetingStatus
-				+ "]";
-	}
-
 }
