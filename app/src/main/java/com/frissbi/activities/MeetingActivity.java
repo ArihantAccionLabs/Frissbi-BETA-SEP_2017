@@ -2,6 +2,7 @@ package com.frissbi.activities;
 
 import android.app.DatePickerDialog;
 import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -31,6 +32,8 @@ import android.widget.Toast;
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
+import com.frissbi.Utility.ConnectionDetector;
+import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.MeetingAlarmManager;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.MeetingTitleAdapter;
@@ -83,6 +86,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
     private AlertDialog mAlertDialog;
     private AlertDialog mConflictAlertDialog;
     private AlertDialog mConfirmAlertDialog;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,6 +97,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
         mUserName = mSharedPreferences.getString("USERNAME_FROM", "editor");
+        mProgressDialog = new CustomProgressDialog(this);
         mFriendsList = new ArrayList<>();
         mEmailContactsList = new ArrayList<>();
         mContactsList = new ArrayList<>();
@@ -359,10 +364,15 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 startActivityForResult(intent, FRIENDS_REQ_CODE);
                 break;
             case R.id.conform_meeting:
+
                 if (checkFieldsValidation()) {
-                    sendMeetingDetailsToServer(new JSONArray());
+                    if (ConnectionDetector.getInstance(this).isConnectedToInternet()) {
+                        sendMeetingDetailsToServer(new JSONArray());
+                    } else {
+                        Toast.makeText(this, getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
+                    }
                 }
-                //   MeetingAlarmManager.getInstance(this).setAlarmMgr();
+
                 break;
 
 
@@ -417,6 +427,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void sendMeetingDetailsToServer(JSONArray meetingIdsJsonArray) {
+        mProgressDialog.show();
         JSONArray friendsIdJsonArray = new JSONArray();
         JSONArray emailIdJsonArray = new JSONArray();
         JSONArray contactsJsonArray = new JSONArray();
@@ -491,6 +502,8 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 } else {
                     Toast.makeText(MeetingActivity.this, "Something went wrong at server end", Toast.LENGTH_SHORT).show();
                 }
+
+                mProgressDialog.dismiss();
 
             }
         });

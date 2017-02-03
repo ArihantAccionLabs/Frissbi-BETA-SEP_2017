@@ -174,7 +174,7 @@ public class ChangePassword extends Activity {
             @Override
             public void onClick(View v) {
 
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
 

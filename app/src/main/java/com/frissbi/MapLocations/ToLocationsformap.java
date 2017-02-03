@@ -46,7 +46,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -216,7 +215,7 @@ public class ToLocationsformap extends FragmentActivity implements LocationListe
 
                             locationName = nametitle.getText().toString();
 
-                            isInternetPresent = cd.isConnectingToInternet();
+                            isInternetPresent = cd.isConnectedToInternet();
                             // check for Internet status
                             if (isInternetPresent) {
 
@@ -258,7 +257,7 @@ public class ToLocationsformap extends FragmentActivity implements LocationListe
                 String location3 = atvPlaces.getText().toString();
 
 
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
                     if (location3 != null && !location3.equals("")) {
@@ -276,7 +275,7 @@ public class ToLocationsformap extends FragmentActivity implements LocationListe
         });
 
 
-        isInternetPresent = cd.isConnectingToInternet();
+        isInternetPresent = cd.isConnectedToInternet();
         // check for Internet status
         if (isInternetPresent) {
             String location4 = atvPlaces.getText().toString();
@@ -781,7 +780,7 @@ public class ToLocationsformap extends FragmentActivity implements LocationListe
                 nametitle.setError("Try a different name");
             } else {
                 ///loginErrorMsg.setText("Username and Password incorrect");
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
 

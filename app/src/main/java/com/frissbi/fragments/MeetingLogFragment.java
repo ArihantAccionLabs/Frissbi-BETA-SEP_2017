@@ -3,6 +3,7 @@ package com.frissbi.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -19,7 +20,10 @@ import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.UserMeetingStatus;
+import com.frissbi.activities.MeetingDetailsActivity;
 import com.frissbi.adapters.MeetingLogAdapter;
+import com.frissbi.interfaces.MeetingDetailsListener;
 import com.frissbi.models.Meeting;
 import com.frissbi.models.MeetingFriends;
 import com.frissbi.networkhandler.TSNetworkHandler;
@@ -36,7 +40,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class MeetingLogFragment extends Fragment {
+public class MeetingLogFragment extends Fragment implements MeetingDetailsListener {
 
 
     private RecyclerView mMeetingLogRecyclerView;
@@ -44,14 +48,9 @@ public class MeetingLogFragment extends Fragment {
     private String mUserId;
     private List<Meeting> mMeetingList;
     private ProgressDialog mProgressDialog;
-    private ConnectionDetector mConnectionDetector;
     private SwipeRefreshLayout mSwipeRefreshLayout;
     private MeetingLogAdapter mMeetingLogAdapter;
-    private boolean mIsInternetPresent;
-
-    public MeetingLogFragment() {
-        // Required empty public constructor
-    }
+    private MeetingDetailsListener mMeetingDetailsListener;
 
 
     @Override
@@ -62,9 +61,8 @@ public class MeetingLogFragment extends Fragment {
         mMeetingLogRecyclerView = (RecyclerView) view.findViewById(R.id.meeting_log_recyclerView);
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeRefreshLayout);
 
-        mConnectionDetector = new ConnectionDetector(getActivity());
-        mIsInternetPresent = mConnectionDetector.isConnectingToInternet();
         mProgressDialog = new CustomProgressDialog(getActivity());
+        mMeetingDetailsListener = (MeetingDetailsListener) this;
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mMeetingLogRecyclerView.setLayoutManager(layoutManager);
 
@@ -75,14 +73,13 @@ public class MeetingLogFragment extends Fragment {
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if (mIsInternetPresent) {
+                if (ConnectionDetector.getInstance(getActivity()).isConnectedToInternet()) {
                     getMeetingFromServer();
                 } else {
-                    Toast.makeText(getActivity(), "PLease check your network connection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
                 }
             }
         });
-
 
         return view;
     }
@@ -109,11 +106,18 @@ public class MeetingLogFragment extends Fragment {
                                 List<MeetingFriends> meetingFriendsList = new ArrayList<>();
                                 JSONObject meetingJsonObject = meetingJsonArray.getJSONObject(i);
                                 meeting.setMeetingId(meetingJsonObject.getLong("meetingId"));
+                                meeting.setMeetingSenderId(meetingJsonObject.getLong("meetingSenderId"));
+                                if (meetingJsonObject.getLong("meetingSenderId") != Long.parseLong(mUserId)) {
+                                    meeting.setMeetingStatus(meetingJsonObject.getInt("status"));
+                                    meeting.setUserStatus(UserMeetingStatus.MEETING_RECEIVE.toString());
+                                } else {
+                                    meeting.setMeetingStatus(1);
+                                    meeting.setUserStatus(UserMeetingStatus.MEETING_SENT.toString());
+                                }
                                 meeting.setDate(meetingJsonObject.getString("date"));
                                 meeting.setFromTime(meetingJsonObject.getString("from"));
                                 meeting.setToTime(meetingJsonObject.getString("to"));
                                 meeting.setDescription(meetingJsonObject.getString("description"));
-                                meeting.setMeetingStatus(meetingJsonObject.getInt("status"));
                                 if (meetingJsonObject.getBoolean("isLocationSelected")) {
                                     meeting.setLocationSelected(meetingJsonObject.getBoolean("isLocationSelected"));
                                     meeting.setAddress(meetingJsonObject.getString("address"));
@@ -161,7 +165,7 @@ public class MeetingLogFragment extends Fragment {
                                 mMeetingList.add(meeting);
                             }
                             Log.d("MeetingLogFragment", "mMeetingList" + mMeetingList);
-                            mMeetingLogAdapter = new MeetingLogAdapter(getActivity(), mMeetingList);
+                            mMeetingLogAdapter = new MeetingLogAdapter(getActivity(), mMeetingList, mMeetingDetailsListener);
                             mMeetingLogRecyclerView.setAdapter(mMeetingLogAdapter);
 
                         } catch (JSONException e) {
@@ -185,17 +189,26 @@ public class MeetingLogFragment extends Fragment {
             if (mMeetingList == null) {
                 mMeetingList = new ArrayList<>();
             }
-            Log.d("MeetingLogFragment", "size" + mMeetingList.size());
             if (mMeetingList.size() == 0) {
-                if (mIsInternetPresent) {
+                if (ConnectionDetector.getInstance(getActivity()).isConnectedToInternet()) {
                     getMeetingFromServer();
                 } else {
-                    Toast.makeText(getActivity(), "PLease check your network connection", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
                 }
             } else {
-                mMeetingLogAdapter = new MeetingLogAdapter(getActivity(), mMeetingList);
+                mMeetingLogAdapter = new MeetingLogAdapter(getActivity(), mMeetingList, mMeetingDetailsListener);
                 mMeetingLogRecyclerView.setAdapter(mMeetingLogAdapter);
             }
+        }
+    }
+
+    @Override
+    public void showMeetingDetails(Meeting meeting) {
+        if (!mSwipeRefreshLayout.isRefreshing()) {
+            Intent intent = new Intent(getActivity(), MeetingDetailsActivity.class);
+            intent.putExtra("callFrom", "meetingLog");
+            intent.putExtra("meeting", meeting);
+            startActivity(intent);
         }
     }
 }

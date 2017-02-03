@@ -1,9 +1,11 @@
 package com.frissbi.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -14,11 +16,13 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
+import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.MeetingAlarmManager;
 import com.frissbi.Utility.Utility;
@@ -39,92 +43,232 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
     private Meeting mMeeting;
     private SharedPreferences mSharedPreferences;
     private String mUserId;
-    private CustomProgressDialog mProgressDialog;
     private TextView mMeetingDetailsStatusTextView;
     private Button mMeetingAcceptButton;
     private Button mMeetingIgnoreButton;
     private AlertDialog mAlertDialog;
     private AlertDialog mConflictAlertDialog;
     private AlertDialog mConfirmAlertDialog;
-    private TextView mMeetingDetailsAtTextView;
     private AlertDialog mFriendsAlertDialog;
     private List<MeetingFriends> mMeetingFriendsList;
-
+    private JSONObject mMeetingJsonObject;
+    private TextView mMeetingDetailsTitleTextView;
+    private TextView mMeetingDetailsDateTextView;
+    private TextView mMeetingDetailsTimeTextView;
+    private TextView mMeetingDetailsAtTextView;
+    private LinearLayout mMeetingStatusLayout;
+    private View mStatusView;
+    private Button mMoreFriendsButton;
+    private TextView mMeetingDetailsFriendTextView;
+    private ProgressDialog mProgressDialog;
+    private Long mMeetingId;
+    private AlertDialog mMeetingCanceledAlertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meeting_details);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
         mProgressDialog = new CustomProgressDialog(this);
-        mMeeting = (Meeting) getIntent().getExtras().getSerializable("meeting");
-        Log.d("MeetingDetailsActivity", "mMeeting" + mMeeting);
-        mMeetingFriendsList = mMeeting.getMeetingFriendsList();
+
+        Bundle bundle = getIntent().getExtras();
+
         mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
-        TextView meetingDetailsTitleTextView = (TextView) findViewById(R.id.meeting_details_title_tv);
-        TextView meetingDetailsDateTextView = (TextView) findViewById(R.id.meeting_details_date_tv);
-        TextView meetingDetailsTimeTextView = (TextView) findViewById(R.id.meeting_details_time_tv);
+        mMeetingDetailsTitleTextView = (TextView) findViewById(R.id.meeting_details_title_tv);
+        mMeetingDetailsDateTextView = (TextView) findViewById(R.id.meeting_details_date_tv);
+        mMeetingDetailsTimeTextView = (TextView) findViewById(R.id.meeting_details_time_tv);
         mMeetingDetailsAtTextView = (TextView) findViewById(R.id.meeting_details_at_tv);
-        mMeetingDetailsStatusTextView = (TextView) findViewById(R.id.meeting_details_status_tv);
-        Button moreFriendsButton = (Button) findViewById(R.id.more_friends_button);
-        TextView meetingDetailsFriendTextView = (TextView) findViewById(R.id.meeting_details_friend_tv);
-        if (mMeetingFriendsList.size() > 1) {
-            meetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
-            moreFriendsButton.setVisibility(View.VISIBLE);
-        } else {
-            meetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
-            moreFriendsButton.setVisibility(View.GONE);
-        }
+        mMeetingStatusLayout = (LinearLayout) findViewById(R.id.status_ll);
+        mStatusView = findViewById(R.id.view3);
+        mMoreFriendsButton = (Button) findViewById(R.id.more_friends_button);
+        mMeetingDetailsFriendTextView = (TextView) findViewById(R.id.meeting_details_friend_tv);
 
+        mMeetingDetailsStatusTextView = (TextView) findViewById(R.id.meeting_details_status_tv);
         mMeetingAcceptButton = (Button) findViewById(R.id.meeting_accept_button);
         mMeetingIgnoreButton = (Button) findViewById(R.id.meeting_ignore_button);
 
-        meetingDetailsTitleTextView.setText(mMeeting.getDescription());
-        meetingDetailsDateTextView.setText(mMeeting.getDate());
-        meetingDetailsTimeTextView.setText(Utility.getInstance().convertTime(mMeeting.getFromTime()) + " to " + Utility.getInstance().convertTime(mMeeting.getToTime()));
+
+        if (bundle.getString("callFrom").equalsIgnoreCase("meetingLog")) {
+            if (bundle.getSerializable("meeting") != null) {
+                mMeeting = (Meeting) bundle.getSerializable("meeting");
+                mMeetingId = mMeeting.getMeetingId();
+                getMeetingDetailsFromServer();
+            }
+        } else if (bundle.getString("callFrom").equalsIgnoreCase("notification")) {
+            if (bundle.getString("meetingId") != null) {
+                mMeetingId = Long.parseLong(bundle.getString("meetingId"));
+                if (ConnectionDetector.getInstance(this).isConnectedToInternet()) {
+                    getMeetingDetailsFromServer();
+                } else {
+                    Toast.makeText(this, getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+
+        mMeetingAcceptButton.setOnClickListener(this);
+        mMeetingIgnoreButton.setOnClickListener(this);
+        mMoreFriendsButton.setOnClickListener(this);
+
+    }
+
+    private void setMeetingObject(JSONObject meetingJsonObject) {
+        List<MeetingFriends> meetingFriendsList = new ArrayList<>();
+        try {
+            mMeeting = new Meeting();
+            mMeeting.setMeetingId(meetingJsonObject.getLong("meetingId"));
+            mMeeting.setMeetingSenderId(meetingJsonObject.getLong("meetingSenderId"));
+            if (meetingJsonObject.getLong("meetingSenderId") != Long.parseLong(mUserId)) {
+                mMeeting.setMeetingStatus(meetingJsonObject.getInt("meetingStatus"));
+            } else {
+                mMeeting.setMeetingStatus(1);
+            }
+            mMeeting.setDate(meetingJsonObject.getString("date"));
+            mMeeting.setFromTime(meetingJsonObject.getString("from"));
+            mMeeting.setToTime(meetingJsonObject.getString("to"));
+            mMeeting.setDescription(meetingJsonObject.getString("description"));
+            if (meetingJsonObject.getBoolean("isLocationSelected")) {
+                mMeeting.setLocationSelected(meetingJsonObject.getBoolean("isLocationSelected"));
+                mMeeting.setAddress(meetingJsonObject.getString("address"));
+                mMeeting.setLatitude(meetingJsonObject.getDouble("latitude"));
+                mMeeting.setLongitude(meetingJsonObject.getDouble("longitude"));
+            } else {
+                mMeeting.setLocationSelected(meetingJsonObject.getBoolean("isLocationSelected"));
+            }
+
+            JSONArray friendsJsonArray = meetingJsonObject.getJSONArray("friendsJsonArray");
+            int friendsLength = friendsJsonArray.length();
+            if (friendsLength > 0) {
+                for (int j = 0; j < friendsLength; j++) {
+                    MeetingFriends meetingFriends = new MeetingFriends();
+                    JSONObject jsonObject = friendsJsonArray.getJSONObject(j);
+                    meetingFriends.setName(jsonObject.getString("fullName"));
+                    meetingFriends.setStatus(jsonObject.getInt("status"));
+                    meetingFriends.setType("friend");
+                    meetingFriendsList.add(meetingFriends);
+                }
+            }
+
+            JSONArray emailIdJsonArray = meetingJsonObject.getJSONArray("emailIdJsonArray");
+            int emailIdsLength = emailIdJsonArray.length();
+            if (emailIdsLength > 0) {
+                for (int j = 0; j < emailIdsLength; j++) {
+                    MeetingFriends meetingFriends = new MeetingFriends();
+                    meetingFriends.setName(emailIdJsonArray.getString(j));
+                    meetingFriends.setType("email");
+                    meetingFriendsList.add(meetingFriends);
+                }
+            }
+            JSONArray contactsJsonArray = meetingJsonObject.getJSONArray("contactsJsonArray");
+            int contactsLength = contactsJsonArray.length();
+            if (contactsLength > 0) {
+                for (int j = 0; j < contactsLength; j++) {
+                    MeetingFriends meetingFriends = new MeetingFriends();
+                    meetingFriends.setName(contactsJsonArray.getString(j));
+                    meetingFriends.setType("contact");
+                    meetingFriendsList.add(meetingFriends);
+                }
+            }
+
+
+            mMeeting.setMeetingFriendsList(meetingFriendsList);
+            setViewWithValues();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private void setViewWithValues() {
+        mMeetingFriendsList = mMeeting.getMeetingFriendsList();
+        if (mMeetingFriendsList.size() > 1) {
+            mMeetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
+            mMoreFriendsButton.setVisibility(View.VISIBLE);
+        } else {
+            mMeetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
+            mMoreFriendsButton.setVisibility(View.GONE);
+        }
+        mMeetingDetailsTitleTextView.setText(mMeeting.getDescription());
+        mMeetingDetailsDateTextView.setText(mMeeting.getDate());
+        mMeetingDetailsTimeTextView.setText(Utility.getInstance().convertTime(mMeeting.getFromTime()) + " to " + Utility.getInstance().convertTime(mMeeting.getToTime()));
         if (mMeeting.isLocationSelected()) {
             mMeetingDetailsAtTextView.setText(mMeeting.getAddress());
         } else {
             mMeetingDetailsAtTextView.setText("Any Place");
         }
 
-        if (mMeeting.getMeetingStatus() == Utility.STATUS_PENDING) {
-            mMeetingDetailsStatusTextView.setText("PENDING");
-            mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.light_orange));
-        } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
-            mMeetingDetailsStatusTextView.setText("ACCEPTED");
-            mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
+        if (mMeeting.getMeetingSenderId() != Long.parseLong(mUserId)) {
+            mMeetingStatusLayout.setVisibility(View.VISIBLE);
+            mStatusView.setVisibility(View.VISIBLE);
+            if (mMeeting.getMeetingStatus() == Utility.STATUS_PENDING) {
+                mMeetingDetailsStatusTextView.setText("PENDING");
+                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.light_orange));
+            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
+                mMeetingDetailsStatusTextView.setText("ACCEPTED");
+                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
+                mMeetingAcceptButton.setVisibility(View.GONE);
+            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_REJECT) {
+                mMeetingDetailsStatusTextView.setText("REJECTED");
+                mMeetingAcceptButton.setVisibility(View.GONE);
+                mMeetingIgnoreButton.setVisibility(View.GONE);
+                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.red));
+            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
+                mMeetingDetailsStatusTextView.setText("COMPLETED");
+                mMeetingAcceptButton.setVisibility(View.GONE);
+                mMeetingIgnoreButton.setVisibility(View.GONE);
+                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.blue));
+            }
+        } else {
             mMeetingAcceptButton.setVisibility(View.GONE);
-        } else if (mMeeting.getMeetingStatus() == Utility.STATUS_REJECT) {
-            mMeetingDetailsStatusTextView.setText("REJECTED");
-            mMeetingAcceptButton.setVisibility(View.GONE);
-            mMeetingIgnoreButton.setVisibility(View.GONE);
-            mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.red));
-        } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
-            mMeetingDetailsStatusTextView.setText("COMPLETED");
-            mMeetingAcceptButton.setVisibility(View.GONE);
-            mMeetingIgnoreButton.setVisibility(View.GONE);
-            mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.blue));
+            mMeetingStatusLayout.setVisibility(View.GONE);
+            mStatusView.setVisibility(View.GONE);
         }
-
-        //getMeetingDetailsFromServer();
-
-        mMeetingAcceptButton.setOnClickListener(this);
-        mMeetingIgnoreButton.setOnClickListener(this);
-        moreFriendsButton.setOnClickListener(this);
-
     }
 
 
     private void getMeetingDetailsFromServer() {
-        String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_SINGALDETAILS + mMeeting.getMeetingId() + "/" + mUserId;
+        mProgressDialog.show();
+        String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_SINGALDETAILS + mMeetingId + "/" + mUserId;
         TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {
-                //   mMeetingDetailsAtTextView.setText(mMeeting.getAddress());
+                if (response != null) {
+                    try {
+                        JSONObject responseJsonObject = new JSONObject(response.response);
+                        if (responseJsonObject.getBoolean("isMeetingExisted")) {
+                            setMeetingObject(responseJsonObject);
+                        } else {
+                            setMeetingCanceledAlert();
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    Toast.makeText(MeetingDetailsActivity.this, "Something went wrong at server end", Toast.LENGTH_SHORT).show();
+                }
+                mProgressDialog.dismiss();
             }
         });
+    }
+
+    private void setMeetingCanceledAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Alert!");
+        builder.setMessage("Meeting has been canceled by creator");
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mMeetingCanceledAlertDialog.dismiss();
+                onBackPressed();
+            }
+        });
+        mMeetingCanceledAlertDialog = builder.create();
+        mMeetingCanceledAlertDialog.setCancelable(false);
+        mMeetingCanceledAlertDialog.setCanceledOnTouchOutside(false);
+        mMeetingCanceledAlertDialog.show();
+
     }
 
     @Override
@@ -312,7 +456,6 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mConfirmAlertDialog.dismiss();
-
             }
         });
         builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {

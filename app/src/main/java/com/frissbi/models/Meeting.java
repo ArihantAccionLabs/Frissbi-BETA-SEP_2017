@@ -24,37 +24,14 @@ public class Meeting implements Serializable {
     private int meetingStatus;
     private boolean isLocationSelected;
     private List<MeetingFriends> meetingFriendsList;
+    private Long meetingSenderId;
+    private String  userStatus;
 
 
     public Meeting() {
 
     }
 
-    /*protected Meeting(Parcel in) {
-        List<MeetingFriends> list = new ArrayList<>();
-        senderFullName = in.readString();
-        date = in.readString();
-        fromTime = in.readString();
-        toTime = in.readString();
-        description = in.readString();
-        address = in.readString();
-        meetingId = in.readLong();
-        latitude = in.readDouble();
-        longitude = in.readDouble();
-        meetingStatus = in.readInt();
-    }*/
-
-   /* public static final Creator<Meeting> CREATOR = new Creator<Meeting>() {
-        @Override
-        public Meeting createFromParcel(Parcel in) {
-            return new Meeting(in);
-        }
-
-        @Override
-        public Meeting[] newArray(int size) {
-            return new Meeting[size];
-        }
-    };*/
 
     public Long getMeetingId() {
         return meetingId;
@@ -146,6 +123,22 @@ public class Meeting implements Serializable {
         isLocationSelected = locationSelected;
     }
 
+    public Long getMeetingSenderId() {
+        return meetingSenderId;
+    }
+
+    public void setMeetingSenderId(Long meetingSenderId) {
+        this.meetingSenderId = meetingSenderId;
+    }
+
+    public String getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
+    }
+
     @Override
     public String toString() {
         return "Meeting{" +
@@ -160,26 +153,8 @@ public class Meeting implements Serializable {
                 ", meetingStatus=" + meetingStatus +
                 ", isLocationSelected=" + isLocationSelected +
                 ", meetingFriendsList=" + meetingFriendsList +
+                ", meetingSenderId=" + meetingSenderId +
+                ", userStatus=" + userStatus +
                 '}';
     }
-
-   /* @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(senderFullName);
-        parcel.writeString(date);
-        parcel.writeString(fromTime);
-        parcel.writeString(toTime);
-        parcel.writeString(description);
-        parcel.writeString(address);
-        parcel.writeLong(meetingId);
-        parcel.writeDouble(latitude);
-        parcel.writeDouble(longitude);
-        parcel.writeInt(meetingStatus);
-        parcel.writeList(meetingFriendsList);
-    }*/
 }

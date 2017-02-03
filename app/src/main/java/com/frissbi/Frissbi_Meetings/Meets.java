@@ -1,23 +1,18 @@
 package com.frissbi.Frissbi_Meetings;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
@@ -106,7 +101,7 @@ public class Meets extends AppCompatActivity implements View.OnClickListener {
         progressDialog = new CustomProgressDialog(Meets.this);
 
 
-        isInternetPresent = cd.isConnectingToInternet();
+        isInternetPresent = cd.isConnectedToInternet();
         // check for Internet status
         if (isInternetPresent) {
 
@@ -441,7 +436,7 @@ public class Meets extends AppCompatActivity implements View.OnClickListener {
             // selectedDayMonthYearButton.setText("Selected: " + DateTime);
             Log.d("valupedig............", DateTime);
 
-            isInternetPresent = cd.isConnectingToInternet();
+            isInternetPresent = cd.isConnectedToInternet();
             // check for Internet status
             if (isInternetPresent) {
                 if (!(list1.isEmpty())) {

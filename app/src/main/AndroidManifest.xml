@@ -214,7 +214,7 @@
         <activity android:name=".activities.ProfileActivity" />
         <activity
             android:name=".activities.MeetingDetailsActivity"
-            android:label="Confirmation" />
+            android:label="Info" />
 
         <receiver android:name=".Utility.MeetingAlarmReceiver"/>
     </application>

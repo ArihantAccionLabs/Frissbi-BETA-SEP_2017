@@ -61,12 +61,16 @@
     <string name="clock_icon">&#xf017;</string>
     <string name="calendar_icon">&#xf073;</string>
     <string name="location_icon">&#xf041;</string>
+    <string name="reject_icon">&#xf057;</string>
+    <string name="arrow_up_icon">&#xf176;</string>
+    <string name="arrow_down_icon">&#xf175;</string>
     <string name="my_places">My Places</string>
     <string name="any_place">Any Place</string>
     <string name="meeting_duration">Meeting Duration</string>
     <string name="latitude_longitude">%1$.8f, %2$.8f</string>
     <string name="title_activity_friends">FriendsActivity</string>
     <string name="selected_location">Selected location</string>
+    <string name="check_connection">Please check your network connection</string>
     <!-- invite -->
 
 

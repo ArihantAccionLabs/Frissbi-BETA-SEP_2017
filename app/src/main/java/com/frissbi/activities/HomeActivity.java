@@ -119,6 +119,7 @@ public class HomeActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
+        mProgressDialog = new CustomProgressDialog(this);
         emailContactsList = new ArrayList<>();
         mEmailSharedPreferences = getSharedPreferences("GMAIL_REG", Context.MODE_PRIVATE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -172,7 +173,7 @@ public class HomeActivity extends AppCompatActivity
             //  getContactIdByEmail(mSharedPreferences.getString("mail", "editor"));
 
         }
-        mProgressDialog = new CustomProgressDialog(this);
+
         mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
         mUserName = mSharedPreferences.getString("USERNAME_FROM", "editor");
@@ -188,7 +189,7 @@ public class HomeActivity extends AppCompatActivity
         mTabLayout.getTabAt(3).setIcon(R.drawable.notification);
         mDimBackgroundLayout = (LinearLayout) findViewById(R.id.dim_background);
         mConnectionDetector = new ConnectionDetector(getApplicationContext());
-        mIsInternetPresent = mConnectionDetector.isConnectingToInternet();
+        mIsInternetPresent = mConnectionDetector.isConnectedToInternet();
         progressDialog = new CustomProgressDialog(HomeActivity.this);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
@@ -542,9 +543,8 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void getNameEmailDetails(String emailName) {
+        mProgressDialog.show();
         EmailContacts.deleteAll(EmailContacts.class);
-
-
         ArrayList<String> emlRecs = new ArrayList<String>();
         HashSet<String> emlRecsHS = new HashSet<String>();
         Context context = HomeActivity.this;
@@ -590,9 +590,11 @@ public class HomeActivity extends AppCompatActivity
         }
 
         cur.close();
+        mProgressDialog.dismiss();
     }
 
     public void readContacts() {
+        mProgressDialog.show();
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
@@ -624,6 +626,7 @@ public class HomeActivity extends AppCompatActivity
 
             }
         }
+        mProgressDialog.dismiss();
     }
 
 

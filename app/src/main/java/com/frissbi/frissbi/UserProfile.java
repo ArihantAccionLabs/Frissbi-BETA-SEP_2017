@@ -10,13 +10,11 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.frissbi.Frissbi_Friends.Friend_PendingList;
 import com.frissbi.Frissbi_Meetings.Meetingrequst;
 import com.frissbi.R;
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
@@ -95,7 +93,7 @@ public class UserProfile extends Activity {
 
 
             }
-           /* isInternetPresent = cd.isConnectingToInternet();
+           /* isInternetPresent = cd.isConnectedToInternet();
             // check for Internet status
             if (isInternetPresent) {
 
@@ -143,7 +141,7 @@ public class UserProfile extends Activity {
             public void onClick(View v) {
                 if (("-1".equals("-1"))) {
                     Log.d("valus......", jsonStr1.toString());
-                    isInternetPresent = cd.isConnectingToInternet();
+                    isInternetPresent = cd.isConnectedToInternet();
                     // check for Internet status
                     if (isInternetPresent) {
 
@@ -160,7 +158,7 @@ public class UserProfile extends Activity {
                     Log.d("Friends......", jsonStr1.toString());
                 } else if (jsonStr1.equals("4")) {
                     Log.d("add friend......", jsonStr1.toString());
-                    isInternetPresent = cd.isConnectingToInternet();
+                    isInternetPresent = cd.isConnectedToInternet();
                     if (isInternetPresent) {
 
                         new AcceptFriend().execute();
@@ -174,7 +172,7 @@ public class UserProfile extends Activity {
 
                 } else if (jsonStr1.equals("0")) {
                     Log.d("Friend Req cancel......", jsonStr1.toString());
-                    isInternetPresent = cd.isConnectingToInternet();
+                    isInternetPresent = cd.isConnectedToInternet();
                     if (isInternetPresent) {
 
                         new FriendreqCancel().execute();
@@ -386,7 +384,7 @@ public class UserProfile extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        isInternetPresent = cd.isConnectingToInternet();
+        isInternetPresent = cd.isConnectedToInternet();
         // check for Internet status
         if (isInternetPresent) {
 

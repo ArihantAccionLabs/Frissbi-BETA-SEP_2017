@@ -84,7 +84,7 @@ public class Test extends Activity {
                 // new UsernameValidat().execute();
 
 
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
 

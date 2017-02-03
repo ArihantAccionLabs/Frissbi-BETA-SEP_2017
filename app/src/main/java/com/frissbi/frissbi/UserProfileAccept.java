@@ -100,7 +100,7 @@ public class UserProfileAccept extends Activity {
             @Override
             public void onClick(View v) {
                 acceptlist.setVisibility(View.INVISIBLE);
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
 
@@ -120,7 +120,7 @@ public class UserProfileAccept extends Activity {
             @Override
             public void onClick(View v) {
                 acceptlist.setVisibility(View.INVISIBLE);
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
 

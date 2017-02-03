@@ -1,38 +1,34 @@
 package com.frissbi;
 
 import android.app.IntentService;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.frissbi.Frissbi_Friends.FriendSerching;
 import com.frissbi.Frissbi_Friends.Friend_PendingList;
-import com.frissbi.Frissbi_Meetings.MeetingPendingList;
 import com.frissbi.Frissbi_Meetings.Meeting_StatusPage;
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
+import com.frissbi.Utility.NotificationType;
+import com.frissbi.activities.MeetingDetailsActivity;
 import com.frissbi.locations.NearByPlacess;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
-
-import java.util.Random;
 
 public class GcmIntentService extends IntentService {
     Context context;
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
-    String msg1, msg2, msg3, msg4;
+    String mNotificationName, msg2, mMeetingId, msg4;
     public static final String TAG = "GCM Demo";
+    private Intent mIntent;
+    private String mJsonDataString;
 
     //  Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
     public GcmIntentService() {
@@ -43,12 +39,19 @@ public class GcmIntentService extends IntentService {
     @Override
     protected void onHandleIntent(Intent intent) {
         // TODO Auto-generated method stub
+        mIntent = intent;
         Bundle extras = intent.getExtras();
         String msg = intent.getStringExtra("message");
-        msg1 = intent.getStringExtra("NotificationName");
+
+        mNotificationName = intent.getStringExtra("NotificationName");
         msg2 = intent.getStringExtra("userName");
-        msg3 = intent.getStringExtra("meetingId");
+        mMeetingId = intent.getStringExtra("meetingId");
         msg4 = intent.getStringExtra("userId");
+
+        mJsonDataString = intent.getStringExtra("jsonData");
+
+        Log.d("GcmIntentService", "mJsonDataString" + mJsonDataString);
+
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         String messageType = gcm.getMessageType(intent);
 
@@ -88,10 +91,10 @@ public class GcmIntentService extends IntentService {
 
         mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancel(NOTIFICATION_ID);
-        if (msg1.equals("Friend Pending Requests")) {
+        if (mNotificationName.equalsIgnoreCase(NotificationType.FRIEND_PENDING_REQUESTS.toString())) {
             Intent myintent = new Intent(this, Friend_PendingList.class);
             myintent.putExtra("message", msg);
-            myintent.putExtra("NotificationName", msg1);
+            myintent.putExtra("NotificationName", mNotificationName);
             myintent.putExtra("userName", msg2);
 
 
@@ -110,12 +113,12 @@ public class GcmIntentService extends IntentService {
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
             mBuilder.setAutoCancel(true);
 
-        } else if (msg1.equals("Friend Request Acceptance")) {
+        } else if (mNotificationName.equalsIgnoreCase(NotificationType.FRIEND_REQUEST_ACCEPTANCE.toString())) {
 
 
             Intent myintent = new Intent(this, FriendSerching.class);
             myintent.putExtra("message", msg);
-            myintent.putExtra("NotificationName", msg1);
+            myintent.putExtra("NotificationName", mNotificationName);
 
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, myintent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
@@ -132,14 +135,12 @@ public class GcmIntentService extends IntentService {
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
             mBuilder.setAutoCancel(true);
 
-        } else if (msg1.equals("Meeting Pending Requests")) {
-            Intent myintent = new Intent(this, MeetingPendingList.class);
-            myintent.putExtra("message", msg);
-            myintent.putExtra("NotificationName", msg1);
-            myintent.putExtra("meetingId", msg2);
+        } else if (mNotificationName.equalsIgnoreCase(NotificationType.MEETING_PENDING_REQUESTS.toString())) {
+            Intent intent = new Intent(this, MeetingDetailsActivity.class);
+            intent.putExtra("meetingId", mMeetingId);
+            intent.putExtra("callFrom", "notification");
 
-
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, myintent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.noti)
                     .setContentTitle("FRISSBI")
@@ -154,13 +155,13 @@ public class GcmIntentService extends IntentService {
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
             mBuilder.setAutoCancel(true);
 
-        } else if (msg1.equals("Meeting Request Acceptance")) {
-            Intent myintent = new Intent(this, FriendSerching.class);
-            myintent.putExtra("message", msg);
-            myintent.putExtra("NotificationName", msg1);
+        } else if (mNotificationName.equals(NotificationType.MEETING_REQUEST_ACCEPTANCE.toString())) {
+            Intent intent = new Intent(this, MeetingDetailsActivity.class);
+            intent.putExtra("meetingId", mMeetingId);
+            intent.putExtra("callFrom", "notification");
 
 
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, myintent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.noti)
                     .setContentTitle("FRISSBI")
@@ -175,13 +176,13 @@ public class GcmIntentService extends IntentService {
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
             mBuilder.setAutoCancel(true);
 
-        } else if (msg1.equals("Meeeting Voting Request")) {
+        } else if (mNotificationName.equals("Meeeting Voting Request")) {
             Intent myintent = new Intent(this, NearByPlacess.class);
             myintent.putExtra("message", msg);
-            myintent.putExtra("meetingId", msg3);
-            Friss_Pojo.MeetingID = msg3;
+            myintent.putExtra("meetingId", mMeetingId);
+            Friss_Pojo.MeetingID = mMeetingId;
             myintent.putExtra("userId ", msg4);
-            myintent.putExtra("NotificationName", msg1);
+            myintent.putExtra("NotificationName", mNotificationName);
 
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, myintent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
@@ -198,16 +199,57 @@ public class GcmIntentService extends IntentService {
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
             mBuilder.setAutoCancel(true);
 
-        } else if (msg1.equals("Place Change")) {
+        } else if (mNotificationName.equals("Place Change")) {
             Intent myintent = new Intent(this, Meeting_StatusPage.class);
             myintent.putExtra("message", msg);
-            myintent.putExtra("meetingId", msg3);
-            Friss_Pojo.MeetingID = msg3;
+            myintent.putExtra("meetingId", mMeetingId);
+            Friss_Pojo.MeetingID = mMeetingId;
             myintent.putExtra("userId ", msg4);
-            myintent.putExtra("NotificationName", msg1);
+            myintent.putExtra("NotificationName", mNotificationName);
 
 
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, myintent, PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.noti)
+                    .setContentTitle("FRISSBI")
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
+                    .setSound(soundUri)
+                    .addAction(R.drawable.noti, "View", contentIntent)
+                    .addAction(0, "Remind", contentIntent)
+                    .setContentIntent(contentIntent)
+                    .setContentText(msg);
+
+            mBuilder.setContentIntent(contentIntent);
+            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+            mBuilder.setAutoCancel(true);
+
+        } else if (mNotificationName.equals(NotificationType.MEETING_SUMMARY.toString())) {
+            Intent intent = new Intent(this, MeetingDetailsActivity.class);
+            intent.putExtra("meetingId", mMeetingId);
+            intent.putExtra("callFrom", "notification");
+
+
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.noti)
+                    .setContentTitle("FRISSBI")
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
+                    .setSound(soundUri)
+                    .addAction(R.drawable.noti, "View", contentIntent)
+                    .addAction(0, "Remind", contentIntent)
+                    .setContentIntent(contentIntent)
+                    .setContentText(msg);
+
+            mBuilder.setContentIntent(contentIntent);
+            mBuilder.setAutoCancel(true);
+            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+        } else if (mNotificationName.equals(NotificationType.MEETING_REJECTED.toString())) {
+            Intent intent = new Intent(this, MeetingDetailsActivity.class);
+            intent.putExtra("meetingId", mMeetingId);
+            intent.putExtra("callFrom", "notification");
+
+
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.noti)
                     .setContentTitle("FRISSBI")

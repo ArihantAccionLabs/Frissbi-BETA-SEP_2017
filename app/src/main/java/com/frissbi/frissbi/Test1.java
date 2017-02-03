@@ -122,7 +122,7 @@ public class Test1 extends Activity {
                 Is_Valid_Email(inputEmail);
 
 
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
 

@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.AnimationDrawable;
 import android.location.Address;
-import android.location.Criteria;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationListener;
@@ -202,7 +201,7 @@ public class SetLocationMap extends FragmentActivity implements LocationListener
                             // Close dialog
 
                             locationName = nametitle.getText().toString();
-                            isInternetPresent = cd.isConnectingToInternet();
+                            isInternetPresent = cd.isConnectedToInternet();
                             // check for Internet status
                             if (isInternetPresent) {
 
@@ -244,7 +243,7 @@ public class SetLocationMap extends FragmentActivity implements LocationListener
             public void onClick(View v) {
                 String location3 = atvPlaces.getText().toString();
 
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
 
@@ -693,7 +692,7 @@ public class SetLocationMap extends FragmentActivity implements LocationListener
                 nametitle.setError("Try a different name");
             } else {
                 ///loginErrorMsg.setText("Username and Password incorrect");
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
 

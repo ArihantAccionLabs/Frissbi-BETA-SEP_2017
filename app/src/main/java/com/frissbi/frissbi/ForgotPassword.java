@@ -24,13 +24,6 @@ import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.ServiceHandler;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.net.URL;
-import java.net.URLConnection;
-
 //import com.frissbi.Webservice.AuthenticateUser;
 
 /**
@@ -58,7 +51,7 @@ String ForgotPassword="";
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
 
                 if (isInternetPresent) {
 

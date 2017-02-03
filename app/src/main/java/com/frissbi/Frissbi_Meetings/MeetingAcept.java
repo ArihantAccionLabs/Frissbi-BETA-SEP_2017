@@ -3,7 +3,6 @@ package com.frissbi.Frissbi_Meetings;
 import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
@@ -114,7 +113,7 @@ public class MeetingAcept extends Activity {
 
                 if (!(getdate.getText().equals("")) && (!(getdate1.getText().equals(""))) && (!(place.getText().equals("")))) {
 
-                    isInternetPresent = cd.isConnectingToInternet();
+                    isInternetPresent = cd.isConnectedToInternet();
                     // check for Internet status
                     if (isInternetPresent) {
 
@@ -143,7 +142,7 @@ public class MeetingAcept extends Activity {
 
                 if (!(getdate.getText().equals("")) && (!(getdate1.getText().equals(""))) && (!(place.getText().equals("")))) {
 
-                    isInternetPresent = cd.isConnectingToInternet();
+                    isInternetPresent = cd.isConnectedToInternet();
                     // check for Internet status
                     if (isInternetPresent) {
 

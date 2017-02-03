@@ -141,7 +141,7 @@ public class Register extends Activity {
         next.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
                     if ((!inputdob.getText().toString().equals("")) && (!inputPhone.getText().toString().equals(""))) {

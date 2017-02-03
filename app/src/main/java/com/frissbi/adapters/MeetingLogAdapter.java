@@ -2,16 +2,21 @@ package com.frissbi.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frissbi.R;
+import com.frissbi.Utility.UserMeetingStatus;
 import com.frissbi.Utility.Utility;
 import com.frissbi.activities.MeetingDetailsActivity;
+import com.frissbi.interfaces.MeetingDetailsListener;
 import com.frissbi.models.Meeting;
 import com.frissbi.models.MeetingFriends;
 
@@ -24,10 +29,12 @@ import java.util.List;
 public class MeetingLogAdapter extends RecyclerView.Adapter<MeetingLogAdapter.ViewHolder> {
     private Context mContext;
     private List<Meeting> mMeetingsList;
+    private MeetingDetailsListener mMeetingDetailsListener;
 
-    public MeetingLogAdapter(Context context, List<Meeting> meetingList) {
+    public MeetingLogAdapter(Context context, List<Meeting> meetingList, MeetingDetailsListener meetingDetailsListener) {
         mContext = context;
         mMeetingsList = meetingList;
+        mMeetingDetailsListener = meetingDetailsListener;
     }
 
     @Override
@@ -39,30 +46,34 @@ public class MeetingLogAdapter extends RecyclerView.Adapter<MeetingLogAdapter.Vi
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
         List<MeetingFriends> meetingFriendsList = mMeetingsList.get(position).getMeetingFriendsList();
-        if (meetingFriendsList.size() > 1) {
-            holder.meetingLogDescriptionTv.setText(mMeetingsList.get(position).getDescription() + " with " + mMeetingsList.get(position).getMeetingFriendsList().get(0).getName() + " and " + meetingFriendsList.size() + " others");
-        } else {
-            holder.meetingLogDescriptionTv.setText(mMeetingsList.get(position).getDescription() + " with " + mMeetingsList.get(position).getMeetingFriendsList().get(0).getName());
+        if (meetingFriendsList.size() != 0) {
+            if (meetingFriendsList.size() > 2) {
+                holder.meetingLogDescriptionTv.setText(mMeetingsList.get(position).getDescription() + " with " + mMeetingsList.get(position).getMeetingFriendsList().get(0).getName() + " and " + meetingFriendsList.size() + " others");
+            } else if (meetingFriendsList.size() == 2) {
+                holder.meetingLogDescriptionTv.setText(mMeetingsList.get(position).getDescription() + " with " + mMeetingsList.get(position).getMeetingFriendsList().get(0).getName() + " and " + meetingFriendsList.size() + " other");
+            } else {
+                holder.meetingLogDescriptionTv.setText(mMeetingsList.get(position).getDescription() + " with " + mMeetingsList.get(position).getMeetingFriendsList().get(0).getName());
+            }
         }
         holder.meetingLogDateTv.setText("Date : " + mMeetingsList.get(position).getDate());
         String time = "Time : " + Utility.getInstance().convertTime(mMeetingsList.get(position).getFromTime()) + " to " + Utility.getInstance().convertTime(mMeetingsList.get(position).getToTime());
         holder.meetingLogTimeTv.setText(time);
-        if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_PENDING) {
-            holder.meetingCardView.setBackgroundColor(mContext.getResources().getColor(R.color.light_orange));
-        } else if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_ACCEPT) {
-            holder.meetingCardView.setBackgroundColor(mContext.getResources().getColor(R.color.green));
-        } else if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_REJECT) {
-            holder.meetingCardView.setBackgroundColor(mContext.getResources().getColor(R.color.red));
-        } else if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_ACCEPT) {
-            holder.meetingCardView.setBackgroundColor(mContext.getResources().getColor(R.color.blue));
+
+
+        if (mMeetingsList.get(position).getUserStatus().equalsIgnoreCase(UserMeetingStatus.MEETING_SENT.toString())) {
+            holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_sent));
+        } else if (mMeetingsList.get(position).getUserStatus().equalsIgnoreCase(UserMeetingStatus.MEETING_RECEIVE.toString())) {
+            if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_REJECT) {
+                holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_reject));
+            } else {
+                holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_recieve));
+            }
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, MeetingDetailsActivity.class);
-                intent.putExtra("meeting", mMeetingsList.get(position));
-                mContext.startActivity(intent);
+                mMeetingDetailsListener.showMeetingDetails(mMeetingsList.get(position));
             }
         });
 
@@ -74,6 +85,7 @@ public class MeetingLogAdapter extends RecyclerView.Adapter<MeetingLogAdapter.Vi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        private ImageView statusIconImageView;
         private CardView meetingCardView;
         private TextView meetingLogTimeTv;
         private TextView meetingLogDescriptionTv;
@@ -85,6 +97,7 @@ public class MeetingLogAdapter extends RecyclerView.Adapter<MeetingLogAdapter.Vi
             meetingLogDateTv = (TextView) itemView.findViewById(R.id.meeting_log_date_tv);
             meetingLogTimeTv = (TextView) itemView.findViewById(R.id.meeting_log_time_tv);
             meetingCardView = (CardView) itemView.findViewById(R.id.meeting_cardView);
+            statusIconImageView = (ImageView) itemView.findViewById(R.id.status_icon_imageView);
         }
     }
 }

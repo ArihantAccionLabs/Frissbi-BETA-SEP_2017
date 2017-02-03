@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -17,11 +15,8 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -85,7 +80,7 @@ String MeetingId;
         send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-           isInternetPresent = cd.isConnectingToInternet();
+           isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
 
@@ -117,7 +112,7 @@ String MeetingId;
                     loadmore.setVisibility(view.INVISIBLE);
                 }
 
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
 
@@ -132,7 +127,7 @@ String MeetingId;
             }
         });
 
-        isInternetPresent = cd.isConnectingToInternet();
+        isInternetPresent = cd.isConnectedToInternet();
         // check for Internet status
         if (isInternetPresent) {
 

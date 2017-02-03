@@ -1,14 +1,10 @@
 package com.frissbi.activities;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
@@ -56,7 +52,6 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 
 public class SelectLocationAndSaveActivity extends AppCompatActivity {
 
@@ -112,7 +107,7 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
 
                 if (!mLocationSearchAutoCompleteTv.isPerformingCompletion()) {
                     if (s.length() > 0) {
-                        if (new ConnectionDetector(SelectLocationAndSaveActivity.this).isConnectingToInternet()) {
+                        if (new ConnectionDetector(SelectLocationAndSaveActivity.this).isConnectedToInternet()) {
 
                             getLocationInfo(s.toString());
                         } else {
@@ -182,39 +177,6 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
 
     }
 
-    private void checkIsLocationExist(final String locationName) {
-        SharedPreferences preferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        Friss_Pojo.UseridFrom = preferences.getString("USERID_FROM", "editor");
-        Log.d("MySavedPlacesActivity", "Friss_Pojo.UseridFrom" + Friss_Pojo.UseridFrom);
-        String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.ORZIN_EXISTCHEK + Friss_Pojo.UseridFrom + "/" + locationName;
-        Log.d("SelectLocation", "url" + url);
-        TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
-            @Override
-            public void handleResponse(TSNetworkHandler.TSResponse response) {
-                if (response != null) {
-                    if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
-                        try {
-                            JSONObject responseJsonObject = new JSONObject(response.response);
-                            JSONObject existenceJsonObject = responseJsonObject.getJSONObject("existence_preferred_location");
-                            if (existenceJsonObject.getInt("IfLocationExists") == 0) {
-                                mAlertDialog.dismiss();
-                                sendLocationDetailsToServer(locationName);
-                            } else {
-                                Toast.makeText(SelectLocationAndSaveActivity.this, "Location exist try other name", Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
-                        Toast.makeText(SelectLocationAndSaveActivity.this, response.message, Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    Toast.makeText(SelectLocationAndSaveActivity.this, "Something went wrong at server end", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-    }
 
     private void sendLocationDetailsToServer(final String locationName) {
         JSONObject jsonObject = new JSONObject();
@@ -257,37 +219,6 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
                 }
             }
         });
-
-
-       /*   String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.LOCATION_INSERT + Friss_Pojo.UseridFrom + "/" + mLatitude + "/" + mLongitude + "/" + locationName + "/" + 1 + "/" + 0;
-        Log.d("SelectLocation", "url" + url);
-        TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
-                    @Override
-                    public void handleResponse(TSNetworkHandler.TSResponse response) {
-
-                        if (response != null) {
-                            if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
-                                try {
-                                    JSONObject responseJsonObject = new JSONObject(response.response);
-                                    Log.d("SelectLocation", "response" + responseJsonObject);
-                                    if (responseJsonObject.getBoolean("isInserted")) {
-                                        Toast.makeText(SelectLocationAndSaveActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-                                    } else {
-                                        Toast.makeText(SelectLocationAndSaveActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-                                    }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
-                                Toast.makeText(SelectLocationAndSaveActivity.this, response.message, Toast.LENGTH_SHORT).show();
-                            }
-                        } else {
-                            Toast.makeText(SelectLocationAndSaveActivity.this, "Something went wrong at server end", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                }
-
-        );*/
     }
 
     private void sendLocationDetails(String locationName) {
@@ -360,47 +291,6 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
 
     }
 
-
-
-
-
-
-   /* public Location getCurrentLocation() {
-
-        if (ActivityCompat.checkSelfPermission(SelectLocationAndSaveActivity.this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                && ActivityCompat.checkSelfPermission(SelectLocationAndSaveActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return null;
-        }
-        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Location gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Location networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-        return getBetterLocation(gpsLocation, networkLocation);
-
-    }
-
-    protected Location getBetterLocation(Location loc1, Location loc2) {
-        if (loc1 == null && loc2 != null) {
-
-            return loc2;
-        } else if (loc2 == null && loc1 != null) {
-
-            return loc1;
-        } else if (loc1 != null) {
-
-            if (loc1.getAccuracy() < loc2.getAccuracy()) {
-                return loc1;
-            } else {
-                return loc2;
-            }
-        } else {
-            return null;
-        }
-
-
-    }
-*/
-
     private void getLocationInfo(String input) {
 
         HttpURLConnection conn = null;
@@ -448,6 +338,7 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
         }
 
     }
+
 
     private void setLocationOnMap(double latitude, double longitude) {
         mLatitude = latitude;

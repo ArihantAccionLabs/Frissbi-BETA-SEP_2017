@@ -150,7 +150,7 @@ public class Login extends Activity {
 
             public void onClick(View view) {
                 // get Internet status
-                isInternetPresent = cd.isConnectingToInternet();
+                isInternetPresent = cd.isConnectedToInternet();
                 // check for Internet status
                 if (isInternetPresent) {
                     // Internet Connection is Present

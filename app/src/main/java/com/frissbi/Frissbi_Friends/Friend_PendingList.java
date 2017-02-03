@@ -10,9 +10,7 @@ import android.graphics.drawable.AnimationDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.view.Window;
-import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -59,7 +57,7 @@ public class Friend_PendingList extends Activity implements Friend_PedinglistAda
         mUserName = mSharedPreferences.getString("USERNAME_FROM", "editor");
         cd = new ConnectionDetector(getApplicationContext());
 
-        isInternetPresent = cd.isConnectingToInternet();
+        isInternetPresent = cd.isConnectedToInternet();
         // check for Internet status
         if (isInternetPresent) {
             new Pendinglist().execute();
@@ -81,7 +79,7 @@ public class Friend_PendingList extends Activity implements Friend_PedinglistAda
         Friss_Pojo.UserNameTo = name.toString();
 
 
-        isInternetPresent = cd.isConnectingToInternet();
+        isInternetPresent = cd.isConnectedToInternet();
         // check for Internet status
         if (isInternetPresent) {
 
@@ -104,7 +102,7 @@ public class Friend_PendingList extends Activity implements Friend_PedinglistAda
         //  Toast.makeText(Friend_PendingList.this, "Button click " + Friss_Pojo.UserNameTo,
         //  Toast.LENGTH_SHORT).show();
 
-        isInternetPresent = cd.isConnectingToInternet();
+        isInternetPresent = cd.isConnectedToInternet();
         // check for Internet status
         if (isInternetPresent) {
 

@@ -12,6 +12,7 @@ public class Utility {
     public static final int STATUS_ACCEPT = 1;
     public static final int STATUS_REJECT = 2;
     public static final int STATUS_COMPLETED = 3;
+
     private static Utility ourInstance = new Utility();
 
     public static Utility getInstance() {

@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frissbi.R;
+import com.frissbi.Utility.Utility;
 import com.frissbi.models.MeetingFriends;
 
 import java.util.List;
@@ -38,9 +39,15 @@ public class MeetingFriendsAdapter extends RecyclerView.Adapter<MeetingFriendsAd
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.usernameTv.setText(mMeetingFriendsList.get(position).getName());
+        if (mMeetingFriendsList.get(position).getStatus() == Utility.STATUS_ACCEPT) {
+            holder.friendStatusTv.setText("ACCEPTED");
+        }else if (mMeetingFriendsList.get(position).getStatus() == Utility.STATUS_PENDING) {
+            holder.friendStatusTv.setText("PENDING");
+        }else if (mMeetingFriendsList.get(position).getStatus() == Utility.STATUS_REJECT) {
+            holder.friendStatusTv.setText("REJECTED");
+        }
         if (mMeetingFriendsList.get(position).getType().equalsIgnoreCase("friend")) {
             holder.profileImageView.setImageResource(R.drawable.pic1);
-
         } else if (mMeetingFriendsList.get(position).getType().equalsIgnoreCase("email")) {
             holder.profileImageView.setImageResource(R.drawable.email_icon);
         } else if (mMeetingFriendsList.get(position).getType().equalsIgnoreCase("contact")) {
@@ -54,6 +61,7 @@ public class MeetingFriendsAdapter extends RecyclerView.Adapter<MeetingFriendsAd
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        private TextView friendStatusTv;
         private ImageView profileImageView;
         private TextView usernameTv;
 
@@ -61,6 +69,7 @@ public class MeetingFriendsAdapter extends RecyclerView.Adapter<MeetingFriendsAd
             super(itemView);
             profileImageView = (ImageView) itemView.findViewById(R.id.profile_image);
             usernameTv = (TextView) itemView.findViewById(R.id.username_tv);
+            friendStatusTv = (TextView) itemView.findViewById(R.id.friend_status);
         }
     }
 }

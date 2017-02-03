@@ -217,7 +217,7 @@ public class TSNetworkHandler {
                     if (jsonObject.getBoolean("status")) {
                         return new TSResponse(TSResponse.STATUS_SUCCESS, response.toString(), "");
                     } else {
-                        return new TSResponse(TSResponse.STATUS_FAIL, jsonObject.getString("message"), "");
+                        return new TSResponse(TSResponse.STATUS_FAIL, "", jsonObject.getString("message"));
                     }
 
 
@@ -402,7 +402,7 @@ public class TSNetworkHandler {
                     if (jsonObject.getBoolean("status")) {
                         return new TSResponse(TSResponse.STATUS_SUCCESS, responseBuilder.toString(), "");
                     } else {
-                        return new TSResponse(TSResponse.STATUS_FAIL, jsonObject.getString("message"), "");
+                        return new TSResponse(TSResponse.STATUS_FAIL, "", jsonObject.getString("message"));
                     }
 
 

@@ -1,6 +1,7 @@
 package com.frissbi.activities;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -17,6 +18,7 @@ import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.SelectLocationListener;
 import com.frissbi.Utility.ConnectionDetector;
+import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.adapters.MyPlacesAdapter;
 import com.frissbi.models.MyPlaces;
 import com.frissbi.networkhandler.TSNetworkHandler;
@@ -37,6 +39,7 @@ public class MySavedPlacesActivity extends AppCompatActivity implements SelectLo
     private MyPlacesAdapter mMyPlacesAdapter;
     private SelectLocationListener mSelectLocationListener;
     private FloatingActionButton mAddLocationFloatingButton;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +48,15 @@ public class MySavedPlacesActivity extends AppCompatActivity implements SelectLo
         mMyPlacesRecyclerView = (RecyclerView) findViewById(R.id.myPlaces_recyclerView);
         mAddLocationFloatingButton = (FloatingActionButton) findViewById(R.id.add_location_floating_button);
         mMyPlacesList = new ArrayList<>();
+        mProgressDialog = new CustomProgressDialog(MySavedPlacesActivity.this);
         mSelectLocationListener = (SelectLocationListener) this;
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         mMyPlacesRecyclerView.setLayoutManager(layoutManager);
-
-        getMyPlacesFromServer();
+        if (ConnectionDetector.getInstance(MySavedPlacesActivity.this).isConnectedToInternet()) {
+            getMyPlacesFromServer();
+        } else {
+            Toast.makeText(MySavedPlacesActivity.this, getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
+        }
         mAddLocationFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -60,11 +67,12 @@ public class MySavedPlacesActivity extends AppCompatActivity implements SelectLo
     }
 
     private void getMyPlacesFromServer() {
+        mProgressDialog.show();
         SharedPreferences preferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         String userId = preferences.getString("USERID_FROM", "editor");
         Log.d("MySavedPlacesActivity", "UserId" + userId);
         String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.ORZIN_DESTLIST + userId;
-        TSNetworkHandler.getInstance(this).getResponse(url, new JSONObject(),"GET", new TSNetworkHandler.ResponseHandler() {
+        TSNetworkHandler.getInstance(this).getResponse(url, new JSONObject(), "GET", new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {
                 if (response != null) {
@@ -95,6 +103,7 @@ public class MySavedPlacesActivity extends AppCompatActivity implements SelectLo
                 } else {
                     Toast.makeText(MySavedPlacesActivity.this, "Something went wrong at server end", Toast.LENGTH_SHORT).show();
                 }
+                mProgressDialog.dismiss();
             }
         });
     }

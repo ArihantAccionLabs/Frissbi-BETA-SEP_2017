@@ -3,8 +3,6 @@ package com.frissbi.frissbi;
 
         import android.app.Activity;
         import android.app.Dialog;
-        import android.app.ProgressDialog;
-        import android.content.Intent;
         import android.graphics.drawable.AnimationDrawable;
         import android.os.AsyncTask;
         import android.os.Bundle;
@@ -12,7 +10,6 @@ package com.frissbi.frissbi;
         import android.view.View;
         import android.view.Window;
         import android.widget.Button;
-        import android.widget.EditText;
         import android.widget.ImageView;
         import android.widget.TextView;
         import android.widget.Toast;
@@ -49,7 +46,7 @@ public class GetTermsandConditions extends Activity {
         TextView textView =(TextView)findViewById(R.id.text1);
         textView.setText("Terms of Use");
         cd = new ConnectionDetector(getApplicationContext());
-        isInternetPresent = cd.isConnectingToInternet();
+        isInternetPresent = cd.isConnectedToInternet();
 
         if (isInternetPresent) {
 

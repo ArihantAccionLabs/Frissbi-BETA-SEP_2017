@@ -10,6 +10,7 @@ public class MeetingFriends implements Serializable {
     private String name;
     private String profileImage;
     private String type;
+    private int status;
 
     public String getName() {
         return name;
@@ -31,8 +32,17 @@ public class MeetingFriends implements Serializable {
         return type;
     }
 
+
     public void setType(String type) {
         this.type = type;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     @Override
