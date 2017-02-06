@@ -15,18 +15,16 @@ public class GoogleSearchPlaces {
 	
 	
 	
-	public static void getGoogleSearchPlaces() throws IOException, JSONException {
+	public static void getGoogleSearchPlaces(Double latitude , Double longitude , String type) throws IOException, JSONException {
 		
 		int radious = 1000;//in meter
-		String latitude = "17.430702666666665";
-		String longitude = "78.44064721111111";
-		String type = "bar";
-		String keyword = "bar";
-		
-       String PLACES_SEARCH_URL =  "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+latitude+","+longitude+"&radius="+radious+"&type="+type+"&keyword="+keyword+"&key=AIzaSyAgM-mwjfosilNEdn5aCe4FJ9aDOp_U7JM";
+		String keyword = type;
+        String PLACES_SEARCH_URL =  "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+latitude+","+longitude+"&radius="+radious+"&type="+type+"&keyword="+keyword+"&key=AIzaSyAgM-mwjfosilNEdn5aCe4FJ9aDOp_U7JM";
 		System.out.println("PLACES_SEARCH_URL======="+PLACES_SEARCH_URL);
-       JSONObject json = readJsonFromUrl(PLACES_SEARCH_URL);
+        JSONObject json = readJsonFromUrl(PLACES_SEARCH_URL);
 		System.out.println(json.toString());
+		
+		System.out.println("===="+json.getJSONArray("results"));
 	}
 	
 	private static String readAll(Reader rd) throws IOException {

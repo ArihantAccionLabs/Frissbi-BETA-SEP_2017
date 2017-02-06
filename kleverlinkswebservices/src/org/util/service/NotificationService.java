@@ -385,7 +385,7 @@ public class NotificationService {
 			 for(Integer userId : notificationInfoDTO.getUserList()){
 				
 				callableStatement.setInt(1, userId);
-				callableStatement.setInt(2, notificationInfoDTO.getSenderUserId());
+				callableStatement.setInt(2, 0);
 				callableStatement.setInt(3, notificationInfoDTO.getMeetingId());
 				callableStatement.setString(4, notificationInfoDTO.getNotificationType());
 				callableStatement.setString(5, notificationInfoDTO.getMessage());
@@ -444,9 +444,16 @@ public class NotificationService {
 					finalJson.put("from", meetingCreatorLogBean.getStartTime());
 					finalJson.put("to", meetingCreatorLogBean.getEndTime());
 					finalJson.put("description", meetingCreatorLogBean.getDescription());
-					finalJson.put("address", meetingCreatorLogBean.getAddress());
-					finalJson.put("latitude", meetingCreatorLogBean.getLatitude());
-					finalJson.put("longitude", meetingCreatorLogBean.getLongitude());
+					if(meetingCreatorLogBean.getLatitude() != null && meetingCreatorLogBean.getLatitude().trim().isEmpty()){
+						
+						finalJson.put("address", meetingCreatorLogBean.getAddress());
+						finalJson.put("latitude", meetingCreatorLogBean.getLatitude());
+						finalJson.put("longitude", meetingCreatorLogBean.getLongitude());
+						finalJson.put("isLocationSelected", true);
+					}else{
+						finalJson.put("isLocationSelected", false);
+					}
+					
 					finalJson.put("friendsJsonArray", ServiceUtility.getReceptionistDetailsByMeetingId((meetingCreatorLogBean.getMeetingId())));
 					
 					notificationInfoDTO.setJsonObject(finalJson);
@@ -484,18 +491,24 @@ public class NotificationService {
 			}
 		}
 		
-	public static void sendNotificationToInformAddress(MeetingLogBean meetingLogBean, List<Integer> userList) {
+	public static void sendNotificationToInformAddress(MeetingLogBean meetingLogBean, List<Integer> userList , String otherUserName) {
 
-		String message = "You have a meeting " + meetingLogBean.getDescription() + " on " + meetingLogBean.getDate()
-				+ " from " + meetingLogBean.getStartTime() + " to " + meetingLogBean.getEndTime();
+		System.out.println("sendNotificationToInformAddress==================");
+
+		String messages = "You have a meeting " ;
 		for (Integer userId : userList) {
 
+			if(meetingLogBean.getSenderUserId() != userId) {
+				messages += meetingLogBean.getDescription() +" with "+meetingLogBean.getFullName()+" and "+(userList.size()-1)+" others on "+meetingLogBean.getDate() +" from "+meetingLogBean+" to "+meetingLogBean.getEndTime();
+			} else {
+				messages  += meetingLogBean.getDescription() +" with "+otherUserName+" on "+meetingLogBean.getDate() +" from "+meetingLogBean.getStartTime()+" to "+meetingLogBean.getEndTime();
+			}
+			
 			NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
-			notificationInfoDTO.setUserId(userId);
+			notificationInfoDTO.setUserList(userList);
 			notificationInfoDTO.setMeetingId(meetingLogBean.getMeetingId());
 			notificationInfoDTO.setNotificationType(NotificationsEnum.MEETING_SUMMARY.toString());
-			notificationInfoDTO.setMessage(message);
-
+            notificationInfoDTO.setMessage(messages);
 			sendMeetingNotification(notificationInfoDTO);
 
 		}

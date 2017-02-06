@@ -34,8 +34,8 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
       
-		TrackMeetingTime.sendMeetingNotificationBeforeOneHour();
-		
+		//TrackMeetingTime.sendMeetingNotificationBeforeOneHour();
+		GoogleSearchPlaces.getGoogleSearchPlaces(17.4399295,78.4982741,"coffee");
 		return "ok";
 			
 	}

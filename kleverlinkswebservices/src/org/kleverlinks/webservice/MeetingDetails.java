@@ -63,13 +63,15 @@ public class MeetingDetails {
 				NotificationService.sendNotification(meetingInsertionObject.getJSONArray("meetingIdsJsonArray"), senderUserId, NotificationsEnum.MEETING_REJECTED.ordinal());
 			}
 			String meetingDate = meetingInsertionObject.getString("meetingDateTime");
-			DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd hh:mm a");
+			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
 			String durationTime = meetingInsertionObject.getString("duration");
 			String[] timeArray = durationTime.split(":");
 			String duration = timeArray[0] + ":" + timeArray[1] + ":00";
 			LocalDateTime senderFromDateTime = LocalDateTime.ofInstant(formatter.parse(meetingDate).toInstant(),ZoneId.systemDefault());
 			LocalDateTime senderToDateTime = LocalDateTime.ofInstant(formatter.parse(meetingDate).toInstant(), ZoneId.systemDefault()).plusHours(Integer.parseInt(timeArray[0])).plusMinutes(Integer.parseInt(timeArray[1]));
 
+			System.out.println(formatter.parse(meetingDate)+"   "+"senderFromDateTime==="+senderFromDateTime+"===="+senderToDateTime);
+			
 			/* If meeting id is not there means we need to check that is there
 			 any meeting is there at same date And time on both table in
 			 tbl_RecipientsDetails & in tbl_MeetingDetails  */
@@ -115,7 +117,7 @@ public class MeetingDetails {
 			callableStatement = connection.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, senderUserId);
 			callableStatement.setTimestamp(2, new Timestamp(new Date().getTime()));
-			callableStatement.setTimestamp(3, new Timestamp(formatter.parse(meetingDate).getTime()));
+			callableStatement.setTimestamp(3,  Timestamp.valueOf(senderFromDateTime));
 			callableStatement.setTimestamp(4, Timestamp.valueOf(senderToDateTime));
 			callableStatement.setTime(5, java.sql.Time.valueOf(duration));
 			callableStatement.setString(6, meetingInsertionObject.getString("meetingTitle"));
@@ -1018,7 +1020,7 @@ public class MeetingDetails {
 	}
 	
 	@POST
-	@Path("/getMeetingSummary")
+	@Path("/storeMeetingLatLngByUser")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String getMeetingSummary(String meetingDetails){
 		
@@ -1028,76 +1030,11 @@ public class MeetingDetails {
 		JSONObject meetingUserDetail = new JSONObject(meetingDetails);
 		
 	 try {
-		 
 		int userId = meetingUserDetail.getInt("userId");
 		int meetingId = meetingUserDetail.getInt("meetingId");
-		if(meetingUserDetail.getBoolean("isLocationSelected")){
-			
-		MeetingLogBean meetingCreatorLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId) ;
-			
-		 if(meetingCreatorLogBean.getMeetingId() != null){
-			
-			JSONArray  jsonArray = ServiceUtility.getReceptionistDetailsByMeetingId(meetingId) ;
-			Set<Integer> userIdSet = new HashSet<>();
-			
-			String fullName = "";
-			for (int i = 0; i < jsonArray.length(); i++) {
-				if(jsonArray.getJSONObject(i).getInt("userId") != 0){
-					userIdSet.add(jsonArray.getJSONObject(i).getInt("userId"));
-					fullName = jsonArray.getJSONObject(i).getString("fullName");
-				}
-			}
-			userIdSet.add(userId);
-			if(meetingCreatorLogBean.getSenderUserId() != null){
-				userIdSet.add(meetingCreatorLogBean.getSenderUserId());
-			}
-			//System.out.println(userIdSet.toString()+" listc :   "+userIdSet.size());
-			
-			if(!userIdSet.isEmpty()){
-				String message = "You have meeting ";
-				if(meetingCreatorLogBean.getSenderUserId().equals(userId)) {
-					 message += meetingCreatorLogBean.getDescription() +" with "+fullName+" and "+(userIdSet.size()-1)+" others on "+meetingCreatorLogBean.getDate() +" from "+meetingCreatorLogBean.getStartTime()+" to "+meetingCreatorLogBean.getEndTime();
-				} else {
-					message  += meetingCreatorLogBean.getDescription() +" with "+meetingCreatorLogBean.getFullName()+" on "+meetingCreatorLogBean.getDate() +" from "+meetingCreatorLogBean.getStartTime()+" to "+meetingCreatorLogBean.getEndTime();
-				}
-				
-				NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
-				notificationInfoDTO.setMeetingId(meetingId);
-				notificationInfoDTO.setSenderUserId(0);
-				notificationInfoDTO.setNotificationType(NotificationsEnum.MEETING_SUMMARY.toString());
-				notificationInfoDTO.setMessage(message);
-				
-				finalJson.put("meetingId", meetingId);
-				finalJson.put("date", meetingCreatorLogBean.getDate());
-				finalJson.put("from", meetingCreatorLogBean.getStartTime());
-				finalJson.put("to", meetingCreatorLogBean.getEndTime());
-				finalJson.put("description", meetingCreatorLogBean.getDescription());
-				finalJson.put("address", meetingCreatorLogBean.getAddress());
-				finalJson.put("latitude", meetingCreatorLogBean.getLatitude());
-				finalJson.put("longitude", meetingCreatorLogBean.getLongitude());
-				finalJson.put("friendsJsonArray", ServiceUtility.getReceptionistDetailsByMeetingId(meetingId));
-				
-				notificationInfoDTO.setJsonObject(finalJson);
-				NotificationService.sendMeetingAlarmNotification(notificationInfoDTO , userIdSet.stream().collect(Collectors.toList())); 
-			}
-			finalJson.put("status", true);
-			finalJson.put("message", "Data fetched successfully");
-			finalJson.put("isLocationSelected", meetingUserDetail.getBoolean("isLocationSelected"));
-			return finalJson.toString();
-			
-			
-		}else{
-			JSONObject jsonObject = new JSONObject();
-			jsonObject.put("status", true);
-			jsonObject.put("message", "Meeting suspended"); 
-			jsonObject.put("isMeetingExisted", false); 
-			
-			return jsonObject.toString();
-		 }
-		} else {
-			
-			
-		}
+		String lat = meetingUserDetail.getString("latitude");
+		String lng = meetingUserDetail.getString("longitude");
+	
 	 } catch (Exception e) {
 		e.printStackTrace();
 	}
@@ -1115,7 +1052,7 @@ public class MeetingDetails {
 	 Connection conn = null;
 	 PreparedStatement pstmt = null;
 	 int updatedRow = 0;
-     String sql = "UPDATE " ;
+     String sql = "" ;
      try{
      MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
 	  	conn = DataSourceConnection.getDBConnection();
@@ -1141,10 +1078,45 @@ public class MeetingDetails {
 			
 			updatedRow =	pstmt.executeUpdate();
 		}
+		
 		System.out.println("updatedRow == "+updatedRow);
      } catch (Exception e) {
 		e.printStackTrace();
+	}finally{
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(pstmt);
 	}
+     try{
+
+     sql =	"SELECT MeetingID,Latitude,Longitude FROM FrissDB.tbl_MeetingDetails    WHERE  MeetingID=446 AND Latitude IS NOT NULL UNION  SELECT  R.MeetingID FROM FrissDB.tbl_RecipientsDetails AS R WHERE  R.MeetingID=446 AND Latitude IS NOT NULL";	
+     conn = DataSourceConnection.getDBConnection();
+     pstmt = conn.prepareStatement(sql);
+	 pstmt.setInt(1, meetingId);
+	 
+	 ResultSet rs = pstmt.executeQuery();
+	 
+	 List<UserDTO> userAddressList = new ArrayList<UserDTO>();
+	 
+	 while(rs.next()){
+		 
+		 UserDTO userDTO = new UserDTO();
+		 userDTO.setMeetingId(rs.getInt("MeetingID"));
+		 userDTO.setLatitude(rs.getString("Latitude"));
+		 userDTO.setLongitude(rs.getString("Longitude"));
+		 
+		 userAddressList.add(userDTO) ;
+	 }
+	 
+	 MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
+	 
+	 if(userAddressList.size() >= 2){
+		 
+	  JSONObject jsonObject	 = Geomagic.calculateMidPointLatLng(userAddressList);
+	  GoogleSearchPlaces.getGoogleSearchPlaces(jsonObject.getDouble("lat") , jsonObject.getDouble("lng") , meetingLogBean.getDescription());
+	 }
+     } catch(Exception e){
+    	 e.printStackTrace();
+     }
 	}
 	
 	

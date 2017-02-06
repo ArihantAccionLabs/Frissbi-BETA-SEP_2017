@@ -18,6 +18,7 @@ import org.kleverlinks.webservice.DataSourceConnection;
 import org.kleverlinks.webservice.NotificationsEnum;
 import org.service.dto.MeetingLogBean;
 import org.service.dto.NotificationInfoDTO;
+import org.service.dto.UserDTO;
 
 public class TrackMeetingTime {
 
@@ -26,9 +27,9 @@ public class TrackMeetingTime {
 		List<MeetingLogBean> meetingList = new ArrayList<MeetingLogBean>();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 		LocalDateTime fromTime = LocalDateTime.now().plusHours(2);
-		LocalDateTime toTime = fromTime.plusMinutes(1);
+		LocalDateTime toTime = fromTime.plusMinutes(20);
 
-		//System.out.println("fromTime===2 hour "+ formatter.format(fromTime)+"  toTime  "+formatter.format(toTime));
+		System.out.println("fromTime===2 hour "+ formatter.format(fromTime)+"  toTime  "+formatter.format(toTime));
 		
 		 Connection conn = null;
 		 CallableStatement callableStatement = null;
@@ -37,12 +38,11 @@ public class TrackMeetingTime {
 			String storeProc = "{call usp_GetMeetingList(?,?)}"; 
 			callableStatement = conn.prepareCall(storeProc);
 			callableStatement.setTimestamp(1 , Timestamp.valueOf(fromTime));
-			callableStatement.setTimestamp(2 , Timestamp.valueOf(toTime));
+			callableStatement.setTimestamp(2 , Timestamp.valueOf(fromTime));
 			
 			ResultSet rs = callableStatement.executeQuery();
 		   while(rs.next()){
-			   
-			   if(rs.getString("Latitude") == null && rs.getString("Latitude").trim().isEmpty()){
+			   if(rs.getString("Latitude") == null){
 				   
 				   MeetingLogBean meetingLogBean = new MeetingLogBean();
 				   meetingLogBean.setSenderUserId(rs.getInt("SenderUserID"));
@@ -50,7 +50,7 @@ public class TrackMeetingTime {
 				   meetingLogBean.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
 				   LocalDateTime fromTime1 = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 				   LocalDateTime toTime1 =   ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
-				   meetingLogBean.setToDate(toTime);
+				   meetingLogBean.setDate(fromTime1.toLocalDate());
 				   meetingLogBean.setStartTime(ServiceUtility.updateTime(fromTime1.getHour(), fromTime1.getMinute()));
 				   meetingLogBean.setEndTime(ServiceUtility.updateTime(toTime1.getHour(), toTime1.getMinute()));
 				   meetingLogBean.setDescription(rs.getString("MeetingDescription"));
@@ -61,49 +61,24 @@ public class TrackMeetingTime {
 				   meetingList.add(meetingLogBean);
 			  }
 		   }
-			
-		   ServiceUtility.closeConnection(conn);
-		   ServiceUtility.closeCallableSatetment(callableStatement);
-		   rs.close();
-		   
-		  // System.out.println("meetingList size========="+meetingList.size());
-		   
 		   if(! meetingList.isEmpty()){
-			    conn = DataSourceConnection.getDBConnection();
-				String receiverStorProc = "{call usp_GetRecipientDetails_ByMeetingID(?)}"; 
-				callableStatement = conn.prepareCall(receiverStorProc);
-				
-				for (MeetingLogBean meetingLogBean : meetingList) {
-					
-					callableStatement.setInt(1, meetingLogBean.getMeetingId());
-					
-					rs = callableStatement.executeQuery();
-					List<Integer> userList = new ArrayList<>();
-					
-					while(rs.next()){
-						if(rs.getInt("Status") == 1 || rs.getInt("Status") == 0){
-							userList.add(rs.getInt("UserID"));
-						}
-					}
-					if(! userList.isEmpty()){
-						userList.add(meetingLogBean.getSenderUserId());
-						NotificationService.sendNotificationToInformAddress(meetingLogBean, userList);
-					}
-				}
-		   } 
-		   
-		  // sendMeetingNotificationBeforeOneHour();
-		 
+				  
+			   NotificationService.sendMeetingAlarmNotification(meetingList);
+		   }
+		
 	  } catch (Exception e) {
 		e.printStackTrace();
-	  }
+	  }finally {
+		   ServiceUtility.closeConnection(conn);
+		   ServiceUtility.closeCallableSatetment(callableStatement);
+	}
 	}
 		public static void sendMeetingNotificationBeforeOneHour(){
 			
 			List<MeetingLogBean> addressMeetingList = new ArrayList<MeetingLogBean>();
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 			LocalDateTime fromTime = LocalDateTime.now().plusHours(1);
-			LocalDateTime toTime = fromTime.plusMinutes(30);
+			LocalDateTime toTime = fromTime.plusMinutes(1);
 			System.out.println("fromTime 1 hour ==="+ formatter.format(fromTime)+"  toTime  "+formatter.format(toTime));
 			 Connection conn = null;
 			 CallableStatement callableStatement = null;
@@ -112,7 +87,7 @@ public class TrackMeetingTime {
 				String storeProc = "{call usp_GetMeetingList(?,?)}"; 
 				callableStatement = conn.prepareCall(storeProc);
 				callableStatement.setTimestamp(1 , Timestamp.valueOf(fromTime));
-				callableStatement.setTimestamp(2 , Timestamp.valueOf(toTime));
+				callableStatement.setTimestamp(2 , Timestamp.valueOf(fromTime));
 				
 				ResultSet rs = callableStatement.executeQuery();
 				   while(rs.next()){
@@ -137,7 +112,6 @@ public class TrackMeetingTime {
 			      }
 		   }
 				   if(! addressMeetingList.isEmpty()){
-					  
 					   NotificationService.sendMeetingAlarmNotification(addressMeetingList);
 				   }
 			} catch (Exception e) {

@@ -12,7 +12,7 @@ public class MeetingAddressCronJob implements Job{
 
 	@Override
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		//TrackMeetingTime.sendMeetingNotificationBeforeOneHour();
+		TrackMeetingTime.getMeetingListBetweenTime();
 		System.out.println("TrackingMeetingAddress====   : "+ new Date());
 	}
 }

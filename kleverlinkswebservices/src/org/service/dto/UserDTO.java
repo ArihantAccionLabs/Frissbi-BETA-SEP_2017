@@ -15,8 +15,6 @@ public class UserDTO {
 	private LocalDateTime meetingToTime;
 	private String description;
 	private Boolean isLocationSelected;
-	
-	
 	private String latitude ;
 	private String longitude ;
 	

@@ -2,6 +2,8 @@ package org.service.dto;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MeetingLogBean {
 
@@ -18,7 +20,6 @@ public class MeetingLogBean {
 	private String address;
 	private String latitude;
 	private String longitude;
-	
 	
 
 	private int meetingStatus;
@@ -97,6 +98,7 @@ public class MeetingLogBean {
 	public void setStartTime(String startTime) {
 		this.startTime = startTime;
 	}
+
 	public String getEndTime() {
 		return endTime;
 	}
