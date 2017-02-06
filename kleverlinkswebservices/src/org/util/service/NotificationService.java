@@ -410,55 +410,77 @@ public class NotificationService {
 			e.printStackTrace();
 		}
 		}	
-			public static void sendMeetingAlarmNotification(NotificationInfoDTO notificationInfoDTO , List<Integer> userList){
+			public static void sendMeetingAlarmNotification(List<MeetingLogBean> addressMeetingList){
 				
-				Connection conn = null;
-				CallableStatement callableStatement = null;
+				for (MeetingLogBean meetingCreatorLogBean : addressMeetingList) {
+				
+				JSONArray  jsonArray = ServiceUtility.getReceptionistDetailsByMeetingId(meetingCreatorLogBean.getMeetingId()) ;
+				Set<Integer> userIdSet = new HashSet<>();
+				
+				String fullName = "";
+				for (int i = 0; i < jsonArray.length(); i++) {
+					if(jsonArray.getJSONObject(i).getInt("userId") != 0){
+						userIdSet.add(jsonArray.getJSONObject(i).getInt("userId"));
+						fullName = jsonArray.getJSONObject(i).getString("fullName");
+					}
+				}
+				userIdSet.add(meetingCreatorLogBean.getSenderUserId());
+				if(meetingCreatorLogBean.getSenderUserId() != null){
+					userIdSet.add(meetingCreatorLogBean.getSenderUserId());
+				}
+				
+				NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
+				if(!userIdSet.isEmpty()){
+					
+					notificationInfoDTO.setMeetingId(meetingCreatorLogBean.getMeetingId());
+					notificationInfoDTO.setSenderUserId(0);
+					notificationInfoDTO.setNotificationType(NotificationsEnum.MEETING_SUMMARY.toString());
+					notificationInfoDTO.setMeetingLogBean(meetingCreatorLogBean);
+					notificationInfoDTO.setUserList(userIdSet.stream().collect(Collectors.toList()));
+					JSONObject finalJson = new JSONObject();
+					
+					finalJson.put("meetingId", meetingCreatorLogBean.getMeetingId());
+					finalJson.put("date", meetingCreatorLogBean.getDate());
+					finalJson.put("from", meetingCreatorLogBean.getStartTime());
+					finalJson.put("to", meetingCreatorLogBean.getEndTime());
+					finalJson.put("description", meetingCreatorLogBean.getDescription());
+					finalJson.put("address", meetingCreatorLogBean.getAddress());
+					finalJson.put("latitude", meetingCreatorLogBean.getLatitude());
+					finalJson.put("longitude", meetingCreatorLogBean.getLongitude());
+					finalJson.put("friendsJsonArray", ServiceUtility.getReceptionistDetailsByMeetingId((meetingCreatorLogBean.getMeetingId())));
+					
+					notificationInfoDTO.setJsonObject(finalJson);
 
 				try {
-					conn = DataSourceConnection.getDBConnection();
-					String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?)}";
-					for (Integer userId : userList) {
-						callableStatement = conn.prepareCall(insertNotificationStoreProc);
-						callableStatement.setInt(1,userId);
-						callableStatement.setInt(2, notificationInfoDTO.getSenderUserId());
-						callableStatement.setInt(3, notificationInfoDTO.getMeetingId());
-						callableStatement.setString(4, notificationInfoDTO.getNotificationType());
-						callableStatement.setString(5, notificationInfoDTO.getMessage());
-						callableStatement.setTimestamp(6, new Timestamp(new Date().getTime()));
-						
-						callableStatement.addBatch();
-						
-					/*	int value = callableStatement.executeUpdate();
-						int isError = callableStatement.getInt(7);
-						int notificationId = callableStatement.getInt(8);*/
-					}
-					int[] updateCounts = callableStatement.executeBatch();
-					 if(updateCounts.length != 0){
+					Integer updateCounts = insertNotification(notificationInfoDTO);
+					 if(updateCounts != null && updateCounts != 0){
 						 
-				      for (Integer userID : userList) {
-				    	
-							Sender sender = new Sender(Constants.GCM_APIKEY);
-						    String notificationMessage = notificationInfoDTO.getMessage();
-							String NotificationName = notificationInfoDTO.getNotificationType();
-								Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
-									.addData("message", notificationMessage).addData("NotificationName", NotificationName)
-									.addData("meetingId", notificationInfoDTO.getMeetingId() + "").addData("jsonData", notificationInfoDTO.getJsonObject().toString()).build();
-								AuthenticateUser authenticateUser = new AuthenticateUser();
-								JSONObject jsonRegistrationId = new JSONObject(
-										authenticateUser.getGCMDeviceRegistrationId(userID));
-								if(jsonRegistrationId.has("DeviceRegistrationID")){
-									String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
-									Result result = sender.send(message, deviceRegistrationId, 1);
-									System.out.println(result);
+				      for (Integer userID : notificationInfoDTO.getUserList()) {
+				    	  String messages = "You have meeting ";
+							if(notificationInfoDTO.getMeetingLogBean() != null && notificationInfoDTO.getMeetingLogBean().getMeetingId() != null){
+								
+								if(notificationInfoDTO.getMeetingLogBean().getSenderUserId() != userID) {
+									messages += notificationInfoDTO.getMeetingLogBean().getDescription() +" with "+notificationInfoDTO.getMeetingLogBean().getFullName()+" and "+(notificationInfoDTO.getUserList().size()-1)+" others on "+notificationInfoDTO.getMeetingLogBean().getDate() +" from "+notificationInfoDTO.getMeetingLogBean().getStartTime()+" to "+notificationInfoDTO.getMeetingLogBean().getEndTime();
+								} else {
+									messages  += notificationInfoDTO.getMeetingLogBean().getDescription() +" with "+fullName+" on "+notificationInfoDTO.getMeetingLogBean().getDate() +" from "+notificationInfoDTO.getMeetingLogBean().getStartTime()+" to "+notificationInfoDTO.getMeetingLogBean().getEndTime();
 								}
+							}
+							Sender sender = new Sender(Constants.GCM_APIKEY);
+							String NotificationName = notificationInfoDTO.getNotificationType();
+							Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true).addData("message", messages).addData("NotificationName", NotificationName).addData("meetingId", notificationInfoDTO.getMeetingId() + "").addData("jsonData", notificationInfoDTO.getJsonObject().toString()).build();
+							AuthenticateUser authenticateUser = new AuthenticateUser();
+							JSONObject jsonRegistrationId = new JSONObject(authenticateUser.getGCMDeviceRegistrationId(userID));
+							if(jsonRegistrationId.has("DeviceRegistrationID")){
+								String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+								Result result = sender.send(message, deviceRegistrationId, 1);
+								System.out.println(result);
+							}
 					   }
 					}
 			} catch(Exception e){
 				e.printStackTrace();
-			}finally{
-				ServiceUtility.closeConnection(conn);
-				ServiceUtility.closeCallableSatetment(callableStatement);
+			}
+			}
 			}
 		}
 		
@@ -478,5 +500,38 @@ public class NotificationService {
 
 		}
 	}
-			
+		
+	public static Integer insertNotification(NotificationInfoDTO notificationInfoDTO) {
+
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		int[] updateCounts;
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?)}";
+			for (Integer userId : notificationInfoDTO.getUserList()) {
+				callableStatement = conn.prepareCall(insertNotificationStoreProc);
+				callableStatement.setInt(1, userId);
+				callableStatement.setInt(2, notificationInfoDTO.getSenderUserId());
+				callableStatement.setInt(3, notificationInfoDTO.getMeetingId());
+				callableStatement.setString(4, notificationInfoDTO.getNotificationType());
+				callableStatement.setString(5, notificationInfoDTO.getMessage());
+				callableStatement.setTimestamp(6, new Timestamp(new Date().getTime()));
+
+				callableStatement.addBatch();
+
+				/*
+				 * int value = callableStatement.executeUpdate(); int isError =
+				 * callableStatement.getInt(7); int notificationId =
+				 * callableStatement.getInt(8);
+				 */
+			}
+			updateCounts = callableStatement.executeBatch();
+			return updateCounts.length;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
 }

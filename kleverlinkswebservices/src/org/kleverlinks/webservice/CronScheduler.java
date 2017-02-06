@@ -29,7 +29,7 @@ public class CronScheduler {
           */
            
            
-       	   //Every day 8;00 AM in the morning cron job will run
+       	  /* //Every day 8;00 AM in the morning cron job will run
        	   JobKey jobKeyBMorning = new JobKey("jobBM", "group2M");
     	   JobDetail meetingSuggestionMorningDetail = JobBuilder.newJob(MeetingSuggestionCronJob.class).withIdentity(jobKeyBMorning).build();
     	   Trigger meetingSuggestionMorningTrigger = TriggerBuilder.newTrigger().withIdentity("dummyTriggerName2", "group2M").withSchedule(CronScheduleBuilder.cronSchedule("0 0 8 1/1 * ? *")).build();
@@ -39,7 +39,7 @@ public class CronScheduler {
        	   JobKey jobKeyBEvening = new JobKey("jobBE", "group2E");
     	   JobDetail meetingSuggestionEveningDetail = JobBuilder.newJob(MeetingSuggestionCronJob.class).withIdentity(jobKeyBEvening).build();
     	   Trigger meetingSuggestionEveningTrigger = TriggerBuilder.newTrigger().withIdentity("dummyTriggerName3", "group2E").withSchedule(CronScheduleBuilder.cronSchedule("0 0 20 1/1 * ? *")).build();
-    	   
+    	   */
     	   //This scheduler will run every minute
     	   JobKey meetingAddressJob = new JobKey("meetingAddressJob", "meetingAddressJob");
     	   JobDetail meetingAddressJobDetail = JobBuilder.newJob(MeetingAddressCronJob.class).withIdentity(meetingAddressJob).build();
@@ -49,8 +49,8 @@ public class CronScheduler {
     		Scheduler scheduler = new StdSchedulerFactory().getScheduler();
 			scheduler.start();
 			//scheduler.scheduleJob(smartMeetingReminderDetail, smartMeetingReminderTrigger);
-			scheduler.scheduleJob(meetingSuggestionMorningDetail, meetingSuggestionMorningTrigger);
-			scheduler.scheduleJob(meetingSuggestionEveningDetail, meetingSuggestionEveningTrigger);
+			//scheduler.scheduleJob(meetingSuggestionMorningDetail, meetingSuggestionMorningTrigger);
+		//	scheduler.scheduleJob(meetingSuggestionEveningDetail, meetingSuggestionEveningTrigger);
 			scheduler.scheduleJob(meetingAddressJobDetail, meetingAddressJobTrigger);
 			
 	}

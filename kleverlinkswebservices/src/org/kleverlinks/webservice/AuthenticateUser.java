@@ -22,6 +22,7 @@ import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;
 import org.util.service.ServiceUtility;
+import org.util.service.TrackMeetingTime;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
 
@@ -32,57 +33,8 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
-          // FreeTimeTracker.getUserFreeTime();
-		//GoogleSearchPlaces.getGoogleSearchPlaces();
-	/*	try {
-		UserNotifications userNotifications = new UserNotifications();
-		Timestamp timestamp = new Timestamp(new java.util.Date().getDate());
-		System.out.println("Notification   :   "+NotificationsEnum.Meeting_Pending_Requests.ordinal() + 1);
-		String notificationId = userNotifications.insertUserNotifications(188, 107,NotificationsEnum.Meeting_Pending_Requests.ordinal() + 1, 0, timestamp);
-		JSONObject json = new JSONArray(userNotifications.getUserNotifications(0, Integer.parseInt(notificationId))).getJSONObject(0);
-		if(json != null){
-			
-		String notificationMessage = json.getString("NotificationMessage");
-	
-		String NotificationName = json.getString("NotificationName");
-		System.out.println("notificationMessage   :   "+notificationMessage +" NotificationName "+NotificationName);
-		Sender sender = new Sender(Constants.GCM_APIKEY);
-		Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
-				.addData("message", notificationMessage).addData("NotificationName", NotificationName)
-				.addData("meetingId", 424 + "").build();
-
-			AuthenticateUser authenticateUser = new AuthenticateUser();
-			JSONObject jsonRegistrationId = new JSONObject(
-					authenticateUser.getGCMDeviceRegistrationId(188));
-			if(jsonRegistrationId.has("DeviceRegistrationID")){
-				
-				String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
-				Result result = sender.send(message, deviceRegistrationId, 1);
-				System.out.println(result);
-			}
-		}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}*/
-		
-	Sender sender = new Sender(Constants.GCM_APIKEY);
-	  
-	  String notificationMessage = "You Have Meeting Request From Ganapathi KAMMANE NADIMINTI";
-	
-		String NotificationName = "Meeting Pending Requests";
-			Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
-				.addData("message", notificationMessage).addData("NotificationName", NotificationName)
-				.addData("meetingId", 424 + "").build();
-			
-			AuthenticateUser authenticateUser = new AuthenticateUser();
-			JSONObject jsonRegistrationId = new JSONObject(
-					authenticateUser.getGCMDeviceRegistrationId(188));
-			if(jsonRegistrationId.has("DeviceRegistrationID")){
-				
-				String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
-				Result result = sender.send(message, deviceRegistrationId, 1);
-				System.out.println(result);
-			}
+      
+		TrackMeetingTime.sendMeetingNotificationBeforeOneHour();
 		
 		return "ok";
 			
