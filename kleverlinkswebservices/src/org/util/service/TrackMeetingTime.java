@@ -27,7 +27,7 @@ public class TrackMeetingTime {
 		List<MeetingLogBean> meetingList = new ArrayList<MeetingLogBean>();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 		LocalDateTime fromTime = LocalDateTime.now().plusHours(2);
-		LocalDateTime toTime = fromTime.plusMinutes(20);
+		LocalDateTime toTime = fromTime.plusMinutes(1);
 
 		System.out.println("fromTime===2 hour "+ formatter.format(fromTime)+"  toTime  "+formatter.format(toTime));
 		
@@ -65,6 +65,7 @@ public class TrackMeetingTime {
 				  
 			   NotificationService.sendMeetingAlarmNotification(meetingList);
 		   }
+		   sendMeetingNotificationBeforeOneHour();
 		
 	  } catch (Exception e) {
 		e.printStackTrace();

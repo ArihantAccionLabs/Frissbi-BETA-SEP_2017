@@ -142,7 +142,6 @@ public class Geomagic {
 		return finalJson;
 	}
 	
-	
 	private static String getResponse(WebResource service) {
 		return service.accept(MediaType.TEXT_XML).get(ClientResponse.class)
 				.toString();

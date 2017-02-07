@@ -75,6 +75,7 @@ public class MeetingDetails {
 			/* If meeting id is not there means we need to check that is there
 			 any meeting is there at same date And time on both table in
 			 tbl_RecipientsDetails & in tbl_MeetingDetails  */
+			System.out.println("meetingInsertionObject.has(meetingIdsJsonArray=================="+(!meetingInsertionObject.has("meetingIdsJsonArray")));
 			if (!meetingInsertionObject.has("meetingIdsJsonArray")) {
 				List<UserDTO> userDTOList = null;
 				userDTOList = ServiceUtility.checkingMeetingConfliction(meetingInsertionObject.getInt("senderUserId"),
@@ -83,12 +84,12 @@ public class MeetingDetails {
 					
 					if(userDTOList.size() > 1){
 						for (UserDTO userDTO : userDTOList) {
-							JSONObject jsonObject = new JSONObject();
-							jsonObject.put("from", userDTO.getMeetingFromTime().getHour() + ":"+ userDTO.getMeetingFromTime().getMinute());
-							jsonObject.put("to",userDTO.getMeetingToTime().getHour() + ":" + userDTO.getMeetingToTime().getMinute());
-							jsonObject.put("meetingId", userDTO.getMeetingId());
+							//JSONObject jsonObject = new JSONObject();
+							//jsonObject.put("from", userDTO.getMeetingFromTime().getHour() + ":"+ userDTO.getMeetingFromTime().getMinute());
+							//jsonObject.put("to",userDTO.getMeetingToTime().getHour() + ":" + userDTO.getMeetingToTime().getMinute());
+							//jsonObject.put("meetingId", userDTO.getMeetingId());
 							
-							jsonArray.put(jsonObject);
+							jsonArray.put(userDTO.getMeetingId());
 						}
 						finalJson.put("message", "Conflicting with multiple meetings");
 					}else{
@@ -104,6 +105,9 @@ public class MeetingDetails {
 					finalJson.put("isInserted", false);
 					finalJson.put("status", true);
 					finalJson.put("meetingIdsJsonArray", jsonArray);
+					
+					System.out.println("finalJson====="+finalJson.toString());
+					
 					return finalJson.toString();
 				}
 			}
@@ -708,7 +712,7 @@ public class MeetingDetails {
 					finalJson.put("message", "Conflicting with  meetings");
 				}else{
 					
-					UserDTO userDTO = conflictedMeetingList.get(0);
+					   UserDTO userDTO = conflictedMeetingList.get(0);
 						JSONObject jsonObject = new JSONObject();
 						jsonObject.put("from", userDTO.getMeetingFromTime().getHour() + ":"+ userDTO.getMeetingFromTime().getMinute());
 						jsonObject.put("to",userDTO.getMeetingToTime().getHour() + ":" + userDTO.getMeetingToTime().getMinute());
@@ -1019,6 +1023,7 @@ public class MeetingDetails {
 		return jsonObject.toString();
 	}
 	
+	
 	@POST
 	@Path("/storeMeetingLatLngByUser")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -1028,99 +1033,208 @@ public class MeetingDetails {
 		
 		JSONObject finalJson = new JSONObject();
 		JSONObject meetingUserDetail = new JSONObject(meetingDetails);
-		
-	 try {
-		int userId = meetingUserDetail.getInt("userId");
-		int meetingId = meetingUserDetail.getInt("meetingId");
-		String lat = meetingUserDetail.getString("latitude");
-		String lng = meetingUserDetail.getString("longitude");
-	
-	 } catch (Exception e) {
-		e.printStackTrace();
+			
+		 Integer userId = meetingUserDetail.getInt("userId");
+		 Integer meetingId = meetingUserDetail.getInt("meetingId");
+		 Connection conn = null;
+		 PreparedStatement pstmt = null;
+		 int updatedRow = 0;
+	     String sql = "" ;
+	     MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
+	     try{
+		  	conn = DataSourceConnection.getDBConnection();
+			if(meetingLogBean.getMeetingId() != null && meetingLogBean.getSenderUserId().equals(userId))
+			{		
+					 sql = "UPDATE tbl_MeetingDetails SET Latitude=?,Longitude=? WHERE MeetingID=? AND SenderUserID=?"; 
+					 pstmt = conn.prepareStatement(sql);
+					 pstmt.setString(1, meetingUserDetail.getString("latitude"));
+					 pstmt.setString(2, meetingUserDetail.getString("longitude"));
+					 pstmt.setInt(3, meetingId);
+					 pstmt.setInt(4, userId);
+						
+				updatedRow = pstmt.executeUpdate();
+						
+			} else {
+				sql = "UPDATE tbl_RecipientsDetails SET Latitude=?,Longitude=?,ResponseDateTime=? WHERE MeetingID=? AND UserID=?"; 
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, meetingUserDetail.getString("latitude"));
+				pstmt.setString(2, meetingUserDetail.getString("longitude"));
+				pstmt.setString(3, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
+				pstmt.setInt(4, meetingId);
+				pstmt.setInt(5, userId);
+				
+				updatedRow =	pstmt.executeUpdate();
+			}
+			
+			System.out.println("updatedRow == "+updatedRow);
+			if(updatedRow == 0){
+				finalJson.put("status", false);
+				finalJson.put("message", "Something went wrong");
+				return finalJson.toString();
+			}
+	     } catch (Exception e) {
+			e.printStackTrace();
+		  }finally{
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(pstmt);
+		 }
+	    try{
+
+	     sql =	"SELECT M.MeetingID,M.Latitude,M.Longitude FROM tbl_MeetingDetails  AS M  WHERE  M.MeetingID=? AND M.Latitude IS NOT NULL UNION ALL SELECT  R.MeetingID ,R.Latitude,R.Longitude FROM tbl_RecipientsDetails AS R WHERE  R.MeetingID=? AND R.Latitude IS NOT NULL";	
+	     conn = DataSourceConnection.getDBConnection();
+	     pstmt = conn.prepareStatement(sql);
+		 pstmt.setInt(1, meetingId);
+		 pstmt.setInt(2, meetingId);
+		 
+		 ResultSet rs = pstmt.executeQuery();
+		 
+		 List<UserDTO> userAddressList = new ArrayList<UserDTO>();
+		 
+		 while(rs.next()){
+			 
+			 UserDTO userDTO = new UserDTO();
+			 userDTO.setMeetingId(rs.getInt("MeetingID"));
+			 userDTO.setLatitude(rs.getString("Latitude"));
+			 userDTO.setLongitude(rs.getString("Longitude"));
+			 
+			 userAddressList.add(userDTO) ;
+		 }
+		 Set<Integer> userIdSet = new HashSet<>();
+		// LocalDateTime localDateTime = LocalDateTime.now().plusHours(2);
+		// System.out.println(meetingLogBean.getFromDate().plusMinutes(2)+"================="+meetingLogBean.getFromDate().plusMinutes(2).isBefore(localDateTime)+"   localDateTime=    "+localDateTime);
+		 //&& meetingLogBean.getFromDate().plusMinutes(2).isBefore(localDateTime)
+		 System.out.println(" testing updated adress "+(userAddressList.size() >= 2 ));
+		 
+		 if(userAddressList.size() >= 2 ){
+			 
+		  JSONObject jsonObject	 = Geomagic.calculateMidPointLatLng(userAddressList);
+		  JSONArray jsonArray = GoogleSearchPlaces.getGoogleSearchPlaces(jsonObject.getDouble("lat") , jsonObject.getDouble("lng") , meetingLogBean.getDescription());
+		  Boolean isLocationsaved = GoogleSearchPlaces.storeFrissbiLocationsTemporary(jsonArray , meetingId);
+		  if(isLocationsaved){
+			  JSONArray frissbiLocationArray =  GoogleSearchPlaces.getFrissbiLocation(meetingId, 5); 
+			  
+			  System.out.println("frissbiLocationArray==================="+frissbiLocationArray.length());
+			  JSONArray friendsIdArray  = ServiceUtility.getReceptionistDetailsByMeetingId(meetingId);
+			  
+			  if(friendsIdArray.length() != 0){
+				  
+				 for (int i = 0; i < friendsIdArray.length(); i++) {
+					 if(friendsIdArray.getJSONObject(i).getInt("status") == 0){
+						 userIdSet.add(friendsIdArray.getJSONObject(i).getInt("userId"));
+					 }
+				 }
+				 userIdSet.add(meetingLogBean.getSenderUserId());
+				 
+				 String message = "Please share you location for the meeting "+meetingLogBean.getDescription()+" on "+meetingLogBean.getDate()+" from "+meetingLogBean.getStartTime()+" to "+meetingLogBean.getEndTime();
+				 
+				 NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
+				 notificationInfoDTO.setUserList(userIdSet.stream().collect(Collectors.toList()));
+				 notificationInfoDTO.setNotificationType(NotificationsEnum.MEETING_LOCATION_SUGGESTION.toString());
+				 notificationInfoDTO.setMeetingId(meetingId);
+				 notificationInfoDTO.setMessage(message);
+				 notificationInfoDTO.setJsonObject(new JSONObject().put("frissbiLocationArray", frissbiLocationArray));
+				 
+				 NotificationService.sendMeetingNotification(notificationInfoDTO);
+			  }
+		  }
+		  
+		 }else{
+			 finalJson.put("status", true);
+			 finalJson.put("message", "Address updated successfully");
+			 return finalJson.toString(); 
+		 }
+	     } catch(Exception e){
+	    	 e.printStackTrace();
+	     }finally{
+	    	 ServiceUtility.closeConnection(conn);
+	    	 ServiceUtility.closeSatetment(pstmt);
+	     }
+		return finalJson.toString();
 	}
-		finalJson.put("status", true);
-		finalJson.put("message", "Location does not exist ");
-		finalJson.put("isLocationSelected", meetingUserDetail.getBoolean("isLocationSelected"));
+
+	@POST
+	@Path("/updateMeetingAddress")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String updateMeetingAddress(String addressDetails){
+		
+		JSONObject addressJsonObject = new JSONObject(addressDetails);
+		JSONObject finalJson = new JSONObject();
+		
+		Connection connection = null;
+		CallableStatement callableStatement = null;
+		try{
+			connection = DataSourceConnection.getDBConnection();
+			Integer meetingId = addressJsonObject.getInt("meetingId");
+			JSONObject jsonObject = ServiceUtility.checkMeetingAddressUpdateByMeetingId(meetingId);
+			Integer updateCount = jsonObject.getInt("updateCount");
+			
+			if(updateCount == null || updateCount != 2){
+				
+				String insertStoreProc = "{call usp_UpdateMeetingAddress(?,?,?,?,?,?)}";
+				callableStatement = connection.prepareCall(insertStoreProc);
+				callableStatement.setInt(1, meetingId);
+				callableStatement.setString(2, addressJsonObject.getString("latitude"));
+				callableStatement.setString(3,  addressJsonObject.getString("longitude"));
+				callableStatement.setString(4, addressJsonObject.getString("address"));
+				callableStatement.setInt(5, updateCount);
+				callableStatement.registerOutParameter(6, Types.INTEGER);
+				
+				int value = callableStatement.executeUpdate();
+				int isError = callableStatement.getInt(6);
+				
+				if(isError == 0 && value != 0){
+					finalJson.put("status", true);	
+					finalJson.put("meetingId", meetingId);	
+					finalJson.put("message", "Meeting address updated and selected");	
+					return finalJson.toString();
+				}
+			}else{
+				finalJson.put("status", true);	
+				finalJson.put("meetingId", meetingId);	
+				finalJson.put("message", "Location is already decided");	
+				return finalJson.toString();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			ServiceUtility.closeConnection(connection);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		finalJson.put("status", false);	
+		finalJson.put("message", "Something went wrong ");	
 		return finalJson.toString();
 	}
 	
-
-	private void noLocationSelectedForMeeting(JSONObject meetingUserDetail){
+	
+	
+    @GET	
+	@Path("/getFrissbiLocations/{meetingId}/{offSetValue}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getMoreFrissbiLocations(@PathParam("meetingId") int meetingId , @PathParam("offSetValue") int offSetValue){
 		
-	 Integer userId = meetingUserDetail.getInt("userId");
-	 Integer meetingId = meetingUserDetail.getInt("meetingId");
-	 Connection conn = null;
-	 PreparedStatement pstmt = null;
-	 int updatedRow = 0;
-     String sql = "" ;
-     try{
-     MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
-	  	conn = DataSourceConnection.getDBConnection();
-		if(meetingLogBean.getMeetingId() != null && meetingLogBean.getMeetingId().equals(userId)){
-				
-				 sql = "UPDATE tbl_MeetingDetails SET Latitude=?,Longitude=?, WHERE MeetingID=? AND SenderUserID=?"; 
-				 pstmt = conn.prepareStatement(sql);
-				 pstmt.setString(1, meetingUserDetail.getString("latitude"));
-					pstmt.setString(2, meetingUserDetail.getString("longitude"));
-				 pstmt.setInt(3, meetingId);
-				 pstmt.setInt(4, userId);
-					
-			updatedRow = pstmt.executeUpdate();
-					
-		} else {
-			sql = "UPDATE tbl_RecipientsDetails SET Latitude=?,Longitude=?,ResponseDateTime=?WHERE MeetingID=? AND UserID=?"; 
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, meetingUserDetail.getString("latitude"));
-			pstmt.setString(2, meetingUserDetail.getString("longitude"));
-			pstmt.setString(3, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
-			pstmt.setInt(4, meetingId);
-			pstmt.setInt(5, userId);
+		JSONObject finalJson = new JSONObject();
+		try{
+			JSONArray  frissbiLocations = GoogleSearchPlaces.getFrissbiLocation(meetingId , offSetValue);
 			
-			updatedRow =	pstmt.executeUpdate();
-		}
+			if(frissbiLocations.length() <= 5){
+				finalJson.put("isNextLocationExist", false);
+			}else{
+				finalJson.put("isNextLocationExist", true);
+			}
+			finalJson.put("frissbiLocationArray", frissbiLocations);
+			finalJson.put("status", true);	
+			finalJson.put("message", "Frissbi location fetched successfully");	
+		 return finalJson.toString();
 		
-		System.out.println("updatedRow == "+updatedRow);
-     } catch (Exception e) {
-		e.printStackTrace();
-	}finally{
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(pstmt);
-	}
-     try{
-
-     sql =	"SELECT MeetingID,Latitude,Longitude FROM FrissDB.tbl_MeetingDetails    WHERE  MeetingID=446 AND Latitude IS NOT NULL UNION  SELECT  R.MeetingID FROM FrissDB.tbl_RecipientsDetails AS R WHERE  R.MeetingID=446 AND Latitude IS NOT NULL";	
-     conn = DataSourceConnection.getDBConnection();
-     pstmt = conn.prepareStatement(sql);
-	 pstmt.setInt(1, meetingId);
-	 
-	 ResultSet rs = pstmt.executeQuery();
-	 
-	 List<UserDTO> userAddressList = new ArrayList<UserDTO>();
-	 
-	 while(rs.next()){
-		 
-		 UserDTO userDTO = new UserDTO();
-		 userDTO.setMeetingId(rs.getInt("MeetingID"));
-		 userDTO.setLatitude(rs.getString("Latitude"));
-		 userDTO.setLongitude(rs.getString("Longitude"));
-		 
-		 userAddressList.add(userDTO) ;
-	 }
-	 
-	 MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
-	 
-	 if(userAddressList.size() >= 2){
-		 
-	  JSONObject jsonObject	 = Geomagic.calculateMidPointLatLng(userAddressList);
-	  GoogleSearchPlaces.getGoogleSearchPlaces(jsonObject.getDouble("lat") , jsonObject.getDouble("lng") , meetingLogBean.getDescription());
-	 }
-     } catch(Exception e){
-    	 e.printStackTrace();
-     }
+		} catch(Exception e) {
+			e.printStackTrace();
+		}
+		finalJson.put("status", false);	
+		finalJson.put("message", "Something went wrong ");	
+		return finalJson.toString();
 	}
 	
 	
- 
 	
 	/*//logic for checking the source and destination  distance wrt Time
 	if(! timePostedFriendList.isEmpty()){

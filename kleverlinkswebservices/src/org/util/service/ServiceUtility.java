@@ -211,7 +211,7 @@ public class ServiceUtility {
 		System.out.println("date=============="+date);
 		Map<String , Date> map = new HashMap<String , Date>();
 		try{
-		DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd");
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();
 		now.setTime(formatter.parse(date));
@@ -370,27 +370,13 @@ public class ServiceUtility {
 		try{
 		connection = DataSourceConnection.getDBConnection();
 		Integer meetingId = 0;
-		if(meetingArray.length() == 1){
-			meetingId = meetingArray.getJSONObject(0).getInt("meetingId");
-			if(isMeetingCreatorRemoved(meetingId,senderUserId)){
-				sql = "UPDATE  tbl_MeetingDetails SET isSenderRemoved=2 WHERE MeetingID=? AND SenderUserId=?";
-				preparedStatement = connection.prepareStatement(sql);
-				preparedStatement.setInt(1, meetingId);
-				preparedStatement.setInt(2, senderUserId);
-			}else{
-				sql = "UPDATE tbl_RecipientsDetails SET Status=2,ResponseDateTime=? WHERE MeetingID=? AND UserID=?";
-				preparedStatement = connection.prepareStatement(sql);
-				preparedStatement.setString(1, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
-				preparedStatement.setInt(2, meetingId);
-				preparedStatement.setInt(3, senderUserId);
-			}
-			preparedStatement.executeUpdate();
-		}else{
+		if(meetingArray.length() > 1){
 			
 			for (int i = 0; i < meetingArray.length(); i++) {
 				preparedStatement = null;
 				meetingId = meetingArray.getInt(i);
-				if(isMeetingCreatorRemoved(meetingId , senderUserId)){
+				System.out.println("if=========================="+(isMeetingCreatorRemoved(meetingId , senderUserId)));
+				if(!isMeetingCreatorRemoved(meetingId , senderUserId)){
 					sql = "UPDATE  tbl_MeetingDetails SET isSenderRemoved=2 WHERE MeetingID=? AND SenderUserId=?";
 					preparedStatement = connection.prepareStatement(sql);
 					preparedStatement.setInt(1, meetingId);
@@ -404,6 +390,22 @@ public class ServiceUtility {
 				}
 				preparedStatement.executeUpdate();
 		  }
+		}else{
+			meetingId = meetingArray.getJSONObject(0).getInt("meetingId");
+			System.out.println("else=========================="+"   "+(isMeetingCreatorRemoved(meetingId,senderUserId)));
+			if(!isMeetingCreatorRemoved(meetingId,senderUserId)){
+				sql = "UPDATE  tbl_MeetingDetails SET isSenderRemoved=2 WHERE MeetingID=? AND SenderUserId=?";
+				preparedStatement = connection.prepareStatement(sql);
+				preparedStatement.setInt(1, meetingId);
+				preparedStatement.setInt(2, senderUserId);
+			}else{
+				sql = "UPDATE tbl_RecipientsDetails SET Status=2,ResponseDateTime=? WHERE MeetingID=? AND UserID=?";
+				preparedStatement = connection.prepareStatement(sql);
+				preparedStatement.setString(1, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
+				preparedStatement.setInt(2, meetingId);
+				preparedStatement.setInt(3, senderUserId);
+			}
+			preparedStatement.executeUpdate();
 		}
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -433,7 +435,7 @@ public class ServiceUtility {
 			List<UserDTO> conflictedMeetingList = new ArrayList<UserDTO>();
 			while (rs.next()) {
 				 System.out.println("MeetingID====="+rs.getInt("MeetingID")+"SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
-				UserDTO userDto = new UserDTO();
+				 UserDTO userDto = new UserDTO();
 				userDto.setMeetingId(rs.getInt("MeetingID"));
 				userDto.setUserId(rs.getInt("SenderUserID"));
 				LocalDateTime fromTime = convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
@@ -532,7 +534,6 @@ public class ServiceUtility {
 				status = rs.getInt("Status");
 				count++;
 			}
-			System.out.println("count==="+count+" status =="+status);
 			if(count == 0 && isMeetingCreatorRemoved(meetingId,userId)){//Meeting creator is by default meeting accepted
 				status = 1;
 			}
@@ -622,8 +623,8 @@ public class ServiceUtility {
 			callableStatement.setInt(1, meetingId);
 			ResultSet rs = callableStatement.executeQuery();
 			while(rs.next()){
-				if(!(userId == rs.getInt("UserID"))){
 					
+				if(!(userId == rs.getInt("UserID"))){
 					JSONObject jsonObject = new JSONObject();
 					jsonObject.put("userId", rs.getInt("UserID"));
 					jsonObject.put("fullName", rs.getString("firstName")+" "+rs.getString("lastName"));
@@ -668,8 +669,8 @@ public class ServiceUtility {
 					LocalDateTime fromTime = convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 					LocalDateTime toTime =   convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
 					meetingLogBean.setDate(fromTime.toLocalDate());
-					meetingLogBean.setFromDate(fromTime);
 					meetingLogBean.setToDate(toTime);
+					meetingLogBean.setFromDate(fromTime);
 					meetingLogBean.setStartTime(updateTime(fromTime.getHour(), fromTime.getMinute()));
 					meetingLogBean.setEndTime(updateTime(toTime.getHour(), toTime.getMinute()));
 					meetingLogBean.setDescription(rs.getString("MeetingDescription"));
@@ -798,7 +799,32 @@ public class ServiceUtility {
    		} catch (JSONException e) {
    			e.printStackTrace();
    		}  
-   		
    		return formattedAddress;
        }
+       
+	public static JSONObject checkMeetingAddressUpdateByMeetingId(int meetingId) {
+
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		JSONObject jsonObject = new JSONObject();
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String meetingDetailsStoreProc = "{call usp_checkMeetingAddressUpdateByMeetingId(?)}";
+			callableStatement = conn.prepareCall(meetingDetailsStoreProc);
+			callableStatement.setInt(1, meetingId);
+			ResultSet rs = callableStatement.executeQuery();
+			while (rs.next()) {
+				jsonObject.put("updateCount", rs.getInt("UpdateCount"));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		return jsonObject;
+	}
+
+       
+       
 }

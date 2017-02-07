@@ -7,15 +7,22 @@ import java.io.InputStreamReader;
 import java.io.Reader;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Timestamp;
+import java.util.Date;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.util.service.ServiceUtility;
 
 public class GoogleSearchPlaces {
 	
 	
 	
-	public static void getGoogleSearchPlaces(Double latitude , Double longitude , String type) throws IOException, JSONException {
+	public static JSONArray getGoogleSearchPlaces(Double latitude , Double longitude , String type) throws IOException, JSONException {
 		
 		int radious = 1000;//in meter
 		String keyword = type;
@@ -25,6 +32,8 @@ public class GoogleSearchPlaces {
 		System.out.println(json.toString());
 		
 		System.out.println("===="+json.getJSONArray("results"));
+		
+		return json.getJSONArray("results");
 	}
 	
 	private static String readAll(Reader rd) throws IOException {
@@ -47,11 +56,81 @@ public class GoogleSearchPlaces {
 	      is.close();
 	    }
 	  }
+
+
+	public static Boolean storeFrissbiLocationsTemporary(JSONArray jsonArray , int meetingId){
+		
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String insertFrissbiLocationStoreProc = "{call usp_InsertFrissbiLocationTemporary(?,?,?,?,?,?,?)}";
+			int[] updateCounts;
+			callableStatement = conn.prepareCall(insertFrissbiLocationStoreProc);
+		for (int i = 0; i < jsonArray.length(); i++) {
+			//System.out.println("=================="+jsonArray.getJSONObject(i).getString("vicinity")+"      "+jsonArray.getJSONObject(i).getString("place_id")+"     "+jsonArray.getJSONObject(i).getString("name"));	
+			callableStatement.setInt(1, meetingId);
+			callableStatement.setString(2 , jsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getString("lat"));
+			callableStatement.setString(3 , jsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getString("lng"));
+			callableStatement.setString(4 , jsonArray.getJSONObject(i).getString("vicinity"));
+			callableStatement.setString(5 , jsonArray.getJSONObject(i).getString("icon"));
+			callableStatement.setString(6 , jsonArray.getJSONObject(i).getString("name"));
+			callableStatement.setString(7 , jsonArray.getJSONObject(i).getString("rating"));
+	 
+			callableStatement.addBatch();
+		}	
+		 updateCounts = callableStatement.executeBatch();
+         System.out.println("updateCounts====================="+updateCounts.length);
+		 if(updateCounts.length != 0){
+			 return true;
+		 }
+         
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		 return false;
+	}
+
+	public static JSONArray getFrissbiLocation(int meetingId , int offSetValue){
+		JSONArray jsonArray = new JSONArray();
+		
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String insertFrissbiLocationStoreProc = "{call usp_getFrissbiLocation(?,?)}";
+			callableStatement = conn.prepareCall(insertFrissbiLocationStoreProc);
+			callableStatement.setInt(1, meetingId);
+			callableStatement.setInt(2, offSetValue);
+			
+			ResultSet resultSet = callableStatement.executeQuery();
+			
+			while(resultSet.next()){
+				
+				JSONObject jsonObject = new JSONObject();
+				//FrissbiLocationID
+				jsonObject.put("frissbiLocationID", resultSet.getString("FrissbiLocationID"));
+				jsonObject.put("latitude", resultSet.getString("Latitude"));
+				jsonObject.put("longitude", resultSet.getString("Longitude"));
+				jsonObject.put("address", resultSet.getString("GoogleAddress"));
+				jsonObject.put("icon", resultSet.getString("Icon"));
+				jsonObject.put("placeName", resultSet.getString("GooglePlaceName"));
+				jsonObject.put("rating", resultSet.getString("Rating"));
+				
+				jsonArray.put(jsonObject);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		return jsonArray;
+	}
 }
-
-
-
-
 
 	/* 
 	private static final boolean PRINT_AS_STRING = false;
