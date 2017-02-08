@@ -369,31 +369,18 @@ public class ServiceUtility {
 		String sql = "";
 		try{
 		connection = DataSourceConnection.getDBConnection();
-		Integer meetingId = 0;
-		if(meetingArray.length() > 1){
-			
-			for (int i = 0; i < meetingArray.length(); i++) {
-				preparedStatement = null;
-				meetingId = meetingArray.getInt(i);
-				System.out.println("if=========================="+(isMeetingCreatorRemoved(meetingId , senderUserId)));
-				if(!isMeetingCreatorRemoved(meetingId , senderUserId)){
-					sql = "UPDATE  tbl_MeetingDetails SET isSenderRemoved=2 WHERE MeetingID=? AND SenderUserId=?";
-					preparedStatement = connection.prepareStatement(sql);
-					preparedStatement.setInt(1, meetingId);
-					preparedStatement.setInt(2, senderUserId);
-				}else{
-					sql = "UPDATE tbl_RecipientsDetails SET Status=2,ResponseDateTime=? WHERE MeetingID=? AND UserID=?";
-					preparedStatement = connection.prepareStatement(sql);
-					preparedStatement.setString(1, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
-					preparedStatement.setInt(2, meetingId);
-					preparedStatement.setInt(3, senderUserId);
+		List<Integer> meetingList = new ArrayList<>();
+		
+			if (meetingArray.length() > 1) {
+				for (int i = 0; i < meetingArray.length(); i++) {
+					meetingList.add(meetingArray.getInt(i));
 				}
-				preparedStatement.executeUpdate();
-		  }
-		}else{
-			meetingId = meetingArray.getJSONObject(0).getInt("meetingId");
-			System.out.println("else=========================="+"   "+(isMeetingCreatorRemoved(meetingId,senderUserId)));
-			if(!isMeetingCreatorRemoved(meetingId,senderUserId)){
+			} else
+				meetingList.add(meetingArray.getJSONObject(0).getInt("meetingId"));
+		
+		for (Integer meetingId : meetingList) {
+			preparedStatement = null;
+			if(! isMeetingCreatorRemoved(meetingId , senderUserId)){
 				sql = "UPDATE  tbl_MeetingDetails SET isSenderRemoved=2 WHERE MeetingID=? AND SenderUserId=?";
 				preparedStatement = connection.prepareStatement(sql);
 				preparedStatement.setInt(1, meetingId);
@@ -434,7 +421,7 @@ public class ServiceUtility {
 			List<UserDTO> meetingList = new ArrayList<UserDTO>();
 			List<UserDTO> conflictedMeetingList = new ArrayList<UserDTO>();
 			while (rs.next()) {
-				 System.out.println("MeetingID====="+rs.getInt("MeetingID")+"SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
+				// System.out.println("MeetingID====="+rs.getInt("MeetingID")+"SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
 				 UserDTO userDto = new UserDTO();
 				userDto.setMeetingId(rs.getInt("MeetingID"));
 				userDto.setUserId(rs.getInt("SenderUserID"));
@@ -534,7 +521,7 @@ public class ServiceUtility {
 				status = rs.getInt("Status");
 				count++;
 			}
-			if(count == 0 && isMeetingCreatorRemoved(meetingId,userId)){//Meeting creator is by default meeting accepted
+			if(count == 0 && isMeetingCreatorRemoved(meetingId,userId)){ //Meeting creator is by default meeting accepted
 				status = 1;
 			}
 		} catch(Exception  e){
@@ -813,8 +800,9 @@ public class ServiceUtility {
 			callableStatement = conn.prepareCall(meetingDetailsStoreProc);
 			callableStatement.setInt(1, meetingId);
 			ResultSet rs = callableStatement.executeQuery();
-			while (rs.next()) {
+			while (rs.next()) {//
 				jsonObject.put("updateCount", rs.getInt("UpdateCount"));
+				jsonObject.put("senderFromDateTime", rs.getString("SenderFromDateTime"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

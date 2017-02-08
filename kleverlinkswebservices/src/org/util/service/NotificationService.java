@@ -371,53 +371,48 @@ public class NotificationService {
 	}
 	}	
 	
-	
-		public static void sendMeetingNotification(NotificationInfoDTO notificationInfoDTO){
-			
-			Connection conn = null;
-			CallableStatement callableStatement = null;
+	public static void sendMeetingNotification(NotificationInfoDTO notificationInfoDTO) {
 
-			try {
-				conn = DataSourceConnection.getDBConnection();
-				String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?)}";
-				callableStatement = conn.prepareCall(insertNotificationStoreProc);
-				System.out.println("UserListsize======================="+notificationInfoDTO.getUserList().toString());
-			 for(Integer userId : notificationInfoDTO.getUserList()){
-				 
-				callableStatement.setInt(1, userId);
-				callableStatement.setInt(2, 0);
-				callableStatement.setInt(3, notificationInfoDTO.getMeetingId());
-				callableStatement.setString(4, notificationInfoDTO.getNotificationType());
-				callableStatement.setString(5, notificationInfoDTO.getMessage());
-				callableStatement.setTimestamp(6, new Timestamp(new Date().getTime()));
-			
-				 int value = callableStatement.executeUpdate();
-				 Message message = null;
-				 Sender sender = new Sender(Constants.GCM_APIKEY);
-				 if(notificationInfoDTO.getJsonObject() != null){
-					 message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true).addData("meetingId", notificationInfoDTO.getMeetingId() + "").addData("message", notificationInfoDTO.getMessage()).addData("NotificationName", notificationInfoDTO.getNotificationType()).addData("locationSuggestionJson", notificationInfoDTO.getJsonObject().toString()).build();
-				 }else{
-					 message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true).addData("meetingId", notificationInfoDTO.getMeetingId() + "").addData("message", notificationInfoDTO.getMessage()).addData("NotificationName", notificationInfoDTO.getNotificationType()).build();
-				 }
-	    		 
-	    		 AuthenticateUser authenticateUser = new AuthenticateUser();
-	    		 JSONObject jsonRegistrationId = new JSONObject(authenticateUser.getGCMDeviceRegistrationId(userId));
-	    		 if(jsonRegistrationId.has("DeviceRegistrationID")){
-	    			 
-	    			 String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
-	    			 Result result = sender.send(message, deviceRegistrationId, 1);
-	    			 System.out.println(result);
-	    		 }else{
-	    			System.out.println("DeviceRegistrationID does not exist "); 
-	    		 }
+		try {
+			int value = insertNotification(notificationInfoDTO);
+			System.out.println("value==============="+value);
+			if (value != 0) {
+
+				Message message = null;
+				Sender sender = new Sender(Constants.GCM_APIKEY);
+				for (Integer userId : notificationInfoDTO.getUserList()) {
+
+					if (notificationInfoDTO.getJsonObject() != null) {
+						message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
+								.addData("meetingId", notificationInfoDTO.getMeetingId() + "")
+								.addData("message", notificationInfoDTO.getMessage())
+								.addData("NotificationName", notificationInfoDTO.getNotificationType())
+								.addData("locationSuggestionJson", notificationInfoDTO.getJsonObject().toString())
+								.build();
+					} else {
+						message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
+								.addData("meetingId", notificationInfoDTO.getMeetingId() + "")
+								.addData("message", notificationInfoDTO.getMessage())
+								.addData("NotificationName", notificationInfoDTO.getNotificationType()).build();
+					}
+
+					AuthenticateUser authenticateUser = new AuthenticateUser();
+					JSONObject jsonRegistrationId = new JSONObject(authenticateUser.getGCMDeviceRegistrationId(userId));
+					System.out.println("DeviceRegistrationID============" + (jsonRegistrationId.has("DeviceRegistrationID")));
+					if (jsonRegistrationId.has("DeviceRegistrationID")) {
+
+						String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
+						Result result = sender.send(message, deviceRegistrationId, 1);
+						System.out.println(result);
+					} else {
+						System.out.println("DeviceRegistrationID does not exist ");
+					}
+				}
 			}
-		} catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
-			ServiceUtility.closeConnection(conn);
-			ServiceUtility.closeCallableSatetment(callableStatement);
 		}
-		}	
+	}
 			public static void sendMeetingAlarmNotification(List<MeetingLogBean> addressMeetingList){
 				
 				for (MeetingLogBean meetingCreatorLogBean : addressMeetingList) {
@@ -533,7 +528,7 @@ public class NotificationService {
 			callableStatement = conn.prepareCall(insertNotificationStoreProc);
 			for (Integer userId : notificationInfoDTO.getUserList()) {
 				callableStatement.setInt(1, userId);
-				callableStatement.setInt(2, notificationInfoDTO.getSenderUserId());
+				callableStatement.setInt(2, 0);
 				callableStatement.setInt(3, notificationInfoDTO.getMeetingId());
 				callableStatement.setString(4, notificationInfoDTO.getNotificationType());
 				callableStatement.setString(5, notificationInfoDTO.getMessage());

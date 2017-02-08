@@ -24,7 +24,7 @@ public class GoogleSearchPlaces {
 	
 	public static JSONArray getGoogleSearchPlaces(Double latitude , Double longitude , String type) throws IOException, JSONException {
 		
-		int radious = 1000;//in meter
+		int radious = 2000;//in meter
 		String keyword = type;
         String PLACES_SEARCH_URL =  "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+latitude+","+longitude+"&radius="+radious+"&type="+type+"&keyword="+keyword+"&key=AIzaSyAgM-mwjfosilNEdn5aCe4FJ9aDOp_U7JM";
 		System.out.println("PLACES_SEARCH_URL======="+PLACES_SEARCH_URL);
@@ -32,8 +32,8 @@ public class GoogleSearchPlaces {
 		System.out.println(json.toString());
 		
 		System.out.println("===="+json.getJSONArray("results"));
-		
 		return json.getJSONArray("results");
+		
 	}
 	
 	private static String readAll(Reader rd) throws IOException {
@@ -67,6 +67,7 @@ public class GoogleSearchPlaces {
 			String insertFrissbiLocationStoreProc = "{call usp_InsertFrissbiLocationTemporary(?,?,?,?,?,?,?)}";
 			int[] updateCounts;
 			callableStatement = conn.prepareCall(insertFrissbiLocationStoreProc);
+			String rating = "0" ;
 		for (int i = 0; i < jsonArray.length(); i++) {
 			//System.out.println("=================="+jsonArray.getJSONObject(i).getString("vicinity")+"      "+jsonArray.getJSONObject(i).getString("place_id")+"     "+jsonArray.getJSONObject(i).getString("name"));	
 			callableStatement.setInt(1, meetingId);
@@ -75,7 +76,10 @@ public class GoogleSearchPlaces {
 			callableStatement.setString(4 , jsonArray.getJSONObject(i).getString("vicinity"));
 			callableStatement.setString(5 , jsonArray.getJSONObject(i).getString("icon"));
 			callableStatement.setString(6 , jsonArray.getJSONObject(i).getString("name"));
-			callableStatement.setString(7 , jsonArray.getJSONObject(i).getString("rating"));
+			if(jsonArray.getJSONObject(i).has("rating")){
+				 rating = jsonArray.getJSONObject(i).getString("rating");
+			}
+			callableStatement.setString(7 , rating);
 	 
 			callableStatement.addBatch();
 		}	

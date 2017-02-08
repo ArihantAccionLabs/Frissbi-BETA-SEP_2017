@@ -35,7 +35,7 @@ public class AuthenticateUser {
 	public String doSomething() throws Exception {
       
 		//TrackMeetingTime.sendMeetingNotificationBeforeOneHour();
-		GoogleSearchPlaces.getGoogleSearchPlaces(17.4399295,78.4982741,"coffee");
+		//GoogleSearchPlaces.getGoogleSearchPlaces(17.4399295,78.4982741,"coffee");
 		return "ok";
 			
 	}

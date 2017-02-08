@@ -42,7 +42,8 @@ public class TrackMeetingTime {
 			
 			ResultSet rs = callableStatement.executeQuery();
 		   while(rs.next()){
-			   if(rs.getString("Latitude") == null){
+			   System.out.println("Latitude<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"+rs.getString("Latitude"));
+			   if(rs.getString("Latitude") == null || rs.getString("Latitude") == ""){
 				   
 				   MeetingLogBean meetingLogBean = new MeetingLogBean();
 				   meetingLogBean.setSenderUserId(rs.getInt("SenderUserID"));
