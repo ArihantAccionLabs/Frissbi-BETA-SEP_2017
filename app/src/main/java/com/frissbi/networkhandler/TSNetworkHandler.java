@@ -180,8 +180,8 @@ public class TSNetworkHandler {
                             conn.getInputStream()));
                     String inputLine;
                     response = new StringBuffer();
-
                     while ((inputLine = in.readLine()) != null) {
+                        Log.d("TAG", "BufferedReader : " + in.readLine());
                         response.append(inputLine);
                     }
                     in.close();

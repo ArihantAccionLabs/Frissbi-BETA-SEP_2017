@@ -9,32 +9,40 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
+import com.frissbi.Utility.FLog;
 import com.frissbi.interfaces.ContactsSelectedListener;
 import com.frissbi.models.EmailContacts;
+import com.frissbi.models.Friends;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by thrymr on 18/1/17.
  */
 
-public class EmailAdapter extends RecyclerView.Adapter<EmailAdapter.ViewHolder> {
+public class EmailAdapter extends RecyclerView.Adapter<EmailAdapter.ViewHolder> implements Filterable {
 
     private Context mContext;
     private List<EmailContacts> mEmailContactsList;
+    private List<EmailContacts> mOriginalEmailContactsList;
     private List<Long> mEmailsSelectedIdsList;
     private SelectedContacts mSelectedContacts;
     private int lastPosition = -1;
+    private EmailsFilter mEmailsFilter;
 
     public EmailAdapter(Context context, List<EmailContacts> emailContactsList) {
         mContext = context;
         mEmailContactsList = emailContactsList;
         mSelectedContacts = SelectedContacts.getInstance();
         mEmailsSelectedIdsList = mSelectedContacts.getEmailsSelectedIdsList();
+        mOriginalEmailContactsList = emailContactsList;
     }
 
     @Override
@@ -64,8 +72,8 @@ public class EmailAdapter extends RecyclerView.Adapter<EmailAdapter.ViewHolder> 
             }
         });
         // Here you apply the animation when the view is bound
-       //  setAnimation(holder.itemView, position);
-       // animate(holder);
+        //  setAnimation(holder.itemView, position);
+        // animate(holder);
     }
 
     @Override
@@ -103,5 +111,45 @@ public class EmailAdapter extends RecyclerView.Adapter<EmailAdapter.ViewHolder> 
         final Animation animAnticipateOvershoot = AnimationUtils.loadAnimation(mContext, R.anim.bounce_interpolator);
         viewHolder.itemView.setAnimation(animAnticipateOvershoot);
     }
+
+
+    @Override
+    public Filter getFilter() {
+        if (mEmailsFilter == null) {
+            mEmailsFilter = new EmailsFilter();
+        }
+        return mEmailsFilter;
+    }
+
+    private class EmailsFilter extends Filter {
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            FilterResults results = new FilterResults();
+            FLog.d("FriendsAdapter", "constraint" + constraint);
+            if (constraint != null && constraint.length() > 0) {
+                List<EmailContacts> emailContactsArrayList = new ArrayList<>();
+                for (int i = 0; i < mEmailContactsList.size(); i++) {
+                    if ((mEmailContactsList.get(i).getEmailId().toUpperCase())
+                            .startsWith(constraint.toString().toUpperCase())) {
+                        emailContactsArrayList.add(mEmailContactsList.get(i));
+                    }
+                }
+                results.count = emailContactsArrayList.size();
+                results.values = emailContactsArrayList;
+            } else {
+                results.count = mOriginalEmailContactsList.size();
+                results.values = mOriginalEmailContactsList;
+            }
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            mEmailContactsList = (List<EmailContacts>) results.values;
+            notifyDataSetChanged();
+        }
+    }
+
 
 }

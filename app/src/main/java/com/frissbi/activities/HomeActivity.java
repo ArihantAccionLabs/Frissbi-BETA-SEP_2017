@@ -432,7 +432,7 @@ public class HomeActivity extends AppCompatActivity
 
         } else if (id == R.id.nav_friends) {
 
-            Intent intent = new Intent(getApplication(), FriendSerching.class);
+            Intent intent = new Intent(getApplication(), FriendsListActivity.class);
             startActivity(intent);
 
         } else if (id == R.id.nav_profile) {
@@ -464,7 +464,7 @@ public class HomeActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.home, menu);
+        getMenuInflater().inflate(R.menu.menu_home, menu);
         // Retrieve the SearchView and plug it into SearchManager
         final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.action_search));
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);

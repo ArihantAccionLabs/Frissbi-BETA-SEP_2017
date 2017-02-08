@@ -26,24 +26,25 @@ public class ContactsFragment extends Fragment {
     List<Contacts> mContactsList;
     private List<Long> mContactsSelectedIdsList;
     private ContactsSelectedListener mContactsSelectedListener;
+    private ContactsAdapter mContactsAdapter;
 
-    public ContactsFragment() {
-        // Required empty public constructor
-    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_contacts, container, false);
         mContactsRecyclerView = (RecyclerView) view.findViewById(R.id.contacts_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mContactsRecyclerView.setLayoutManager(layoutManager);
         mContactsList = Contacts.listAll(Contacts.class);
         mContactsSelectedListener = (ContactsSelectedListener) getActivity();
-        ContactsAdapter contactsAdapter = new ContactsAdapter(getActivity(), mContactsList);
-        mContactsRecyclerView.setAdapter(contactsAdapter);
+        mContactsAdapter = new ContactsAdapter(getActivity(), mContactsList);
+        mContactsRecyclerView.setAdapter(mContactsAdapter);
         return view;
+    }
+
+    public void filterContacts(String text) {
+        mContactsAdapter.getFilter().filter(text);
     }
 
 }

@@ -24,7 +24,6 @@ import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
-import com.frissbi.Utility.MeetingAlarmManager;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.MeetingFriendsAdapter;
 import com.frissbi.models.Meeting;
@@ -256,7 +255,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
     private void setMeetingCanceledAlert() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Alert!");
-        builder.setMessage("Meeting has been canceled by creator");
+        builder.setMessage("Meeting has been cancelled by creator");
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -365,8 +364,6 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
                                 mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
                                 mMeetingAcceptButton.setVisibility(View.GONE);
                                 Toast.makeText(MeetingDetailsActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-                                MeetingAlarmManager.getInstance(MeetingDetailsActivity.this).setMeetingAlarm(responseJsonObject.getLong("meetingId"), responseJsonObject.getBoolean("isLocationSelected"),
-                                        mMeeting.getDate() + "  " + Utility.getInstance().convertTime(mMeeting.getFromTime()));
                             } else {
                                 showConflictingAlertDialog(responseJsonObject.getString("message"), responseJsonObject.getJSONArray("meetingIdsJsonArray"));
                             }

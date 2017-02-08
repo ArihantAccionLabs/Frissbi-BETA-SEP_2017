@@ -37,7 +37,9 @@ import com.frissbi.frissbi.Login;
 import com.frissbi.frissbi.Update_profile;
 import com.frissbi.frissbi.UserProfile;
 import com.navdrawer.SimpleSideDrawer;
+
 import static android.widget.AdapterView.OnItemClickListener;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -115,10 +117,6 @@ public class FriendSerching extends Activity {
                     e.printStackTrace();
                 }
 
-
-
-
-
             }
         });*/
 
@@ -127,7 +125,6 @@ public class FriendSerching extends Activity {
 
             @Override
             public void onClick(View v) {
-
                 Intent share = new Intent(Intent.ACTION_SEND);
                 share.setType("text/plain");
 //					share.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///sdcard/temporary_file.jpg"));
@@ -325,7 +322,7 @@ public class FriendSerching extends Activity {
         public String doInBackground(String... params) {
 
             try {
-                value = value.replace(" ","%20");
+                value = value.replace(" ", "%20");
                 String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.SERCHING_DATABASE + Friss_Pojo.UseridFrom + "/" + value;
                 ServiceHandler sh = new ServiceHandler();
 

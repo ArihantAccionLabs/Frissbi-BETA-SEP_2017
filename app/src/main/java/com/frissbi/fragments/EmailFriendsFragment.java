@@ -27,6 +27,7 @@ public class EmailFriendsFragment extends Fragment {
     private List<EmailContacts> mEmailContactsList;
     private ContactsSelectedListener mContactsSelectedListener;
     private List<Long> mEmailsSelectedIdsList;
+    private EmailAdapter mEmailAdapter;
 
     public EmailFriendsFragment() {
         // Required empty public constructor
@@ -43,8 +44,8 @@ public class EmailFriendsFragment extends Fragment {
         mGmailFriendsRecyclerView.setLayoutManager(layoutManager);
         mEmailContactsList = EmailContacts.listAll(EmailContacts.class);
         mContactsSelectedListener = (ContactsSelectedListener) getActivity();
-        EmailAdapter emailAdapter = new EmailAdapter(getActivity(), mEmailContactsList);
-        mGmailFriendsRecyclerView.setAdapter(emailAdapter);
+        mEmailAdapter = new EmailAdapter(getActivity(), mEmailContactsList);
+        mGmailFriendsRecyclerView.setAdapter(mEmailAdapter);
         return view;
     }
 
@@ -53,4 +54,7 @@ public class EmailFriendsFragment extends Fragment {
         Log.d("EmailFriendsFragment", "setUserVisibleHint" + isVisibleToUser);
     }
 
+    public void filterEmails(String text) {
+        mEmailAdapter.getFilter().filter(text);
+    }
 }

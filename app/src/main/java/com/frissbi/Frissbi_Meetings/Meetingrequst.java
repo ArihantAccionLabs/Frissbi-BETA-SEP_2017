@@ -146,7 +146,7 @@ public class Meetingrequst extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.meetinginsert1);
         done = (Button) findViewById(R.id.done);
-        addfriends = (Button) findViewById(R.id.addfriends);
+        addfriends = (Button) findViewById(R.id.addFriends);
         meetingdesp = (EditText) findViewById(R.id.meetingdesp);
         Scduldatetime = (TextView) findViewById(R.id.datetime);
         meeting_time = (TextView) findViewById(R.id.meeting_time);

@@ -1,30 +1,28 @@
 package com.frissbi.activities;
 
-import android.Manifest;
+import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
-import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.fragments.ContactsFragment;
@@ -34,18 +32,11 @@ import com.frissbi.interfaces.ContactsSelectedListener;
 import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
 import com.frissbi.models.Friends;
-import com.frissbi.networkhandler.TSNetworkHandler;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
-public class AddFriendsToMeetingActivity extends AppCompatActivity implements ContactsSelectedListener {
+public class AddFriendsToMeetingActivity extends AppCompatActivity implements ContactsSelectedListener, SearchView.OnQueryTextListener {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1000;
     private static final int CONTACT_PICKER_RESULT = 999;
@@ -71,6 +62,7 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_friends_to_meeting);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mAddFriendsTabLayout = (TabLayout) findViewById(R.id.add_friends_tabLayout);
         mFriendsViewPager = (ViewPager) findViewById(R.id.friends_viewPager);
         mAddFriendsFloatingButton = (FloatingActionButton) findViewById(R.id.add_friends_floating_button);
@@ -96,7 +88,6 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
         mAddFriendsFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 Intent intent = new Intent();
                 setResult(RESULT_OK, intent);
                 finish();
@@ -159,11 +150,6 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
     }
 
 
-
-
-
-
-
     public Long getContactIdByEmail(String email) {
         //   Uri uri = Uri.withAppendedPath(ContactsContract.CommonDataKinds.Email.CONTENT_FILTER_URI, Uri.encode(email));
         String name = "?";
@@ -192,5 +178,49 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
         return contactId;
     }
 
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_friends, menu);
+        final SearchView searchView = (SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.friends_search));
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(this);
+        return true;
+    }
+
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+
+        if (mFrissbiFriendsFragment.isMenuVisible()) {
+
+            mFrissbiFriendsFragment.filterFriends(newText);
+        } else if (mEmailFriendsFragment.isMenuVisible()) {
+
+            mEmailFriendsFragment.filterEmails(newText);
+        } else if (mContactsFragment.isMenuVisible()) {
+            mContactsFragment.filterContacts(newText);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
 }

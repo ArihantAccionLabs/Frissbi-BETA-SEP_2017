@@ -34,7 +34,6 @@ import com.frissbi.R;
 import com.frissbi.SelectedContacts;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
-import com.frissbi.Utility.MeetingAlarmManager;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.MeetingTitleAdapter;
 import com.frissbi.adapters.SelectedContactsExpandableAdapter;
@@ -109,7 +108,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         CardView timeCardView = (CardView) findViewById(R.id.time_cardView);
         CardView durationCardView = (CardView) findViewById(R.id.duration_cardView);
         CardView placeCardView = (CardView) findViewById(R.id.place_cardView);
-        Button addfriendsButton = (Button) findViewById(R.id.addfriends);
+        Button addfriendsButton = (Button) findViewById(R.id.addFriends);
         RelativeLayout meetingTitleRlayout = (RelativeLayout) findViewById(R.id.meeting_title_rl);
         mSelectedContactsExpandableListView = (ExpandableListView) findViewById(R.id.selected_contacts_expandableListView);
         mMeetingTitleTextView = (TextView) findViewById(R.id.meeting_title_tv);
@@ -133,7 +132,6 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void showSelectLocationDialog() {
-
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         View view = LayoutInflater.from(this).inflate(R.layout.alert_select_meeting_location, null);
         builder.setView(view);
@@ -157,8 +155,6 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
         alertDialog.show();
-
-
     }
 
     private void showDurationDialog() {
@@ -359,12 +355,11 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.place_cardView:
                 showSelectLocationDialog();
                 break;
-            case R.id.addfriends:
+            case R.id.addFriends:
                 Intent intent = new Intent(MeetingActivity.this, AddFriendsToMeetingActivity.class);
                 startActivityForResult(intent, FRIENDS_REQ_CODE);
                 break;
             case R.id.conform_meeting:
-
                 if (checkFieldsValidation()) {
                     if (ConnectionDetector.getInstance(this).isConnectedToInternet()) {
                         sendMeetingDetailsToServer(new JSONArray());
@@ -374,8 +369,6 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 }
 
                 break;
-
-
         }
 
     }
@@ -484,8 +477,8 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                             final JSONObject responseJsonObject = new JSONObject(response.response);
                             if (responseJsonObject.getBoolean("isInserted")) {
                                 Toast.makeText(MeetingActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-                                MeetingAlarmManager.getInstance(MeetingActivity.this).setMeetingAlarm(responseJsonObject.getLong("meetingId"), responseJsonObject.getBoolean("isLocationSelected"),
-                                        mMeetingDateTextView.getText().toString() + "  " + mMeetingTimeTextView.getText().toString());
+                                /*MeetingAlarmManager.getInstance(MeetingActivity.this).setMeetingAlarm(responseJsonObject.getLong("meetingId"), responseJsonObject.getBoolean("isLocationSelected"),
+                                        mMeetingDateTextView.getText().toString() + "  " + mMeetingTimeTextView.getText().toString());*/
                                 Intent intent = new Intent(MeetingActivity.this, HomeActivity.class);
                                 startActivity(intent);
                             } else {
@@ -535,7 +528,6 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mConflictAlertDialog.dismiss();
-
                 conformationAlert(meetingIdsJsonArray);
             }
         });

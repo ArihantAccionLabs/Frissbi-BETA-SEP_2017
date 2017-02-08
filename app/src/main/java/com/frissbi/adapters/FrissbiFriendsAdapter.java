@@ -5,12 +5,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frissbi.R;
+import com.frissbi.SelectedContacts;
 import com.frissbi.Utility.FLog;
 import com.frissbi.models.Friends;
 
@@ -18,33 +20,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by thrymr on 6/2/17.
+ * Created by thrymr on 18/1/17.
  */
 
-public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> implements Filterable {
+public class FrissbiFriendsAdapter extends RecyclerView.Adapter<FrissbiFriendsAdapter.ViewHolder> implements Filterable {
 
     private Context mContext;
     private List<Friends> mFriendsList;
-    private List<Friends> mOriginalFriendsList;
+    private List<Long> mFriendsSelectedIdList;
+    private SelectedContacts mSelectedContacts;
     private FriendsFilter mFriendsFilter;
+    private List<Friends> mOriginalFriendsList;
 
-    public FriendsAdapter(Context context, List<Friends> friendsList) {
+    public FrissbiFriendsAdapter(Context context, List<Friends> friendsList) {
         mContext = context;
         mFriendsList = friendsList;
+        mSelectedContacts = SelectedContacts.getInstance();
+        mFriendsSelectedIdList = mSelectedContacts.getFriendsSelectedIdList();
         mOriginalFriendsList = friendsList;
-
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(mContext).inflate(R.layout.friends_adapter_item, parent, false);
+        View view = LayoutInflater.from(mContext).inflate(R.layout.frissibi_friends_item, parent, false);
         return new ViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.friendUsernameTv.setText(mFriendsList.get(position).getUserName());
-        holder.friendProfileImage.setImageResource(R.drawable.pic1);
+        if (mFriendsSelectedIdList.size() > 0) {
+            if (mFriendsSelectedIdList.contains(mFriendsList.get(position).getId())) {
+                holder.friendCheckbox.setChecked(true);
+            } else {
+                holder.friendCheckbox.setChecked(false);
+            }
+        }
+        holder.friendCheckbox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
+                if (checked) {
+                    mSelectedContacts.setFriendsSelectedId(mFriendsList.get(position).getId());
+                } else {
+                    mSelectedContacts.deleteFriendsSelectedId(mFriendsList.get(position).getId());
+                }
+            }
+        });
     }
 
     @Override
@@ -52,23 +73,23 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
         return mFriendsList.size();
     }
 
+    public class ViewHolder extends RecyclerView.ViewHolder {
+
+        private TextView friendUsernameTv;
+        private CheckBox friendCheckbox;
+        public ViewHolder(View itemView) {
+            super(itemView);
+            friendUsernameTv = (TextView) itemView.findViewById(R.id.friend_username);
+            friendCheckbox = (CheckBox) itemView.findViewById(R.id.friend_checkbox);
+        }
+
+    }
     @Override
     public Filter getFilter() {
         if (mFriendsFilter == null) {
             mFriendsFilter = new FriendsFilter();
         }
         return mFriendsFilter;
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView friendUsernameTv;
-        private ImageView friendProfileImage;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-            friendProfileImage = (ImageView) itemView.findViewById(R.id.friend_profile_image);
-            friendUsernameTv = (TextView) itemView.findViewById(R.id.friend_username_tv);
-        }
     }
 
     private class FriendsFilter extends Filter {
@@ -100,6 +121,4 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
             notifyDataSetChanged();
         }
     }
-
-
 }

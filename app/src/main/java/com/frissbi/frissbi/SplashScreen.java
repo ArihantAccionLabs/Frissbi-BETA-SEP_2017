@@ -2,16 +2,20 @@ package com.frissbi.frissbi;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 
+import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.activities.HomeActivity;
 import com.frissbi.R;
 
@@ -26,6 +30,7 @@ public class SplashScreen extends Activity implements AnimationListener {
     String UserName = "";
     String UserId = "";
     String UserEmail;
+    private AlertDialog networkAlertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +43,9 @@ public class SplashScreen extends Activity implements AnimationListener {
         //img.startAnimation(animMove);
         preferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         editor = preferences.edit();
+    }
+
+    private void redirectToHomeOrLoginScreen() {
         new Handler().postDelayed(new Runnable() {
 
 			/*
@@ -50,7 +58,6 @@ public class SplashScreen extends Activity implements AnimationListener {
                 // This method will be executed once the timer is over
                 // Start your app main activity
                 //SharedOreferences using
-
 
                 UserId = preferences.getString("USERID_FROM", "editor");
                 Log.d("value is", UserId);
@@ -96,6 +103,35 @@ public class SplashScreen extends Activity implements AnimationListener {
     }
     // Method to check Login Status
 
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (ConnectionDetector.getInstance(SplashScreen.this).isConnectedToInternet()) {
+            redirectToHomeOrLoginScreen();
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Alert!");
+            builder.setMessage("You have an internet connection. Do you want unable mobile data or wifi");
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    networkAlertDialog.dismiss();
+                    Intent intent = new Intent(Settings.ACTION_SETTINGS);
+                    startActivity(intent);
+                }
+            });
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    onBackPressed();
+                    networkAlertDialog.dismiss();
+                }
+            });
+            networkAlertDialog = builder.create();
+            networkAlertDialog.show();
+        }
+    }
 }
 
 

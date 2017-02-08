@@ -7,31 +7,38 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
 import com.frissbi.interfaces.ContactsSelectedListener;
 import com.frissbi.models.Contacts;
+import com.frissbi.models.EmailContacts;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by thrymr on 18/1/17.
  */
 
-public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder> {
+public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder> implements Filterable {
 
     private Context mContext;
     private List<Contacts> mContactsList;
+    private List<Contacts> mOriginalContactsList;
     private List<Long> mContactsSelectedIdsList;
     private SelectedContacts mSelectedContacts;
+    private ContactsFilter mContactsFilter;
 
     public ContactsAdapter(Context context, List<Contacts> contactsList) {
         mContext = context;
         mContactsList = contactsList;
         mSelectedContacts = SelectedContacts.getInstance();
         mContactsSelectedIdsList = mSelectedContacts.getContactsSelectedIdsList();
+        mOriginalContactsList = contactsList;
     }
 
     @Override
@@ -68,6 +75,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         return mContactsList.size();
     }
 
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         private TextView phoneNumTv;
         private TextView contactNameTv;
@@ -82,4 +90,43 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
 
         }
     }
+
+    @Override
+    public Filter getFilter() {
+        if (mContactsFilter == null) {
+            mContactsFilter = new ContactsFilter();
+        }
+        return mContactsFilter;
+    }
+
+    private class ContactsFilter extends Filter {
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            FilterResults results = new FilterResults();
+            if (constraint != null && constraint.length() > 0) {
+                List<Contacts> contactsList = new ArrayList<>();
+                for (int i = 0; i < mContactsList.size(); i++) {
+                    if ((mContactsList.get(i).getName().toUpperCase())
+                            .startsWith(constraint.toString().toUpperCase())) {
+                        contactsList.add(mContactsList.get(i));
+                    }
+                }
+                results.count = contactsList.size();
+                results.values = contactsList;
+            } else {
+                results.count = mOriginalContactsList.size();
+                results.values = mOriginalContactsList;
+            }
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+            mContactsList = (List<Contacts>) results.values;
+            notifyDataSetChanged();
+        }
+    }
+
+
 }

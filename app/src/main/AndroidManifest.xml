@@ -209,14 +209,18 @@
             android:label="Saved Places" />
         <activity
             android:name=".activities.FriendsListActivity"
-            android:label="Add Friends" />
-        <activity android:name=".activities.AddFriendsToMeetingActivity" />
+            android:label="Friends" />
+        <activity
+            android:name=".activities.AddFriendsToMeetingActivity"
+            android:label="Friends" />
         <activity android:name=".activities.ProfileActivity" />
         <activity
             android:name=".activities.MeetingDetailsActivity"
             android:label="Info" />
 
-        <receiver android:name=".Utility.MeetingAlarmReceiver"/>
+        <receiver android:name=".Utility.MeetingAlarmReceiver" />
+
+        <activity android:name=".activities.SuggestionsActivity"></activity>
     </application>
 
 </manifest>
