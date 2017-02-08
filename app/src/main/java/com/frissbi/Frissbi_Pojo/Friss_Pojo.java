@@ -76,7 +76,11 @@ public class Friss_Pojo {
     public static final String Privacy_policy = "/UserSettingsService/getFrissbiPrivacyPolicy/";
     public static final String getTermsandCondition = "/UserSettingsService/getTermsandConditions/";
 
+
     public static final String MEETING_SUMMARY_BY_LOCATION = "/MeetingDetailsService/storeMeetingLatLngByUser/";
+
+    public static final String MORE_LOCATIONS = "/MeetingDetailsService/getFrissbiLocations/";
+    public static final String SUBMIT_MEETING_LOCATION = "/MeetingDetailsService/updateMeetingAddress/";
 
 
     public static TreeSet<String> getTreeSet() {

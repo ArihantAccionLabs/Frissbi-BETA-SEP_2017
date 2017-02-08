@@ -133,20 +133,33 @@
             android:id="@+id/meeting_details_at_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="3"
+            android:layout_weight="2"
             android:text="Place"
             android:textColor="@color/black" />
+
+        <Button
+            android:id="@+id/change_place_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="6dp"
+            android:layout_weight="1"
+            android:background="@color/bg_color"
+            android:minHeight="40dp"
+            android:text="Change"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:visibility="gone" />
 
     </LinearLayout>
 
     <View
-        android:visibility="gone"
         android:id="@+id/view3"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_below="@+id/meet_at_ll"
         android:layout_marginTop="10dp"
-        android:background="@color/gray" />
+        android:background="@color/gray"
+        android:visibility="gone" />
 
     <LinearLayout
         android:id="@+id/status_ll"
@@ -220,9 +233,10 @@
             android:layout_weight="1"
             android:background="@color/bg_color"
             android:minHeight="40dp"
-            android:text="more"
+            android:text="More"
+            android:textAllCaps="false"
             android:textColor="@color/white"
-            android:visibility="visible" />
+            android:visibility="gone" />
 
 
     </LinearLayout>

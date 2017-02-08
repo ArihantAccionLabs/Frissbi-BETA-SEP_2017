@@ -3,6 +3,7 @@ package com.frissbi.activities;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -62,6 +63,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
     private ProgressDialog mProgressDialog;
     private Long mMeetingId;
     private AlertDialog mMeetingCanceledAlertDialog;
+    private Button mChangePlaceButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,6 +89,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
         mMeetingDetailsStatusTextView = (TextView) findViewById(R.id.meeting_details_status_tv);
         mMeetingAcceptButton = (Button) findViewById(R.id.meeting_accept_button);
         mMeetingIgnoreButton = (Button) findViewById(R.id.meeting_ignore_button);
+        mChangePlaceButton = (Button) findViewById(R.id.change_place_button);
 
 
         if (bundle.getString("callFrom").equalsIgnoreCase("meetingLog")) {
@@ -110,6 +113,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
         mMeetingAcceptButton.setOnClickListener(this);
         mMeetingIgnoreButton.setOnClickListener(this);
         mMoreFriendsButton.setOnClickListener(this);
+        mChangePlaceButton.setOnClickListener(this);
 
     }
 
@@ -170,9 +174,14 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
                     meetingFriendsList.add(meetingFriends);
                 }
             }
-
-
             mMeeting.setMeetingFriendsList(meetingFriendsList);
+            if (meetingJsonObject.has("updateCount")) {
+                if (meetingJsonObject.getInt("updateCount") != 2) {
+                    mChangePlaceButton.setVisibility(View.VISIBLE);
+                } else {
+                    mChangePlaceButton.setVisibility(View.GONE);
+                }
+            }
             setViewWithValues();
         } catch (Exception e) {
             e.printStackTrace();
@@ -284,7 +293,18 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             case R.id.more_friends_button:
                 showFriendsListAlertDialog();
                 break;
+            case R.id.change_place_button:
+                redirectToSuggestPlaces();
+                break;
         }
+
+    }
+
+    private void redirectToSuggestPlaces() {
+        Intent intent = new Intent(this, SuggestionsActivity.class);
+        intent.putExtra("isCallFromSummary", true);
+        intent.putExtra("summaryMeetingId", mMeetingId);
+        startActivity(intent);
 
     }
 

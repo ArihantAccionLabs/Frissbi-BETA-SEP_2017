@@ -64,6 +64,9 @@ public class LocationSuggestionAdapter extends RecyclerView.Adapter<LocationSugg
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
                     mSelectedPosition = position;
+                    notifyDataSetChanged();
+                } else {
+                    mSelectedPosition = -1;
                 }
             }
         });
@@ -73,6 +76,15 @@ public class LocationSuggestionAdapter extends RecyclerView.Adapter<LocationSugg
     @Override
     public int getItemCount() {
         return mLocationSuggestionList.size();
+    }
+
+    public LocationSuggestion getSelectedLocation() {
+        if (mSelectedPosition != -1) {
+            return mLocationSuggestionList.get(mSelectedPosition);
+        } else {
+            return null;
+        }
+
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

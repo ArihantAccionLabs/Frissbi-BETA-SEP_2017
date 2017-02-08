@@ -41,6 +41,7 @@ public class GcmIntentService extends IntentService {
     private SharedPreferences mSharedPreferences;
     private String mUserId;
     private String locationSuggestionJsonString;
+    private boolean isLocationUpdate;
 
     //  Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
     public GcmIntentService() {
@@ -62,19 +63,28 @@ public class GcmIntentService extends IntentService {
 
         if (intent.getExtras().containsKey("locationSuggestionJson")) {
             locationSuggestionJsonString = intent.getExtras().getString("locationSuggestionJson");
-            FLog.d("GcmIntentService", "locationSuggestionJsonString" + locationSuggestionJsonString);
-        }
+            try {
+                JSONObject jsonObject = new JSONObject(locationSuggestionJsonString);
+                isLocationUpdate = jsonObject.getBoolean("isLocationUpdate");
+                FLog.d("GcmIntentService", "isLocationUpdate" + isLocationUpdate);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
+        }
 
         if (intent.getExtras().containsKey("isLocationSelected")) {
-            FLog.d("GcmIntentService", "isLocationSelected" + isLocationSelected);
             isLocationSelected = intent.getExtras().getBoolean("isLocationSelected");
+            FLog.d("GcmIntentService", "isLocationSelected" + isLocationSelected);
         }
+
 
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         String messageType = gcm.getMessageType(intent);
 
-        if (!extras.isEmpty()) {
+        if (!extras.isEmpty())
+
+        {
 
             if (GoogleCloudMessaging.
                     MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
@@ -102,6 +112,7 @@ public class GcmIntentService extends IntentService {
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
+
         GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
@@ -286,9 +297,18 @@ public class GcmIntentService extends IntentService {
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
             mBuilder.setAutoCancel(true);
         } else if (mNotificationName.equals(NotificationType.MEETING_LOCATION_SUGGESTION.toString())) {
-            Intent intent = new Intent(this, SuggestionsActivity.class);
-            intent.putExtra("meetingId", mMeetingId);
-            intent.putExtra("locationSuggestionJson", locationSuggestionJsonString.toString());
+            Log.d("GcmIntentService", "meetingId" + mMeetingId);
+            FLog.d("GcmIntentService", "isLocationUpdate-----" + isLocationUpdate);
+            Intent intent;
+            if (isLocationUpdate) {
+                intent = new Intent(this, MeetingDetailsActivity.class);
+                intent.putExtra("meetingId", mMeetingId);
+                intent.putExtra("callFrom", "notification");
+            } else {
+                intent = new Intent(this, SuggestionsActivity.class);
+                intent.putExtra("meetingId", mMeetingId);
+                intent.putExtra("locationSuggestionJson", locationSuggestionJsonString.toString());
+            }
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.noti)
@@ -331,12 +351,11 @@ public class GcmIntentService extends IntentService {
                 jsonObject.put("latitude", location.getLatitude());
                 jsonObject.put("longitude", location.getLongitude());
                 String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_SUMMARY_BY_LOCATION;
-                FLog.d("GcmIntentService", "MEETING_SUMMARY_BY_LOCATION-----jsonObject" + jsonObject);
                 TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
                     @Override
                     public void handleResponse(TSNetworkHandler.TSResponse response) {
                         if (response != null) {
-                            Log.d("MeetingAlarmReceiver", "response" + response.response);
+                            Log.d("GcmIntentService", "response" + response.response);
                             Toast.makeText(GcmIntentService.this, response.message, Toast.LENGTH_SHORT).show();
                         }
                     }

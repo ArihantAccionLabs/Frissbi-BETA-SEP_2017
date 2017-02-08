@@ -9,6 +9,40 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/location_suggestion_recyclerView"
         android:layout_width="match_parent"
+        android:layout_above="@+id/load_more_ll"
         android:layout_height="match_parent" />
+
+    <LinearLayout
+        android:id="@+id/load_more_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="6dp"
+        android:gravity="center_horizontal"
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/load_places_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:layout_weight="1"
+            android:background="@color/bg_color"
+            android:text="Load more places"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
+
+        <Button
+            android:id="@+id/submit_place_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="6dp"
+            android:layout_weight="1"
+            android:background="@color/journal_entry_listitem_text_color"
+            android:text="Submit"
+            android:textAllCaps="false"
+            android:textColor="@color/white" />
+
+    </LinearLayout>
 
 </RelativeLayout>
