@@ -1,18 +1,22 @@
 package com.frissbi.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -25,6 +29,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
@@ -52,6 +57,9 @@ import com.frissbi.Frissbi_profilePic.Profile_Pic;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.FLog;
+import com.frissbi.Utility.TSLocationManager;
+import com.frissbi.Utility.Utility;
 import com.frissbi.fragments.FriendRequestFragment;
 import com.frissbi.fragments.MeetingAlertFragment;
 import com.frissbi.fragments.MeetingLogFragment;
@@ -62,6 +70,15 @@ import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
 import com.frissbi.models.Friends;
 import com.frissbi.networkhandler.TSNetworkHandler;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
 import com.oguzdev.circularfloatingactionmenu.library.FloatingActionMenu;
 import com.oguzdev.circularfloatingactionmenu.library.SubActionButton;
 
@@ -78,6 +95,8 @@ public class HomeActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1000;
+    private static final int REQUEST_CHECK_SETTINGS = 2000;
+    private static final String TAG = "HomeActivity";
     private ConnectionDetector mConnectionDetector;
     private boolean mIsInternetPresent;
     private SharedPreferences mSharedPreferences;
@@ -110,6 +129,7 @@ public class HomeActivity extends AppCompatActivity
     private FloatingActionMenu mFloatingActionMenu;
     private Animation rotate_forward;
     private Animation rotate_backward;
+    private AlertDialog locationAlertDialog;
 
 
     @Override
@@ -511,7 +531,7 @@ public class HomeActivity extends AppCompatActivity
     private void getFriendsFromServer() {
         Friends.deleteAll(Friends.class);
         mProgressDialog.show();
-        String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.USER_FRIENDSlIST + mUserId;
+        String url = Utility.REST_URI + Utility.USER_FRIENDSLIST + mUserId;
         TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {
@@ -523,8 +543,8 @@ public class HomeActivity extends AppCompatActivity
                             for (int index = 0; index < friendsListJsonArray.length(); index++) {
                                 JSONObject friendJsonObject = friendsListJsonArray.getJSONObject(index);
                                 Friends friends = new Friends();
-                                friends.setFriendId(friendJsonObject.getLong("UserId"));
-                                friends.setUserName(friendJsonObject.getString("UserName"));
+                                friends.setFriendId(friendJsonObject.getLong("userId"));
+                                friends.setUserName(friendJsonObject.getString("fullName"));
                                 friends.save();
                             }
 
@@ -661,4 +681,98 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (!TSLocationManager.getInstance(this).isLocationOn()) {
+
+            displayLocationSettingsRequest(HomeActivity.this);
+          /*  AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Alert!");
+            builder.setMessage("Your device location is off. Turn on to continue." );
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    locationAlertDialog.dismiss();
+                    Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                    startActivity(intent);
+                }
+            });
+            builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    onBackPressed();
+                    locationAlertDialog.dismiss();
+                }
+            });
+            locationAlertDialog = builder.create();
+            locationAlertDialog.show();*/
+        }
+    }
+
+
+    private void displayLocationSettingsRequest(Context context) {
+        GoogleApiClient googleApiClient = new GoogleApiClient.Builder(context)
+                .addApi(LocationServices.API).build();
+        googleApiClient.connect();
+
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(10000 / 2);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(locationRequest);
+        builder.setAlwaysShow(true);
+
+        PendingResult<LocationSettingsResult> result = LocationServices.SettingsApi.checkLocationSettings(googleApiClient, builder.build());
+        result.setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult result) {
+                final Status status = result.getStatus();
+                switch (status.getStatusCode()) {
+                    case LocationSettingsStatusCodes.SUCCESS:
+                        Log.i(TAG, "All location settings are satisfied.");
+                        break;
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+                        Log.i(TAG, "Location settings are not satisfied. Show the user a dialog to upgrade location settings ");
+
+                        try {
+                            // Show the dialog by calling startResolutionForResult(), and check the result
+                            // in onActivityResult().
+                            status.startResolutionForResult(HomeActivity.this, REQUEST_CHECK_SETTINGS);
+                        } catch (IntentSender.SendIntentException e) {
+                            Log.i(TAG, "PendingIntent unable to execute request.");
+                        }
+                        break;
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+                        Log.i(TAG, "Location settings are inadequate, and cannot be fixed here. Dialog not created.");
+                        break;
+                }
+            }
+        });
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        switch (requestCode) {
+            case REQUEST_CHECK_SETTINGS:
+                switch (resultCode) {
+                    case Activity.RESULT_OK: {
+
+                        break;
+                    }
+                    case Activity.RESULT_CANCELED: {
+                        finish();
+                        break;
+                    }
+                    default: {
+                        break;
+                    }
+                }
+                break;
+        }
+
+    }
 }

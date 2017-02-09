@@ -64,7 +64,7 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
         setContentView(R.layout.activity_add_friends_to_meeting);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mAddFriendsTabLayout = (TabLayout) findViewById(R.id.add_friends_tabLayout);
-        mFriendsViewPager = (ViewPager) findViewById(R.id.friends_viewPager);
+        mFriendsViewPager = (ViewPager) findViewById(R.id.add_friends_viewPager);
         mAddFriendsFloatingButton = (FloatingActionButton) findViewById(R.id.add_friends_floating_button);
         mProgressDialog = new CustomProgressDialog(this);
         mEmailFriendsFragment = new EmailFriendsFragment();

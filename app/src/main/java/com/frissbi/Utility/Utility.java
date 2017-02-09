@@ -12,7 +12,15 @@ public class Utility {
     public static final int STATUS_ACCEPT = 1;
     public static final int STATUS_REJECT = 2;
     public static final int STATUS_COMPLETED = 3;
-
+    //public static final String REST_URI ="http://13.76.99.32/kleverlinkswebservices";
+    public static final String REST_URI = "http://192.168.2.94:9090/kleverlinkswebservices/rest";//Sunil
+    public static final String USER_FRIENDSLIST = "/FriendListService/friendsList/";
+    public static final String MEETING_INSERT = "/MeetingDetailsService/insertMeetingDetails/";
+    public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getUserDetailsByMeetingID/";
+    public static final String MEETING_PENDINGLIST = "/MeetingDetailsService/getPendingMeetingRequests/";
+    public static final String MEETING_CONFLICT = "/MeetingDetailsService/getConflictedMeetingDetails/";
+    public static final String MORE_LOCATIONS = "/MeetingDetailsService/getFrissbiLocations/";
+    public static final String SUBMIT_MEETING_LOCATION = "/MeetingDetailsService/updateMeetingAddress/";
     private static Utility ourInstance = new Utility();
 
     public static Utility getInstance() {

@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -22,26 +21,18 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_Meetings.Meeting_mulltyrequstfrs_Addapter;
 import com.frissbi.Frissbi_Meetings.Meetingrequst;
 import com.frissbi.Frissbi_Pojo.Friend_list_Pojo;
 import com.frissbi.R;
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
-import com.frissbi.Utility.HorizontalView;
 import com.frissbi.Utility.ServiceHandler;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.InputStream;
-
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.StringTokenizer;
-import java.util.TreeSet;
 
 /**
  * Created by KNPL003 on 30-06-2015.
@@ -116,7 +107,7 @@ public class FriendList_CheckBox extends Activity {
         @Override
         public String doInBackground(String... params) {
             try {
-                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.USER_FRIENDSlIST + userName;
+                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.USER_FRIENDSLIST + userName;
                 Log.d("FriendList_CheckBox", "URL" + url);
                 ServiceHandler sh = new ServiceHandler();
                 // Making a1 request to url and getting response

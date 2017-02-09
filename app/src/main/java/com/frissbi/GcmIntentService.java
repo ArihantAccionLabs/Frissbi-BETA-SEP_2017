@@ -36,7 +36,7 @@ public class GcmIntentService extends IntentService {
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
     String mNotificationName, msg2, mMeetingId, msg4;
-    public static final String TAG = "GCM Demo";
+    public static final String TAG = "GcmIntentService";
     private boolean isLocationSelected;
     private SharedPreferences mSharedPreferences;
     private String mUserId;
@@ -53,6 +53,7 @@ public class GcmIntentService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         // TODO Auto-generated method stub
         Bundle extras = intent.getExtras();
+
         String msg = intent.getStringExtra("message");
         mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
@@ -66,7 +67,7 @@ public class GcmIntentService extends IntentService {
             try {
                 JSONObject jsonObject = new JSONObject(locationSuggestionJsonString);
                 isLocationUpdate = jsonObject.getBoolean("isLocationUpdate");
-                FLog.d("GcmIntentService", "isLocationUpdate" + isLocationUpdate);
+                FLog.d(TAG, "isLocationUpdate" + isLocationUpdate);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -74,8 +75,9 @@ public class GcmIntentService extends IntentService {
         }
 
         if (intent.getExtras().containsKey("isLocationSelected")) {
-            isLocationSelected = intent.getExtras().getBoolean("isLocationSelected");
-            FLog.d("GcmIntentService", "isLocationSelected" + isLocationSelected);
+            Log.d(TAG, "isLocationSelected---String" + intent.getExtras().getString("isLocationSelected"));
+            isLocationSelected = Boolean.valueOf(intent.getExtras().getString("isLocationSelected"));
+            FLog.d(TAG, "isLocationSelected" + isLocationSelected);
         }
 
 
@@ -254,7 +256,7 @@ public class GcmIntentService extends IntentService {
             mBuilder.setAutoCancel(true);
 
         } else if (mNotificationName.equals(NotificationType.MEETING_SUMMARY.toString())) {
-
+            FLog.d(TAG, "isLocationSelected--------" + isLocationSelected);
             if (!isLocationSelected) {
                 sendUserDetailsForMeetingSummaryToServer();
             } else {
@@ -297,8 +299,8 @@ public class GcmIntentService extends IntentService {
             mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
             mBuilder.setAutoCancel(true);
         } else if (mNotificationName.equals(NotificationType.MEETING_LOCATION_SUGGESTION.toString())) {
-            Log.d("GcmIntentService", "meetingId" + mMeetingId);
-            FLog.d("GcmIntentService", "isLocationUpdate-----" + isLocationUpdate);
+            Log.d(TAG, "meetingId" + mMeetingId);
+            FLog.d(TAG, "isLocationUpdate-----" + isLocationUpdate);
             Intent intent;
             if (isLocationUpdate) {
                 intent = new Intent(this, MeetingDetailsActivity.class);
@@ -355,7 +357,7 @@ public class GcmIntentService extends IntentService {
                     @Override
                     public void handleResponse(TSNetworkHandler.TSResponse response) {
                         if (response != null) {
-                            Log.d("GcmIntentService", "response" + response.response);
+                            Log.d(TAG, "response" + response.response);
                             Toast.makeText(GcmIntentService.this, response.message, Toast.LENGTH_SHORT).show();
                         }
                     }

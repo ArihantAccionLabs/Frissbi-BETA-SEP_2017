@@ -466,7 +466,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
 
 
         Log.d("MeetingActivity", "jsonObject" + jsonObject);
-        String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_INSERT;
+        String url = Utility.REST_URI + Utility.MEETING_INSERT;
         TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {

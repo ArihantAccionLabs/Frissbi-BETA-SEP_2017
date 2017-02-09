@@ -76,7 +76,6 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
         @Override
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults results = new FilterResults();
-            FLog.d("FriendsAdapter", "constraint" + constraint);
             if (constraint != null && constraint.length() > 0) {
                 ArrayList<Friends> friendsArrayList = new ArrayList<Friends>();
                 for (int i = 0; i < mFriendsList.size(); i++) {

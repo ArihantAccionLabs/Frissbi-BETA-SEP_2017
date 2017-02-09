@@ -238,7 +238,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
 
     private void getMeetingDetailsFromServer() {
         mProgressDialog.show();
-        String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_SINGALDETAILS + mMeetingId + "/" + mUserId;
+        String url = Utility.REST_URI + Utility.MEETING_SINGALDETAILS + mMeetingId + "/" + mUserId;
         TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {
@@ -369,7 +369,8 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_CONFLICT;
+        String url = Utility.REST_URI + Utility.MEETING_CONFLICT;
+
         TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {

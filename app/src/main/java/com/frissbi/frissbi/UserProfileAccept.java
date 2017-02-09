@@ -151,7 +151,7 @@ public class UserProfileAccept extends Activity {
             try {
 
 
-                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.USER_FRIENDSlIST + Friss_Pojo.UserNameFrom + "/" + Friss_Pojo.UserNameTo;
+                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.USER_FRIENDSLIST + Friss_Pojo.UserNameFrom + "/" + Friss_Pojo.UserNameTo;
 
                 ServiceHandler sh = new ServiceHandler();
 

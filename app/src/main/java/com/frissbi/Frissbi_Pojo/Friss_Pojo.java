@@ -31,7 +31,7 @@ public class Friss_Pojo {
     //public static final String REST_URI ="http://192.168.43.63:9080/kleverlinkswebservices";
     public static final String USER_AUTHENTICATION = "/AuthenticateUserService/userAuthentication/";
     public static final String USER_REGISTRATION = "/UserRegistrationService/registerUser/";
-    public static final String USER_FRIENDSlIST = "/FriendListService/friendsList/";
+    public static final String USER_FRIENDSLIST = "/FriendListService/friendsList/";
     public static final String USERNAME_EMAIL_EXIST = "/UserRegistrationService/existencestatus/";
     public static final String FORGOT_PASSWORD = "/AuthenticateUserService/forgetPassword/";
     public static final String SERCHING_DATABASE = "/FriendListService/search/";

@@ -127,7 +127,7 @@ public class FriendSerching extends Activity {
             public void onClick(View v) {
                 Intent share = new Intent(Intent.ACTION_SEND);
                 share.setType("text/plain");
-//					share.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///sdcard/temporary_file.jpg"));
+//              share.putExtra(Intent.EXTRA_STREAM, Uri.parse("file:///sdcard/temporary_file.jpg"));
                 //add a1 subject
                 share.putExtra(android.content.Intent.EXTRA_SUBJECT, getResources().getString(R.string.app_name));
                 //build the body of the message to be shared
@@ -425,7 +425,7 @@ public class FriendSerching extends Activity {
         @Override
         public String doInBackground(String... params) {
             try {
-                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.USER_FRIENDSlIST + Friss_Pojo.UserNameFrom;
+                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.USER_FRIENDSLIST + Friss_Pojo.UserNameFrom;
                 ServiceHandler sh = new ServiceHandler();
                 Log.d("URL: ", "> " + url);
                 // Making a1 request to url and getting response

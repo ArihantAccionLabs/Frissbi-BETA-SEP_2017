@@ -39,11 +39,12 @@ public class MeetingFriendsAdapter extends RecyclerView.Adapter<MeetingFriendsAd
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.usernameTv.setText(mMeetingFriendsList.get(position).getName());
+        holder.friendStatusTv.setVisibility(View.VISIBLE);
         if (mMeetingFriendsList.get(position).getStatus() == Utility.STATUS_ACCEPT) {
             holder.friendStatusTv.setText("ACCEPTED");
-        }else if (mMeetingFriendsList.get(position).getStatus() == Utility.STATUS_PENDING) {
+        } else if (mMeetingFriendsList.get(position).getStatus() == Utility.STATUS_PENDING) {
             holder.friendStatusTv.setText("PENDING");
-        }else if (mMeetingFriendsList.get(position).getStatus() == Utility.STATUS_REJECT) {
+        } else if (mMeetingFriendsList.get(position).getStatus() == Utility.STATUS_REJECT) {
             holder.friendStatusTv.setText("REJECTED");
         }
         if (mMeetingFriendsList.get(position).getType().equalsIgnoreCase("friend")) {

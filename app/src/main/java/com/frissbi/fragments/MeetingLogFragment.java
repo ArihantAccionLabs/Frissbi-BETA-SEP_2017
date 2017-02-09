@@ -16,11 +16,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.UserMeetingStatus;
+import com.frissbi.Utility.Utility;
 import com.frissbi.activities.MeetingDetailsActivity;
 import com.frissbi.adapters.MeetingLogAdapter;
 import com.frissbi.interfaces.MeetingDetailsListener;
@@ -90,7 +90,7 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
         }
 
         mMeetingList.clear();
-        String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MEETING_PENDINGLIST + mUserId;
+        String url = Utility.REST_URI + Utility.MEETING_PENDINGLIST + mUserId;
         TSNetworkHandler.getInstance(getActivity()).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {

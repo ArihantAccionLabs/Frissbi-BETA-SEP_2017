@@ -102,7 +102,7 @@ public class Friends_list extends Activity {
         @Override
         public String doInBackground(String... params) {
             try {
-                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.USER_FRIENDSlIST +Friss_Pojo.UserNameFrom;
+                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.USER_FRIENDSLIST +Friss_Pojo.UserNameFrom;
                 ServiceHandler sh = new ServiceHandler();
 
                 // Making a1 request to url and getting response

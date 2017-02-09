@@ -112,7 +112,7 @@ public class SplashScreen extends Activity implements AnimationListener {
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Alert!");
-            builder.setMessage("You have an internet connection. Do you want unable mobile data or wifi");
+            builder.setMessage("You don't have an internet connection. Do you want unable mobile data or wifi");
             builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {

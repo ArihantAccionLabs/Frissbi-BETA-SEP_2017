@@ -15,6 +15,7 @@ import com.frissbi.activities.SelectLocationAndSaveActivity;
 public class TSLocationManager {
     private static TSLocationManager ourInstance;
     private Context mContext;
+    private LocationManager mLocationManager;
 
     public static TSLocationManager getInstance(Context context) {
         if (ourInstance == null)
@@ -24,18 +25,19 @@ public class TSLocationManager {
 
     private TSLocationManager(Context context) {
         mContext = context;
+        mLocationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
     }
 
 
     public Location getCurrentLocation() {
 
+
         if (ActivityCompat.checkSelfPermission(mContext, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 && ActivityCompat.checkSelfPermission(mContext, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return null;
         }
-        LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-        Location gpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-        Location networkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+        Location gpsLocation = mLocationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+        Location networkLocation = mLocationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
         return getBetterLocation(gpsLocation, networkLocation);
 
@@ -59,6 +61,13 @@ public class TSLocationManager {
             return null;
         }
 
+
+    }
+
+    public boolean isLocationOn() {
+
+        FLog.d("TLocationManager", "Gps" + LocationManager.GPS_PROVIDER + "Network" + LocationManager.NETWORK_PROVIDER);
+        return mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) || mLocationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 
     }
 
