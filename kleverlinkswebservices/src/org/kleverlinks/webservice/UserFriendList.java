@@ -2,6 +2,7 @@ package org.kleverlinks.webservice;
 
 import java.sql.CallableStatement;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -9,7 +10,9 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -370,49 +373,31 @@ public class UserFriendList {
 	public String friendsList(@PathParam("userId") Integer userId) {
 		Connection conn = null;
 		Statement stmt = null;
+		PreparedStatement pstmt = null;
 		
-		ArrayList<Integer> userIds = new ArrayList<Integer>();
+		Set<Integer> userIds = new HashSet<Integer>();
 		JSONArray jsonResultsArray = new JSONArray();
 		JSONObject finalJson =new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
-			/*sql = "SELECT userID from tbl_users where username ='" + userId + "'" + " limit 1";
-			ResultSet rs = stmt.executeQuery(sql);
+			sql = "SELECT * FROM tbl_userfriendlist  WHERE (UserID1 =? OR UserID2 =?) and RequestStatus = 1";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setInt(1, userId);
+			pstmt.setInt(2, userId);
+			ResultSet rs = pstmt.executeQuery();
 
 			while (rs.next()) {
-				userId = rs.getInt("userId");
-			}*/
-			sql = "Select * from tbl_userfriendlist  where UserID1 ='" + userId + "' and requestStatus = 1";
-
-			ResultSet rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				userIds.add(rs.getInt("UserID2"));
+				if(userId != rs.getInt("UserID2"))
+					userIds.add(rs.getInt("UserID2"));
+				if(userId != rs.getInt("UserID1"))
+					userIds.add(rs.getInt("UserID1"));
 			}
-
-			sql = "Select * from tbl_userfriendlist  where UserID2 ='" + userId + "' and requestStatus = 1";
-
-			rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				userIds.add(rs.getInt("UserID1"));
-			}
-
-			Iterator<Integer> iterator = userIds.iterator();
-			while (iterator.hasNext()) {
-				userId = iterator.next();
-				sql = "Select * from tbl_users  AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID where U.UserID = '"
-						+ userId + "'";
-				rs = stmt.executeQuery(sql);
-
-				while (rs.next()) {
-					JSONObject json = new JSONObject();
-					json.put("UserId", rs.getInt("UserId"));
-					json.put("UserName", rs.getString("UserName"));
-					
-					jsonResultsArray.put(json);
+			for (Integer friendsId : userIds) {
+				JSONObject jsonObject = ServiceUtility.getUserDetailByUserId(friendsId);
+				if(jsonObject != null){
+					jsonResultsArray.put(jsonObject);
 				}
 			}
 
@@ -555,7 +540,7 @@ public class UserFriendList {
 	@GET
 	@Path("/search/{userId}/{search_criteria}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String search(@PathParam("userId") int userId1, @PathParam("search_criteria") String search_criteria) {
+	public String search(@PathParam("userId") int userId, @PathParam("search_criteria") String search_criteria) {
 		Connection conn = null;
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
@@ -565,7 +550,7 @@ public class UserFriendList {
 			String sql;
 			sql = "Select * from tbl_users  AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID where ( FirstName like '%"
 					+ search_criteria + "%' or LastName like '%" + search_criteria + "%' or UserName like '%"
-					+ search_criteria + "%') and U.UserID <> '" + userId1 + "'";
+					+ search_criteria + "%') and U.UserID <> '" + userId + "'";
 			ResultSet rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {

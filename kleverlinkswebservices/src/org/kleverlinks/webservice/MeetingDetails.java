@@ -115,8 +115,6 @@ public class MeetingDetails {
 			connection = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
 			Integer meetingId = 0;
-			String isSenderRemoved = "1";
-
 			String insertStoreProc = "{call usp_InsertMeetingDetails(?,?,?,?,?,?,?,?,?,?,?,?)}";
 			callableStatement = connection.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, senderUserId);
@@ -134,7 +132,7 @@ public class MeetingDetails {
 				callableStatement.setString(8, null);
 				callableStatement.setString(9, null);
 			}
-			callableStatement.setString(10, isSenderRemoved);
+			callableStatement.setString(10, MeetingStatus.ACTIVE.toString());
 			callableStatement.registerOutParameter(11, Types.INTEGER);
 			callableStatement.registerOutParameter(12, Types.BIGINT);
 
@@ -786,9 +784,9 @@ public class MeetingDetails {
 			
 			if(isMeetingCreator){
 				
-			 sql = "UPDATE tbl_MeetingDetails SET isSenderRemoved=? WHERE MeetingID=? AND SenderUserID=?"; 
+			 sql = "UPDATE tbl_MeetingDetails SET MeetingStatus=? WHERE MeetingID=? AND SenderUserID=?"; 
 			 pstmt = conn.prepareStatement(sql);
-			 pstmt.setString(1, "2");
+			 pstmt.setString(1, MeetingStatus.CANCELLED.toString());
 			 pstmt.setInt(2, meetingId);
 			 pstmt.setInt(3, userId);
 				

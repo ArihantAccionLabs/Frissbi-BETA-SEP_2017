@@ -13,6 +13,7 @@ import org.quartz.Scheduler;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.quartz.impl.StdSchedulerFactory;
+import org.util.service.CloseMeetingCronjob;
 
 @Path("CronSchedulerService")
 public class CronScheduler {
@@ -46,12 +47,18 @@ public class CronScheduler {
     	   Trigger meetingAddressJobTrigger = TriggerBuilder.newTrigger().withIdentity("meetingAddressJobTrigger", "meetingAddressJob").withSchedule(CronScheduleBuilder.cronSchedule("0 0/1 * 1/1 * ? *")).build();
     	   
     	   
+    	 //This scheduler will run every night at 1:00:00 am
+    	   JobKey    meetingCompletingJob = new JobKey("meetingCompletingJob", "meetingCompletingJob");
+    	   JobDetail meetingCompletingJobDetail = JobBuilder.newJob(CloseMeetingCronjob.class).withIdentity(meetingCompletingJob).build();
+    	   Trigger   meetingCompletingJobTrigger = TriggerBuilder.newTrigger().withIdentity("meetingCompletingJobTrigger", "meetingCompletingJob").withSchedule(CronScheduleBuilder.cronSchedule("0 0 1 1/1 * ? *")).build();
+    	   
     		Scheduler scheduler = new StdSchedulerFactory().getScheduler();
 			scheduler.start();
 			//scheduler.scheduleJob(smartMeetingReminderDetail, smartMeetingReminderTrigger);
 			//scheduler.scheduleJob(meetingSuggestionMorningDetail, meetingSuggestionMorningTrigger);
-		//	scheduler.scheduleJob(meetingSuggestionEveningDetail, meetingSuggestionEveningTrigger);
+		   // scheduler.scheduleJob(meetingSuggestionEveningDetail, meetingSuggestionEveningTrigger);
 			scheduler.scheduleJob(meetingAddressJobDetail, meetingAddressJobTrigger);
+			scheduler.scheduleJob(meetingCompletingJobDetail, meetingCompletingJobTrigger);
 			
 	}
 }

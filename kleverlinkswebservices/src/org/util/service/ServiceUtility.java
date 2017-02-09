@@ -36,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
+import org.kleverlinks.webservice.MeetingStatus;
 import org.kleverlinks.webservice.MyEmailer;
 import org.service.dto.MeetingLogBean;
 import org.service.dto.UserDTO;
@@ -47,28 +48,28 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 public class ServiceUtility {
 
-	public static UserDTO getUserDetailsByUserId(Integer userId) {
+	public static JSONObject getUserDetailByUserId(Integer userId) {
 		Connection conn = null;
-		Statement stmt = null;
-		ResultSet rs = null;
-		UserDTO userDTO = null;
-		String sql;
+		CallableStatement callableStatement = null;
+		JSONObject jsonObject = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			sql = "SELECT emailName,FirstName,LastName FROM tbl_users WHERE userId ='" + userId + "'" + " limit 1";
-			rs = stmt.executeQuery(sql);
-			userDTO = new UserDTO();
+			String selectStoreProcedue = "{call usp_GetUserDetailsByUserID(?)}";
+			callableStatement = conn.prepareCall(selectStoreProcedue);
+			callableStatement.setInt(1, userId);
+			ResultSet rs = callableStatement.executeQuery();;
+	
 			while (rs.next()) {
-				userDTO.setEmailId(rs.getString("emailName"));
-				userDTO.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
+				jsonObject.put("email" , rs.getString("emailName"));
+				jsonObject.put("fullName" , rs.getString("FirstName") + rs.getString("LastName"));
+				jsonObject.put("userId" , rs.getInt("UserID"));
 			}
-			return userDTO;
+			return jsonObject;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{
 		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(stmt);
+		ServiceUtility.closeCallableSatetment(callableStatement);
 		}
 		return null;
 	}
@@ -381,10 +382,11 @@ public class ServiceUtility {
 		for (Integer meetingId : meetingList) {
 			preparedStatement = null;
 			if(! isMeetingCreatorRemoved(meetingId , senderUserId)){
-				sql = "UPDATE  tbl_MeetingDetails SET isSenderRemoved=2 WHERE MeetingID=? AND SenderUserId=?";
+				sql = "UPDATE  tbl_MeetingDetails SET MeetingStatus=? WHERE MeetingID=? AND SenderUserId=?";
 				preparedStatement = connection.prepareStatement(sql);
-				preparedStatement.setInt(1, meetingId);
-				preparedStatement.setInt(2, senderUserId);
+				preparedStatement.setString(1, MeetingStatus.CANCELLED.toString());
+				preparedStatement.setInt(2, meetingId);
+				preparedStatement.setInt(3, senderUserId);
 			}else{
 				sql = "UPDATE tbl_RecipientsDetails SET Status=2,ResponseDateTime=? WHERE MeetingID=? AND UserID=?";
 				preparedStatement = connection.prepareStatement(sql);
@@ -406,7 +408,6 @@ public class ServiceUtility {
 	public static List<UserDTO> checkingMeetingConfliction(int senderUserId, String meetingDate,LocalDateTime senderFromDateTime, LocalDateTime senderToDateTime) throws ParseException {
 		Map<String , Date> map = getOneDayDate(meetingDate);
 		try {
-			//usp_CheckingConflicatedMeetings
 			CallableStatement callableStatement = null;
 			Connection conn = null;
 			conn = DataSourceConnection.getDBConnection();
@@ -537,20 +538,20 @@ public class ServiceUtility {
 		
 		 Connection conn = null;
 		 PreparedStatement statement = null;
-		 Integer isSenderRemoved = 0;
+		 String meetingStatus = "";
 		 Boolean status = false;
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			//"SELECT Status FROM tbl_RecipientsDetails WHERE tbl_RecipientsDetails.MeetingID="+meetingId+" AND tbl_RecipientsDetails.UserID="+userId;
-			String sql ="SELECT isSenderRemoved FROM tbl_MeetingDetails WHERE tbl_MeetingDetails.MeetingID=? AND tbl_MeetingDetails.SenderUserID=?";
+			String sql ="SELECT MeetingStatus FROM tbl_MeetingDetails WHERE tbl_MeetingDetails.MeetingID=? AND tbl_MeetingDetails.SenderUserID=?";
 			statement = conn.prepareStatement(sql);
 			statement.setInt(1, meetingId);
 			statement.setInt(2, userId);
 			ResultSet rs = statement.executeQuery();
 			while(rs.next()){
-				isSenderRemoved = rs.getInt("isSenderRemoved");
+				meetingStatus = rs.getString("MeetingStatus");
 			}
-			if(isSenderRemoved == 2){
+			if(meetingStatus != null && meetingStatus.equals(MeetingStatus.CANCELLED.toString())){
 				status = true;
 			}
 		} catch(Exception  e){
@@ -593,8 +594,6 @@ public class ServiceUtility {
 		}
 		return map;
 	}
-	
-	
 	public static JSONObject getReceiverDetailsByMeetingId(int meetingId , int userId){
 		
 		 Connection conn = null;
@@ -649,7 +648,6 @@ public class ServiceUtility {
 			callableStatement.executeQuery();
 			ResultSet rs = callableStatement.getResultSet();
 			while(rs.next()){
-				if(rs.getInt("isSenderRemoved") != 2){
 					meetingLogBean.setSenderUserId(rs.getInt("SenderUserID"));
 					meetingLogBean.setMeetingId(rs.getInt("MeetingID"));
 					meetingLogBean.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
@@ -664,8 +662,6 @@ public class ServiceUtility {
 					meetingLogBean.setLatitude(rs.getString("Latitude"));
 					meetingLogBean.setLongitude(rs.getString("Longitude"));
 					meetingLogBean.setAddress(rs.getString("GoogleAddress"));
-					
-				}
 			}
 		} catch(Exception  e){
 			e.printStackTrace();
@@ -690,7 +686,7 @@ public class ServiceUtility {
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 			while(rs.next()){
-			  if(rs.getInt("Status") == 1 || rs.getInt("Status") == 0){
+			  if(rs.getInt("Status") == 1){
 				  JSONObject jsonObject = new JSONObject();
 				  jsonObject.put("userId" , rs.getInt("UserID"));
 				  jsonObject.put("fullName" , rs.getString("firstName") + rs.getString("lastName"));
@@ -812,7 +808,4 @@ public class ServiceUtility {
 		}
 		return jsonObject;
 	}
-
-       
-       
 }

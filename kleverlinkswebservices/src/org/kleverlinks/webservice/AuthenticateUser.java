@@ -10,6 +10,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -34,8 +36,10 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
       
-		//TrackMeetingTime.sendMeetingNotificationBeforeOneHour();
+		TrackMeetingTime.completingMeetingAfterTimeOut();
 		//GoogleSearchPlaces.getGoogleSearchPlaces(17.4399295,78.4982741,"coffee");
+		
+		
 		return "ok";
 			
 	}
