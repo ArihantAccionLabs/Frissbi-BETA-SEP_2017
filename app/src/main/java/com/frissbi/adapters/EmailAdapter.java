@@ -16,9 +16,7 @@ import android.widget.TextView;
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
 import com.frissbi.Utility.FLog;
-import com.frissbi.interfaces.ContactsSelectedListener;
 import com.frissbi.models.EmailContacts;
-import com.frissbi.models.Friends;
 
 import java.util.ArrayList;
 import java.util.List;

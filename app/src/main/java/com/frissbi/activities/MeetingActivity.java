@@ -29,7 +29,6 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
 import com.frissbi.Utility.ConnectionDetector;
@@ -40,7 +39,7 @@ import com.frissbi.adapters.SelectedContactsExpandableAdapter;
 import com.frissbi.interfaces.MeetingTitleSelectionListener;
 import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
-import com.frissbi.models.Friends;
+import com.frissbi.models.Friend;
 import com.frissbi.models.MyPlaces;
 import com.frissbi.networkhandler.TSNetworkHandler;
 
@@ -73,7 +72,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
     String[] values = new String[]{"1:00", "1:30", "2:00", "2:30", "3:00", "3:30", "4:00", "4:30", "5:00", "5:30", "6:00"};
     private SelectedContacts mSelectedContacts;
     private ExpandableListView mSelectedContactsExpandableListView;
-    private List<Friends> mFriendsList;
+    private List<Friend> mFriendList;
     private List<EmailContacts> mEmailContactsList;
     private List<Contacts> mContactsList;
     private TextView mMeetingTitleTextView;
@@ -97,7 +96,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
         mUserName = mSharedPreferences.getString("USERNAME_FROM", "editor");
         mProgressDialog = new CustomProgressDialog(this);
-        mFriendsList = new ArrayList<>();
+        mFriendList = new ArrayList<>();
         mEmailContactsList = new ArrayList<>();
         mContactsList = new ArrayList<>();
         mMeetingDateTextView = (TextView) findViewById(R.id.meeting_date_tv);
@@ -309,15 +308,15 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 mMeetingPlaceTextView.setText(R.string.selected_location);
             }
         } else if (requestCode == FRIENDS_REQ_CODE && resultCode == RESULT_OK) {
-            mFriendsList.clear();
+            mFriendList.clear();
             mEmailContactsList.clear();
             mContactsList.clear();
             int friendsCount = mSelectedContacts.getFriendsSelectedIdList().size();
             int emailCount = mSelectedContacts.getEmailsSelectedIdsList().size();
             int contactsCount = mSelectedContacts.getContactsSelectedIdsList().size();
             for (int i = 0; i < friendsCount; i++) {
-                Friends friends = Friends.findById(Friends.class, mSelectedContacts.getFriendsSelectedIdList().get(i));
-                mFriendsList.add(friends);
+                Friend friend = Friend.findById(Friend.class, mSelectedContacts.getFriendsSelectedIdList().get(i));
+                mFriendList.add(friend);
             }
             for (int i = 0; i < emailCount; i++) {
                 EmailContacts emailContacts = EmailContacts.findById(EmailContacts.class, mSelectedContacts.getEmailsSelectedIdsList().get(i));
@@ -329,7 +328,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 mContactsList.add(contacts);
             }
 
-            SelectedContactsExpandableAdapter selectedContactsExpandableAdapter = new SelectedContactsExpandableAdapter(MeetingActivity.this, mFriendsList, mEmailContactsList, mContactsList);
+            SelectedContactsExpandableAdapter selectedContactsExpandableAdapter = new SelectedContactsExpandableAdapter(MeetingActivity.this, mFriendList, mEmailContactsList, mContactsList);
             mSelectedContactsExpandableListView.setAdapter(selectedContactsExpandableAdapter);
 
 
@@ -383,7 +382,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 Toast.makeText(this, "Please select a location", Toast.LENGTH_SHORT).show();
                 return false;
             } else {
-                if (mFriendsList.size() == 0 && mEmailContactsList.size() == 0 && mContactsList.size() == 0) {
+                if (mFriendList.size() == 0 && mEmailContactsList.size() == 0 && mContactsList.size() == 0) {
                     Toast.makeText(this, "Please select atleast one friend", Toast.LENGTH_SHORT).show();
                     return false;
                 } else {
@@ -424,9 +423,9 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         JSONArray friendsIdJsonArray = new JSONArray();
         JSONArray emailIdJsonArray = new JSONArray();
         JSONArray contactsJsonArray = new JSONArray();
-        if (mFriendsList.size() > 0) {
-            for (int i = 0; i < mFriendsList.size(); i++) {
-                friendsIdJsonArray.put(mFriendsList.get(i).getFriendId());
+        if (mFriendList.size() > 0) {
+            for (int i = 0; i < mFriendList.size(); i++) {
+                friendsIdJsonArray.put(mFriendList.get(i).getUserId());
             }
         }
         if (mEmailContactsList.size() > 0) {

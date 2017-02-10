@@ -18,9 +18,8 @@ import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.Utility;
-import com.frissbi.activities.FriendsListActivity;
 import com.frissbi.adapters.FriendsAdapter;
-import com.frissbi.models.Friends;
+import com.frissbi.models.Friend;
 import com.frissbi.networkhandler.TSNetworkHandler;
 
 import org.json.JSONArray;
@@ -36,7 +35,7 @@ import java.util.List;
 public class MyFriendsFragment extends Fragment {
 
 
-    private List<Friends> mFriendsList;
+    private List<Friend> mFriendList;
     private RecyclerView mFriendsRecyclerView;
     private FriendsAdapter mFriendsAdapter;
     private ProgressDialog mProgressDialog;
@@ -58,16 +57,16 @@ public class MyFriendsFragment extends Fragment {
         mFriendsRecyclerView.addItemDecoration(dividerItemDecoration);
         mFriendsRecyclerView.setLayoutManager(layoutManager);
 
-        mFriendsList = Friends.listAll(Friends.class);
+        mFriendList = Friend.listAll(Friend.class);
 
-        if (mFriendsList.size() == 0) {
+        if (mFriendList.size() == 0) {
             if (ConnectionDetector.getInstance(getActivity()).isConnectedToInternet()) {
                 getFriendsFromServer();
             } else {
                 Toast.makeText(getActivity(), getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
             }
         } else {
-            mFriendsAdapter = new FriendsAdapter(getActivity(), mFriendsList);
+            mFriendsAdapter = new FriendsAdapter(getActivity(), mFriendList);
             mFriendsRecyclerView.setAdapter(mFriendsAdapter);
         }
         return view;
@@ -75,8 +74,8 @@ public class MyFriendsFragment extends Fragment {
 
 
     private void getFriendsFromServer() {
-        Friends.deleteAll(Friends.class);
-        mFriendsList.clear();
+        Friend.deleteAll(Friend.class);
+        mFriendList.clear();
         mProgressDialog.show();
         String url = Utility.REST_URI + Utility.USER_FRIENDSLIST + mUserId;
         TSNetworkHandler.getInstance(getActivity()).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
@@ -89,13 +88,14 @@ public class MyFriendsFragment extends Fragment {
                             JSONArray friendsListJsonArray = responseJsonObject.getJSONArray("friends_array");
                             for (int index = 0; index < friendsListJsonArray.length(); index++) {
                                 JSONObject friendJsonObject = friendsListJsonArray.getJSONObject(index);
-                                Friends friends = new Friends();
-                                friends.setFriendId(friendJsonObject.getLong("userId"));
-                                friends.setUserName(friendJsonObject.getString("fullName"));
-                                friends.save();
-                                mFriendsList.add(friends);
+                                Friend friend = new Friend();
+                                friend.setUserId(friendJsonObject.getLong("userId"));
+                                friend.setFullName(friendJsonObject.getString("fullName"));
+                                friend.setEmailId(friendJsonObject.getString("email"));
+                                friend.save();
+                                mFriendList.add(friend);
                             }
-                            mFriendsAdapter = new FriendsAdapter(getActivity(), mFriendsList);
+                            mFriendsAdapter = new FriendsAdapter(getActivity(), mFriendList);
                             mFriendsRecyclerView.setAdapter(mFriendsAdapter);
                         } catch (JSONException e) {
                             e.printStackTrace();

@@ -7,7 +7,6 @@ import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
@@ -16,7 +15,6 @@ import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.provider.Settings;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -52,12 +50,10 @@ import com.frissbi.Frissbi_Friends.Friend_Serching_adapter;
 import com.frissbi.Frissbi_Friends.Friend_list_Adapter;
 import com.frissbi.Frissbi_Meetings.Meets;
 import com.frissbi.Frissbi_Pojo.Friend_list_Pojo;
-import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.Frissbi_profilePic.Profile_Pic;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
-import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.TSLocationManager;
 import com.frissbi.Utility.Utility;
 import com.frissbi.fragments.FriendRequestFragment;
@@ -68,7 +64,7 @@ import com.frissbi.frissbi.Login;
 import com.frissbi.frissbi.Update_profile;
 import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
-import com.frissbi.models.Friends;
+import com.frissbi.models.Friend;
 import com.frissbi.networkhandler.TSNetworkHandler;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -529,7 +525,7 @@ public class HomeActivity extends AppCompatActivity
 
 
     private void getFriendsFromServer() {
-        Friends.deleteAll(Friends.class);
+        Friend.deleteAll(Friend.class);
         mProgressDialog.show();
         String url = Utility.REST_URI + Utility.USER_FRIENDSLIST + mUserId;
         TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
@@ -542,10 +538,11 @@ public class HomeActivity extends AppCompatActivity
                             JSONArray friendsListJsonArray = responseJsonObject.getJSONArray("friends_array");
                             for (int index = 0; index < friendsListJsonArray.length(); index++) {
                                 JSONObject friendJsonObject = friendsListJsonArray.getJSONObject(index);
-                                Friends friends = new Friends();
-                                friends.setFriendId(friendJsonObject.getLong("userId"));
-                                friends.setUserName(friendJsonObject.getString("fullName"));
-                                friends.save();
+                                Friend friend = new Friend();
+                                friend.setUserId(friendJsonObject.getLong("userId"));
+                                friend.setFullName(friendJsonObject.getString("fullName"));
+                                friend.setEmailId(friendJsonObject.getString("email"));
+                                friend.save();
                             }
 
                         } catch (JSONException e) {
@@ -627,7 +624,7 @@ public class HomeActivity extends AppCompatActivity
                 if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
                     Contacts contacts = new Contacts();
                     contacts.setName(name);
-                    System.out.println("name : " + name + ", ID : " + id);
+
                     String phone = "0";
                     // get the phone number
                     Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
@@ -636,7 +633,8 @@ public class HomeActivity extends AppCompatActivity
                     while (pCur.moveToNext()) {
                         phone = pCur.getString(
                                 pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        System.out.println("phone" + phone);
+                        System.out.println();
+                        System.out.println("name : " + name + "   phone" + phone);
                     }
                     contacts.setPhoneNumber(phone);
                     contacts.save();

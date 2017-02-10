@@ -154,8 +154,8 @@ public class UserProfile extends Activity {
                     }
 
                 } else if (jsonStr1.equals("1")) {
-                    add.setText("Friends");
-                    Log.d("Friends......", jsonStr1.toString());
+                    add.setText("Friend");
+                    Log.d("Friend......", jsonStr1.toString());
                 } else if (jsonStr1.equals("4")) {
                     Log.d("add friend......", jsonStr1.toString());
                     isInternetPresent = cd.isConnectedToInternet();
@@ -226,10 +226,7 @@ public class UserProfile extends Activity {
             }
             if (jsonStr.equals("0")) {
                 add.setText("Req Sent");
-
-
             }
-
         }
     }
 

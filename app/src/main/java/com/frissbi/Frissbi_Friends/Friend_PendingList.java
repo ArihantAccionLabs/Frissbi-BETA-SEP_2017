@@ -226,7 +226,7 @@ public class Friend_PendingList extends Activity implements Friend_PedinglistAda
                     Friend_list_Pojo item = (Friend_list_Pojo) adp.getItem(position);
 
                     Intent intent = new Intent(getApplicationContext(), UserProfileAccept.class);
-                    intent.putExtra(Friss_Pojo.USER_NAME, item.getUserName());
+                    intent.putExtra(Friss_Pojo.USER_NAME, item.getFullName());
                     intent.putExtra(Friss_Pojo.FIRST_NAME, item.getFirstName());
                     intent.putExtra(Friss_Pojo.LAST_NAME, item.getLastName());
                     intent.putExtra(Friss_Pojo.User_Id, item.getUserId());

@@ -21,6 +21,8 @@ public class Utility {
     public static final String MEETING_CONFLICT = "/MeetingDetailsService/getConflictedMeetingDetails/";
     public static final String MORE_LOCATIONS = "/MeetingDetailsService/getFrissbiLocations/";
     public static final String SUBMIT_MEETING_LOCATION = "/MeetingDetailsService/updateMeetingAddress/";
+    public static final String PEOPLE_SEARCH = "/FriendListService/search/";
+    public static final String ADD_FRIEND = "/FriendListService/sendFriendRequest/";
     private static Utility ourInstance = new Utility();
 
     public static Utility getInstance() {

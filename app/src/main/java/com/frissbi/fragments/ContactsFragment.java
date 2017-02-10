@@ -21,7 +21,6 @@ import java.util.List;
  */
 public class ContactsFragment extends Fragment {
 
-
     private RecyclerView mContactsRecyclerView;
     List<Contacts> mContactsList;
     private List<Long> mContactsSelectedIdsList;

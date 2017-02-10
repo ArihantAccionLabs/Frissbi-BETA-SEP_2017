@@ -213,7 +213,9 @@
         <activity
             android:name=".activities.AddFriendsToMeetingActivity"
             android:label="Friends" />
-        <activity android:name=".activities.ProfileActivity" />
+        <activity
+            android:name=".activities.ProfileActivity"
+            android:label="Profile" />
         <activity
             android:name=".activities.MeetingDetailsActivity"
             android:label="Info" />

@@ -27,7 +27,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/my_contacts_name"
-                android:text="Phone Number" />
+                android:text="Phone Number"
+                android:visibility="gone" />
         </RelativeLayout>
 
         <Button
@@ -38,6 +39,7 @@
             android:background="@color/journal_entry_listitem_text_color"
             android:text="Invite"
             android:textAllCaps="false"
+            android:minHeight="40dp"
             android:textColor="@color/white" />
 
     </RelativeLayout>

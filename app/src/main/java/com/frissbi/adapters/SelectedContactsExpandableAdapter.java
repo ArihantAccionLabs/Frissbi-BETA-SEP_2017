@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.frissbi.R;
 import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
-import com.frissbi.models.Friends;
+import com.frissbi.models.Friend;
 
 import java.util.List;
 
@@ -24,26 +24,26 @@ import java.util.List;
 public class SelectedContactsExpandableAdapter implements ExpandableListAdapter {
 
     private Context mContext;
-    private List<Friends> mFriendsList;
+    private List<Friend> mFriendList;
     private List<EmailContacts> mEmailContactsList;
     private List<Contacts> mContactsList;
 
-    public SelectedContactsExpandableAdapter(Context context, List<Friends> friendsList, List<EmailContacts> emailContactsList, List<Contacts> contactsList) {
+    public SelectedContactsExpandableAdapter(Context context, List<Friend> friendList, List<EmailContacts> emailContactsList, List<Contacts> contactsList) {
         mContext = context;
-        mFriendsList = friendsList;
+        mFriendList = friendList;
         mEmailContactsList = emailContactsList;
         mContactsList = contactsList;
-        Log.d("ExpandableListAdapter", "mFriendsList----" + mFriendsList + "mEmailContactsList-----" + mEmailContactsList+"mContactsList-----"+mContactsList);
+        Log.d("ExpandableListAdapter", "mFriendList----" + mFriendList + "mEmailContactsList-----" + mEmailContactsList+"mContactsList-----"+mContactsList);
     }
 
 
     @Override
     public View getGroupView(int groupPosition, boolean b, View view, ViewGroup viewGroup) {
         if (groupPosition == 0) {
-            if (mFriendsList.size() != 0) {
+            if (mFriendList.size() != 0) {
                 view = LayoutInflater.from(mContext).inflate(R.layout.expandable_group_item, viewGroup, false);
                 TextView groupHeaderTv = (TextView) view.findViewById(R.id.group_header_tv);
-                groupHeaderTv.setText("Friends");
+                groupHeaderTv.setText("Friend");
             } else {
                 view = LayoutInflater.from(mContext).inflate(R.layout.expandable_empty_item, viewGroup, false);
             }
@@ -75,12 +75,12 @@ public class SelectedContactsExpandableAdapter implements ExpandableListAdapter 
     public View getChildView(int groupPosition, int childPosition, boolean b, View view, ViewGroup viewGroup) {
 
         if (groupPosition == 0) {
-            if (mFriendsList.size() != 0) {
+            if (mFriendList.size() != 0) {
                 view = LayoutInflater.from(mContext).inflate(R.layout.friends_item, viewGroup, false);
                 ImageView profileImageView = (ImageView) view.findViewById(R.id.profile_image);
                 TextView usernameTv = (TextView) view.findViewById(R.id.username_tv);
                 profileImageView.setImageResource(R.drawable.pic1);
-                usernameTv.setText(mFriendsList.get(childPosition).getUserName());
+                usernameTv.setText(mFriendList.get(childPosition).getFullName());
 
             } else {
                 view = LayoutInflater.from(mContext).inflate(R.layout.expandable_empty_item, viewGroup, false);
@@ -126,10 +126,10 @@ public class SelectedContactsExpandableAdapter implements ExpandableListAdapter 
     @Override
     public int getChildrenCount(int groupPosition) {
         if (groupPosition == 0) {
-            if (mFriendsList.size() == 0) {
+            if (mFriendList.size() == 0) {
                 return 1;
             } else {
-                return mFriendsList.size();
+                return mFriendList.size();
             }
         } else if (groupPosition == 1) {
             if (mEmailContactsList.size() == 0) {

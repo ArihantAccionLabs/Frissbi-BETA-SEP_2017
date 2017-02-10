@@ -12,8 +12,10 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.frissbi.R;
 import com.frissbi.fragments.MyContactsFragment;
@@ -46,7 +48,7 @@ public class FriendsListActivity extends AppCompatActivity implements SearchView
         mMyContactsFragment = new MyContactsFragment();
         mPeopleFragment = new PeopleFragment();
         setupViewPager(mFriendsViewPager);
-
+        mFriendsTabLayout.setupWithViewPager(mFriendsViewPager);
     }
 
 
@@ -77,8 +79,13 @@ public class FriendsListActivity extends AppCompatActivity implements SearchView
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-        if (mPeopleFragment.isMenuVisible()) {
-            mPeopleFragment.searchFriends(query);
+
+        if (query.length() >= 3) {
+            if (mPeopleFragment.isMenuVisible()) {
+                mPeopleFragment.searchFriends(query);
+            }
+        } else {
+            Toast.makeText(this, "Atleast 3 characters required to search people", Toast.LENGTH_SHORT).show();
         }
         return false;
     }
@@ -95,7 +102,7 @@ public class FriendsListActivity extends AppCompatActivity implements SearchView
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPagerAdapter.addFragment(mMyFriendsFragment, "Friends");
+        viewPagerAdapter.addFragment(mMyFriendsFragment, "Friend");
         viewPagerAdapter.addFragment(mMyContactsFragment, "Contacts");
         viewPagerAdapter.addFragment(mPeopleFragment, "People");
         viewPager.setAdapter(viewPagerAdapter);
@@ -120,9 +127,16 @@ public class FriendsListActivity extends AppCompatActivity implements SearchView
         }
 
         @Override
+        public CharSequence getPageTitle(int position) {
+            Log.d("FriendsListActivity", "getPageTite" + mFragmentTitleList.get(position));
+            return mFragmentTitleList.get(position);
+        }
+
+        @Override
         public int getCount() {
             return mFragmentList.size();
         }
+
 
     }
 }

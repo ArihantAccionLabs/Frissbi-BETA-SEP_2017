@@ -14,7 +14,7 @@ import android.widget.TextView;
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
 import com.frissbi.Utility.FLog;
-import com.frissbi.models.Friends;
+import com.frissbi.models.Friend;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,18 +26,18 @@ import java.util.List;
 public class FrissbiFriendsAdapter extends RecyclerView.Adapter<FrissbiFriendsAdapter.ViewHolder> implements Filterable {
 
     private Context mContext;
-    private List<Friends> mFriendsList;
+    private List<Friend> mFriendList;
     private List<Long> mFriendsSelectedIdList;
     private SelectedContacts mSelectedContacts;
     private FriendsFilter mFriendsFilter;
-    private List<Friends> mOriginalFriendsList;
+    private List<Friend> mOriginalFriendList;
 
-    public FrissbiFriendsAdapter(Context context, List<Friends> friendsList) {
+    public FrissbiFriendsAdapter(Context context, List<Friend> friendList) {
         mContext = context;
-        mFriendsList = friendsList;
+        mFriendList = friendList;
         mSelectedContacts = SelectedContacts.getInstance();
         mFriendsSelectedIdList = mSelectedContacts.getFriendsSelectedIdList();
-        mOriginalFriendsList = friendsList;
+        mOriginalFriendList = friendList;
     }
 
     @Override
@@ -48,9 +48,9 @@ public class FrissbiFriendsAdapter extends RecyclerView.Adapter<FrissbiFriendsAd
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        holder.friendUsernameTv.setText(mFriendsList.get(position).getUserName());
+        holder.friendUsernameTv.setText(mFriendList.get(position).getFullName());
         if (mFriendsSelectedIdList.size() > 0) {
-            if (mFriendsSelectedIdList.contains(mFriendsList.get(position).getId())) {
+            if (mFriendsSelectedIdList.contains(mFriendList.get(position).getId())) {
                 holder.friendCheckbox.setChecked(true);
             } else {
                 holder.friendCheckbox.setChecked(false);
@@ -60,9 +60,9 @@ public class FrissbiFriendsAdapter extends RecyclerView.Adapter<FrissbiFriendsAd
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 if (checked) {
-                    mSelectedContacts.setFriendsSelectedId(mFriendsList.get(position).getId());
+                    mSelectedContacts.setFriendsSelectedId(mFriendList.get(position).getId());
                 } else {
-                    mSelectedContacts.deleteFriendsSelectedId(mFriendsList.get(position).getId());
+                    mSelectedContacts.deleteFriendsSelectedId(mFriendList.get(position).getId());
                 }
             }
         });
@@ -70,7 +70,7 @@ public class FrissbiFriendsAdapter extends RecyclerView.Adapter<FrissbiFriendsAd
 
     @Override
     public int getItemCount() {
-        return mFriendsList.size();
+        return mFriendList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -99,25 +99,25 @@ public class FrissbiFriendsAdapter extends RecyclerView.Adapter<FrissbiFriendsAd
             FilterResults results = new FilterResults();
             FLog.d("FriendsAdapter", "constraint" + constraint);
             if (constraint != null && constraint.length() > 0) {
-                ArrayList<Friends> friendsArrayList = new ArrayList<Friends>();
-                for (int i = 0; i < mFriendsList.size(); i++) {
-                    if ((mFriendsList.get(i).getUserName().toUpperCase())
+                ArrayList<Friend> friendArrayList = new ArrayList<Friend>();
+                for (int i = 0; i < mFriendList.size(); i++) {
+                    if ((mFriendList.get(i).getFullName().toUpperCase())
                             .startsWith(constraint.toString().toUpperCase())) {
-                        friendsArrayList.add(mFriendsList.get(i));
+                        friendArrayList.add(mFriendList.get(i));
                     }
                 }
-                results.count = friendsArrayList.size();
-                results.values = friendsArrayList;
+                results.count = friendArrayList.size();
+                results.values = friendArrayList;
             } else {
-                results.count = mOriginalFriendsList.size();
-                results.values = mOriginalFriendsList;
+                results.count = mOriginalFriendList.size();
+                results.values = mOriginalFriendList;
             }
             return results;
         }
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            mFriendsList = (List<Friends>) results.values;
+            mFriendList = (List<Friend>) results.values;
             notifyDataSetChanged();
         }
     }

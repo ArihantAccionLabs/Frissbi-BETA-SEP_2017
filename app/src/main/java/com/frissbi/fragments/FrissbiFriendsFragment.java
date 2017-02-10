@@ -13,7 +13,7 @@ import android.view.ViewGroup;
 import com.frissbi.R;
 import com.frissbi.adapters.FrissbiFriendsAdapter;
 import com.frissbi.interfaces.ContactsSelectedListener;
-import com.frissbi.models.Friends;
+import com.frissbi.models.Friend;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class FrissbiFriendsFragment extends Fragment {
     private SharedPreferences mSharedPreferences;
     private String mUserId;
     private String mUserName;
-    private List<Friends> mFriendsList;
+    private List<Friend> mFriendList;
     private ProgressDialog mProgressDialog;
     private List<Long> mFriendsSelectedIdList;
     private ContactsSelectedListener mContactsSelectedListener;
@@ -40,9 +40,9 @@ public class FrissbiFriendsFragment extends Fragment {
         mFrissbiFriendsRecyclerView = (RecyclerView) view.findViewById(R.id.frissbi_friends_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mFrissbiFriendsRecyclerView.setLayoutManager(layoutManager);
-        mFriendsList = Friends.listAll(Friends.class);
+        mFriendList = Friend.listAll(Friend.class);
         mContactsSelectedListener = (ContactsSelectedListener) getActivity();
-        mFrissbiFriendsAdapter = new FrissbiFriendsAdapter(getActivity(), mFriendsList);
+        mFrissbiFriendsAdapter = new FrissbiFriendsAdapter(getActivity(), mFriendList);
         mFrissbiFriendsRecyclerView.setAdapter(mFrissbiFriendsAdapter);
         return view;
     }

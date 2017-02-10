@@ -4,7 +4,7 @@ package com.frissbi.models;
  * Created by thrymr on 9/2/17.
  */
 
-public class MyContacts {
+public class MyContacts implements Comparable<MyContacts> {
 
     private String name;
     private String number;
@@ -31,5 +31,10 @@ public class MyContacts {
                 "name='" + name + '\'' +
                 ", number='" + number + '\'' +
                 '}';
+    }
+
+    @Override
+    public int compareTo(MyContacts myContacts) {
+        return this.getName().compareTo(myContacts.getName());
     }
 }

@@ -31,7 +31,7 @@ import com.frissbi.fragments.FrissbiFriendsFragment;
 import com.frissbi.interfaces.ContactsSelectedListener;
 import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
-import com.frissbi.models.Friends;
+import com.frissbi.models.Friend;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +52,7 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
     private CustomProgressDialog mProgressDialog;
     private String mUserId;
     private String mUserName;
-    private List<Friends> mFriendsList;
+    private List<Friend> mFriendList;
     private List<Long> mFriendsSelectedIdList;
     private List<Long> mEmailsSelectedIdsList;
     private List<Long> mContactsSelectedIdsList;
@@ -70,7 +70,7 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
         mEmailFriendsFragment = new EmailFriendsFragment();
         mContactsFragment = new ContactsFragment();
         mFrissbiFriendsFragment = new FrissbiFriendsFragment();
-        mFriendsList = new ArrayList<>();
+        mFriendList = new ArrayList<>();
         mEmailContactsList = new ArrayList<>();
         mContactsList = new ArrayList<>();
         mFriendsSelectedIdList = new ArrayList<>();
@@ -98,7 +98,7 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPagerAdapter.addFragment(mFrissbiFriendsFragment, "Friends");
+        viewPagerAdapter.addFragment(mFrissbiFriendsFragment, "Friend");
         viewPagerAdapter.addFragment(mEmailFriendsFragment, "Emails");
         viewPagerAdapter.addFragment(mContactsFragment, "Contacts");
         viewPager.setAdapter(viewPagerAdapter);
