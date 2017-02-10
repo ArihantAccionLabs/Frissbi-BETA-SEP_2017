@@ -33,6 +33,7 @@ import javax.ws.rs.core.MediaType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;

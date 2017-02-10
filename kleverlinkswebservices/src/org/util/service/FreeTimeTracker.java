@@ -252,7 +252,6 @@ public class FreeTimeTracker {
 		} else {
 			return 0f;
 		}
-
 	}
   /*
    * @Author -> Sunil Verma

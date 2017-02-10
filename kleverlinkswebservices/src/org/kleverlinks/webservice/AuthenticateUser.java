@@ -10,8 +10,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,11 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
-import org.kleverlinks.webservice.gcm.Message;
-import org.kleverlinks.webservice.gcm.Result;
-import org.kleverlinks.webservice.gcm.Sender;
 import org.util.service.ServiceUtility;
-import org.util.service.TrackMeetingTime;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
 
@@ -36,10 +30,8 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
       
-		TrackMeetingTime.completingMeetingAfterTimeOut();
+		//TrackMeetingTime.completingMeetingAfterTimeOut();
 		//GoogleSearchPlaces.getGoogleSearchPlaces(17.4399295,78.4982741,"coffee");
-		
-		
 		return "ok";
 			
 	}

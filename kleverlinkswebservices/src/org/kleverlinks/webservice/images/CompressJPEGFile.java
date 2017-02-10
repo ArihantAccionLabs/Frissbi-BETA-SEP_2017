@@ -7,6 +7,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.Statement;
 import java.util.Iterator;
 
 import javax.imageio.IIOImage;
@@ -19,6 +22,8 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import org.kleverlinks.webservice.DataSourceConnection;
 
 @Path("CompressFileService")
 public class CompressJPEGFile {
@@ -59,4 +64,22 @@ public class CompressJPEGFile {
         writer.dispose();
         return "compressed_"+fileURL;
     }
+    @GET  
+    @Path("/uploadImage")  
+    @Produces(MediaType.TEXT_PLAIN)
+	public void uploadImage() {
+		PreparedStatement psmt = null;
+		try {
+			
+			 File image = new File("/home/thrymr/Downloads/1.jpg");
+	         psmt = DataSourceConnection.getDBConnection().prepareStatement("insert into tbl_usertransactions(image) "+ "values(?)");
+	         System.out.println("length===========b==========="+image.length());
+	         FileInputStream fis = new FileInputStream(image);
+	         psmt.setBinaryStream(1, (InputStream)fis, (int)(image.length()));
+	         int s = psmt.executeUpdate();
+	         psmt.close();
+		} catch (Exception e1) {
+			e1.printStackTrace();
+		}
+	}
 }

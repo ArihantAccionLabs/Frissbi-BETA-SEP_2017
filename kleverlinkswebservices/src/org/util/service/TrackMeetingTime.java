@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.DataSourceConnection;
-import org.kleverlinks.webservice.MeetingStatus;
 import org.service.dto.MeetingLogBean;
 
 public class TrackMeetingTime {
@@ -23,9 +23,7 @@ public class TrackMeetingTime {
 		List<MeetingLogBean> meetingList = new ArrayList<MeetingLogBean>();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 		LocalDateTime fromTime = LocalDateTime.now().plusHours(2);
-		LocalDateTime toTime = fromTime.plusMinutes(1);
-
-		System.out.println("fromTime===2 hour "+ formatter.format(fromTime)+"  toTime  "+formatter.format(toTime));
+		System.out.println("fromTime===2 hour "+ formatter.format(fromTime));
 		
 		 Connection conn = null;
 		 CallableStatement callableStatement = null;
@@ -76,8 +74,7 @@ public class TrackMeetingTime {
 			List<MeetingLogBean> addressMeetingList = new ArrayList<MeetingLogBean>();
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 			LocalDateTime fromTime = LocalDateTime.now().plusHours(1);
-			LocalDateTime toTime = fromTime.plusMinutes(1);
-			System.out.println("fromTime 1 hour ==="+ formatter.format(fromTime)+"  toTime  "+formatter.format(toTime));
+			System.out.println("fromTime 1 hour ==="+ formatter.format(fromTime));
 			 Connection conn = null;
 			 CallableStatement callableStatement = null;
 			try {

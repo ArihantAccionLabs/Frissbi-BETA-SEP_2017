@@ -1,4 +1,4 @@
-package org.kleverlinks.webservice;
+package org.kleverlinks.enums;
 
 public enum MeetingStatus {
 

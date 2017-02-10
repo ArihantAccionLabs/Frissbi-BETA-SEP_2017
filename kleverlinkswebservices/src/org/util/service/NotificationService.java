@@ -461,27 +461,6 @@ public class NotificationService {
 				JSONObject finalJson = new JSONObject();
 
 				finalJson.put("meetingId", meetingCreatorLogBean.getMeetingId());
-				/*
-				 * finalJson.put("date", meetingCreatorLogBean.getDate());
-				 * finalJson.put("from", meetingCreatorLogBean.getStartTime());
-				 * finalJson.put("to", meetingCreatorLogBean.getEndTime());
-				 * finalJson.put("description",
-				 * meetingCreatorLogBean.getDescription());
-				 * if(meetingCreatorLogBean.getLatitude() != null && !
-				 * meetingCreatorLogBean.getLatitude().trim().isEmpty()){
-				 * 
-				 * finalJson.put("address", meetingCreatorLogBean.getAddress());
-				 * finalJson.put("latitude",
-				 * meetingCreatorLogBean.getLatitude());
-				 * finalJson.put("longitude",
-				 * meetingCreatorLogBean.getLongitude());
-				 * finalJson.put("isLocationSelected", true); }else{
-				 * finalJson.put("isLocationSelected", false); }
-				 */
-
-				// finalJson.put("friendsJsonArray",
-				// ServiceUtility.getReceptionistDetailsByMeetingId((meetingCreatorLogBean.getMeetingId())));
-
 				notificationInfoDTO.setJsonObject(finalJson);
 
 				try {

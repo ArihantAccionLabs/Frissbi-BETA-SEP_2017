@@ -13,11 +13,10 @@ public class CloseMeetingCronjob implements Job {
 	
 		try{
 			
-			System.out.println(""+new Date());
+			System.out.println("CloseMeetingCronjob========================"+new Date());
 			TrackMeetingTime.completingMeetingAfterTimeOut();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
 }
