@@ -56,20 +56,27 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             mAddFriendButton.setText("Accept");
         }
 
-
         mAddFriendButton.setOnClickListener(this);
+
+
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
+
     }
 
     @Override
     public void onClick(View v) {
-
         switch (v.getId()) {
             case R.id.add_friend_button:
                 sendFriendRequest();
                 break;
         }
-
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -80,6 +87,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+
         }
     }
 
@@ -101,10 +109,26 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     }
                 }
             });
-        } else if (mFriend.getStatus().equalsIgnoreCase(FriendStatus.CONFIRM.toString())) {
+        } else  if (mFriend.getStatus().equalsIgnoreCase(FriendStatus.CONFIRM.toString())){
+            String url = Utility.REST_URI + Utility.APPROVE_FRIEND + mUserId + "/" + mFriend.getUserId();
+            TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
+                @Override
+                public void handleResponse(TSNetworkHandler.TSResponse response) {
+
+                    if (response != null) {
+                        if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
+                            Toast.makeText(ProfileActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                        } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
+                            Toast.makeText(ProfileActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                        }
+
+                    } else {
+                        Toast.makeText(ProfileActivity.this, "Something went wrong at server side", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+            });
 
         }
     }
-
-
 }

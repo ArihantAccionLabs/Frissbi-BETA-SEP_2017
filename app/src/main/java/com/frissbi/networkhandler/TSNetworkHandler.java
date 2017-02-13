@@ -4,7 +4,6 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -36,7 +35,6 @@ public class TSNetworkHandler {
     public static final int TYPE_GET = 2;
 
     private TSNetworkHandler(Context context) {
-
         mContext = context;
     }
 

@@ -83,9 +83,6 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
     private MyPlaces mMeetingPlace;
     private AlertDialog mAlertDialog;
     private AlertDialog mConflictAlertDialog;
-    private AlertDialog mConfirmAlertDialog;
-    private ProgressDialog mProgressDialog;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -129,6 +126,9 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         meetingTitleRlayout.setOnClickListener(this);
         conformMeetingButton.setOnClickListener(this);
     }
+    private AlertDialog mConfirmAlertDialog;
+
+    private ProgressDialog mProgressDialog;
 
     private void showSelectLocationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);

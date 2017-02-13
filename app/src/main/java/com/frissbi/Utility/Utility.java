@@ -23,6 +23,7 @@ public class Utility {
     public static final String SUBMIT_MEETING_LOCATION = "/MeetingDetailsService/updateMeetingAddress/";
     public static final String PEOPLE_SEARCH = "/FriendListService/search/";
     public static final String ADD_FRIEND = "/FriendListService/sendFriendRequest/";
+    public static final String APPROVE_FRIEND = "/FriendListService/approveFriendRequest/";
     private static Utility ourInstance = new Utility();
 
     public static Utility getInstance() {

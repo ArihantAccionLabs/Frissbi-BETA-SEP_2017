@@ -347,6 +347,14 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+            }
+        });
+
+
     }
 
     private void getAllContacts() {

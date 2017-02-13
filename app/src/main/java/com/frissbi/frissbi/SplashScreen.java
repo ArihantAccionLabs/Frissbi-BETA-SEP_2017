@@ -82,6 +82,7 @@ public class SplashScreen extends Activity implements AnimationListener {
 
             }
         }, SPLASH_TIME_OUT);
+
     }
 
     @Override

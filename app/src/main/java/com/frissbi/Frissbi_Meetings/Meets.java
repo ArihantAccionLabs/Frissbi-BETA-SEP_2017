@@ -5,6 +5,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -91,8 +92,8 @@ public class Meets extends AppCompatActivity implements View.OnClickListener {
         Log.d(tag, "Calendar Instance:= " + "Month: " + month + " " + "Year: "
                 + year);
         day = _calendar.get(Calendar.DAY_OF_MONTH);
-        date_month_year = (year + "-" + (month) + "-" + day);
         DateTime = date_month_year + " " + 00 + ":" + 00 + ":" + 00 + "." + 000;
+        date_month_year = (year + "-" + (month) + "-" + day);
 
         Log.d("valupedig............", DateTime);
 
@@ -517,14 +518,15 @@ public class Meets extends AppCompatActivity implements View.OnClickListener {
 
             String from = DateTime;
             String to = (date_month_year + " " + 23 + ":" + 59 + ":" + 59 + "." + 000);
-
+            SharedPreferences sharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
+            String userId = sharedPreferences.getString("USERID_FROM", "editor");
 
             Log.d("Meets", "UseridFrom :" + Friss_Pojo.UseridFrom + "from : " + from + "to : " + to);
 
             try {
 
 
-                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.GETMEETING_DETAILS + Friss_Pojo.UseridFrom + "/" + from + "/" + to;
+                String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.GETMEETING_DETAILS + userId + "/" + from + "/" + to;
                 ServiceHandler sh = new ServiceHandler();
                 url = url.replace(" ", "%20");
                 Log.d("Response: ", "> " + url);

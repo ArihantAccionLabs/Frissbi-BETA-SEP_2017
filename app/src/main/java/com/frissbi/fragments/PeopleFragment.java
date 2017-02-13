@@ -133,8 +133,24 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
                 }
             });
         }else  if (friend.getStatus().equalsIgnoreCase(FriendStatus.CONFIRM.toString())){
+            String url = Utility.REST_URI + Utility.APPROVE_FRIEND + mUserId + "/" + friend.getUserId();
+            TSNetworkHandler.getInstance(getActivity()).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
+                @Override
+                public void handleResponse(TSNetworkHandler.TSResponse response) {
 
+                    if (response != null) {
+                        if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
+                            Toast.makeText(getActivity(), response.message, Toast.LENGTH_SHORT).show();
+                        } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
+                            Toast.makeText(getActivity(), response.message, Toast.LENGTH_SHORT).show();
+                        }
 
+                    } else {
+                        Toast.makeText(getActivity(), "Something went wrong at server side", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+            });
 
         }
 
