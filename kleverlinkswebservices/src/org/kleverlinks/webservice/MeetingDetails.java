@@ -582,50 +582,59 @@ public class MeetingDetails {
 		return jsonResultsArray.toString();
 	}
 
-	@GET
-	@Path("/getMeetingDetailsByUserID/{userId}/{fromDate}/{toDate}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getMeetingDetailsByUserID(@PathParam("userId") int userId, @PathParam("fromDate") Timestamp fromDate,
-			@PathParam("toDate") Timestamp toDate) {
+	@POST
+	@Path("/getMeetingDetailsByUserID")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String getMeetingDetailsByUserID(String meetingDate) {
 
 		Connection conn = null;
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
+		JSONObject finalJson = new JSONObject();
 		try {
+			JSONObject meetingDateJsonObject = new JSONObject(meetingDate);
+			System.out.println("meetingDateJsonObject=============="+meetingDateJsonObject.toString());
+			Map<String , Date> map = ServiceUtility.getOneDayDate(meetingDateJsonObject.getString("date"));
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetMeetingDetails_ByUserID(?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId);
-			callableStatement.setTimestamp(2, fromDate);
-			callableStatement.setTimestamp(3, toDate);
+			callableStatement.setInt(1, meetingDateJsonObject.getInt("userId"));
+			callableStatement.setTimestamp(2, new Timestamp(map.get("today").getTime()));
+			callableStatement.setTimestamp(3, new Timestamp(map.get("tomorrow").getTime()));
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
 			while (rs.next()) {
 				JSONObject jsonObject = new JSONObject();
-				jsonObject.put("MeetingID", rs.getString("MeetingID"));
-				jsonObject.put("RequestDateTime", rs.getString("RequestDateTime"));
-				jsonObject.put("SenderFromDateTime", rs.getString("SenderFromDateTime"));
-				jsonObject.put("SenderToDateTime", rs.getString("SenderToDateTime"));
-				jsonObject.put("LocationID", rs.getString("LocationID"));
-				jsonObject.put("ScheduledTimeSlot", rs.getString("ScheduledTimeSlot"));
-				jsonObject.put("MeetingDescription", rs.getString("MeetingDescription"));
-				jsonObject.put("Latitude", rs.getString("Latitude"));
-				jsonObject.put("Longitude", rs.getString("Longitude"));
-				jsonObject.put("olatitude", rs.getString("olatitude"));
-				jsonObject.put("oLongitude", rs.getString("oLongitude"));
-				jsonObject.put("UserPreferredLocationID", rs.getString("UserPreferredLocationID"));
-				jsonObject.put("GeoDateTime", rs.getString("GeoDateTime"));
-				if (rs.getString("GoogleAddress") == null) {
-					jsonObject.put("GoogleAddress", "");
-				} else {
-					jsonObject.put("GoogleAddress", rs.getString("GoogleAddress"));
+				DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");				
+				LocalDateTime senderFromDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
+				LocalDateTime senderToDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
+				jsonObject.put("meetingId" , rs.getInt("MeetingID"));
+				//jsonObject.put("meetingSenderId" , rs.getInt("SenderUserID"));
+				jsonObject.put("date" , LocalDateTime.ofInstant(formatter.parse(rs.getString("SenderFromDateTime")).toInstant(), ZoneId.systemDefault()).toLocalDate());
+				jsonObject.put("from" , senderFromDateTime.getHour() + ":" + senderFromDateTime.getMinute());
+				jsonObject.put("to" , senderToDateTime.getHour() + ":" + senderToDateTime.getMinute());
+				jsonObject.put("description" , rs.getString("MeetingDescription"));
+				
+				if(rs.getString("Latitude") != null && ! rs.getString("Latitude").trim().isEmpty()){
+					
+					jsonObject.put("isLocationSelected",true);
+					jsonObject.put("address" , rs.getString("GoogleAddress"));
+					jsonObject.put("latitude" , rs.getString("Latitude"));
+					jsonObject.put("longitude" , rs.getString("Longitude"));
+				}else{
+					jsonObject.put("isLocationSelected",false);
 				}
-				jsonObject.put("DestinationType", rs.getString("DestinationType"));
+		
 				jsonResultsArray.put(jsonObject);
 			}
+			
+			finalJson.put("status", true);
+			finalJson.put("message", "Success");
+			finalJson.put("meetingArrays", jsonResultsArray);
+			
 		} catch (SQLException se) {
 			se.printStackTrace();
 		} catch (Exception e) {
@@ -633,9 +642,12 @@ public class MeetingDetails {
 		}
 		finally{
 		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(stmt);		}
+		ServiceUtility.closeSatetment(stmt);		
+		}
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
 		return jsonResultsArray.toString();
-	}
+	   }
 
 	@POST
 	@Path("/getConflictedMeetingDetails")
@@ -864,7 +876,7 @@ public class MeetingDetails {
 				jsonObject.put("description" , rs.getString("MeetingDescription"));
 				//jsonObject.put("meetingStatus" , rs.getInt("Status")); 
 				
-				if(rs.getString("Latitude") != null && rs.getString("Latitude").trim().isEmpty()){
+				if(rs.getString("Latitude") != null && ! rs.getString("Latitude").trim().isEmpty()){
 					
 					jsonObject.put("isLocationSelected",true);
 					jsonObject.put("address" , rs.getString("GoogleAddress"));

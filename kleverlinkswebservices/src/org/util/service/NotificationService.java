@@ -385,7 +385,7 @@ public class NotificationService {
 	public static void sendMeetingNotification(NotificationInfoDTO notificationInfoDTO) {
 
 		try {
-			int value = insertNotification(notificationInfoDTO);
+			int value = insertBatchNotification(notificationInfoDTO);
 			System.out.println("value===============" + value);
 			if (value != 0) {
 
@@ -465,7 +465,7 @@ public class NotificationService {
 
 				try {
 					System.out.println("size=================" + notificationInfoDTO.getUserList().size());
-					Integer updateCounts = insertNotification(notificationInfoDTO);
+					Integer updateCounts = insertBatchNotification(notificationInfoDTO);
 					if (updateCounts != null && updateCounts != 0) {
 
 						for (Integer userID : notificationInfoDTO.getUserList()) {
@@ -542,32 +542,30 @@ public class NotificationService {
 		}
 	}
 
-	public static Integer insertNotification(NotificationInfoDTO notificationInfoDTO) {
+	public static Integer insertBatchNotification(NotificationInfoDTO notificationInfoDTO) {
 
 		Connection conn = null;
 		CallableStatement callableStatement = null;
-		int[] updateCounts;
+		
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertNotificationStoreProc);
 			for (Integer userId : notificationInfoDTO.getUserList()) {
 				callableStatement.setInt(1, userId);
-				callableStatement.setInt(2, 0);
+				if(notificationInfoDTO.getSenderUserId() != null){
+					callableStatement.setInt(2, notificationInfoDTO.getSenderUserId());
+				}else{
+					callableStatement.setInt(2, 0);
+				}
 				callableStatement.setInt(3, notificationInfoDTO.getMeetingId());
 				callableStatement.setString(4, notificationInfoDTO.getNotificationType());
 				callableStatement.setString(5, notificationInfoDTO.getMessage());
 				callableStatement.setTimestamp(6, new Timestamp(new Date().getTime()));
 
 				callableStatement.addBatch();
-
-				/*
-				 * int value = callableStatement.executeUpdate(); int isError =
-				 * callableStatement.getInt(7); int notificationId =
-				 * callableStatement.getInt(8);
-				 */
 			}
-			updateCounts = callableStatement.executeBatch();
+			int[] updateCounts = callableStatement.executeBatch();
 			return updateCounts.length;
 
 		} catch (Exception e) {
@@ -576,6 +574,74 @@ public class NotificationService {
 			ServiceUtility.closeConnection(conn);
 			ServiceUtility.closeCallableSatetment(callableStatement);
 		}
+		return 0;
+	}
+	
+	public static Integer insertNotification(NotificationInfoDTO notificationInfoDTO) {
+
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		int value = 0;
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?)}";
+			callableStatement = conn.prepareCall(insertNotificationStoreProc);
+				callableStatement.setInt(1, notificationInfoDTO.getUserId());
+				if(notificationInfoDTO.getSenderUserId() != null){
+					callableStatement.setInt(2, notificationInfoDTO.getSenderUserId());
+				}else{
+					callableStatement.setInt(2, 0);
+				}
+				callableStatement.setInt(3, 501);
+				callableStatement.setString(4, notificationInfoDTO.getNotificationType());
+				callableStatement.setString(5, notificationInfoDTO.getMessage());
+				callableStatement.setTimestamp(6, new Timestamp(new Date().getTime()));
+                value = callableStatement.executeUpdate();
+			  return value;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		return value;
+	}
+	
+	public static void sendFriendNotification(NotificationInfoDTO notificationInfoDTO) {
+		try {
+			int insertedNotification = insertNotification(notificationInfoDTO);
+			System.out.println("insertedNotification=============="+insertedNotification);
+			if (insertedNotification != 0) {
+
+				Sender sender = new Sender(Constants.GCM_APIKEY);
+				Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true).addData("message", notificationInfoDTO.getMessage()).addData("NotificationName", notificationInfoDTO.getNotificationType()).build();
+				String deviceRegistrationId = getDeviceRegistrationId(notificationInfoDTO.getUserId());
+				if (deviceRegistrationId != null) {
+					Result result = sender.send(message, deviceRegistrationId, 1);
+					System.out.println(result);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	public static String getDeviceRegistrationId(Integer userId){
+		
+		try {
+			AuthenticateUser authenticateUser = new AuthenticateUser();
+			JSONObject jsonObject = new JSONObject(authenticateUser.getGCMDeviceRegistrationId(userId));
+			String deviceRegistrationId = jsonObject.getString("DeviceRegistrationID");
+			
+			if(deviceRegistrationId != null && ! deviceRegistrationId.trim().isEmpty()){
+				return deviceRegistrationId;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 		return null;
 	}
+	
+	
 }

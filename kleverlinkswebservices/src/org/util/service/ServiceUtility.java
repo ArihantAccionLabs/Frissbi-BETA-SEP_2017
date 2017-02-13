@@ -48,6 +48,9 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 public class ServiceUtility {
 
+	public static Boolean checkValidString(String string) {
+		return string != null && !string.trim().isEmpty();
+	}
 	public static JSONObject getUserDetailByUserId(Integer userId) {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
@@ -213,7 +216,6 @@ public class ServiceUtility {
 		Map<String , Date> map = new HashMap<String , Date>();
 		try{
 		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		Calendar now = Calendar.getInstance();
 		now.setTime(formatter.parse(date));
 		now.set(Calendar.HOUR, 0);
@@ -236,8 +238,6 @@ public class ServiceUtility {
 		}
 		return map;
 	}
-	
-	
 	public static void closeConnection(Connection connection) {
 		try {
 			if (connection != null)
