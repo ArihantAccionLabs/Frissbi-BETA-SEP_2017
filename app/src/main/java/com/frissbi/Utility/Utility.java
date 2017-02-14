@@ -24,6 +24,7 @@ public class Utility {
     public static final String PEOPLE_SEARCH = "/FriendListService/search/";
     public static final String ADD_FRIEND = "/FriendListService/sendFriendRequest/";
     public static final String APPROVE_FRIEND = "/FriendListService/approveFriendRequest/";
+    public static final String VIEW_PROFILE = "/FriendListService/seeOtherProfile/";
     private static Utility ourInstance = new Utility();
 
     public static Utility getInstance() {

@@ -14,53 +14,55 @@
         android:orientation="horizontal">
 
 
-         <LinearLayout
+        <LinearLayout
             android:layout_width="fill_parent"
-             android:layout_gravity="center"
-             android:gravity="center"
-             android:layout_marginLeft="10dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="10dp"
+            android:gravity="center"
             android:weightSum="5">
 
-             <LinearLayout
-                 android:layout_width="wrap_content"
-                 android:layout_weight="1"
-                 android:layout_height="wrap_content">
-        <ImageView
-            android:id="@+id/prevMonth"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="center"
-            android:background="@drawable/cal_left_arrow_off"
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
 
-            android:layout_marginLeft="10sp">
-           </ImageView>
-             </LinearLayout>
-             <LinearLayout
-                 android:layout_width="wrap_content"
-                 android:layout_weight="1"
-                 android:layout_height="wrap_content">
-        <TextView
-            android:id="@+id/currentMonth"
-            android:layout_width="wrap_content"
-            android:layout_height="60sp"
-            android:gravity="center"
-            android:text="Jan"
+                <ImageView
+                    android:id="@+id/prevMonth"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="10sp"
 
-            android:textColor="#000000"></TextView>
-        </LinearLayout>
-             <LinearLayout
-                 android:layout_width="wrap_content"
-                 android:layout_weight="1"
-                 android:layout_height="wrap_content">
-        <ImageView
-            android:id="@+id/nextMonth"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_gravity="center"
-            android:background="@drawable/cal_right_arrow_off">
-            </ImageView>
-             </LinearLayout>
+                    android:background="@drawable/cal_left_arrow_off"></ImageView>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/currentMonth"
+                    android:layout_width="wrap_content"
+                    android:layout_height="60sp"
+                    android:gravity="center"
+                    android:text="Jan"
+                    android:textColor="#000000" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <ImageView
+                    android:id="@+id/nextMonth"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/cal_right_arrow_off"/>
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -69,102 +71,108 @@
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:background="#50D2C2"
-        android:orientation="horizontal"
         android:layout_gravity="center_vertical|center_horizontal"
+        android:background="#50D2C2"
         android:gravity="center_vertical|center_horizontal"
+        android:orientation="horizontal"
         android:weightSum="8">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@color/text_color_white"
-            android:text="Sun" />
+            android:text="Sun"
+            android:textColor="@color/text_color_white" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@color/text_color_white"
-            android:text="Mon" />
+            android:text="Mon"
+            android:textColor="@color/text_color_white" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_color_white"
             android:layout_weight="1"
-            android:text="Tue" />
+            android:text="Tue"
+            android:textColor="@color/text_color_white" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_color_white"
             android:layout_weight="1"
-            android:text="wed" />
+            android:text="wed"
+            android:textColor="@color/text_color_white" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_color_white"
             android:layout_weight="1"
-            android:text="Thu" />
+            android:text="Thu"
+            android:textColor="@color/text_color_white" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_color_white"
             android:layout_weight="1"
-            android:text="Fri" />
+            android:text="Fri"
+            android:textColor="@color/text_color_white" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="@color/text_color_white"
             android:layout_marginLeft="3dp"
             android:layout_weight="1"
-            android:text="Sat" />
-
-
+            android:text="Sat"
+            android:textColor="@color/text_color_white" />
 
     </LinearLayout>
-<LinearLayout
-    android:layout_width="fill_parent"
-    android:orientation="vertical"
-    android:layout_height="fill_parent">
+
     <LinearLayout
         android:layout_width="fill_parent"
-        android:weightSum="5"
-        android:orientation="vertical"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="fill_parent"
-            android:layout_weight="2"
-            android:layout_height="fill_parent">
+            android:layout_height="fill_parent"
+            android:orientation="vertical"
+            android:weightSum="5">
 
-        <GridView
-            android:id="@+id/calendar"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:numColumns="7"
-            android:background="#50D2C2"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_weight="2"
-            android:layout_marginTop="2dp"
-            android:layout_height="fill_parent">
-
-            <ListView
-                android:id="@+id/meetinglist"
+            <LinearLayout
                 android:layout_width="fill_parent"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:listSelector="@drawable/list_selector_flatcolor"
-                android:layout_height="fill_parent" />
+                android:layout_height="fill_parent"
+                android:layout_weight="2">
 
+                <GridView
+                    android:id="@+id/calendar"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#50D2C2"
+                    android:numColumns="7" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:layout_marginTop="2dp"
+                android:layout_weight="2">
+
+                <ListView
+                    android:id="@+id/meetinglist"
+                    android:layout_width="fill_parent"
+                    android:layout_height="fill_parent"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:listSelector="@drawable/list_selector_flatcolor" />
+
+            </LinearLayout>
         </LinearLayout>
+
+
     </LinearLayout>
-
-
-</LinearLayout>
 
 
 </LinearLayout>

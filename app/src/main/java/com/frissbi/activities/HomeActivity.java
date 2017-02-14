@@ -12,6 +12,7 @@ import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
@@ -126,6 +127,7 @@ public class HomeActivity extends AppCompatActivity
     private Animation rotate_forward;
     private Animation rotate_backward;
     private AlertDialog locationAlertDialog;
+    private EmailIdsAsync mEmailIdsAsync;
 
 
     @Override
@@ -138,14 +140,16 @@ public class HomeActivity extends AppCompatActivity
         mProgressDialog = new CustomProgressDialog(this);
         emailContactsList = new ArrayList<>();
         mEmailSharedPreferences = getSharedPreferences("GMAIL_REG", Context.MODE_PRIVATE);
+        mEmailIdsAsync = new EmailIdsAsync();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
                 if (EmailContacts.listAll(EmailContacts.class).size() == 0) {
-                    getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
+                 //   getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
+                    mEmailIdsAsync.execute();
                 }
                 if (Contacts.listAll(Contacts.class).size() == 0) {
-                    readContacts();
+                   // readContacts();
                 }
             }
 
@@ -178,11 +182,12 @@ public class HomeActivity extends AppCompatActivity
         } else {
 
             if (EmailContacts.listAll(EmailContacts.class).size() == 0) {
-                getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
+                //getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
+                mEmailIdsAsync.execute();
 
             }
             if (Contacts.listAll(Contacts.class).size() == 0) {
-                readContacts();
+               // readContacts();
             }
 
 
@@ -567,7 +572,72 @@ public class HomeActivity extends AppCompatActivity
         });
     }
 
-    private void getNameEmailDetails(String emailName) {
+
+    class EmailIdsAsync extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+            EmailContacts.deleteAll(EmailContacts.class);
+            ArrayList<String> emlRecs = new ArrayList<String>();
+            HashSet<String> emlRecsHS = new HashSet<String>();
+            Context context = HomeActivity.this;
+            ContentResolver cr = context.getContentResolver();
+
+
+            String[] PROJECTION = new String[]{ContactsContract.RawContacts._ID,
+                    ContactsContract.Contacts.DISPLAY_NAME,
+                    ContactsContract.Contacts.PHOTO_ID,
+                    ContactsContract.CommonDataKinds.Email.DATA,
+                    ContactsContract.CommonDataKinds.Photo.CONTACT_ID};
+            String order = "CASE WHEN "
+                    + ContactsContract.Contacts.DISPLAY_NAME
+                    + " NOT LIKE '%@%' THEN 1 ELSE 2 END, "
+                    + ContactsContract.Contacts.DISPLAY_NAME
+                    + ", "
+                    + ContactsContract.CommonDataKinds.Email.DATA
+                    + " COLLATE NOCASE";
+            String filter = ContactsContract.CommonDataKinds.Email.DATA + " NOT LIKE ''";
+       /* Uri uri = Uri.withAppendedPath(ContactsContract.CommonDataKinds.Email.CONTENT_LOOKUP_URI, Uri.encode(emailName));
+        Cursor cur = getContentResolver().query(uri,
+                new String[]{ContactsContract.CommonDataKinds.Email.CONTACT_ID, ContactsContract.CommonDataKinds.Email.DISPLAY_NAME, ContactsContract.CommonDataKinds.Email.DATA},
+                null, null, null);*/
+            Cursor cur = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, PROJECTION, filter, null, order);
+            Log.d("AddFriendsToMeeting", "cur" + cur.getCount());
+            if (cur.moveToFirst()) {
+                do {
+                    // names comes in hand sometimes
+                    String name = cur.getString(1);
+                    String emailId = cur.getString(3);
+                    EmailContacts emailContacts = new EmailContacts();
+                    emailContacts.setName(name);
+                    emailContacts.setEmailId(emailId);
+                    emailContacts.save();
+
+
+                    // keep unique only
+                    if (emlRecsHS.add(emailId.toLowerCase())) {
+                        emlRecs.add(emailId);
+                    }
+                } while (cur.moveToNext());
+
+            }
+
+            cur.close();
+            return "emailIds saved successfully";
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            ContactsAsync contactsAsync = new ContactsAsync();
+            contactsAsync.execute();
+        }
+    }
+
+
+    /*private void getNameEmailDetails(String emailName) {
+
         mProgressDialog.show();
         EmailContacts.deleteAll(EmailContacts.class);
         ArrayList<String> emlRecs = new ArrayList<String>();
@@ -589,10 +659,10 @@ public class HomeActivity extends AppCompatActivity
                 + ContactsContract.CommonDataKinds.Email.DATA
                 + " COLLATE NOCASE";
         String filter = ContactsContract.CommonDataKinds.Email.DATA + " NOT LIKE ''";
-       /* Uri uri = Uri.withAppendedPath(ContactsContract.CommonDataKinds.Email.CONTENT_LOOKUP_URI, Uri.encode(emailName));
+       *//* Uri uri = Uri.withAppendedPath(ContactsContract.CommonDataKinds.Email.CONTENT_LOOKUP_URI, Uri.encode(emailName));
         Cursor cur = getContentResolver().query(uri,
                 new String[]{ContactsContract.CommonDataKinds.Email.CONTACT_ID, ContactsContract.CommonDataKinds.Email.DISPLAY_NAME, ContactsContract.CommonDataKinds.Email.DATA},
-                null, null, null);*/
+                null, null, null);*//*
         Cursor cur = cr.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, PROJECTION, filter, null, order);
         Log.d("AddFriendsToMeeting", "cur" + cur.getCount());
         if (cur.moveToFirst()) {
@@ -616,9 +686,49 @@ public class HomeActivity extends AppCompatActivity
 
         cur.close();
         mProgressDialog.dismiss();
+    }*/
+
+    class ContactsAsync extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected String doInBackground(Void... params) {
+            ContentResolver cr = getContentResolver();
+            Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
+                    null, null, null, null);
+
+            if (cur.getCount() > 0) {
+                while (cur.moveToNext()) {
+                    String id = cur.getString(cur.getColumnIndex(ContactsContract.Contacts._ID));
+                    String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+
+                    if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
+                        Contacts contacts = new Contacts();
+                        contacts.setName(name);
+
+                        String phone = "0";
+                        // get the phone number
+                        Cursor pCur = cr.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null,
+                                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?",
+                                new String[]{id}, null);
+                        while (pCur.moveToNext()) {
+                            phone = pCur.getString(
+                                    pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                            System.out.println();
+                            System.out.println("name : " + name + "   phone" + phone);
+                        }
+                        contacts.setPhoneNumber(phone);
+                        contacts.save();
+                        pCur.close();
+                    }
+
+
+                }
+            }
+            return "Contacts saved successfully";
+        }
     }
 
-    public void readContacts() {
+   /* public void readContacts() {
         mProgressDialog.show();
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
@@ -648,17 +758,14 @@ public class HomeActivity extends AppCompatActivity
                     contacts.save();
                     pCur.close();
                 }
-
-
             }
         }
         mProgressDialog.dismiss();
-    }
+    }*/
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
                 // If request is cancelled, the result arrays are empty.
@@ -667,10 +774,11 @@ public class HomeActivity extends AppCompatActivity
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
                     if (EmailContacts.listAll(EmailContacts.class).size() == 0) {
-                        getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
+                       // getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
+                        mEmailIdsAsync.execute();
                     }
                     if (Contacts.listAll(Contacts.class).size() == 0) {
-                        readContacts();
+                       // readContacts();
                     }
 
                 } else {

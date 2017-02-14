@@ -85,6 +85,10 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
                                 friend.setFullName(peopleJsonObject.getString("fullName"));
                                 friend.setEmailId(peopleJsonObject.getString("emailId"));
                                 friend.setStatus(peopleJsonObject.getString("status"));
+                                friend.setDob(peopleJsonObject.getString("dob"));
+                                if (peopleJsonObject.has("gender")) {
+                                    friend.setGender(peopleJsonObject.getString("gender"));
+                                }
                                 mFriendList.add(friend);
                             }
 
@@ -132,7 +136,7 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
 
                 }
             });
-        }else  if (friend.getStatus().equalsIgnoreCase(FriendStatus.CONFIRM.toString())){
+        } else if (friend.getStatus().equalsIgnoreCase(FriendStatus.CONFIRM.toString())) {
             String url = Utility.REST_URI + Utility.APPROVE_FRIEND + mUserId + "/" + friend.getUserId();
             TSNetworkHandler.getInstance(getActivity()).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
                 @Override

@@ -88,8 +88,10 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
         if (!mSwipeRefreshLayout.isRefreshing()) {
             mProgressDialog.show();
         }
-
         mMeetingList.clear();
+        if (mMeetingLogAdapter != null) {
+            mMeetingLogAdapter.notifyDataSetChanged();
+        }
         String url = Utility.REST_URI + Utility.MEETING_PENDINGLIST + mUserId;
         TSNetworkHandler.getInstance(getActivity()).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
@@ -118,14 +120,14 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
                                 meeting.setFromTime(meetingJsonObject.getString("from"));
                                 meeting.setToTime(meetingJsonObject.getString("to"));
                                 meeting.setDescription(meetingJsonObject.getString("description"));
-                                if (meetingJsonObject.getBoolean("isLocationSelected")) {
+                               /* if (meetingJsonObject.getBoolean("isLocationSelected")) {
                                     meeting.setLocationSelected(meetingJsonObject.getBoolean("isLocationSelected"));
                                     meeting.setAddress(meetingJsonObject.getString("address"));
                                     meeting.setLatitude(meetingJsonObject.getDouble("latitude"));
                                     meeting.setLongitude(meetingJsonObject.getDouble("longitude"));
                                 } else {
                                     meeting.setLocationSelected(meetingJsonObject.getBoolean("isLocationSelected"));
-                                }
+                                }*/
 
                                 JSONArray friendsJsonArray = meetingJsonObject.getJSONArray("friendsJsonArray");
                                 int friendsLength = friendsJsonArray.length();
@@ -168,6 +170,7 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
                             mMeetingLogAdapter = new MeetingLogAdapter(getActivity(), mMeetingList, mMeetingDetailsListener);
                             mMeetingLogRecyclerView.setAdapter(mMeetingLogAdapter);
 
+
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -177,6 +180,7 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
                 }
                 mProgressDialog.dismiss();
                 mSwipeRefreshLayout.setRefreshing(false);
+
             }
         });
 

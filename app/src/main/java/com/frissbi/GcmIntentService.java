@@ -22,6 +22,7 @@ import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.NotificationType;
 import com.frissbi.Utility.TSLocationManager;
 import com.frissbi.activities.MeetingDetailsActivity;
+import com.frissbi.activities.ProfileActivity;
 import com.frissbi.activities.SuggestionsActivity;
 import com.frissbi.locations.NearByPlacess;
 import com.frissbi.networkhandler.TSNetworkHandler;
@@ -42,6 +43,7 @@ public class GcmIntentService extends IntentService {
     private String mUserId;
     private String locationSuggestionJsonString;
     private boolean isLocationUpdate;
+    private Long friendUserId;
 
     //  Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
     public GcmIntentService() {
@@ -80,6 +82,9 @@ public class GcmIntentService extends IntentService {
             FLog.d(TAG, "isLocationSelected" + isLocationSelected);
         }
 
+        if (intent.getExtras().containsKey("friendUserId")) {
+            friendUserId = Long.parseLong(intent.getExtras().getString("friendUserId"));
+        }
 
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
         String messageType = gcm.getMessageType(intent);
@@ -124,13 +129,11 @@ public class GcmIntentService extends IntentService {
         mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancel(NOTIFICATION_ID);
         if (mNotificationName.equalsIgnoreCase(NotificationType.FRIEND_PENDING_REQUESTS.toString())) {
-            Intent myintent = new Intent(this, Friend_PendingList.class);
-            myintent.putExtra("message", msg);
-            myintent.putExtra("NotificationName", mNotificationName);
-            myintent.putExtra("userName", msg2);
 
+            Intent intent = new Intent(this, ProfileActivity.class);
+            intent.putExtra("friendUserId", friendUserId);
 
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, myintent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.noti)
                     .setContentTitle("FRISSBI")
@@ -147,12 +150,10 @@ public class GcmIntentService extends IntentService {
 
         } else if (mNotificationName.equalsIgnoreCase(NotificationType.FRIEND_REQUEST_ACCEPTANCE.toString())) {
 
+            Intent intent = new Intent(this, ProfileActivity.class);
+            intent.putExtra("friendUserId", friendUserId);
 
-            Intent myintent = new Intent(this, FriendSerching.class);
-            myintent.putExtra("message", msg);
-            myintent.putExtra("NotificationName", mNotificationName);
-
-            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, myintent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.noti)
                     .setContentTitle("FRISSBI")
