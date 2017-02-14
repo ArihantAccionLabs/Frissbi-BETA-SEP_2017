@@ -7,18 +7,48 @@ import org.json.JSONObject;
 
 public class NotificationInfoDTO {
 
-	private Integer senderUserId;
-	private Integer userId;
+	private Long senderUserId;
+	private Long userId;
 	private String message;
 	private String notificationType;
 	private String notificationDescription;
-	private Integer meetingId;
+	private Long meetingId;
 	private JSONObject jsonObject;
 	
 	private MeetingLogBean meetingLogBean;
 	
-	private List<Integer> userList = new ArrayList<>();
+	private List<Long> userList = new ArrayList<>();
 	
+	public Long getSenderUserId() {
+		return senderUserId;
+	}
+	public void setSenderUserId(Long senderUserId) {
+		this.senderUserId = senderUserId;
+	}
+	public Long getUserId() {
+		return userId;
+	}
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+	public Long getMeetingId() {
+		return meetingId;
+	}
+	public void setMeetingId(Long meetingId) {
+		this.meetingId = meetingId;
+	}
+	public JSONObject getJsonObject() {
+		return jsonObject;
+	}
+	public void setJsonObject(JSONObject jsonObject) {
+		this.jsonObject = jsonObject;
+	}
+	public List<Long> getUserList() {
+		return userList;
+	}
+	public void setUserList(List<Long> userList) {
+		this.userList = userList;
+	}
 	public String getMessage() {
 		return message;
 	}
@@ -37,49 +67,11 @@ public class NotificationInfoDTO {
 	public void setNotificationType(String notificationType) {
 		this.notificationType = notificationType;
 	}
-	public Integer getMeetingId() {
-		return meetingId;
-	}
-	public void setMeetingId(Integer meetingId) {
-		this.meetingId = meetingId;
-	}
 
-	public Integer getSenderUserId() {
-		return senderUserId;
-	}
-	public Integer getUserId() {
-		return userId;
-	}
-	public void setUserId(Integer userId) {
-		this.userId = userId;
-	}
-	public void setSenderUserId(Integer senderUserId) {
-		this.senderUserId = senderUserId;
-	}
-	public JSONObject getJsonObject() {
-		return jsonObject;
-	}
-	public void setJsonObject(JSONObject jsonObject) {
-		this.jsonObject = jsonObject;
-	}
-
-	public List<Integer> getUserList() {
-		return userList;
-	}
-	public void setUserList(List<Integer> userList) {
-		this.userList = userList;
-	}
 	public MeetingLogBean getMeetingLogBean() {
 		return meetingLogBean;
 	}
 	public void setMeetingLogBean(MeetingLogBean meetingLogBean) {
 		this.meetingLogBean = meetingLogBean;
 	}
-	@Override
-	public String toString() {
-		return "NotificationInfoDTO [senderUserId=" + senderUserId + ", userId=" + userId + ", message=" + message
-				+ ", notificationType=" + notificationType + ", notificationDescription=" + notificationDescription
-				+ ", meetingId=" + meetingId + "]";
-	}
-
 }

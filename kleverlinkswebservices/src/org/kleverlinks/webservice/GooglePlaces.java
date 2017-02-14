@@ -38,7 +38,7 @@ public class GooglePlaces {
 	@Path("/nearByPlaces/{latitude}/{longitude}/{userId}/{meetingId}/{beginIndex}/{endIndex}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String nearByPlaces(@PathParam("latitude") double latitude, @PathParam("longitude") double longitude,
-			@PathParam("userId") int userId,@PathParam("meetingId") int meetingId,@PathParam("beginIndex") int beginIndex, @PathParam("endIndex") int endIndex ){
+			@PathParam("userId") Long userId,@PathParam("meetingId") Long meetingId,@PathParam("beginIndex") int beginIndex, @PathParam("endIndex") int endIndex ){
 		JSONArray jsonArray = new JSONArray();
 		String url = "https://maps.googleapis.com/maps/api/place/search/json?location="
 				+ latitude
@@ -107,7 +107,7 @@ public class GooglePlaces {
 	@GET
 	@Path("/nearByPlacesForMeeting/{meetingId}/{userId}/{beginIndex}/{endIndex}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String nearByPlacesForMeeting(@PathParam("meetingId") int meetingId,@PathParam("userId") int userId,
+	public String nearByPlacesForMeeting(@PathParam("meetingId") Long meetingId,@PathParam("userId") Long userId,
 			@PathParam("beginIndex") int beginIndex, @PathParam("endIndex") int endIndex ){
 		LocationDetails locationDetails = new LocationDetails();
 		String midpointForMeeting = locationDetails.calculateMidpointForMeeting(meetingId);
@@ -176,7 +176,7 @@ public class GooglePlaces {
 			ResultSet rs = callableStatement.getResultSet();
 
 			while(rs.next()){
-				geoMagic(Integer.parseInt(rs.getString("MeetingID")));
+				geoMagic(Long.parseLong(rs.getString("MeetingID")));
 			}
 			
 			insertStoreProc = "{call usp_GetMeetingIDForConfirmedRecipients()}";
@@ -185,7 +185,7 @@ public class GooglePlaces {
 			rs = callableStatement.getResultSet();
 
 			while(rs.next()){
-				geoMagic(Integer.parseInt(rs.getString("MeetingID")));
+				geoMagic(Long.parseLong(rs.getString("MeetingID")));
 			}
 
 
@@ -214,7 +214,7 @@ public class GooglePlaces {
 	@GET
 	@Path("/geoMagic/{meetingId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String geoMagic(@PathParam("meetingId") int meetingId
+	public String geoMagic(@PathParam("meetingId") Long meetingId
 			 ){
 		LocationDetails locationDetails = new LocationDetails();
 		String nearByPlaces = "";
@@ -258,7 +258,7 @@ public class GooglePlaces {
 
 				try {
 					AuthenticateUser authenticateUser = new AuthenticateUser();
-					JSONObject jsonRegistrationId = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(Integer.parseInt(senderUserId)));
+					JSONObject jsonRegistrationId = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(Long.parseLong(senderUserId)));
 					String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
 					Result result = sender.send(message, deviceRegistrationId, 1);
 					System.out.println(result);
@@ -271,7 +271,7 @@ public class GooglePlaces {
 					JSONObject object = array.getJSONObject(i);
 					String userId =object.getString("UserId");
 					UserRegistration userRegistration = new UserRegistration();
-					String senderUsername = userRegistration.getUsername(Integer.parseInt(senderUserId));
+					String senderUsername = userRegistration.getUsername(Long.parseLong(senderUserId));
 					notificationMessage ="Choose a convenient place for "+meetingDescription+"with "+senderUsername;
 					NotificationName = "Meeeting Voting Request";
 					sender = new Sender("AIzaSyCmJAbD3ijBFz_oFjOLvNJnh5e9chInBdc");
@@ -287,7 +287,7 @@ public class GooglePlaces {
 
 					try {
 						AuthenticateUser authenticateUser = new AuthenticateUser();
-						JSONObject jsonRegistrationId = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(Integer.parseInt(userId)));
+						JSONObject jsonRegistrationId = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(Long.parseLong(userId)));
 						String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
 						Result result = sender.send(message, deviceRegistrationId, 1);
 						System.out.println(result);
@@ -305,7 +305,7 @@ public class GooglePlaces {
 	@GET  
     @Path("/updateGeoMagicTriggerFlag/{meetingId}")  
     @Produces(MediaType.TEXT_PLAIN)
-	public static String updateGeoMagicTriggerFlag(@PathParam("username") int meetingId
+	public static String updateGeoMagicTriggerFlag(@PathParam("username") Long meetingId
 			) {
 
 		Connection conn = null;
@@ -316,7 +316,7 @@ public class GooglePlaces {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_UpdateGeoMagicTriggerFlag(?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.registerOutParameter(2, Types.INTEGER);
 			callableStatement.execute();
 			isError = callableStatement.getInt(2)+"";
@@ -406,7 +406,7 @@ public class GooglePlaces {
 		//String distance = googlePlaces.calculateDistance(17.4474117,78.3762304,17.447188,78.378344);
 		//System.out.println(distance);
 		//String nearByPlaces = googlePlaces.nearByPlacesForMeeting(49, 12, 1, 5);
-		System.out.println(googlePlaces.nearByPlaces(17.444133255555556, 78.43088754444445, 36,119, 1, 5));
+		//System.out.println(googlePlaces.nearByPlaces(17.444133255555556, 78.43088754444445, 36,119, 1, 5));
 		//System.out.println(nearByPlaces);
 		//System.out.println(googlePlaces.geoMagic(49));
 		double lon11 =-97.116121;

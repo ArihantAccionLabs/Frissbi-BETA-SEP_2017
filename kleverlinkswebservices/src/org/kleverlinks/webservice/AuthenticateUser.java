@@ -299,7 +299,7 @@ public class AuthenticateUser {
 	@GET  
     @Path("/getGCMDeviceRegistrationId/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String getGCMDeviceRegistrationId(@PathParam("userId") int userId ) {
+	public String getGCMDeviceRegistrationId(@PathParam("userId") Long userId ) {
 
 		Connection conn = null;
 		CallableStatement callableStatement = null;
@@ -308,7 +308,7 @@ public class AuthenticateUser {
 			conn = DataSourceConnection.getDBConnection();
 			String insertStoreProc = "{call usp_GetUserGCMCode(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId);
+			callableStatement.setLong(1, userId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 			while(rs.next()){

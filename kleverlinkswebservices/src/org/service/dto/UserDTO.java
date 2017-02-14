@@ -4,8 +4,8 @@ import java.time.LocalDateTime;
 
 public class UserDTO {
 
-	private Integer userId;
-	private Integer meetingId;
+	private Long userId;
+	private Long meetingId;
 	private String emailId;
 	private String fullName;
 	private String userName;
@@ -18,6 +18,22 @@ public class UserDTO {
 	private String latitude ;
 	private String longitude ;
 	
+	public Long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+
+	public Long getMeetingId() {
+		return meetingId;
+	}
+
+	public void setMeetingId(Long meetingId) {
+		this.meetingId = meetingId;
+	}
+
 	public String getEmailId() {
 		return emailId;
 	}
@@ -32,14 +48,6 @@ public class UserDTO {
 
 	public void setFullName(String fullName) {
 		this.fullName = fullName;
-	}
-
-	public Integer getUserId() {
-		return userId;
-	}
-
-	public void setUserId(Integer userId) {
-		this.userId = userId;
 	}
 
 	public String getUserName() {
@@ -64,14 +72,6 @@ public class UserDTO {
 
 	public void setEndTime(Float endTime) {
 		this.endTime = endTime;
-	}
-
-	public Integer getMeetingId() {
-		return meetingId;
-	}
-
-	public void setMeetingId(Integer meetingId) {
-		this.meetingId = meetingId;
 	}
 
 	public LocalDateTime getMeetingFromTime() {

@@ -25,9 +25,9 @@ public class UserNotifications {
 		@GET  
 	    @Path("/insertUserNotifications/{userId}/{senderUserId}/{notificationMasterId}/{showStatus}/{notificationDateTime}")
 	    @Produces(MediaType.TEXT_PLAIN)
-		public String insertUserNotifications(@PathParam("userId") int userId,
-				@PathParam("senderUserId") int senderUserId, @PathParam("notificationMasterId") int notificationMasterId,
-				@PathParam("showStatus") int showStatus, @PathParam("notificationDateTime") Timestamp notificationDateTime ){
+		public String insertUserNotifications(@PathParam("userId") Long userId,
+				@PathParam("senderUserId") Long senderUserId, @PathParam("notificationMasterId") Long notificationMasterId,
+				@PathParam("showStatus") Long showStatus, @PathParam("notificationDateTime") Timestamp notificationDateTime ){
 			Connection conn = null;
 			Statement stmt = null;
 			String notificationId="";
@@ -37,10 +37,10 @@ public class UserNotifications {
 				CallableStatement callableStatement = null;
 				String insertStoreProc = "{call usp_InsertUserNotification(?,?,?,?,?,?,?)}";
 				callableStatement = conn.prepareCall(insertStoreProc);
-				callableStatement.setInt(1, userId);
-				callableStatement.setInt(2, senderUserId);
-				callableStatement.setInt(3, notificationMasterId);
-				callableStatement.setInt(4, showStatus);
+				callableStatement.setLong(1, userId);
+				callableStatement.setLong(2, senderUserId);
+				callableStatement.setLong(3, notificationMasterId);
+				callableStatement.setLong(4, showStatus);
 				callableStatement.setTimestamp(5, notificationDateTime);
 				callableStatement.registerOutParameter(6, Types.INTEGER);
 				callableStatement.registerOutParameter(7, Types.INTEGER);
@@ -71,8 +71,8 @@ public class UserNotifications {
 				CallableStatement callableStatement = null;
 				String insertStoreProc = "{call usp_UpdateUserNotification(?,?,?)}";
 				callableStatement = conn.prepareCall(insertStoreProc);
-				callableStatement.setInt(1, notificationId);
-				callableStatement.setInt(2, showStatus);
+				callableStatement.setLong(1, notificationId);
+				callableStatement.setLong(2, showStatus);
 				callableStatement.registerOutParameter(3, Types.INTEGER);
 				int value = callableStatement.executeUpdate();
 				isError = callableStatement.getInt(3)+"";
@@ -92,7 +92,7 @@ public class UserNotifications {
 		@GET  
 	    @Path("/getUserNotifications/{userId}/{notificationId}")
 	    @Produces(MediaType.TEXT_PLAIN)
-		public String getUserNotifications(@PathParam("userId") Integer userId,@PathParam("notificationId") Integer notificationId){
+		public String getUserNotifications(@PathParam("userId") Long userId,@PathParam("notificationId") Long notificationId){
 			Connection conn = null;
 			CallableStatement callableStatement = null;
 			JSONArray jsonResultsArray = new JSONArray();
@@ -100,8 +100,8 @@ public class UserNotifications {
 				conn = DataSourceConnection.getDBConnection();
 				String insertStoreProc = "{call usp_GetUserNotification(?,?)}";
 				callableStatement = conn.prepareCall(insertStoreProc);
-				callableStatement.setInt(1, userId);
-				callableStatement.setInt(2, notificationId);
+				callableStatement.setLong(1, userId);
+				callableStatement.setLong(2, notificationId);
 				callableStatement.execute();
 				ResultSet rs = callableStatement.getResultSet();
 

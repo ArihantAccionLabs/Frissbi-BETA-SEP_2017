@@ -118,7 +118,7 @@ public class LocationDetails {
 	@Path("/calculateMidpointForMeeting/{meetingId}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String calculateMidpointForMeeting(
-			@PathParam("meetingId") int meetingId
+			@PathParam("meetingId") Long meetingId
 			) {
 		MeetingDetails meetingDetails = new MeetingDetails();
 		boolean isGeoMagic = true;
@@ -199,7 +199,7 @@ public class LocationDetails {
     @Produces(MediaType.TEXT_PLAIN)
 	public String insertMeetingLocationDetails(
 			@PathParam("latitude") String latitude, @PathParam("longitude") String longitude,
-			@PathParam("destinationAddress") String destinationAddress,@PathParam("meetingId") int meetingId
+			@PathParam("destinationAddress") String destinationAddress,@PathParam("meetingId") Long meetingId
 			 ){
 		Connection conn = null;
 		Statement stmt = null;
@@ -213,7 +213,7 @@ public class LocationDetails {
 			callableStatement.setString(1, latitude);
 			callableStatement.setString(2, longitude);
 			callableStatement.setString(3, destinationAddress);
-			callableStatement.setInt(4, meetingId);
+			callableStatement.setLong(4, meetingId);
 			callableStatement.registerOutParameter(5, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
 			isError = callableStatement.getInt(5)+"";
@@ -234,6 +234,6 @@ public class LocationDetails {
 	
 	public static void main(String args[]){
 		LocationDetails locationDetails = new LocationDetails();
-		locationDetails.calculateMidpointForMeeting(45);
+		locationDetails.calculateMidpointForMeeting(45l);
 	}
 }

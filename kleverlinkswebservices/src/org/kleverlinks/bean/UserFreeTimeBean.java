@@ -4,7 +4,7 @@ import java.util.Date;
 
 public class UserFreeTimeBean {
 
-	private Integer userId;
+	private Long userId;
 	private Date freeFromTime;
 	private Date freeToTime;
 	private String description;
@@ -14,10 +14,10 @@ public class UserFreeTimeBean {
 	private Float startTime;
 	private Float endTime;
 	
-	public Integer getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
-	public void setUserId(Integer userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 	public Date getFreeFromTime() {

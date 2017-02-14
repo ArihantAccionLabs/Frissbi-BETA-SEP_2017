@@ -51,7 +51,7 @@ public class ServiceUtility {
 	public static Boolean checkValidString(String string) {
 		return string != null && !string.trim().isEmpty();
 	}
-	public static JSONObject getUserDetailByUserId(Integer userId) {
+	public static JSONObject getUserDetailByUserId(Long userId) {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		JSONObject jsonObject = new JSONObject();
@@ -59,7 +59,7 @@ public class ServiceUtility {
 			conn = DataSourceConnection.getDBConnection();
 			String selectStoreProcedue = "{call usp_GetUserDetailsByUserID(?)}";
 			callableStatement = conn.prepareCall(selectStoreProcedue);
-			callableStatement.setInt(1, userId);
+			callableStatement.setLong(1, userId);
 			ResultSet rs = callableStatement.executeQuery();;
 	
 			while (rs.next()) {
@@ -92,7 +92,7 @@ public class ServiceUtility {
 			while (rs.next()) {
 				userDTO = new UserDTO();
 				userDTO.setEmailId(rs.getString("emailName"));
-				userDTO.setUserId(rs.getInt("userId"));
+				userDTO.setUserId(rs.getLong("userId"));
 				userDTO.setFullName(rs.getString("FirstName") + "" + rs.getString("LastName") + "");
 			}
 		} catch (Exception e) {
@@ -121,7 +121,7 @@ public class ServiceUtility {
 			rs = stmt.executeQuery(sql);
 			while (rs.next()) {
 				userDTO = new UserDTO();
-				userDTO.setUserId(rs.getInt("userId"));
+				userDTO.setUserId(rs.getLong("userId"));
 				userDTO.setEmailId(rs.getString("emailName"));
 				userDTO.setUserName(rs.getString("userName"));
 			}
@@ -137,7 +137,7 @@ public class ServiceUtility {
 
 	}
 
-	public static UserDTO getUserDetailsByUserId(int userId, int meetingId) {
+	public static UserDTO getUserDetailsByUserId(Long userId, Long meetingId) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -147,8 +147,8 @@ public class ServiceUtility {
 			conn = DataSourceConnection.getDBConnection();
 			sql = "SELECT tbl_users.UserName,tbl_users.FirstName,tbl_users.LastName,tbl_MeetingDetails.SenderFromDateTime,tbl_MeetingDetails.SenderToDateTime,tbl_MeetingDetails.MeetingDescription   FROM tbl_users INNER JOIN tbl_MeetingDetails ON tbl_users.UserID=tbl_MeetingDetails.SenderUserID WHERE MeetingID=? AND tbl_users.UserID=?";
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, meetingId);
-			pstmt.setInt(2, userId);
+			pstmt.setLong(1, meetingId);
+			pstmt.setLong(2, userId);
 			rs = pstmt.executeQuery(sql);
 			while (rs.next()) {
 				userDTO = new UserDTO();
@@ -168,7 +168,7 @@ public class ServiceUtility {
 
 	}
 
-	public static UserDTO getMeetingDetailsById(int meetingId) {
+	public static UserDTO getMeetingDetailsById(Long meetingId) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -178,7 +178,7 @@ public class ServiceUtility {
 			conn = DataSourceConnection.getDBConnection();
 			sql = "SELECT SenderFromDateTime,SenderToDateTime FROM tbl_MeetingDetails WHERE MeetingID=?";
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, meetingId);
+			pstmt.setLong(1, meetingId);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				userDTO = new UserDTO();
@@ -302,7 +302,7 @@ public class ServiceUtility {
 		return timeToBeTaken;
 	}
 
-	public static void insertingAndSendingMails(JSONArray mailsArray, int senderUserId, int meetingId)
+	public static void insertingAndSendingMails(JSONArray mailsArray, Long senderUserId, Long meetingId)
 			throws Exception {
 		try {
 			Connection connection = null;
@@ -313,7 +313,7 @@ public class ServiceUtility {
 			ps = connection.prepareStatement(query);
 
 			for (int i = 0; i < mailsArray.length(); i++) {
-				ps.setInt(1, meetingId);
+				ps.setLong(1, meetingId);
 				ps.setString(2, mailsArray.getString(i));
 
 				ps.addBatch();
@@ -321,11 +321,6 @@ public class ServiceUtility {
 			int[] insertedRow = ps.executeBatch();
 			connection.commit();
 			System.out.println(" insertingAndSendingMails    insertedRow[i]=========" + insertedRow.length);
-			/*
-			 * for (int i = 0; i < insertedRow.length; i++) {
-			 * 
-			 * }
-			 */
 			for (int i = 0; i < mailsArray.length(); i++) {
 				MyEmailer.SendMail(mailsArray.getString(i), "Your meeting request ", "");
 			}
@@ -334,7 +329,7 @@ public class ServiceUtility {
 		}
 	}
 
-	public static void insertMeetingContactNumbers(JSONArray contactArray, int senderUserId, int meetingId) {
+	public static void insertMeetingContactNumbers(JSONArray contactArray, Long senderUserId, Long meetingId) {
 		try {
 			
 		
@@ -347,7 +342,7 @@ public class ServiceUtility {
 
 		for (int i = 0; i < contactArray.length(); i++) {
 
-			ps.setInt(1, meetingId);
+			ps.setLong(1, meetingId);
 			ps.setString(2, contactArray.getString(i));
 			ps.addBatch();
 
@@ -363,36 +358,36 @@ public class ServiceUtility {
 		}
 	}
 
-	public static void deleteUserFromMeeting(JSONArray meetingArray , int senderUserId)throws IOException, SQLException, PropertyVetoException {
+	public static void deleteUserFromMeeting(JSONArray meetingArray , Long senderUserId)throws IOException, SQLException, PropertyVetoException {
 
 		Connection connection = null;
 		PreparedStatement preparedStatement = null;
 		String sql = "";
 		try{
 		connection = DataSourceConnection.getDBConnection();
-		List<Integer> meetingList = new ArrayList<>();
+		List<Long> meetingList = new ArrayList<>();
 		
 			if (meetingArray.length() > 1) {
 				for (int i = 0; i < meetingArray.length(); i++) {
-					meetingList.add(meetingArray.getInt(i));
+					meetingList.add(meetingArray.getLong(i));
 				}
 			} else
-				meetingList.add(meetingArray.getJSONObject(0).getInt("meetingId"));
+				meetingList.add(meetingArray.getJSONObject(0).getLong("meetingId"));
 		
-		for (Integer meetingId : meetingList) {
+		for (Long meetingId : meetingList) {
 			preparedStatement = null;
 			if(! isMeetingCreatorRemoved(meetingId , senderUserId)){
 				sql = "UPDATE  tbl_MeetingDetails SET MeetingStatus=? WHERE MeetingID=? AND SenderUserId=?";
 				preparedStatement = connection.prepareStatement(sql);
 				preparedStatement.setString(1, MeetingStatus.CANCELLED.toString());
-				preparedStatement.setInt(2, meetingId);
-				preparedStatement.setInt(3, senderUserId);
+				preparedStatement.setLong(2, meetingId);
+				preparedStatement.setLong(3, senderUserId);
 			}else{
 				sql = "UPDATE tbl_RecipientsDetails SET Status=2,ResponseDateTime=? WHERE MeetingID=? AND UserID=?";
 				preparedStatement = connection.prepareStatement(sql);
 				preparedStatement.setString(1, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
-				preparedStatement.setInt(2, meetingId);
-				preparedStatement.setInt(3, senderUserId);
+				preparedStatement.setLong(2, meetingId);
+				preparedStatement.setLong(3, senderUserId);
 			}
 			preparedStatement.executeUpdate();
 		}
@@ -405,7 +400,7 @@ public class ServiceUtility {
 	}
 
 
-	public static List<UserDTO> checkingMeetingConfliction(int senderUserId, String meetingDate,LocalDateTime senderFromDateTime, LocalDateTime senderToDateTime) throws ParseException {
+	public static List<UserDTO> checkingMeetingConfliction(Long senderUserId, String meetingDate,LocalDateTime senderFromDateTime, LocalDateTime senderToDateTime) throws ParseException {
 		Map<String , Date> map = getOneDayDate(meetingDate);
 		try {
 			CallableStatement callableStatement = null;
@@ -414,7 +409,7 @@ public class ServiceUtility {
 			String selectStoreProcedue = "{call usp_CheckingConflicatedMeetings(?,?,?)}";
 			System.out.println("from =="+new Timestamp(map.get("today").getTime())+"==="+new Timestamp(map.get("today").getTime()));
 			callableStatement = conn.prepareCall(selectStoreProcedue);
-			callableStatement.setInt(1, senderUserId);
+			callableStatement.setLong(1, senderUserId);
 			callableStatement.setTimestamp(2, new Timestamp(map.get("today").getTime()));
 			callableStatement.setTimestamp(3, new Timestamp(map.get("tomorrow").getTime()));
 			
@@ -424,8 +419,8 @@ public class ServiceUtility {
 			while (rs.next()) {
 				// System.out.println("MeetingID====="+rs.getInt("MeetingID")+"SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
 				 UserDTO userDto = new UserDTO();
-				userDto.setMeetingId(rs.getInt("MeetingID"));
-				userDto.setUserId(rs.getInt("SenderUserID"));
+				userDto.setMeetingId(rs.getLong("MeetingID"));
+				userDto.setUserId(rs.getLong("SenderUserID"));
 				LocalDateTime fromTime = convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 				LocalDateTime toTime =   convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
 				userDto.setMeetingFromTime(fromTime);
@@ -457,7 +452,7 @@ public class ServiceUtility {
 		return new ArrayList<UserDTO>();
 	}
 	
-	public static JSONArray getEmailIdByMeetingId(int meetingId){
+	public static JSONArray getEmailIdByMeetingId(Long meetingId){
 		
 		 Connection conn = null;
 		Statement statement = null;
@@ -480,7 +475,7 @@ public class ServiceUtility {
 	}
 	
 	
-	public static JSONArray getContactByMeetingId(int meetingId){
+	public static JSONArray getContactByMeetingId(Long meetingId){
 		
 		 Connection conn = null;
 		  Statement statement = null;
@@ -503,19 +498,18 @@ public class ServiceUtility {
 		return contactsJsonArray;
 	}
 	
-	public static Integer getMeetingStatusByUserId(int meetingId , int userId){
+	public static Integer getMeetingStatusByUserId(Long meetingId , Long userId){
 		
 		 Connection conn = null;
 		 PreparedStatement statement = null;
-		 Integer status = 0;
-		 System.out.println("meetingId"+meetingId+"   "+userId);
+		 int status = 0;
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			//"SELECT Status FROM tbl_RecipientsDetails WHERE tbl_RecipientsDetails.MeetingID="+meetingId+" AND tbl_RecipientsDetails.UserID="+userId;
 			String sql ="SELECT Status FROM tbl_RecipientsDetails WHERE tbl_RecipientsDetails.MeetingID=? AND tbl_RecipientsDetails.UserID=?";
 			statement = conn.prepareStatement(sql);
-			statement.setInt(1, meetingId);
-			statement.setInt(2, userId);
+			statement.setLong(1, meetingId);
+			statement.setLong(2, userId);
 			ResultSet rs = statement.executeQuery();
 			int count = 0;
 			while(rs.next()){
@@ -534,7 +528,7 @@ public class ServiceUtility {
 		return status;
 	}
 
-	public static Boolean isMeetingCreatorRemoved(int meetingId , int userId){
+	public static Boolean isMeetingCreatorRemoved(Long meetingId , Long userId){
 		
 		 Connection conn = null;
 		 PreparedStatement statement = null;
@@ -545,8 +539,8 @@ public class ServiceUtility {
 			//"SELECT Status FROM tbl_RecipientsDetails WHERE tbl_RecipientsDetails.MeetingID="+meetingId+" AND tbl_RecipientsDetails.UserID="+userId;
 			String sql ="SELECT MeetingStatus FROM tbl_MeetingDetails WHERE tbl_MeetingDetails.MeetingID=? AND tbl_MeetingDetails.SenderUserID=?";
 			statement = conn.prepareStatement(sql);
-			statement.setInt(1, meetingId);
-			statement.setInt(2, userId);
+			statement.setLong(1, meetingId);
+			statement.setLong(2, userId);
 			ResultSet rs = statement.executeQuery();
 			while(rs.next()){
 				meetingStatus = rs.getString("MeetingStatus");
@@ -564,7 +558,7 @@ public class ServiceUtility {
 	}
 	
 	
-	public static Map<String , JSONArray> getReceptionistByMeetingId(int meetingId , int userId){
+	public static Map<String , JSONArray> getReceptionistByMeetingId(Long meetingId , Long userId){
 		
 		 Connection conn = null;
 		 CallableStatement callableStatement = null;
@@ -576,12 +570,12 @@ public class ServiceUtility {
 			//SELECT tbl_users.firstName,tbl_users.lastName,tbl_RecipientsDetails.Status FROM tbl_RecipientsDetails INNER JOIN tbl_users ON  tbl_RecipientsDetails.UserID=tbl_users.UserID WHERE MeetingID="+meetingId;
 			String storeProc = "{call usp_GetMeetingFriendsList_ByMeetingID(?)}"; 
 			callableStatement = conn.prepareCall(storeProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			ResultSet rs = callableStatement.executeQuery();
 			while(rs.next()){
-				if(!(userId == rs.getInt("UserID"))){
+				if(!(userId == rs.getLong("UserID"))){
 					friendsArray.put(rs.getString("firstName")+" "+rs.getString("lastName"));
-					userIdsArray.put(rs.getInt("UserID"));
+					userIdsArray.put(rs.getLong("UserID"));
 				}
 			}
 			map.put("friendsArray", friendsArray);
@@ -594,31 +588,31 @@ public class ServiceUtility {
 		}
 		return map;
 	}
-	public static JSONObject getReceiverDetailsByMeetingId(int meetingId , int userId){
+	public static JSONObject getReceiverDetailsByMeetingId(Long meetingId , Long userId){
 		
 		 Connection conn = null;
 		 CallableStatement callableStatement = null;
 		 JSONArray friendsArray = new JSONArray();
 		 JSONObject finalJson = new JSONObject();
-		 Integer status = 0;
+		 Long status = 0l;
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			//SELECT tbl_users.firstName,tbl_users.lastName,tbl_RecipientsDetails.Status FROM tbl_RecipientsDetails INNER JOIN tbl_users ON  tbl_RecipientsDetails.UserID=tbl_users.UserID WHERE MeetingID="+meetingId;
 			String storeProc = "{call usp_GetUserDetails_ByMeetingID(?)}"; 
 			callableStatement = conn.prepareCall(storeProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			ResultSet rs = callableStatement.executeQuery();
 			while(rs.next()){
 					
-				if(!(userId == rs.getInt("UserID"))){
+				if(!(userId == rs.getLong("UserID"))){
 					JSONObject jsonObject = new JSONObject();
-					jsonObject.put("userId", rs.getInt("UserID"));
+					jsonObject.put("userId", rs.getLong("UserID"));
 					jsonObject.put("fullName", rs.getString("firstName")+" "+rs.getString("lastName"));
-					jsonObject.put("status", rs.getInt("Status"));
+					jsonObject.put("status", rs.getLong("Status"));
 					friendsArray.put(jsonObject);
 					
 				} else {
-					 status = rs.getInt("Status");
+					 status = rs.getLong("Status");
 				}
 			}
 		   
@@ -635,7 +629,7 @@ public class ServiceUtility {
 	
 	
 	
-	public static MeetingLogBean getMeetingDetailsByMeetingId(int meetingId){
+	public static MeetingLogBean getMeetingDetailsByMeetingId(Long meetingId){
 		Connection conn = null;
 		CallableStatement  callableStatement = null;
 		MeetingLogBean meetingLogBean = new MeetingLogBean();
@@ -644,12 +638,12 @@ public class ServiceUtility {
 			//usp_GetMeetingDetails_ByMeetingID
 			String meetingDetailsStoreProc = "{call usp_GetMeetingDetails_ByMeetingID(?)}";
 			callableStatement = conn.prepareCall(meetingDetailsStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.executeQuery();
 			ResultSet rs = callableStatement.getResultSet();
 			while(rs.next()){
-					meetingLogBean.setSenderUserId(rs.getInt("SenderUserID"));
-					meetingLogBean.setMeetingId(rs.getInt("MeetingID"));
+					meetingLogBean.setSenderUserId(rs.getLong("SenderUserID"));
+					meetingLogBean.setMeetingId(rs.getLong("MeetingID"));
 					meetingLogBean.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
 					LocalDateTime fromTime = convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 					LocalDateTime toTime =   convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
@@ -672,7 +666,7 @@ public class ServiceUtility {
 		return meetingLogBean;
 	}
 	
-       public static JSONArray getReceptionistDetailsByMeetingId(int meetingId){
+       public static JSONArray getReceptionistDetailsByMeetingId(Long meetingId){
 		
 		Connection conn = null;
 		CallableStatement  callableStatement = null;
@@ -682,15 +676,15 @@ public class ServiceUtility {
 			//usp_GetMeetingDetails_ByMeetingID
 			String meetingDetailsStoreProc = "{call usp_GetRecipientDetails_ByMeetingID(?)}";
 			callableStatement = conn.prepareCall(meetingDetailsStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 			while(rs.next()){
-			  if(rs.getInt("Status") == 1){
+			  if(rs.getLong("Status") == 1){
 				  JSONObject jsonObject = new JSONObject();
-				  jsonObject.put("userId" , rs.getInt("UserID"));
+				  jsonObject.put("userId" , rs.getLong("UserID"));
 				  jsonObject.put("fullName" , rs.getString("firstName") + rs.getString("lastName"));
-				  jsonObject.put("status" , rs.getInt("Status"));
+				  jsonObject.put("status" , rs.getLong("Status"));
 				  jsonArray.put(jsonObject);
 			  }
 			}
@@ -703,7 +697,7 @@ public class ServiceUtility {
 		return jsonArray;
 	}
 
-       public static UserDTO getUserDetailsByMeetingIdAndUserId(int meetingId , int userId){
+       public static UserDTO getUserDetailsByMeetingIdAndUserId(Long meetingId , Long userId){
    		
    		Connection conn = null;
    		CallableStatement  callableStatement = null;
@@ -713,11 +707,11 @@ public class ServiceUtility {
    			//usp_GetMeetingDetails_ByMeetingID
    			String userDetail= "{call usp_GetUserDetailsByMeetingId(?)}";
    			callableStatement = conn.prepareCall(userDetail);
-   			callableStatement.setInt(1, meetingId);
+   			callableStatement.setLong(1, meetingId);
    			callableStatement.execute();
    			ResultSet rs = callableStatement.getResultSet();
    			while(rs.next()){
-   				userDto.setUserId(rs.getInt("UserID"));
+   				userDto.setUserId(rs.getLong("UserID"));
    				userDto.setFullName(rs.getString("firstName") + rs.getString("lastName"));
    			}
    		} catch(Exception  e){
@@ -785,7 +779,7 @@ public class ServiceUtility {
    		return formattedAddress;
        }
        
-	public static JSONObject checkMeetingAddressUpdateByMeetingId(int meetingId) {
+	public static JSONObject checkMeetingAddressUpdateByMeetingId(Long meetingId) {
 
 		Connection conn = null;
 		CallableStatement callableStatement = null;
@@ -794,7 +788,7 @@ public class ServiceUtility {
 			conn = DataSourceConnection.getDBConnection();
 			String meetingDetailsStoreProc = "{call usp_checkMeetingAddressUpdateByMeetingId(?)}";
 			callableStatement = conn.prepareCall(meetingDetailsStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			ResultSet rs = callableStatement.executeQuery();
 			while (rs.next()) {//
 				jsonObject.put("updateCount", rs.getInt("UpdateCount"));

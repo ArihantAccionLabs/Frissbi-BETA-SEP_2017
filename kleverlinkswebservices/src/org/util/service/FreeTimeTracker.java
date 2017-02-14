@@ -61,7 +61,7 @@ public class FreeTimeTracker {
 		
 			while (rs.next()) {
 				UserFreeTimeBean userFreeTimeBean = new UserFreeTimeBean();
-				userFreeTimeBean.setUserId(rs.getInt("UserID"));
+				userFreeTimeBean.setUserId(rs.getLong("UserID"));
 				userFreeTimeBean.setFreeFromTime(rs.getTimestamp("FromDateTime"));
 				userFreeTimeBean.setFreeToTime(rs.getTimestamp("ToDateTime"));
 				userFreeTimeBean.setDescription(rs.getString("Description"));
@@ -72,21 +72,21 @@ public class FreeTimeTracker {
 			System.out.println("userIdList=================="+userIdList.size());
 			
 			for (UserFreeTimeBean userFreeTimeBean : userIdList) {  // getting friendlist for every users
-				Set<Integer> friendList = new HashSet<>();
+				Set<Long> friendList = new HashSet<>();
 				sql = null;
 				pstmt = null;
 				rs = null;
 				sql = "SELECT * FROM  tbl_userfriendlist WHERE UserID1=? OR UserID2=?";
 				pstmt = conn.prepareStatement(sql);
-				pstmt.setInt(1, userFreeTimeBean.getUserId());
-				pstmt.setInt(2, userFreeTimeBean.getUserId());
+				pstmt.setLong(1, userFreeTimeBean.getUserId());
+				pstmt.setLong(2, userFreeTimeBean.getUserId());
 
 				rs = pstmt.executeQuery();
 				
 				while (rs.next()) { // gettting friendlist
-					if (rs.getInt("UserID1") != 0 && rs.getInt("UserID2") != 0) {
-						friendList.add(rs.getInt("UserID1"));
-						friendList.add(rs.getInt("UserID2"));
+					if (rs.getLong("UserID1") != 0 && rs.getLong("UserID2") != 0) {
+						friendList.add(rs.getLong("UserID1"));
+						friendList.add(rs.getLong("UserID2"));
 					}
 				}
 				System.out.println("friendList=================="+friendList.size());
@@ -111,11 +111,11 @@ public class FreeTimeTracker {
 	}
 
 	// checking friend list who posted his time
-	public static List<UserFreeTimeBean> timePostedFriendList(List<Integer> friendList)
+	public static List<UserFreeTimeBean> timePostedFriendList(List<Long> friendList)
 			throws SQLException, IOException, PropertyVetoException {
 
 		List<UserFreeTimeBean> timePostedFriendList = new ArrayList<UserFreeTimeBean>();
-		for (Integer integer : friendList) {
+		for (Long integer : friendList) {
 
 			String sql = null;
 			PreparedStatement pstmt = null;
@@ -123,11 +123,11 @@ public class FreeTimeTracker {
 			sql = "SELECT tbl_users.FirstName , tbl_users.LastName , tbl_UserFreeTimes.UserID , tbl_UserFreeTimes.FromDateTime , tbl_UserFreeTimes.ToDateTime   FROM tbl_users INNER JOIN  tbl_UserFreeTimes ON tbl_users.UserID= tbl_UserFreeTimes.UserID WHERE tbl_UserFreeTimes.UserID=?";
 			Connection conn = DataSourceConnection.getDBConnection();
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, integer);
+			pstmt.setLong(1, integer);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				UserFreeTimeBean userFreeTimeBean = new UserFreeTimeBean();
-				userFreeTimeBean.setUserId(rs.getInt("UserID"));
+				userFreeTimeBean.setUserId(rs.getLong("UserID"));
 				userFreeTimeBean.setFreeFromTime(rs.getTimestamp("FromDateTime"));
 				userFreeTimeBean.setFreeToTime(rs.getTimestamp("ToDateTime"));
 				userFreeTimeBean.setFirstName(rs.getString("FirstName"));

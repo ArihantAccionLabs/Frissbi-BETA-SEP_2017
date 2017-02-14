@@ -399,7 +399,7 @@ public class UserRegistration {
 	@GET  
     @Path("/getUsername/{userid}")  
     @Produces(MediaType.TEXT_PLAIN)
-	public String getUsername(@PathParam("userid") int userID){
+	public String getUsername(@PathParam("userid") Long userID){
 		Connection conn = null;
 		Statement stmt = null;
 		String username = null;

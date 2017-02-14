@@ -58,7 +58,7 @@ public class GoogleSearchPlaces {
 	  }
 
 
-	public static Boolean storeFrissbiLocationsTemporary(JSONArray jsonArray , int meetingId){
+	public static Boolean storeFrissbiLocationsTemporary(JSONArray jsonArray , Long meetingId){
 		
 		Connection conn = null;
 		CallableStatement callableStatement = null;
@@ -70,7 +70,7 @@ public class GoogleSearchPlaces {
 			String rating = "0" ;
 		for (int i = 0; i < jsonArray.length(); i++) {
 			//System.out.println("=================="+jsonArray.getJSONObject(i).getString("vicinity")+"      "+jsonArray.getJSONObject(i).getString("place_id")+"     "+jsonArray.getJSONObject(i).getString("name"));	
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.setString(2 , jsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getString("lat"));
 			callableStatement.setString(3 , jsonArray.getJSONObject(i).getJSONObject("geometry").getJSONObject("location").getString("lng"));
 			callableStatement.setString(4 , jsonArray.getJSONObject(i).getString("vicinity"));
@@ -98,7 +98,7 @@ public class GoogleSearchPlaces {
 		 return false;
 	}
 
-	public static JSONArray getFrissbiLocation(int meetingId , int offSetValue){
+	public static JSONArray getFrissbiLocation(Long meetingId , int offSetValue){
 		JSONArray jsonArray = new JSONArray();
 		
 		Connection conn = null;
@@ -107,7 +107,7 @@ public class GoogleSearchPlaces {
 			conn = DataSourceConnection.getDBConnection();
 			String insertFrissbiLocationStoreProc = "{call usp_getFrissbiLocation(?,?)}";
 			callableStatement = conn.prepareCall(insertFrissbiLocationStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.setInt(2, offSetValue);
 			
 			ResultSet resultSet = callableStatement.executeQuery();

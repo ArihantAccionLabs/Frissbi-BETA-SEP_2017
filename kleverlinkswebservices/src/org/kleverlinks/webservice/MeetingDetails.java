@@ -48,6 +48,13 @@ import com.sun.jersey.api.client.WebResource;
 @Path("MeetingDetailsService")
 public class MeetingDetails {
 
+	/**
+	 * @Author : Sunil Verma
+	 * @Action : Meeting creation but if any meeting exist with same date and time then check conflict
+	 * 
+	 */
+
+	
 	@POST
 	@Path("/insertMeetingDetails")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -57,39 +64,28 @@ public class MeetingDetails {
 		System.out.println("meetingInsertion==========" + meetingInsertion);
 		try {
 			
-			JSONObject meetingInsertionObject = new JSONObject(meetingInsertion);
-			int senderUserId = meetingInsertionObject.getInt("senderUserId");
+			 JSONObject meetingInsertionObject = new JSONObject(meetingInsertion);
+			 Long senderUserId = meetingInsertionObject.getLong("senderUserId");
 			 if(meetingInsertionObject.has("meetingIdsJsonArray")){
 				ServiceUtility.deleteUserFromMeeting(meetingInsertionObject.getJSONArray("meetingIdsJsonArray") , senderUserId);
 				NotificationService.sendNotification(meetingInsertionObject.getJSONArray("meetingIdsJsonArray"), senderUserId, NotificationsEnum.MEETING_REJECTED.ordinal());
 			}
 			String meetingDate = meetingInsertionObject.getString("meetingDateTime");
-			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
 			String durationTime = meetingInsertionObject.getString("duration");
 			String[] timeArray = durationTime.split(":");
 			String duration = timeArray[0] + ":" + timeArray[1] + ":00";
-			LocalDateTime senderFromDateTime = LocalDateTime.ofInstant(formatter.parse(meetingDate).toInstant(),ZoneId.systemDefault());
-			LocalDateTime senderToDateTime = LocalDateTime.ofInstant(formatter.parse(meetingDate).toInstant(), ZoneId.systemDefault()).plusHours(Integer.parseInt(timeArray[0])).plusMinutes(Integer.parseInt(timeArray[1]));
+			LocalDateTime senderFromDateTime = ServiceUtility.convertStringToLocalDateTime(meetingDate);
+			LocalDateTime senderToDateTime =   ServiceUtility.convertStringToLocalDateTime(meetingDate).plusHours(Integer.parseInt(timeArray[0])).plusMinutes(Integer.parseInt(timeArray[1]));
+			//System.out.println(formatter.parse(meetingDate)+"   "+"senderFromDateTime==="+senderFromDateTime+"===="+senderToDateTime);
 
-			System.out.println(formatter.parse(meetingDate)+"   "+"senderFromDateTime==="+senderFromDateTime+"===="+senderToDateTime);
-			
-			/* If meeting id is not there means we need to check that is there
-			 any meeting is there at same date And time on both table in
-			 tbl_RecipientsDetails & in tbl_MeetingDetails  */
-			System.out.println("meetingInsertionObject.has(meetingIdsJsonArray=================="+(!meetingInsertionObject.has("meetingIdsJsonArray")));
 			if (!meetingInsertionObject.has("meetingIdsJsonArray")) {
 				List<UserDTO> userDTOList = null;
-				userDTOList = ServiceUtility.checkingMeetingConfliction(meetingInsertionObject.getInt("senderUserId"),
+				userDTOList = ServiceUtility.checkingMeetingConfliction(meetingInsertionObject.getLong("senderUserId"),
 						meetingDate, senderFromDateTime, senderToDateTime);
 				if (!userDTOList.isEmpty()) {
 					
 					if(userDTOList.size() > 1){
 						for (UserDTO userDTO : userDTOList) {
-							//JSONObject jsonObject = new JSONObject();
-							//jsonObject.put("from", userDTO.getMeetingFromTime().getHour() + ":"+ userDTO.getMeetingFromTime().getMinute());
-							//jsonObject.put("to",userDTO.getMeetingToTime().getHour() + ":" + userDTO.getMeetingToTime().getMinute());
-							//jsonObject.put("meetingId", userDTO.getMeetingId());
-							
 							jsonArray.put(userDTO.getMeetingId());
 						}
 						finalJson.put("message", "Conflicting with multiple meetings");
@@ -113,12 +109,12 @@ public class MeetingDetails {
 				}
 			}
 			Connection connection = null;
-			connection = DataSourceConnection.getDBConnection();
 			CallableStatement callableStatement = null;
-			Integer meetingId = 0;
+			connection = DataSourceConnection.getDBConnection();
+			Long meetingId = 0l;
 			String insertStoreProc = "{call usp_InsertMeetingDetails(?,?,?,?,?,?,?,?,?,?,?,?)}";
 			callableStatement = connection.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, senderUserId);
+			callableStatement.setLong(1, senderUserId);
 			callableStatement.setTimestamp(2, new Timestamp(new Date().getTime()));
 			callableStatement.setTimestamp(3,  Timestamp.valueOf(senderFromDateTime));
 			callableStatement.setTimestamp(4, Timestamp.valueOf(senderToDateTime));
@@ -139,7 +135,7 @@ public class MeetingDetails {
 
 			int value = callableStatement.executeUpdate();
 			int isError = callableStatement.getInt(11);
-			meetingId = callableStatement.getInt(12);
+			meetingId = callableStatement.getLong(12);
 			System.out.println(isError + "meetingId >>>>>>>>>>>>>>>>>> " + meetingId+"  value=="+value);
 
 			if (isError == 0) {
@@ -154,14 +150,14 @@ public class MeetingDetails {
 
 				for (int i = 0; i < jsonArrayData.length(); i++) {
 
-					ps.setInt(1, meetingId);
-					ps.setInt(2, jsonArrayData.getInt(i));
+					ps.setLong(1, meetingId);
+					ps.setLong(2, jsonArrayData.getLong(i));
 					ps.setString(3, "0");
 					ps.setTimestamp(4, null);
 					ps.setTimestamp(5, null);
 					ps.setString(6, null);
 					ps.setString(7, null);
-					ps.setInt(8, 0);
+					ps.setLong(8, 0);
 					ps.setString(9, null);
 
 					ps.addBatch();
@@ -173,11 +169,9 @@ public class MeetingDetails {
 				}*/
 				connection.commit();
 				// return Response.status(201).entity(i).build();
-				if (insertedRow != null) {
-					// sending mails to meeting creator
+				if (insertedRow.length != 0) {
 					try {
-						ServiceUtility.insertingAndSendingMails(meetingInsertionObject.getJSONArray("emailIdJsonArray"),
-								senderUserId, meetingId);
+						ServiceUtility.insertingAndSendingMails(meetingInsertionObject.getJSONArray("emailIdJsonArray"),senderUserId, meetingId);
 					} catch (Exception e) {
 						e.printStackTrace();
 						finalJson.put("status", false);
@@ -186,11 +180,8 @@ public class MeetingDetails {
 
 						return finalJson.toString();
 					}
-					
 					NotificationService.sendingMeetingCreationNotification(meetingInsertionObject, meetingId);
-
-					// Inserting the contact number of the user who is not on
-					// the Fissbi
+					// Inserting the contact number of the user who is not on the Fissbi
 					ServiceUtility.insertMeetingContactNumbers(meetingInsertionObject.getJSONArray("contactsJsonArray"),senderUserId, meetingId);
 				}
 
@@ -231,7 +222,7 @@ public class MeetingDetails {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetRecipientXML_ByMeetingID(?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.registerOutParameter(2, Types.VARCHAR);
 			int value = callableStatement.executeUpdate();
 			recipientXML = callableStatement.getString(2);
@@ -262,7 +253,7 @@ public class MeetingDetails {
 			recipientDetails = recipientDetails.replace("@", "/");
 			String insertStoreProc = "{call usp_UpdateRecipientXML_ByMeetingID(?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.setString(2, recipientDetails);
 			callableStatement.registerOutParameter(3, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
@@ -281,7 +272,7 @@ public class MeetingDetails {
 	@GET
 	@Path("/updateRecipientXML/{meetingId}/{recipientId}/{fromDate}/{toDate}/{status}/{GoogleAddress}/{geoDateTime}/{Latitude}/{Longitude}/{oLatitude}/{oLongitude}/{DestinationType}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String updateRecipientXML(@PathParam("meetingId") int meetingId, @PathParam("recipientId") int recipientId,
+	public String updateRecipientXML(@PathParam("meetingId") Long  meetingId, @PathParam("recipientId") Long recipientId,
 			@PathParam("fromDate") Timestamp fromDate, @PathParam("toDate") Timestamp toDate,
 			@PathParam("status") int status, @PathParam("GoogleAddress") String GoogleAddress,
 			@PathParam("geoDateTime") Timestamp geoDateTime, @PathParam("Latitude") String Latitude,
@@ -397,7 +388,7 @@ public class MeetingDetails {
 			xmlString += "</Recipients>";
 			String insertStoreProc = "{call usp_UpdateRecipientXML_ByMeetingID(?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.setString(2, xmlString);
 			callableStatement.registerOutParameter(3, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
@@ -406,19 +397,19 @@ public class MeetingDetails {
 			if (isError.equals("0")) {
 				String meetingDetails = getMeetingDetailsByMeetingID(meetingId);
 				JSONArray jsonArray = new JSONArray(meetingDetails);
-				int senderUserId = 0;
+                Long senderUserId = 0l;
 				for (int i = 0; i < jsonArray.length(); i++) {
 					JSONObject jsonObject = jsonArray.getJSONObject(i);
-					senderUserId = Integer.parseInt(jsonObject.getString("SenderUserID"));
+					senderUserId = Long.parseLong(jsonObject.getString("SenderUserID"));
 				}
 				UserNotifications userNotifications = new UserNotifications();
 				Date date = new Date();
 				Timestamp timestamp = new Timestamp(date.getTime());
 				if (status == 1) {
 					String notificationId = userNotifications.insertUserNotifications(senderUserId, recipientId,
-							NotificationsEnum.MEETING_REQUEST_ACCEPTANCE.ordinal() + 1, 0, timestamp);
+							NotificationsEnum.MEETING_REQUEST_ACCEPTANCE.ordinal() + 1l, 0l, timestamp);
 					JSONObject json = new JSONArray(
-							userNotifications.getUserNotifications(0, Integer.parseInt(notificationId)))
+							userNotifications.getUserNotifications(0l, Long.parseLong(notificationId)))
 									.getJSONObject(0);
 					String notificationMessage = json.getString("NotificationMessage");
 					String NotificationName = json.getString("NotificationName");
@@ -439,9 +430,9 @@ public class MeetingDetails {
 					}
 				} else if (status == 2) {
 					String notificationId = userNotifications.insertUserNotifications(senderUserId, recipientId,
-							NotificationsEnum.MEETING_REJECTED.ordinal() + 1, 0, timestamp);
+							NotificationsEnum.MEETING_REJECTED.ordinal() + 1l, 0l, timestamp);
 					JSONObject json = new JSONArray(
-							userNotifications.getUserNotifications(0, Integer.parseInt(notificationId)))
+							userNotifications.getUserNotifications(0l, Long.parseLong(notificationId)))
 									.getJSONObject(0);
 					String notificationMessage = json.getString("NotificationMessage");
 					String NotificationName = json.getString("NotificationName");
@@ -456,6 +447,7 @@ public class MeetingDetails {
 								authenticateUser.getGCMDeviceRegistrationId(senderUserId));
 						String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
 						Result result = sender.send(message, deviceRegistrationId, 1);
+						
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -487,8 +479,8 @@ public class MeetingDetails {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetRecipientDetails_ByUserID(?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId);
-			callableStatement.setInt(2, meetingId);
+			callableStatement.setLong(1, userId);
+			callableStatement.setLong(2, meetingId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
@@ -531,7 +523,7 @@ public class MeetingDetails {
 	@GET
 	@Path("/getRecipientDetailsByMeetingID/{meetingId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String getRecipientDetailsByMeetingID(@PathParam("meetingId") int meetingId) {
+	public String getRecipientDetailsByMeetingID(@PathParam("meetingId") Long  meetingId) {
 
 		Connection conn = null;
 		Statement stmt = null;
@@ -542,7 +534,7 @@ public class MeetingDetails {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetRecipientDetails_ByMeetingID(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
@@ -582,6 +574,12 @@ public class MeetingDetails {
 		return jsonResultsArray.toString();
 	}
 
+	/**
+	 * @Author : Sunil Verma
+	 * @Action : Getting meeting detail according to the meeting id
+	 * 
+	 */
+	
 	@POST
 	@Path("/getMeetingDetailsByUserID")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -600,7 +598,7 @@ public class MeetingDetails {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetMeetingDetails_ByUserID(?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, meetingDateJsonObject.getInt("userId"));
+			callableStatement.setLong(1, meetingDateJsonObject.getLong("userId"));
 			callableStatement.setTimestamp(2, new Timestamp(map.get("today").getTime()));
 			callableStatement.setTimestamp(3, new Timestamp(map.get("tomorrow").getTime()));
 			callableStatement.execute();
@@ -611,7 +609,7 @@ public class MeetingDetails {
 				DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");				
 				LocalDateTime senderFromDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 				LocalDateTime senderToDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
-				jsonObject.put("meetingId" , rs.getInt("MeetingID"));
+				jsonObject.put("meetingId" , rs.getLong("MeetingID"));
 				//jsonObject.put("meetingSenderId" , rs.getInt("SenderUserID"));
 				jsonObject.put("date" , LocalDateTime.ofInstant(formatter.parse(rs.getString("SenderFromDateTime")).toInstant(), ZoneId.systemDefault()).toLocalDate());
 				jsonObject.put("from" , senderFromDateTime.getHour() + ":" + senderFromDateTime.getMinute());
@@ -649,6 +647,13 @@ public class MeetingDetails {
 		return jsonResultsArray.toString();
 	   }
 
+	
+	/**
+	 * @Author : Sunil Verma
+	 * @Action : Accept or reject meeting but if we accept then check the date & time if any conflict then 
+	 *           inform to user if they persist to accept then remove previous meeting and accept new meeting   
+	 * 
+	 */
 	@POST
 	@Path("/getConflictedMeetingDetails")
 	@Consumes(MediaType.APPLICATION_JSON)
@@ -656,7 +661,7 @@ public class MeetingDetails {
 		
 		System.out.println("==============="+meetingDetails.toString());
         JSONObject meetingDetailsJsonObject = new JSONObject(meetingDetails);
-        int meetingId = meetingDetailsJsonObject.getInt("meetingId");
+        Long meetingId = meetingDetailsJsonObject.getLong("meetingId");
         
 		JSONArray jsonResultsArray = new JSONArray();
 		JSONObject finalJson = new JSONObject();
@@ -665,8 +670,8 @@ public class MeetingDetails {
 		try {
 			 if(meetingDetailsJsonObject.has("meetingIdsJsonArray")){
 				 
-					ServiceUtility.deleteUserFromMeeting(meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray") , meetingDetailsJsonObject.getInt("userId"));
-					NotificationService.sendNotification(meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray"), meetingDetailsJsonObject.getInt("userId"), NotificationsEnum.MEETING_REJECTED.ordinal());
+					ServiceUtility.deleteUserFromMeeting(meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray") , meetingDetailsJsonObject.getLong("userId"));
+					NotificationService.sendNotification(meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray"), meetingDetailsJsonObject.getLong("userId"), NotificationsEnum.MEETING_REJECTED.ordinal());
 			
 			 }else if(! meetingDetailsJsonObject.has("isRejected")){
 				
@@ -675,7 +680,7 @@ public class MeetingDetails {
 				String selectStoreProcedue = "{call usp_CheckingConflicatedMeetings(?,?,?)}";
 				System.out.println("from =="+new Timestamp(map.get("today").getTime())+"==="+new Timestamp(map.get("today").getTime()));
 				callableStatement = conn.prepareCall(selectStoreProcedue);
-				callableStatement.setInt(1, meetingDetailsJsonObject.getInt("userId"));
+				callableStatement.setLong(1, meetingDetailsJsonObject.getLong("userId"));
 				callableStatement.setTimestamp(2, new Timestamp(map.get("today").getTime()));
 				callableStatement.setTimestamp(3, new Timestamp(map.get("tomorrow").getTime()));
 				
@@ -689,8 +694,8 @@ public class MeetingDetails {
 				   LocalDateTime fromTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 				   LocalDateTime toTime =   ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
 					UserDTO userDto = new UserDTO();
-					userDto.setMeetingId(rs.getInt("MeetingID"));
-					userDto.setUserId(rs.getInt("SenderUserID"));
+					userDto.setMeetingId(rs.getLong("MeetingID"));
+					userDto.setUserId(rs.getLong("SenderUserID"));
 					userDto.setMeetingFromTime(fromTime);
 					userDto.setMeetingToTime(toTime);
 					userDto.setStartTime(Float.parseFloat(fromTime.getHour() + "." + fromTime.getMinute()));
@@ -743,10 +748,10 @@ public class MeetingDetails {
 			 MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
 			 
 			 if(meetingDetailsJsonObject.has("isAccepted") && meetingDetailsJsonObject.getBoolean("isAccepted")){
-				 if(MeetingRequestUpdate(meetingId , meetingDetailsJsonObject.getInt("userId") , meetingDetailsJsonObject.getString("meetingStatus") , false) != 0 ){
+				 if(meetingRequestUpdate(meetingId , meetingDetailsJsonObject.getLong("userId") , meetingDetailsJsonObject.getString("meetingStatus") , false) != 0 ){
 					 
 					 NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
-					 notificationInfoDTO.setSenderUserId(meetingDetailsJsonObject.getInt("userId"));
+					 notificationInfoDTO.setSenderUserId(meetingDetailsJsonObject.getLong("userId"));
 					 notificationInfoDTO.setMeetingId(meetingId);
 					 notificationInfoDTO.setNotificationType(NotificationsEnum.MEETING_REQUEST_ACCEPTANCE.toString());
 					 notificationInfoDTO.setMeetingLogBean(meetingLogBean);
@@ -760,11 +765,11 @@ public class MeetingDetails {
 					 
 			 }
 			 }else if(meetingDetailsJsonObject.has("isRejected") && meetingDetailsJsonObject.getBoolean("isRejected")){
-				 Boolean isMeetingCreator = meetingLogBean.getSenderUserId() == meetingDetailsJsonObject.getInt("userId") ? true : false;
+				 Boolean isMeetingCreator = meetingLogBean.getSenderUserId() == meetingDetailsJsonObject.getLong("userId") ? true : false;
 				 
-	        	if(MeetingRequestUpdate(meetingId , meetingDetailsJsonObject.getInt("userId") , meetingDetailsJsonObject.getString("meetingStatus") , isMeetingCreator) != 0 ){
+	        	if(meetingRequestUpdate(meetingId , meetingDetailsJsonObject.getLong("userId") , meetingDetailsJsonObject.getString("meetingStatus") , isMeetingCreator) != 0 ){
 	        		NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
-					 notificationInfoDTO.setSenderUserId(meetingDetailsJsonObject.getInt("userId"));
+					 notificationInfoDTO.setSenderUserId(meetingDetailsJsonObject.getLong("userId"));
 					 notificationInfoDTO.setMeetingId(meetingId);
 					 notificationInfoDTO.setNotificationType(NotificationsEnum.MEETING_REJECTED.toString());
 					 notificationInfoDTO.setMeetingLogBean(meetingLogBean);
@@ -787,7 +792,7 @@ public class MeetingDetails {
 		return finalJson.toString();
 	}
 	
-	public int MeetingRequestUpdate(int meetingId , int userId , String status , Boolean isMeetingCreator){
+	public int meetingRequestUpdate(Long meetingId , Long userId , String status , Boolean isMeetingCreator){
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		int updatedRow = 0;
@@ -800,8 +805,8 @@ public class MeetingDetails {
 			 sql = "UPDATE tbl_MeetingDetails SET MeetingStatus=? WHERE MeetingID=? AND SenderUserID=?"; 
 			 pstmt = conn.prepareStatement(sql);
 			 pstmt.setString(1, MeetingStatus.CANCELLED.toString());
-			 pstmt.setInt(2, meetingId);
-			 pstmt.setInt(3, userId);
+			 pstmt.setLong(2, meetingId);
+			 pstmt.setLong(3, userId);
 				
 				updatedRow =	pstmt.executeUpdate();
 
@@ -810,8 +815,8 @@ public class MeetingDetails {
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, status);
 			pstmt.setString(2, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
-			pstmt.setInt(3, meetingId);
-			pstmt.setInt(4, userId);
+			pstmt.setLong(3, meetingId);
+			pstmt.setLong(4, userId);
 				
 		    updatedRow =	pstmt.executeUpdate();
 				
@@ -822,11 +827,12 @@ public class MeetingDetails {
 		System.out.println("MeetingRequestUpdate============================="+updatedRow);
 		return updatedRow;
 	}
+
 	
 	@GET
 	@Path("/updateConflictedMeetingDetails/{meetingId}/{userId}/{fromDate}/{toDate}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String updateConflictedMeetingDetails(@PathParam("meetingId") int meetingId, @PathParam("userId") int userId,
+	public String updateConflictedMeetingDetails(@PathParam("meetingId") Long  meetingId, @PathParam("userId") Long  userId,
 			@PathParam("fromDate") Timestamp fromDate, @PathParam("toDate") Timestamp toDate) throws JSONException, ParseException {
 
 		JSONArray jsonResultsArray = new JSONArray();
@@ -835,16 +841,22 @@ public class MeetingDetails {
 		String isError = "";
 		for (int i = 0; i < jsonResultsArray.length(); i++) {
 			JSONObject jsonObject = jsonResultsArray.getJSONObject(i);
-			isError = updateRecipientXML(Integer.parseInt(jsonObject.getString("MeetingID")), userId, null, null, 3,
+			isError = updateRecipientXML(Long .parseLong(jsonObject.getString("MeetingID")), userId, null, null, 3,
 					null, null, null, null, null, null, 0);
 		}
 		return isError;
 	}
 
+	
+	/**
+	 * @Author : Sunil Verma
+	 * @Action : Get all pending meeting by userId  who is in active state
+	 * 
+	 */
 	@GET
 	@Path("/getPendingMeetingRequests/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String getPendingMeetingRequests(@PathParam("userId") int userId) {
+	public String getPendingMeetingRequests(@PathParam("userId") Long userId) {
         
 		Connection conn = null;
 		CallableStatement callableStatement = null;
@@ -854,32 +866,32 @@ public class MeetingDetails {
 			conn = DataSourceConnection.getDBConnection();
 			String insertStoreProc = "{call usp_GetPendingMeetingRequests(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId);
+			callableStatement.setLong(1, userId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
 			DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
 			while (rs.next()) {
 				
-				MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId( rs.getInt("MeetingID"));
+				MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId( rs.getLong("MeetingID"));
 				
 				if(meetingLogBean.getMeetingId() != null){
 					
 				JSONObject jsonObject = new JSONObject();
 				LocalDateTime senderFromDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 				LocalDateTime senderToDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
-				jsonObject.put("meetingId" , rs.getInt("MeetingID"));
-				jsonObject.put("meetingSenderId" , rs.getInt("SenderUserID"));
+				jsonObject.put("meetingId" , rs.getLong("MeetingID"));
+				jsonObject.put("meetingSenderId" , rs.getLong("SenderUserID"));
 				jsonObject.put("date" , LocalDateTime.ofInstant(formatter.parse(rs.getString("SenderFromDateTime")).toInstant(), ZoneId.systemDefault()).toLocalDate());
 				jsonObject.put("from" , senderFromDateTime.getHour() + ":" + senderFromDateTime.getMinute());
 				jsonObject.put("to" , senderToDateTime.getHour() + ":" + senderToDateTime.getMinute());
 				jsonObject.put("description" , rs.getString("MeetingDescription"));
-				//jsonObject.put("meetingStatus" , rs.getInt("Status")); 
+				//jsonObject.put("meetingStatus" , rs.getLong("Status")); 
 				
 				if(rs.getString("Latitude") != null && ! rs.getString("Latitude").trim().isEmpty()){
 					
 					jsonObject.put("isLocationSelected",true);
-					jsonObject.put("address" , rs.getString("GoogleAddress"));
+					jsonObject.put("address" , rs.getString("GoogleAddress")+"");
 					jsonObject.put("latitude" , rs.getString("Latitude"));
 					jsonObject.put("longitude" , rs.getString("Longitude"));
 				}else{
@@ -893,10 +905,10 @@ public class MeetingDetails {
 			  JSONArray meetingArray = new JSONArray();
 			 for (int i = 0; i < jsonResultsArray.length(); i++) {
 				   JSONObject jsonObject = jsonResultsArray.getJSONObject(i);
-				   jsonObject.put("emailIdJsonArray", ServiceUtility.getEmailIdByMeetingId(jsonObject.getInt("meetingId")));
-				   jsonObject.put("contactsJsonArray",  ServiceUtility.getContactByMeetingId(jsonObject.getInt("meetingId")));
-				   jsonObject.put("friendsJsonArray", ServiceUtility.getReceptionistByMeetingId(jsonObject.getInt("meetingId") , userId).get("friendsArray"));
-				   jsonObject.put("status", ServiceUtility.getMeetingStatusByUserId(jsonObject.getInt("meetingId") , userId));
+				   jsonObject.put("emailIdJsonArray", ServiceUtility.getEmailIdByMeetingId(jsonObject.getLong("meetingId")));
+				   jsonObject.put("contactsJsonArray",  ServiceUtility.getContactByMeetingId(jsonObject.getLong("meetingId")));
+				   jsonObject.put("friendsJsonArray", ServiceUtility.getReceptionistByMeetingId(jsonObject.getLong("meetingId") , userId).get("friendsArray"));
+				   jsonObject.put("status", ServiceUtility.getMeetingStatusByUserId(jsonObject.getLong("meetingId") , userId));
 				   
 				   meetingArray.put(jsonObject);
 			}
@@ -918,11 +930,15 @@ public class MeetingDetails {
 		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
 	}
-
+	/**
+	 * @Author : Sunil Verma
+	 * @Action : Get meeting details by meetingId
+	 * 
+	 */
 	@GET
 	@Path("/getMeetingDetailsByMeetingID/{meetingId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String getMeetingDetailsByMeetingID(@PathParam("meetingId") int meetingId) {
+	public String getMeetingDetailsByMeetingID(@PathParam("meetingId") Long  meetingId) {
 
 		Connection conn = null;
 		CallableStatement callableStatement = null;
@@ -931,7 +947,7 @@ public class MeetingDetails {
 			conn = DataSourceConnection.getDBConnection();
 			String insertStoreProc = "{call usp_GetMeetingDetails_ByMeetingID(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
@@ -941,10 +957,9 @@ public class MeetingDetails {
 				LocalDateTime senderToDateTime = ServiceUtility
 						.convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
 				jsonObject.put("description", rs.getString("MeetingDescription"));
-				jsonObject.put("Latitude", rs.getString("Latitude"));
-				jsonObject.put("Longitude", rs.getString("Longitude"));
+				jsonObject.put("latitude", rs.getString("Latitude"));
+				jsonObject.put("longitude", rs.getString("Longitude"));
 				jsonObject.put("address", rs.getString("GoogleAddress"));
-				jsonObject.put("DestinationType", rs.getString("DestinationType"));
 				jsonObject.put("date",ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderFromDateTime")).toLocalDate());
 				jsonObject.put("from", senderFromDateTime.getHour() + ":" + senderFromDateTime.getMinute());
 				jsonObject.put("to", senderToDateTime.getHour() + ":" + senderToDateTime.getMinute());
@@ -966,16 +981,20 @@ public class MeetingDetails {
 		jsonObject.put("message", "Something went wrong");
 		return jsonObject.toString();
 	}
-
+	
+	/**
+	 * @Author : Sunil Verma
+	 * @Action : Get meeting details by meetingId
+	 * 
+	 */
 	@GET
 	@Path("/getUserDetailsByMeetingID/{meetingId}/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String getUserDetailsByMeetingID(@PathParam("meetingId") int meetingId, @PathParam("userId") int userId) {
+	public String getUserDetailsByMeetingID(@PathParam("meetingId") Long meetingId, @PathParam("userId") Long userId) {
 
 		JSONObject jsonObject = new JSONObject();
 		try {
-			MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId( meetingId);
-			
+			MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
 			if(meetingLogBean.getMeetingId() != null){
 				
 				JSONObject meetingJson = ServiceUtility.checkMeetingAddressUpdateByMeetingId(meetingId);
@@ -1053,8 +1072,8 @@ public class MeetingDetails {
 		JSONObject finalJson = new JSONObject();
 		JSONObject meetingUserDetail = new JSONObject(meetingDetails);
 			
-		 Integer userId = meetingUserDetail.getInt("userId");
-		 Integer meetingId = meetingUserDetail.getInt("meetingId");
+		Long userId = meetingUserDetail.getLong("userId");
+		Long meetingId = meetingUserDetail.getLong("meetingId");
 		 Connection conn = null;
 		 PreparedStatement pstmt = null;
 		 int updatedRow = 0;
@@ -1068,8 +1087,8 @@ public class MeetingDetails {
 					 pstmt = conn.prepareStatement(sql);
 					 pstmt.setString(1, meetingUserDetail.getString("latitude"));
 					 pstmt.setString(2, meetingUserDetail.getString("longitude"));
-					 pstmt.setInt(3, meetingId);
-					 pstmt.setInt(4, userId);
+					 pstmt.setLong(3, meetingId);
+					 pstmt.setLong(4, userId);
 						
 				updatedRow = pstmt.executeUpdate();
 						
@@ -1079,8 +1098,8 @@ public class MeetingDetails {
 				pstmt.setString(1, meetingUserDetail.getString("latitude"));
 				pstmt.setString(2, meetingUserDetail.getString("longitude"));
 				pstmt.setString(3, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
-				pstmt.setInt(4, meetingId);
-				pstmt.setInt(5, userId);
+				pstmt.setLong(4, meetingId);
+				pstmt.setLong(5, userId);
 				
 				updatedRow =	pstmt.executeUpdate();
 			}
@@ -1102,8 +1121,8 @@ public class MeetingDetails {
 	     sql =	"SELECT M.MeetingID,M.Latitude,M.Longitude FROM tbl_MeetingDetails  AS M  WHERE  M.MeetingID=? AND M.Latitude IS NOT NULL UNION ALL SELECT  R.MeetingID ,R.Latitude,R.Longitude FROM tbl_RecipientsDetails AS R WHERE  R.MeetingID=? AND R.Latitude IS NOT NULL";	
 	     conn = DataSourceConnection.getDBConnection();
 	     pstmt = conn.prepareStatement(sql);
-		 pstmt.setInt(1, meetingId);
-		 pstmt.setInt(2, meetingId);
+		 pstmt.setLong(1, meetingId);
+		 pstmt.setLong(2, meetingId);
 		 
 		 ResultSet rs = pstmt.executeQuery();
 		 
@@ -1112,13 +1131,13 @@ public class MeetingDetails {
 		 while(rs.next()){
 			 
 			 UserDTO userDTO = new UserDTO();
-			 userDTO.setMeetingId(rs.getInt("MeetingID"));
+			 userDTO.setMeetingId(rs.getLong("MeetingID"));
 			 userDTO.setLatitude(rs.getString("Latitude"));
 			 userDTO.setLongitude(rs.getString("Longitude"));
 			 
 			 userAddressList.add(userDTO) ;
 		 }
-		 Set<Integer> userIdSet = new HashSet<>();
+		 Set<Long> userIdSet = new HashSet<>();
 		// LocalDateTime localDateTime = LocalDateTime.now().plusHours(2);
 		// System.out.println(meetingLogBean.getFromDate().plusMinutes(2)+"================="+meetingLogBean.getFromDate().plusMinutes(2).isBefore(localDateTime)+"   localDateTime=    "+localDateTime);
 		 //&& meetingLogBean.getFromDate().plusMinutes(2).isBefore(localDateTime)
@@ -1139,7 +1158,7 @@ public class MeetingDetails {
 				  
 				 for (int i = 0; i < friendsIdArray.length(); i++) {
 					 if(friendsIdArray.getJSONObject(i).getInt("status") == 0){
-						 userIdSet.add(friendsIdArray.getJSONObject(i).getInt("userId"));
+						 userIdSet.add(friendsIdArray.getJSONObject(i).getLong("userId"));
 					 }
 				 }
 				 userIdSet.add(meetingLogBean.getSenderUserId());
@@ -1192,7 +1211,7 @@ public class MeetingDetails {
 		Connection connection = null;
 		CallableStatement callableStatement = null;
 		try{
-			Integer meetingId = addressJsonObject.getInt("meetingId");
+			Long meetingId = addressJsonObject.getLong("meetingId");
 			JSONObject jsonObject = ServiceUtility.checkMeetingAddressUpdateByMeetingId(meetingId);
 			Integer updateCount = jsonObject.getInt("updateCount");
 			
@@ -1218,11 +1237,11 @@ public class MeetingDetails {
 				connection = DataSourceConnection.getDBConnection();
 				String insertStoreProc = "{call usp_UpdateMeetingAddress(?,?,?,?,?,?)}";
 				callableStatement = connection.prepareCall(insertStoreProc);
-				callableStatement.setInt(1, meetingId);
+				callableStatement.setLong(1, meetingId);
 				callableStatement.setString(2, addressJsonObject.getString("latitude"));
 				callableStatement.setString(3,  addressJsonObject.getString("longitude"));
 				callableStatement.setString(4, addressJsonObject.getString("address"));
-				callableStatement.setInt(5, (updateCount+1));
+				callableStatement.setLong(5, (updateCount+1));
 				callableStatement.registerOutParameter(6, Types.INTEGER);
 				
 				int value = callableStatement.executeUpdate();
@@ -1234,9 +1253,9 @@ public class MeetingDetails {
 					MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
 					JSONArray usersArray = ServiceUtility.getReceptionistDetailsByMeetingId( meetingId);
 					
-					Set<Integer> usersSet = new HashSet<>();
+					Set<Long> usersSet = new HashSet<Long>();
 					for (int i = 0; i < usersArray.length(); i++) {
-						usersSet.add(usersArray.getJSONObject(i).getInt("userId"));
+						usersSet.add(usersArray.getJSONObject(i).getLong("userId"));
 					}
 					System.out.println("usersSet==============="+usersSet.size());
 					if(! usersSet.isEmpty()){
@@ -1281,7 +1300,7 @@ public class MeetingDetails {
     @GET	
 	@Path("/getFrissbiLocations/{meetingId}/{offSetValue}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String getMoreFrissbiLocations(@PathParam("meetingId") int meetingId , @PathParam("offSetValue") int offSetValue){
+	public String getMoreFrissbiLocations(@PathParam("meetingId") Long meetingId , @PathParam("offSetValue") int offSetValue){
 		
 		JSONObject finalJson = new JSONObject();
 		try{

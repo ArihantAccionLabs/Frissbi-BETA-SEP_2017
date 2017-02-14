@@ -10,15 +10,15 @@ import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -27,7 +27,6 @@ import javax.ws.rs.core.MediaType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kleverlinks.enums.FriendStatusEnum;
-import org.service.dto.FriendBean;
 import org.service.dto.NotificationInfoDTO;
 import org.service.dto.UserDTO;
 import org.util.service.NotificationService;
@@ -39,28 +38,39 @@ public class UserFriendList {
 	@GET
 	@Path("/sendFriendRequest/{senderUserId}/{receiverUserId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String sendFriendRequest(@PathParam("senderUserId") Integer senderUserId,
-			@PathParam("receiverUserId") Integer receiverUserId) {
+	public String sendFriendRequest(@PathParam("senderUserId") Long senderUserId,
+			@PathParam("receiverUserId") Long receiverUserId) {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
-			
 			java.util.Date dateobj = new java.util.Date();
 			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
 			conn = DataSourceConnection.getDBConnection();
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, senderUserId);
-			callableStatement.setInt(2, receiverUserId);
+			callableStatement.setLong(1, senderUserId);
+			callableStatement.setLong(2, receiverUserId);
 			callableStatement.setString(3, FriendStatusEnum.WAITING.toString());
-			callableStatement.setInt(4, senderUserId);
+			callableStatement.setLong(4, senderUserId);
 			callableStatement.setTimestamp(5, sqlDateNow);
 			callableStatement.setDate(6, null);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
 			if (value == 1) {
-			NotificationService.sendNotificationToOneUser(senderUserId , receiverUserId , NotificationsEnum.FRIEND_PENDING_REQUESTS.ordinal() + 1 , 0);	
+				
+				JSONObject senderJsonObject = ServiceUtility.getUserDetailByUserId(senderUserId);
+				String message  = "Your have friend request from "+senderJsonObject.getString("fullName")+" on "+new SimpleDateFormat("dd-mm-yyyy hh:mm a").format(new Date());
+				
+				NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
+				notificationInfoDTO.setUserId(receiverUserId);
+				notificationInfoDTO.setSenderUserId(senderUserId);
+				notificationInfoDTO.setNotificationType(NotificationsEnum.FRIEND_PENDING_REQUESTS.toString());
+				notificationInfoDTO.setMessage(message);
+				
+				NotificationService.sendFriendNotification(notificationInfoDTO);
+				
+			//NotificationService.sendNotificationToOneUser(senderUserId , receiverUserId , NotificationsEnum.FRIEND_PENDING_REQUESTS.ordinal() + 1 , 0);	
 			
 			jsonObject.put("status", true);
 			jsonObject.put("message", "FriendRequest Sent Succesfully");
@@ -90,8 +100,8 @@ public class UserFriendList {
 			@PathParam("username2") String userName2) {
 		Connection conn = null;
 		Statement stmt = null;
-		int userId1 = 0;
-		int userId2 = 0;
+		Long userId1 = 0l;
+		Long userId2 = 0l;
 		String value = "";
 
 		try {
@@ -112,10 +122,10 @@ public class UserFriendList {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId1);
-			callableStatement.setInt(2, userId2);
-			callableStatement.setInt(3, -1);
-			callableStatement.setInt(4, userId1);
+			callableStatement.setLong(1, userId1);
+			callableStatement.setLong(2, userId2);
+			callableStatement.setLong(3, -1);
+			callableStatement.setLong(4, userId1);
 			callableStatement.setTimestamp(5, sqlDateNow);
 			callableStatement.setDate(6, null);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
@@ -135,8 +145,8 @@ public class UserFriendList {
 	@GET
 	@Path("/approveFriendRequest/{receiverUserId}/{senderUserId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String approveFriendRequest(@PathParam("receiverUserId") Integer receiverUserId,
-			@PathParam("senderUserId") Integer senderUserId) {
+	public String approveFriendRequest(@PathParam("receiverUserId") Long receiverUserId,
+			@PathParam("senderUserId") Long senderUserId) {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		JSONObject responseJson = new JSONObject();
@@ -148,10 +158,10 @@ public class UserFriendList {
 			// friend request of user2
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, senderUserId);
-			callableStatement.setInt(2, receiverUserId);
+			callableStatement.setLong(1, senderUserId);
+			callableStatement.setLong(2, receiverUserId);
 			callableStatement.setString(3, FriendStatusEnum.ACCEPTED.toString());
-			callableStatement.setInt(4, receiverUserId);
+			callableStatement.setLong(4, receiverUserId);
 			callableStatement.setDate(5, null);
 			callableStatement.setTimestamp(6, sqlDateNow);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
@@ -162,11 +172,11 @@ public class UserFriendList {
 				JSONObject receiverJsonObject = ServiceUtility.getUserDetailByUserId(receiverUserId);
 				//JSONObject senderJsonObject = ServiceUtility.getUserDetailByUserId(senderUserId);
 				
-				String message  = "Your friend request is accepted by "+receiverJsonObject.getString("fullName")+" on "+new SimpleDateFormat("dd-mm-yyyy hh:mm a");
+				String message  = "Your friend request is accepted by "+receiverJsonObject.getString("fullName")+" on "+new SimpleDateFormat("dd-mm-yyyy hh:mm a").format(new Date());
 				
 				NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
 				notificationInfoDTO.setUserId(senderUserId);
-				notificationInfoDTO.setUserId(receiverUserId);
+				notificationInfoDTO.setSenderUserId(receiverUserId);
 				notificationInfoDTO.setNotificationType(NotificationsEnum.FRIEND_REQUEST_ACCEPTANCE.toString());
 				notificationInfoDTO.setMessage(message);
 				
@@ -192,32 +202,15 @@ public class UserFriendList {
 	}
 
 	@GET
-	@Path("/rejectFriendRequest/{username1}/{username2}")
+	@Path("/rejectFriendRequest/{userId}/{friendId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String rejectFriendRequest(@PathParam("username1") String userName1,
-			@PathParam("username2") String userName2) {
+	public String rejectFriendRequest(@PathParam("userId") Long userId,@PathParam("friendId") Long friendId) {
 		Connection conn = null;
 		Statement stmt = null;
-		int userId1 = 0;
-		int userId2 = 0;
+		JSONObject finalJson = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			String sql;
-			sql = "SELECT userID from tbl_users where username ='" + userName1 + "'" + " limit 1";
-			ResultSet rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				userId1 = rs.getInt("userid");
-			}
-
-			sql = "SELECT userID from tbl_users where username ='" + userName2 + "'" + " limit 1";
-			rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				userId2 = rs.getInt("userid");
-			}
-
+		
 			java.util.Date dateobj = new java.util.Date();
 			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
 			// put entry into the database as user1 is rejecting
@@ -225,18 +218,20 @@ public class UserFriendList {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId1);
-			callableStatement.setInt(2, userId2);
-			callableStatement.setInt(3, 2);
-			callableStatement.setInt(4, userId2);
+			callableStatement.setLong(1, userId);
+			callableStatement.setLong(2, friendId);
+			callableStatement.setString(3, FriendStatusEnum.REJECTED.toString());
+			callableStatement.setLong(4, userId);
 			callableStatement.setDate(5, null);
 			callableStatement.setTimestamp(6, sqlDateNow);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
 
 			if (value == 1) {
+				finalJson.put("status", true);
+				finalJson.put("message", "Friend is rejected");
 				System.out.println("Stored procedure executed");
-				return "1";
+				return finalJson.toString();
 			}
 		} catch (SQLException se) {
 			se.printStackTrace();
@@ -247,54 +242,41 @@ public class UserFriendList {
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
 		}
-		return "0";
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		System.out.println("Stored procedure executed");
+		return finalJson.toString();
 	}
 
 	@GET
-	@Path("/unFriendRequest/{username1}/{username2}")
+	@Path("/unFriendRequest/{userId}/{friendId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String unFriendRequest(@PathParam("username1") String userName1, @PathParam("username2") String userName2) {
+	public String unFriendRequest(@PathParam("userId") Long userId, @PathParam("friendId") Long friendId) {
 		Connection conn = null;
 		Statement stmt = null;
-		int userId1 = 0;
-		int userId2 = 0;
+		JSONObject finalJson = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			String sql;
-			sql = "SELECT userID from tbl_users where username ='" + userName1 + "'" + " limit 1";
-			ResultSet rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				userId1 = rs.getInt("userid");
-			}
-
-			sql = "SELECT userID from tbl_users where username ='" + userName2 + "'" + " limit 1";
-			rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				userId2 = rs.getInt("userid");
-			}
-
+			
 			java.util.Date dateobj = new java.util.Date();
 			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
-			// put entry into the database as user1 is sending
-			// unfriend request to user2
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId1);
-			callableStatement.setInt(2, userId2);
-			callableStatement.setInt(3, 3);
-			callableStatement.setInt(4, userId1);
+			callableStatement.setLong(1, userId);
+			callableStatement.setLong(2, friendId);
+			callableStatement.setString(3, FriendStatusEnum.UNFRIEND.toString());
+			callableStatement.setLong(4, userId);
 			callableStatement.setTimestamp(5, sqlDateNow);
 			callableStatement.setDate(6, null);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
 
 			if (value == 1) {
+				finalJson.put("status", true);
+				finalJson.put("message", "Friend is rejected");
 				System.out.println("Stored procedure executed");
-				return "1";
+				return finalJson.toString();
 			}
 
 		} catch (SQLException se) {
@@ -306,38 +288,41 @@ public class UserFriendList {
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(stmt);
 		}
-		return "0";
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		System.out.println("Stored procedure executed");
+		return finalJson.toString();
 	}
 
 	@GET
 	@Path("/friendsList/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String friendsList(@PathParam("userId") Integer userId) {
+	public String friendsList(@PathParam("userId") Long userId) {
 	
 		JSONArray jsonResultsArray = new JSONArray();
 		JSONObject finalJson =new JSONObject();
 		Connection conn = null;
 		PreparedStatement pstmt = null;
-		Set<Integer> userIds = new HashSet<>();
+		Set<Long> userIds = new HashSet<>();
 			try {
 				conn = DataSourceConnection.getDBConnection();
 				String sql;
 				sql = "SELECT SenderUserID,ReceiverUserID,RequestStatus FROM tbl_userfriendlist  WHERE (SenderUserID =? OR ReceiverUserID =?) and RequestStatus=?";
 				pstmt = conn.prepareStatement(sql);
-				pstmt.setInt(1, userId);
-				pstmt.setInt(2, userId);
+				pstmt.setLong(1, userId);
+				pstmt.setLong(2, userId);
 				pstmt.setString(3, FriendStatusEnum.ACCEPTED.toString());
 				ResultSet rs = pstmt.executeQuery();
                 while(rs.next()){
                 	
 				if(ServiceUtility.checkValidString(rs.getString("RequestStatus"))){
-					if(userId != rs.getInt("ReceiverUserID"))
-						userIds.add(rs.getInt("ReceiverUserID"));
-					if(userId != rs.getInt("SenderUserID"))
-						userIds.add(rs.getInt("SenderUserID"));	
+					if(userId != rs.getLong("ReceiverUserID"))
+						userIds.add(rs.getLong("ReceiverUserID"));
+					if(userId != rs.getLong("SenderUserID"))
+						userIds.add(rs.getLong("SenderUserID"));	
 				}
                 }
-			for (Integer friendsId : userIds) {
+			for (Long friendsId : userIds) {
 				JSONObject jsonObject = ServiceUtility.getUserDetailByUserId(friendsId);
 				if(jsonObject != null){
 					jsonResultsArray.put(jsonObject);
@@ -366,8 +351,8 @@ public class UserFriendList {
 	public String pendingForApprovalList(@PathParam("username") String userName) {
 		Connection conn = null;
 		Statement stmt = null;
-		int userId = 0;
-		ArrayList<Integer> userIds = new ArrayList<Integer>();
+		Long userId = 0l;
+		ArrayList<Long> userIds = new ArrayList<Long>();
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
 			conn = DataSourceConnection.getDBConnection();
@@ -377,17 +362,17 @@ public class UserFriendList {
 			ResultSet rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
-				userId = rs.getInt("userId");
+				userId = rs.getLong("userId");
 			}
 			sql = "Select * from tbl_userfriendlist  where ReceiverUserID ='" + userId + "' and requestStatus = 0";
 
 			rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
-				userIds.add(rs.getInt("SenderUserID"));
+				userIds.add(rs.getLong("SenderUserID"));
 			}
 
-			Iterator<Integer> iterator = userIds.iterator();
+			Iterator<Long> iterator = userIds.iterator();
 			while (iterator.hasNext()) {
 				userId = iterator.next();
 				sql = "Select * from tbl_users AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID where U.UserID = '"
@@ -428,8 +413,8 @@ public class UserFriendList {
 	public String blockedFriendsList(@PathParam("username") String userName) {
 		Connection conn = null;
 		Statement stmt = null;
-		int userId = 0;
-		ArrayList<Integer> userIds = new ArrayList<Integer>();
+		Long userId = 0l;
+		ArrayList<Long> userIds = new ArrayList<Long>();
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
 			conn = DataSourceConnection.getDBConnection();
@@ -439,17 +424,17 @@ public class UserFriendList {
 			ResultSet rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
-				userId = rs.getInt("userId");
+				userId = rs.getLong("userId");
 			}
 			sql = "Select * from tbl_userfriendlist  where ActionUserID ='" + userId + "' and requestStatus = 2";
 
 			rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
-				userIds.add(rs.getInt("SenderUserID"));
+				userIds.add(rs.getLong("SenderUserID"));
 			}
 
-			Iterator<Integer> iterator = userIds.iterator();
+			Iterator<Long> iterator = userIds.iterator();
 			while (iterator.hasNext()) {
 				userId = iterator.next();
 				sql = "Select * from tbl_users where UserID = '" + userId + "'";
@@ -481,16 +466,16 @@ public class UserFriendList {
 	@GET
 	@Path("/search/{senderUserId}/{search_criteria}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String search(@PathParam("senderUserId") int senderUserId, @PathParam("search_criteria") String search_criteria) {
+	public String search(@PathParam("senderUserId") Long senderUserId, @PathParam("search_criteria") String search_criteria) {
 		Connection conn = null;
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
 		JSONObject finalJson = new JSONObject();
-		Set<Integer> waitingUserIds = new HashSet<Integer>();
-		Set<Integer> acceptedUserIds = new HashSet<Integer>();
-		Set<Integer> allUserIds = new HashSet<Integer>();
+		Set<Long> waitingUserIds = new HashSet<Long>();
+		Set<Long> acceptedUserIds = new HashSet<Long>();
+		Set<Long> allUserIds = new HashSet<Long>();
 		try {
-		Map<String , Set<Integer>> map = getFriendList(senderUserId);
+		Map<String , Set<Long>> map = getFriendList(senderUserId);
 		System.out.println(""+map.toString());
 		 waitingUserIds = map.get("waiting");
 		 acceptedUserIds = map.get("accepted");
@@ -500,7 +485,7 @@ public class UserFriendList {
 		 
 			String userArray = "";
 			int rowCount = 1;
-			for (Integer integer : allUserIds) {
+			for (Long integer : allUserIds) {
 				
 				if(allUserIds.size() == rowCount){
 					userArray += integer+"";
@@ -512,9 +497,9 @@ public class UserFriendList {
 			System.out.println("userArray============"+userArray.toString());
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
-			String sql = "Select U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName from tbl_users AS U  where (FirstName like '%"
-					+ search_criteria + "%' or LastName like '%" + search_criteria + "%' or UserName like '%"
-					+ search_criteria + "%') and U.UserID NOT IN (" + userArray +")";
+			String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob FROM tbl_users AS U  where (U.FirstName LIKE '%"
+					+ search_criteria + "%' OR U.LastName LIKE '%" + search_criteria + "%' OR U.UserName LIKE '%"
+					+ search_criteria + "%') AND U.UserID NOT IN (" + userArray +")";
 
 			ResultSet rs = stmt.executeQuery(sql);
 			while (rs.next()) {
@@ -522,6 +507,8 @@ public class UserFriendList {
 				jsonObject.put("userId", rs.getString("UserId"));
 				jsonObject.put("fullName", rs.getString("FirstName")+" " + rs.getString("LastName"));
 				jsonObject.put("emailId", rs.getString("EmailName"));
+				jsonObject.put("gender", rs.getString("Gender"));
+				jsonObject.put("dob", rs.getString("dob"));
 				jsonObject.put("status", FriendStatusEnum.UNFRIEND);
 				
 				jsonResultsArray.put(jsonObject);
@@ -530,7 +517,7 @@ public class UserFriendList {
 			
 			finalJson.put("status", true);
 			finalJson.put("message", "Friend list fetched successfully");
-			finalJson.put("unfriendList", getWaitingFriends(filterWaitingOrder(waitingUserIds,search_criteria), senderUserId , jsonResultsArray , search_criteria));
+			finalJson.put("unfriendList", getWaitingFriends(filterWaitingOrder(waitingUserIds,search_criteria), senderUserId , jsonResultsArray));
 			
 			return finalJson.toString();
 		} catch (SQLException se) {
@@ -551,7 +538,7 @@ public class UserFriendList {
 	@GET
 	@Path("/searchResults/{userId}/{search_criteria}/{resultsPage}/{pageNo}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String searchResults(@PathParam("userId") int userId, @PathParam("search_criteria") String search_criteria,
+	public String searchResults(@PathParam("userId") Long userId, @PathParam("search_criteria") String search_criteria,
 			@PathParam("resultsPage") int resultsPage, @PathParam("pageNo") int pageNo) {
 		Connection conn = null;
 		Statement stmt = null;
@@ -562,10 +549,10 @@ public class UserFriendList {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetSearchBoxResults(?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId);
+			callableStatement.setLong(1, userId);
 			callableStatement.setString(2, search_criteria);
-			callableStatement.setInt(3, resultsPage);
-			callableStatement.setInt(4, pageNo);
+			callableStatement.setLong(3, resultsPage);
+			callableStatement.setLong(4, pageNo);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
@@ -601,8 +588,8 @@ public class UserFriendList {
 			@PathParam("search_criteria") String search_criteria) {
 		Connection conn = null;
 		Statement stmt = null;
-		int userId = 0;
-		ArrayList<Integer> userIds = new ArrayList<Integer>();
+		Long userId = 0l;
+		ArrayList<Long> userIds = new ArrayList<Long>();
 		JSONArray jsonResultsArray = new JSONArray();
 		try {
 			conn = DataSourceConnection.getDBConnection();
@@ -612,14 +599,14 @@ public class UserFriendList {
 			ResultSet rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
-				userId = rs.getInt("userId");
+				userId = rs.getLong("userId");
 			}
 			sql = "Select * from tbl_userfriendlist  where SenderUserID ='" + userId + "' and requestStatus = 1";
 
 			rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
-				userIds.add(rs.getInt("ReceiverUserID"));
+				userIds.add(rs.getLong("ReceiverUserID"));
 			}
 
 			sql = "Select * from tbl_userfriendlist  where ReceiverUserID ='" + userId + "' and requestStatus = 1";
@@ -627,10 +614,10 @@ public class UserFriendList {
 			rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
-				userIds.add(rs.getInt("SenderUserID"));
+				userIds.add(rs.getLong("SenderUserID"));
 			}
 
-			Iterator<Integer> iterator = userIds.iterator();
+			Iterator<Long> iterator = userIds.iterator();
 			while (iterator.hasNext()) {
 				userId = iterator.next();
 				sql = "Select * from tbl_users AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID where U.UserID = '"
@@ -668,7 +655,7 @@ public class UserFriendList {
 	@GET
 	@Path("/friendStatus/{senderUserID}/{receiverUserID}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String friendStatus(@PathParam("senderUserID") int senderUserID, @PathParam("receiverUserID") int receiverUserID) {
+	public String friendStatus(@PathParam("senderUserID") Long senderUserID, @PathParam("receiverUserID") Long receiverUserID) {
 		Connection conn = null;
 		Statement stmt = null;
 		String requestStatus = "-1";
@@ -681,7 +668,7 @@ public class UserFriendList {
 			ResultSet rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
-				requestStatus = rs.getInt("RequestStatus") + "";
+				requestStatus = rs.getLong("RequestStatus") + "";
 			}
 
 			if (requestStatus.equals("-1")) {
@@ -690,7 +677,7 @@ public class UserFriendList {
 				rs = stmt.executeQuery(sql);
 
 				while (rs.next()) {
-					requestStatus = rs.getInt("RequestStatus") + "";
+					requestStatus = rs.getLong("RequestStatus") + "";
 				}
 				if (requestStatus.equals("0")) {
 					requestStatus = "4";
@@ -709,38 +696,37 @@ public class UserFriendList {
 		return requestStatus;
 	}
 
-	private Map<String , Set<Integer>>  getFriendList(Integer userId){
+	private Map<String , Set<Long>>  getFriendList(Long userId){
 		
 		Connection conn = null;
 		PreparedStatement pstmt = null;
-		Map<String , Set<Integer>> map = new HashMap<String , Set<Integer>>(); 
+		Map<String , Set<Long>> map = new HashMap<String , Set<Long>>(); 
 		
 		
-		Set<Integer> waitingUserIds = new HashSet<Integer>();
-		Set<Integer> acceptedUserIds = new HashSet<Integer>();
+		Set<Long> waitingUserIds = new HashSet<Long>();
+		Set<Long> acceptedUserIds = new HashSet<Long>();
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			String sql;
 			sql = "SELECT SenderUserID,ReceiverUserID,RequestStatus FROM tbl_userfriendlist  WHERE (SenderUserID =? OR ReceiverUserID =?) and RequestStatus!=? ";
 			pstmt = conn.prepareStatement(sql);
-			pstmt.setInt(1, userId);
-			pstmt.setInt(2, userId);
+			pstmt.setLong(1, userId);
+			pstmt.setLong(2, userId);
 			pstmt.setString(3, FriendStatusEnum.REJECTED.toString());
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
-				System.out.println("staus ====== "+rs.getString("RequestStatus"));
 				if (ServiceUtility.checkValidString(rs.getString("RequestStatus"))) {
 
 					if (rs.getString("RequestStatus").trim().equals(FriendStatusEnum.WAITING.toString())) {
-						if (userId != rs.getInt("ReceiverUserID"))
-							waitingUserIds.add(rs.getInt("ReceiverUserID"));
-						if (userId != rs.getInt("SenderUserID"))
-							waitingUserIds.add(rs.getInt("SenderUserID"));
+						if (userId != rs.getLong("ReceiverUserID"))
+							waitingUserIds.add(rs.getLong("ReceiverUserID"));
+						if (userId != rs.getLong("SenderUserID"))
+							waitingUserIds.add(rs.getLong("SenderUserID"));
 					} else if (rs.getString("RequestStatus").trim().equals(FriendStatusEnum.ACCEPTED.toString())) {
-						if (userId != rs.getInt("ReceiverUserID"))
-							acceptedUserIds.add(rs.getInt("ReceiverUserID"));
-						if (userId != rs.getInt("SenderUserID"))
-							acceptedUserIds.add(rs.getInt("SenderUserID"));
+						if (userId != rs.getLong("ReceiverUserID"))
+							acceptedUserIds.add(rs.getLong("ReceiverUserID"));
+						if (userId != rs.getLong("SenderUserID"))
+							acceptedUserIds.add(rs.getLong("SenderUserID"));
 					}
 				}
 			}
@@ -756,43 +742,153 @@ public class UserFriendList {
 		}
 		return map;
 	}
+	
+	@POST
+	@Path("/seeOtherProfile")
+	public String seeOtherProfile(String userIds) {
 
-	public JSONArray getWaitingFriends(Set<Integer> filterWaitingList , Integer senderUserId , JSONArray jsonResultsArray , String search_criteria){
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		JSONObject finalJson = new JSONObject();
+		try {
+			JSONObject userIdsJson = new JSONObject(userIds);
+			Long userId =  userIdsJson.getLong("userId");
+			Long friendUserId =  userIdsJson.getLong("friendUserId");
+			
+			
+				conn = DataSourceConnection.getDBConnection();
+				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
+							  + " ON (U.UserID=FR.ReceiverUserID)  "
+							  + "  WHERE (FR.SenderUserID =? AND FR.ReceiverUserID =?) "
+							  + " UNION "
+							  + " SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
+							  + " ON (U.UserID=FR.SenderUserID) "
+							  + " WHERE (FR.ReceiverUserID =? AND FR.SenderUserID =?)";
+					
+				pstmt = conn.prepareStatement(sql);
+					
+				pstmt.setLong(1, userId);
+				pstmt.setLong(2, friendUserId);
+				pstmt.setLong(3, userId);
+				pstmt.setLong(4, friendUserId);
+				
+				ResultSet rs = pstmt.executeQuery();
+				JSONObject jsonObject = new JSONObject();
+				while(rs.next()){
+						jsonObject.put("userId", rs.getLong("UserId"));
+						jsonObject.put("fullName", rs.getString("FirstName")+" " + rs.getString("LastName"));
+						jsonObject.put("emailId", rs.getString("EmailName"));
+						jsonObject.put("gender", rs.getString("Gender"));
+						jsonObject.put("dob", rs.getString("dob"));
+						
+						if (ServiceUtility.checkValidString(rs.getString("RequestStatus"))) {
+
+							if (rs.getString("RequestStatus").trim().equals(FriendStatusEnum.WAITING.toString())) {
+								if(userId == rs.getLong("SenderUserID") && friendUserId == rs.getLong("ReceiverUserID")){
+									jsonObject.put("status", FriendStatusEnum.WAITING);
+								}else if(userId == rs.getLong("ReceiverUserID") && friendUserId == rs.getLong("SenderUserID")){
+									jsonObject.put("status", FriendStatusEnum.CONFIRM);
+								}
+							} else if (rs.getString("RequestStatus").trim().equals(FriendStatusEnum.ACCEPTED.toString())) {
+								jsonObject.put("status", FriendStatusEnum.FRIENDS);
+							}
+						}else{
+							jsonObject.put("status", FriendStatusEnum.UNFRIEND);
+						}
+						
+						finalJson.put("viewProfile", jsonObject);
+				}
+				System.out.println((!jsonObject.has("userId"))+"    jsonObject===== :   "+jsonObject);
+				if(!jsonObject.has("userId")){
+				 finalJson = 	seeUnknownProfile(friendUserId);
+				}
+				
+				finalJson.put("status", true);
+				finalJson.put("message", "Profile fetched successfully ");
+				
+			return	finalJson.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(pstmt);
+		}
+		finalJson.put("status", false);
+		finalJson.put("message", "Something went wrong");
+		return	finalJson.toString();
+	}
+	
+	public JSONObject seeUnknownProfile(Long friendUserId){
+		
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		JSONObject finalJson = new JSONObject();
+		try {
+				conn = DataSourceConnection.getDBConnection();
+				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob FROM tbl_users AS U WHERE U.UserID=?";
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setLong(1, friendUserId);
+				
+				ResultSet rs = pstmt.executeQuery();
+				while(rs.next()){
+					    JSONObject jsonObject = new JSONObject();
+						jsonObject.put("userId", rs.getLong("UserId"));
+						jsonObject.put("fullName", rs.getString("FirstName")+" " + rs.getString("LastName"));
+						jsonObject.put("emailId", rs.getString("EmailName"));
+						jsonObject.put("gender", rs.getString("Gender"));
+						jsonObject.put("dob", rs.getString("dob"));
+					    jsonObject.put("status", FriendStatusEnum.UNFRIEND);
+					    
+					    finalJson.put("viewProfile", jsonObject);
+				}
+			return finalJson;	
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(pstmt);
+		}
+		return finalJson;	
+	}
+
+	public JSONArray getWaitingFriends(Set<Long> filterWaitingList , Long senderUserId , JSONArray jsonResultsArray ){
 		System.out.println("getRequestStatus V====="+jsonResultsArray.toString());
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,FR.SenderUserID FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
-					+ " ON (U.UserID=FR.SenderUserID)  "
-					+ "  WHERE (FR.SenderUserID =? AND FR.ReceiverUserID =?) OR (FR.ReceiverUserID =? AND FR.SenderUserID =?) "
-					+ " UNION "+
-					" SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,FR.SenderUserID FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
-					+ " ON (U.UserID=FR.ReceiverUserID) "
-					+ " WHERE (FR.SenderUserID =? AND FR.ReceiverUserID =?) OR (FR.ReceiverUserID =? AND FR.SenderUserID =?)";
-			
-			pstmt = conn.prepareStatement(sql);
-			for (Integer waitingUserId : filterWaitingList) {
+			String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,FR.SenderUserID FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
+						  + " ON (U.UserID=FR.SenderUserID)  "
+						  + "  WHERE (FR.SenderUserID =? AND FR.ReceiverUserID =?) OR (FR.ReceiverUserID =? AND FR.SenderUserID =?) "
+						  + " UNION "
+						  + " SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,FR.SenderUserID FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
+						  + " ON (U.UserID=FR.ReceiverUserID) "
+						  + " WHERE (FR.SenderUserID =? AND FR.ReceiverUserID =?) OR (FR.ReceiverUserID =? AND FR.SenderUserID =?)";
 				
-			pstmt.setInt(1, senderUserId);
-			pstmt.setInt(2, waitingUserId);
-		    pstmt.setInt(3, senderUserId);
-			pstmt.setInt(4, waitingUserId);
-			pstmt.setInt(5, senderUserId);
-			pstmt.setInt(6, waitingUserId);
-			pstmt.setInt(7, senderUserId);
-			pstmt.setInt(8, waitingUserId);
+			pstmt = conn.prepareStatement(sql);
+			for (Long waitingUserId : filterWaitingList) {
+				
+			pstmt.setLong(1, senderUserId);
+			pstmt.setLong(2, waitingUserId);
+		    pstmt.setLong(3, senderUserId);
+			pstmt.setLong(4, waitingUserId);
+			pstmt.setLong(5, senderUserId);
+			pstmt.setLong(6, waitingUserId);
+			pstmt.setLong(7, senderUserId);
+			pstmt.setLong(8, waitingUserId);
 			
 			ResultSet rs = pstmt.executeQuery();
 			while(rs.next()){
 					JSONObject jsonObject = new JSONObject();
-					Integer userId   = rs.getInt("UserId");
-					if(!(userId.intValue() == senderUserId.intValue())){
-					jsonObject.put("userId", rs.getInt("UserId"));
+					Long userId   = rs.getLong("UserId");
+					if(!(userId.longValue() == senderUserId.longValue())){
+					jsonObject.put("userId", rs.getLong("UserId"));
 					jsonObject.put("fullName", rs.getString("FirstName")+" " + rs.getString("LastName"));
 					jsonObject.put("emailId", rs.getString("EmailName"));
-					Integer senderId = 	rs.getInt("SenderUserID");
-					jsonObject.put("status", (senderId.intValue() == senderUserId.intValue()) ?FriendStatusEnum.WAITING: FriendStatusEnum.CONFIRM);
+					jsonObject.put("gender", rs.getString("Gender"));
+					jsonObject.put("dob", rs.getString("dob"));
+					Long senderId = 	rs.getLong("SenderUserID");
+					jsonObject.put("status", (senderId.longValue() == senderUserId.longValue()) ?FriendStatusEnum.WAITING: FriendStatusEnum.CONFIRM);
 					
 					jsonResultsArray.put(jsonObject);
 					}
@@ -808,16 +904,16 @@ public class UserFriendList {
 		return jsonResultsArray;
 	}
 	
-	public Set<Integer>  filterWaitingOrder(Set<Integer> waitingList , String search_criteria) {
+	public Set<Long>  filterWaitingOrder(Set<Long> waitingList , String search_criteria) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
-		Set<Integer> filterWaitingList = new HashSet<>(); 
+		Set<Long> filterWaitingList = new HashSet<>(); 
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			
 			String userArray = "";
 			int rowCount = 1;
-			for (Integer integer : waitingList) {
+			for (Long integer : waitingList) {
 				
 				if(waitingList.size() == rowCount){
 					userArray += integer+"";
@@ -833,7 +929,7 @@ public class UserFriendList {
 			pstmt = conn.prepareStatement(sql);
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
-				filterWaitingList.add(rs.getInt("UserId"));
+				filterWaitingList.add(rs.getLong("UserId"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

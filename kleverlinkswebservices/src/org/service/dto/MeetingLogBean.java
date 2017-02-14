@@ -7,8 +7,8 @@ import java.util.List;
 
 public class MeetingLogBean {
 
-	private Integer senderUserId;
-	private Integer meetingId;
+	private Long senderUserId;
+	private Long meetingId;
 	private String fullName;
 	private String userName;
 	private LocalDate date;
@@ -24,10 +24,16 @@ public class MeetingLogBean {
 
 	private int meetingStatus;
 
-	public Integer getMeetingId() {
+	public Long getSenderUserId() {
+		return senderUserId;
+	}
+	public void setSenderUserId(Long senderUserId) {
+		this.senderUserId = senderUserId;
+	}
+	public Long getMeetingId() {
 		return meetingId;
 	}
-	public void setMeetingId(Integer meetingId) {
+	public void setMeetingId(Long meetingId) {
 		this.meetingId = meetingId;
 	}
 	public String getFullName() {
@@ -86,12 +92,7 @@ public class MeetingLogBean {
 	public LocalDateTime getToDate() {
 		return toDate;
 	}
-	public Integer getSenderUserId() {
-		return senderUserId;
-	}
-	public void setSenderUserId(Integer senderUserId) {
-		this.senderUserId = senderUserId;
-	}
+
 	public String getStartTime() {
 		return startTime;
 	}

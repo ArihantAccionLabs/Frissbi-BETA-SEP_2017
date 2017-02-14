@@ -37,7 +37,7 @@ public class LocationVotings {
 	@GET  
     @Path("/insertLocationVotings/{meetingId}/{latitude}/{longitude}/{userVotings}")
     @Produces(MediaType.TEXT_PLAIN)
-	public String insertLocationVotings(@PathParam("meetingId") int meetingId,
+	public String insertLocationVotings(@PathParam("meetingId") Long meetingId,
 			@PathParam("latitude") String latitude, @PathParam("longitude") String longitude,
 			@PathParam("userVotings") String userVotings ){
 		Connection conn = null;
@@ -52,13 +52,13 @@ public class LocationVotings {
 			userVotings = userVotings.replace("@", "/");
 			}
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.setString(2, latitude);
 			callableStatement.setString(3, longitude);
 			callableStatement.setString(4, userVotings);
 			callableStatement.registerOutParameter(5, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
-			isError = callableStatement.getInt(5)+"";
+			isError = callableStatement.getLong(5)+"";
 
 		} catch (SQLException se) {
 			se.printStackTrace();
@@ -73,7 +73,7 @@ public class LocationVotings {
 	@GET  
     @Path("/getUserFeasibleLocations/{meetingId}")
     @Produces(MediaType.TEXT_PLAIN)
-	public String getUserFeasibleLocations(@PathParam("meetingId") int meetingId
+	public String getUserFeasibleLocations(@PathParam("meetingId") Long meetingId
 			){
 		Connection conn = null;
 		Statement stmt = null;
@@ -84,7 +84,7 @@ public class LocationVotings {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserFeasibleLocations(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
@@ -122,8 +122,8 @@ public class LocationVotings {
 	@GET  
     @Path("/updateUserLocationVotings/{userId}/{userLocationVotingId}")
     @Produces(MediaType.TEXT_PLAIN)
-	public String updateUserLocationVotings(@PathParam("userId") int userId,
-			@PathParam("userLocationVotingId") int userLocationVotingId ){
+	public String updateUserLocationVotings(@PathParam("userId") Long userId,
+			@PathParam("userLocationVotingId") Long userLocationVotingId ){
 		Connection conn = null;
 		Statement stmt = null;
 		String value="";
@@ -133,12 +133,12 @@ public class LocationVotings {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_UpdateUserLocationVoting(?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId);
-			callableStatement.setInt(2, userLocationVotingId);
+			callableStatement.setLong(1, userId);
+			callableStatement.setLong(2, userLocationVotingId);
 			value = callableStatement.executeUpdate()+"";
 			
 			JSONObject jsonObject = new JSONObject( getUserLocationMeetingID(userLocationVotingId));
-			int meetingId = Integer.parseInt(jsonObject.getString("MeetingID"));
+			Long meetingId = Long.parseLong(jsonObject.getString("MeetingID"));
 			String latitude = jsonObject.getString("FeasibleLatitude");
 			String longitude = jsonObject.getString("FeasibleLongitude");
 			MeetingDetails meetingDetails = new MeetingDetails();
@@ -160,7 +160,7 @@ public class LocationVotings {
 
 			try {
 				AuthenticateUser authenticateUser = new AuthenticateUser();
-				JSONObject jsonRegistrationId = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(Integer.parseInt(senderUserId)));
+				JSONObject jsonRegistrationId = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(Long.parseLong(senderUserId)));
 				String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
 				Result result = sender.send(message, deviceRegistrationId, 1);
 			} catch (IOException e) {
@@ -186,7 +186,7 @@ public class LocationVotings {
 
 				try {
 					AuthenticateUser authenticateUser = new AuthenticateUser();
-					JSONObject jsonRegistrationId = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(Integer.parseInt(userid)));
+					JSONObject jsonRegistrationId = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(Long.parseLong(userid)));
 					String deviceRegistrationId = jsonRegistrationId.getString("DeviceRegistrationID");
 					Result result = sender.send(message, deviceRegistrationId, 1);
 				} catch (IOException e) {
@@ -243,7 +243,7 @@ public class LocationVotings {
 	@GET  
     @Path("/getUserFeasibleLocationVotingCount/{meetingId}")
     @Produces(MediaType.TEXT_PLAIN)
-	public String getUserFeasibleLocationVotingCount(@PathParam("meetingId") int meetingId
+	public String getUserFeasibleLocationVotingCount(@PathParam("meetingId") Long meetingId
 			){
 		Connection conn = null;
 		Statement stmt = null;
@@ -254,7 +254,7 @@ public class LocationVotings {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserFeasibleLocationVotings(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, meetingId);
+			callableStatement.setLong(1, meetingId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
@@ -290,8 +290,8 @@ public class LocationVotings {
 	@GET  
     @Path("/getUserFeasibleLocationVotingsByUserID/{meetingId}/{userId}")
     @Produces(MediaType.TEXT_PLAIN)
-	public String getUserFeasibleLocationVotingsByUserID(@PathParam("meetingId") int meetingId,
-			@PathParam("userId") int userId){
+	public String getUserFeasibleLocationVotingsByUserID(@PathParam("meetingId") Long meetingId,
+			@PathParam("userId") Long userId){
 		Connection conn = null;
 		Statement stmt = null;
 		JSONArray jsonResultsArray = new JSONArray();
@@ -301,8 +301,8 @@ public class LocationVotings {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserFeasibleLocationVotings_ByUserID(?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, meetingId);
-			callableStatement.setInt(2, userId);
+			callableStatement.setLong(1, meetingId);
+			callableStatement.setLong(2, userId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
@@ -337,7 +337,7 @@ public class LocationVotings {
 	@GET  
     @Path("/getUserLocationMeetingID/{userLocationVotingID}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String getUserLocationMeetingID(@PathParam("userLocationVotingID") int userLocationVotingID
+	public String getUserLocationMeetingID(@PathParam("userLocationVotingID") Long userLocationVotingID
 			) {
 
 		Connection conn = null;
@@ -349,7 +349,7 @@ public class LocationVotings {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_GetUserLocationMeetingID(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userLocationVotingID);
+			callableStatement.setLong(1, userLocationVotingID);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
@@ -383,9 +383,9 @@ public class LocationVotings {
 
 	public static void main(String args[]){
 		LocationVotings locationVotings = new LocationVotings();
-		String votingCount = locationVotings.getUserFeasibleLocationVotingCount(36);
+		String votingCount = locationVotings.getUserFeasibleLocationVotingCount(36l);
 		System.out.println(votingCount);
-		String locations = locationVotings.getUserFeasibleLocationVotingsByUserID(36, 10);
+		String locations = locationVotings.getUserFeasibleLocationVotingsByUserID(36l, 10l);
 		System.out.println(locations);
 	}
 }

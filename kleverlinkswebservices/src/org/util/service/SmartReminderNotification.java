@@ -34,22 +34,22 @@ public class SmartReminderNotification {
 			pstmt.setString(2, formatter.format(toTime));
 			
 			ResultSet rs = pstmt.executeQuery();
-			List<Integer> recipientIdList = new ArrayList<>();
-			 int senderId = 0;
+			List<Long> recipientIdList = new ArrayList<>();
+			 Long senderId = 0l;
 			while(rs.next()){
-			   int meetingId = rs.getInt("MeetingID"); 
-			   senderId    = rs.getInt("SenderUserID"); 
+			   Long meetingId = rs.getLong("MeetingID"); 
+			   senderId    = rs.getLong("SenderUserID"); 
 			   System.out.println(senderId+"  recipientId=================="+meetingId);
 			   pstmt = null;
 			   rs = null;
 			   sql  = "SELECT * FROM tbl_RecipientsDetails WHERE MeetingID=?"; 
 			   pstmt = conn.prepareStatement(sql);
-			   pstmt.setInt(1, meetingId);
+			   pstmt.setLong(1, meetingId);
 			   rs   = pstmt.executeQuery();
 			   
 			   while(rs.next()){
 				   
-				   int recipientId = rs.getInt("UserID"); 
+				   Long recipientId = rs.getLong("UserID"); 
 				   recipientIdList.add(recipientId);
 				   System.out.println("recipientId=================="+recipientId);
 				

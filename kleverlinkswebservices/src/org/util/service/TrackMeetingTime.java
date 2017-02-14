@@ -40,8 +40,8 @@ public class TrackMeetingTime {
 			   if(rs.getString("Latitude") == null || rs.getString("Latitude") == ""){
 				   
 				   MeetingLogBean meetingLogBean = new MeetingLogBean();
-				   meetingLogBean.setSenderUserId(rs.getInt("SenderUserID"));
-				   meetingLogBean.setMeetingId(rs.getInt("MeetingID"));
+				   meetingLogBean.setSenderUserId(rs.getLong("SenderUserID"));
+				   meetingLogBean.setMeetingId(rs.getLong("MeetingID"));
 				   meetingLogBean.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
 				   LocalDateTime fromTime1 = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 				   LocalDateTime toTime1 =   ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
@@ -90,8 +90,8 @@ public class TrackMeetingTime {
 					   if(rs.getString("Latitude") != null && ! rs.getString("Latitude").trim().isEmpty()){
 							   
 						   MeetingLogBean meetingLogBean = new MeetingLogBean();
-						   meetingLogBean.setSenderUserId(rs.getInt("SenderUserID"));
-						   meetingLogBean.setMeetingId(rs.getInt("MeetingID"));
+						   meetingLogBean.setSenderUserId(rs.getLong("SenderUserID"));
+						   meetingLogBean.setMeetingId(rs.getLong("MeetingID"));
 						   meetingLogBean.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
 						   LocalDateTime fromTime1 = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 						   LocalDateTime toTime1 =   ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
@@ -150,17 +150,17 @@ public class TrackMeetingTime {
                 preparedStatement.setTimestamp(3, new Timestamp(todayTime.getTime().getTime()));
 
 				ResultSet rs = preparedStatement.executeQuery();
-				List<Integer> meetingIdList = new ArrayList<Integer>();
+				List<Long> meetingIdList = new ArrayList<Long>();
 				while(rs.next()){
-					meetingIdList.add(rs.getInt("MeetingID"));
+					meetingIdList.add(rs.getLong("MeetingID"));
 				}
 				preparedStatement = null;
 				String updateSql = "UPDATE tbl_MeetingDetails SET MeetingStatus=? WHERE MeetingID=?" ;
 				if(! meetingIdList.isEmpty()){
 					preparedStatement = conn.prepareStatement(updateSql);
-					for (Integer meetingId : meetingIdList) {
+					for (Long meetingId : meetingIdList) {
 						preparedStatement.setString(1, MeetingStatus.COMPLETED.toString());
-						preparedStatement.setInt(2, meetingId);
+						preparedStatement.setLong(2, meetingId);
 						preparedStatement.addBatch();
 					}
 					   int []updateRow =  preparedStatement.executeBatch();

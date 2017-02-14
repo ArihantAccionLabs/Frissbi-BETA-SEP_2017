@@ -23,7 +23,7 @@ public class SenderTest {
 
 		try {
 			AuthenticateUser authenticateUser = new AuthenticateUser();
-			JSONObject jsonObject = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(93));
+			JSONObject jsonObject = new JSONObject ( authenticateUser.getGCMDeviceRegistrationId(93l));
 			String deviceRegistrationId = jsonObject.getString("DeviceRegistrationID");
 			Result result = sender.send(message, deviceRegistrationId, 1);
 			System.out.println(result);
