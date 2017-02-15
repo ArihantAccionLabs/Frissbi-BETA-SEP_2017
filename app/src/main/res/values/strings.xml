@@ -71,6 +71,13 @@
     <string name="title_activity_friends">FriendsActivity</string>
     <string name="selected_location">Selected location</string>
     <string name="check_connection">Please check your network connection</string>
+    <string name="sun">SUN</string>
+    <string name="mon">MON</string>
+    <string name="tue">TUE</string>
+    <string name="wed">WED</string>
+    <string name="thu">THU</string>
+    <string name="fri">FRI</string>
+    <string name="sat">SAT</string>
     <!-- invite -->
 
 

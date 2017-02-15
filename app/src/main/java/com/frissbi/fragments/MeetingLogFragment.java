@@ -120,14 +120,14 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
                                 meeting.setFromTime(meetingJsonObject.getString("from"));
                                 meeting.setToTime(meetingJsonObject.getString("to"));
                                 meeting.setDescription(meetingJsonObject.getString("description"));
-                               /* if (meetingJsonObject.getBoolean("isLocationSelected")) {
+                                if (meetingJsonObject.getBoolean("isLocationSelected")) {
                                     meeting.setLocationSelected(meetingJsonObject.getBoolean("isLocationSelected"));
                                     meeting.setAddress(meetingJsonObject.getString("address"));
                                     meeting.setLatitude(meetingJsonObject.getDouble("latitude"));
                                     meeting.setLongitude(meetingJsonObject.getDouble("longitude"));
                                 } else {
                                     meeting.setLocationSelected(meetingJsonObject.getBoolean("isLocationSelected"));
-                                }*/
+                                }
 
                                 JSONArray friendsJsonArray = meetingJsonObject.getJSONArray("friendsJsonArray");
                                 int friendsLength = friendsJsonArray.length();

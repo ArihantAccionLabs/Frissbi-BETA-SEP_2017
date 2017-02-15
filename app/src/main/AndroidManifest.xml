@@ -192,7 +192,7 @@
 
         <activity
             android:name=".activities.HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".TabActivity"
             android:label="@string/title_activity_tab"
@@ -225,7 +225,9 @@
         <activity
             android:name=".activities.SuggestionsActivity"
             android:label="Places" />
-        <activity android:name=".activities.MeetingCalendarActivity"></activity>
+        <activity
+            android:name=".activities.MeetingCalendarActivity"
+            android:label="Meetings" />
     </application>
 
 </manifest>

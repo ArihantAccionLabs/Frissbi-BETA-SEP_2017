@@ -59,15 +59,19 @@ public class MeetingLogAdapter extends RecyclerView.Adapter<MeetingLogAdapter.Vi
         String time = "Time : " + Utility.getInstance().convertTime(mMeetingsList.get(position).getFromTime()) + " to " + Utility.getInstance().convertTime(mMeetingsList.get(position).getToTime());
         holder.meetingLogTimeTv.setText(time);
 
-
-        if (mMeetingsList.get(position).getUserStatus().equalsIgnoreCase(UserMeetingStatus.MEETING_SENT.toString())) {
-            holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_sent));
-        } else if (mMeetingsList.get(position).getUserStatus().equalsIgnoreCase(UserMeetingStatus.MEETING_RECEIVE.toString())) {
-            if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_REJECT) {
-                holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_reject));
-            } else {
-                holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_recieve));
+        if (mMeetingsList.get(position).getUserStatus() != null) {
+            holder.statusIconImageView.setVisibility(View.VISIBLE);
+            if (mMeetingsList.get(position).getUserStatus().equalsIgnoreCase(UserMeetingStatus.MEETING_SENT.toString())) {
+                holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_sent));
+            } else if (mMeetingsList.get(position).getUserStatus().equalsIgnoreCase(UserMeetingStatus.MEETING_RECEIVE.toString())) {
+                if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_REJECT) {
+                    holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_reject));
+                } else {
+                    holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_recieve));
+                }
             }
+        } else {
+            holder.statusIconImageView.setVisibility(View.GONE);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

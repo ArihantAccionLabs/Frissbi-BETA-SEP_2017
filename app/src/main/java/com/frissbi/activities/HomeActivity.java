@@ -451,7 +451,7 @@ public class HomeActivity extends AppCompatActivity
 
             // check for Internet status
             if (mIsInternetPresent) {
-                Intent intent = new Intent(getApplication(), Meets.class);
+                Intent intent = new Intent(getApplication(), MeetingCalendarActivity.class);
                 startActivity(intent);
             } else {
                 Toast.makeText(getApplicationContext(), "You don't have an internet connection", Toast.LENGTH_SHORT).show();
