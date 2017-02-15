@@ -10,14 +10,20 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Calendar;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
+import org.kleverlinks.enums.FriendStatusEnum;
 import org.util.service.ServiceUtility;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
@@ -29,10 +35,46 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
-      
-		//TrackMeetingTime.completingMeetingAfterTimeOut();
-		//GoogleSearchPlaces.getGoogleSearchPlaces(17.4399295,78.4982741,"coffee");
-		return "ok";
+		
+		String stringDate = "2017-3";
+		java.util.Date date = new SimpleDateFormat("yyyy-MM").parse(stringDate);
+		
+	    Calendar monthFirstDate = Calendar.getInstance();  
+	    monthFirstDate.setTime(date); 
+	    LocalDateTime localDateTime = LocalDateTime.now();
+	    System.out.println(localDateTime.getYear()+"   "+(localDateTime.getMonth().getValue() == monthFirstDate.get(Calendar.MONTH)+1)+"   MONTH      "+(monthFirstDate.get(Calendar.YEAR)));
+        if(localDateTime.getYear() == monthFirstDate.get(Calendar.YEAR)){
+         System.out.println("if    "+((localDateTime.getMonth().getValue() == monthFirstDate.get(Calendar.MONTH)+1)));
+	      if((localDateTime.getMonth().getValue() == monthFirstDate.get(Calendar.MONTH)+1)){
+		    	  
+		   // monthFirstDate.set(Calendar.DAY_OF_MONTH, 1);
+	    	monthFirstDate = Calendar.getInstance();
+		    monthFirstDate.set(Calendar.HOUR, 0);
+		    monthFirstDate.set(Calendar.MINUTE, 0);
+			monthFirstDate.set(Calendar.SECOND, 0);
+			monthFirstDate.set(Calendar.HOUR_OF_DAY, 0);
+	      } else {
+	    	    monthFirstDate.set(Calendar.DAY_OF_MONTH, 1);
+			    monthFirstDate.set(Calendar.HOUR, 0);
+			    monthFirstDate.set(Calendar.MINUTE, 0);
+				monthFirstDate.set(Calendar.SECOND, 0);
+				monthFirstDate.set(Calendar.HOUR_OF_DAY, 0);
+	      }
+        Calendar monthLastDate = Calendar.getInstance();  
+        monthLastDate.setTime(date);  
+        monthLastDate.add(Calendar.MONTH, 1);  
+        monthLastDate.set(Calendar.DAY_OF_MONTH, 1);  
+        monthLastDate.add(Calendar.DATE, -1);
+        monthLastDate.set(Calendar.HOUR, 23);
+		monthLastDate.set(Calendar.MINUTE, 59);
+		monthLastDate.set(Calendar.SECOND, 00);
+		
+		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm ");  
+        System.out.println("Today            : " + sdf.format(monthFirstDate.getTime()));  
+        System.out.println("Last Day of Month: " + sdf.format(monthLastDate.getTime()));
+        
+        }
+        return "ok";
 			
 	}
 

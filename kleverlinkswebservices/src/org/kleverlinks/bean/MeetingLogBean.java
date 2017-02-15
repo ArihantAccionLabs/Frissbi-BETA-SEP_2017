@@ -1,4 +1,4 @@
-package org.service.dto;
+package org.kleverlinks.bean;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;

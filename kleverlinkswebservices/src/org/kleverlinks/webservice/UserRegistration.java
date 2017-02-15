@@ -97,10 +97,12 @@ public class UserRegistration {
 		        message +="</p>";
 				
 				MyEmailer.SendMail(email,"Frissbi Account Activation","Your new password is: "+ message) ;
-				
-			    send_sms smsObj = new send_sms();
-				smsObj.setparams("http://alerts.sinfini.com/","sms","A90334690d3a2b371990936619d8df4b1","SIDEMO");
-		        //smsObj.send_sms(contactNo+"", "Your Frissbi account sms verification code is: "+ contactNumberVerificationCode , "");
+				try {
+					SmsService smsService = new SmsService();
+					smsService.sendSms(contactNo,"Your Frissbi account sms verification code is: " + contactNumberVerificationCode);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
 				}
 				return userId+"";
 			}

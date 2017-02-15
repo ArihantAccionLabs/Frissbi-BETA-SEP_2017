@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.DataSourceConnection;
-import org.service.dto.MeetingLogBean;
 
 public class TrackMeetingTime {
 

@@ -34,11 +34,11 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
 import org.kleverlinks.webservice.MyEmailer;
-import org.service.dto.MeetingLogBean;
 import org.service.dto.UserDTO;
 
 import com.sun.jersey.api.client.Client;
@@ -201,8 +201,7 @@ public class ServiceUtility {
 	public static LocalDateTime convertStringToLocalDateTime(String date) {
 		LocalDateTime fromTime = null;
 		try {
-
-			DateFormat formatter = new SimpleDateFormat("yyyy-mm-dd HH:mm:ss");
+			DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 			fromTime = LocalDateTime.ofInstant(formatter.parse(date).toInstant(), ZoneId.systemDefault());
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -413,7 +412,7 @@ public class ServiceUtility {
 			callableStatement.setTimestamp(2, new Timestamp(map.get("today").getTime()));
 			callableStatement.setTimestamp(3, new Timestamp(map.get("tomorrow").getTime()));
 			
-			ResultSet rs = callableStatement.executeQuery();;
+			ResultSet rs = callableStatement.executeQuery();
 			List<UserDTO> meetingList = new ArrayList<UserDTO>();
 			List<UserDTO> conflictedMeetingList = new ArrayList<UserDTO>();
 			while (rs.next()) {

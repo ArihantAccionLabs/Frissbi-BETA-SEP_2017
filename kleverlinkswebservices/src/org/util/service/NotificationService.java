@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.webservice.AuthenticateUser;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
@@ -22,7 +23,6 @@ import org.kleverlinks.webservice.UserNotifications;
 import org.kleverlinks.webservice.gcm.Message;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;
-import org.service.dto.MeetingLogBean;
 import org.service.dto.NotificationInfoDTO;
 import org.service.dto.UserDTO;
 

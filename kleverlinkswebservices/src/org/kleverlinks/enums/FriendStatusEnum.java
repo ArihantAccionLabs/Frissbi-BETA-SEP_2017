@@ -7,5 +7,7 @@ public enum FriendStatusEnum {
 	REJECTED,
 	UNFRIEND,
 	FRIENDS,
+	BLOCKED,
 	CONFIRM;
+
 }

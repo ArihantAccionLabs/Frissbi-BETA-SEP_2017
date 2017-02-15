@@ -14,9 +14,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -26,6 +28,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.kleverlinks.bean.FriendBean;
 import org.kleverlinks.enums.FriendStatusEnum;
 import org.service.dto.NotificationInfoDTO;
 import org.service.dto.UserDTO;
@@ -35,36 +38,39 @@ import org.util.service.ServiceUtility;
 @Path("FriendListService")
 public class UserFriendList {
 
-	@GET
-	@Path("/sendFriendRequest/{senderUserId}/{receiverUserId}")
+	@POST
+	@Path("/sendFriendRequest")
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String sendFriendRequest(@PathParam("senderUserId") Long senderUserId,
-			@PathParam("receiverUserId") Long receiverUserId) {
+	public String sendFriendRequest(String userIds) {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
+			JSONObject userIdsJson = new JSONObject(userIds);
+			FriendBean friendBean = new FriendBean();
+			friendBean.toFriendBean(userIdsJson);
 			java.util.Date dateobj = new java.util.Date();
 			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
 			conn = DataSourceConnection.getDBConnection();
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setLong(1, senderUserId);
-			callableStatement.setLong(2, receiverUserId);
+			callableStatement.setLong(1, friendBean.getUserId());
+			callableStatement.setLong(2, friendBean.getFreindId());
 			callableStatement.setString(3, FriendStatusEnum.WAITING.toString());
-			callableStatement.setLong(4, senderUserId);
+			callableStatement.setLong(4, friendBean.getUserId());
 			callableStatement.setTimestamp(5, sqlDateNow);
 			callableStatement.setDate(6, null);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
 			int value = callableStatement.executeUpdate();
 			if (value == 1) {
 				
-				JSONObject senderJsonObject = ServiceUtility.getUserDetailByUserId(senderUserId);
+				JSONObject senderJsonObject = ServiceUtility.getUserDetailByUserId(friendBean.getUserId());
 				String message  = "Your have friend request from "+senderJsonObject.getString("fullName")+" on "+new SimpleDateFormat("dd-mm-yyyy hh:mm a").format(new Date());
 				
 				NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
-				notificationInfoDTO.setUserId(receiverUserId);
-				notificationInfoDTO.setSenderUserId(senderUserId);
+				notificationInfoDTO.setUserId(friendBean.getFreindId());
+				notificationInfoDTO.setSenderUserId(friendBean.getUserId());
 				notificationInfoDTO.setNotificationType(NotificationsEnum.FRIEND_PENDING_REQUESTS.toString());
 				notificationInfoDTO.setMessage(message);
 				
@@ -93,75 +99,27 @@ public class UserFriendList {
 		return jsonObject.toString();
 	}
 
-	@GET
-	@Path("/cancelFriendRequest/{username1}/{username2}")
+	@POST
+	@Path("/approveFriendRequest")
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String cancelFriendRequest(@PathParam("username1") String userName1,
-			@PathParam("username2") String userName2) {
-		Connection conn = null;
-		Statement stmt = null;
-		Long userId1 = 0l;
-		Long userId2 = 0l;
-		String value = "";
-
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			UserDTO userDTO1 = ServiceUtility.getUserDetailsByUserName(userName1);
-			  if(userDTO1 != null){
-				    userId1 = userDTO1.getUserId();
-			  }
-			
-			  UserDTO userDTO2 = ServiceUtility.getUserDetailsByUserName(userName2);
-			  if(userDTO2 != null){
-				    userId2 = userDTO2.getUserId();
-			  }
-			java.util.Date dateobj = new java.util.Date();
-			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
-			// put entry into the database as user1 is sending
-			// friend request to user2
-			CallableStatement callableStatement = null;
-			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
-			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setLong(1, userId1);
-			callableStatement.setLong(2, userId2);
-			callableStatement.setLong(3, -1);
-			callableStatement.setLong(4, userId1);
-			callableStatement.setTimestamp(5, sqlDateNow);
-			callableStatement.setDate(6, null);
-			callableStatement.registerOutParameter(7, Types.INTEGER);
-			value = callableStatement.executeUpdate() + "";
-		} catch (SQLException se) {
-			se.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-		finally{
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(stmt);
-		}
-		return value;
-	}
-
-	@GET
-	@Path("/approveFriendRequest/{receiverUserId}/{senderUserId}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String approveFriendRequest(@PathParam("receiverUserId") Long receiverUserId,
-			@PathParam("senderUserId") Long senderUserId) {
+	public String approveFriendRequest(String userIds) {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		JSONObject responseJson = new JSONObject();
 		try {
+			JSONObject userIdsJson = new JSONObject(userIds);
+			FriendBean friendBean = new FriendBean();
+			friendBean.toFriendBean(userIdsJson);
 			conn = DataSourceConnection.getDBConnection();
 			java.util.Date dateobj = new java.util.Date();
 			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
-			// put entry into the database as user1 is approving
-			// friend request of user2
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setLong(1, senderUserId);
-			callableStatement.setLong(2, receiverUserId);
+			callableStatement.setLong(1, friendBean.getUserId());
+			callableStatement.setLong(2, friendBean.getFreindId());
 			callableStatement.setString(3, FriendStatusEnum.ACCEPTED.toString());
-			callableStatement.setLong(4, receiverUserId);
+			callableStatement.setLong(4, friendBean.getFreindId());
 			callableStatement.setDate(5, null);
 			callableStatement.setTimestamp(6, sqlDateNow);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
@@ -169,14 +127,14 @@ public class UserFriendList {
 
 			System.out.println("value======="+value);
 			if (value == 1) {
-				JSONObject receiverJsonObject = ServiceUtility.getUserDetailByUserId(receiverUserId);
+				JSONObject receiverJsonObject = ServiceUtility.getUserDetailByUserId(friendBean.getFreindId());
 				//JSONObject senderJsonObject = ServiceUtility.getUserDetailByUserId(senderUserId);
 				
 				String message  = "Your friend request is accepted by "+receiverJsonObject.getString("fullName")+" on "+new SimpleDateFormat("dd-mm-yyyy hh:mm a").format(new Date());
 				
 				NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
-				notificationInfoDTO.setUserId(senderUserId);
-				notificationInfoDTO.setSenderUserId(receiverUserId);
+				notificationInfoDTO.setUserId(friendBean.getUserId());
+				notificationInfoDTO.setSenderUserId(friendBean.getFreindId());
 				notificationInfoDTO.setNotificationType(NotificationsEnum.FRIEND_REQUEST_ACCEPTANCE.toString());
 				notificationInfoDTO.setMessage(message);
 				
@@ -201,27 +159,28 @@ public class UserFriendList {
 		return responseJson.toString();
 	}
 
-	@GET
-	@Path("/rejectFriendRequest/{userId}/{friendId}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String rejectFriendRequest(@PathParam("userId") Long userId,@PathParam("friendId") Long friendId) {
+	@POST
+	@Path("/rejectFriendRequest")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String rejectFriendRequest(String userIds) {
 		Connection conn = null;
 		Statement stmt = null;
 		JSONObject finalJson = new JSONObject();
 		try {
+			JSONObject userIdsJson = new JSONObject(userIds);
+			FriendBean friendBean = new FriendBean();
+			friendBean.toFriendBean(userIdsJson);
 			conn = DataSourceConnection.getDBConnection();
 		
 			java.util.Date dateobj = new java.util.Date();
 			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
-			// put entry into the database as user1 is rejecting
-			// friend request of user2
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setLong(1, userId);
-			callableStatement.setLong(2, friendId);
+			callableStatement.setLong(1,friendBean.getUserId());
+			callableStatement.setLong(2, friendBean.getFreindId());
 			callableStatement.setString(3, FriendStatusEnum.REJECTED.toString());
-			callableStatement.setLong(4, userId);
+			callableStatement.setLong(4, friendBean.getUserId());
 			callableStatement.setDate(5, null);
 			callableStatement.setTimestamp(6, sqlDateNow);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
@@ -230,7 +189,6 @@ public class UserFriendList {
 			if (value == 1) {
 				finalJson.put("status", true);
 				finalJson.put("message", "Friend is rejected");
-				System.out.println("Stored procedure executed");
 				return finalJson.toString();
 			}
 		} catch (SQLException se) {
@@ -248,14 +206,18 @@ public class UserFriendList {
 		return finalJson.toString();
 	}
 
-	@GET
-	@Path("/unFriendRequest/{userId}/{friendId}")
+	@POST
+	@Path("/unFriendRequest")
+	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String unFriendRequest(@PathParam("userId") Long userId, @PathParam("friendId") Long friendId) {
+	public String unFriendRequest(String userIds) {
 		Connection conn = null;
 		Statement stmt = null;
 		JSONObject finalJson = new JSONObject();
 		try {
+			JSONObject userIdsJson = new JSONObject(userIds);
+			FriendBean friendBean = new FriendBean();
+			friendBean.toFriendBean(userIdsJson);
 			conn = DataSourceConnection.getDBConnection();
 			
 			java.util.Date dateobj = new java.util.Date();
@@ -263,10 +225,10 @@ public class UserFriendList {
 			CallableStatement callableStatement = null;
 			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setLong(1, userId);
-			callableStatement.setLong(2, friendId);
+			callableStatement.setLong(1,friendBean.getUserId());
+			callableStatement.setLong(2, friendBean.getFreindId());
 			callableStatement.setString(3, FriendStatusEnum.UNFRIEND.toString());
-			callableStatement.setLong(4, userId);
+			callableStatement.setLong(4, friendBean.getUserId());
 			callableStatement.setTimestamp(5, sqlDateNow);
 			callableStatement.setDate(6, null);
 			callableStatement.registerOutParameter(7, Types.INTEGER);
@@ -274,8 +236,7 @@ public class UserFriendList {
 
 			if (value == 1) {
 				finalJson.put("status", true);
-				finalJson.put("message", "Friend is rejected");
-				System.out.println("Stored procedure executed");
+				finalJson.put("message", "Successfully unfriend");
 				return finalJson.toString();
 			}
 
@@ -290,10 +251,61 @@ public class UserFriendList {
 		}
 		finalJson.put("status", false);
 		finalJson.put("message", "Oops something went wrong");
-		System.out.println("Stored procedure executed");
 		return finalJson.toString();
 	}
 
+
+	@POST
+	@Path("/blockFriend")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String blockFriendRequest(String userIds) {
+		Connection conn = null;
+		Statement stmt = null;
+		JSONObject finalJson = new JSONObject();
+		try {
+			JSONObject userIdsJson = new JSONObject(userIds);
+			FriendBean friendBean = new FriendBean();
+			friendBean.toFriendBean(userIdsJson);
+			conn = DataSourceConnection.getDBConnection();
+			
+			java.util.Date dateobj = new java.util.Date();
+			java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
+			CallableStatement callableStatement = null;
+			String insertStoreProc = "{call usp_InsertUpdateUserFriendship(?,?,?,?,?,?,?)}";
+			callableStatement = conn.prepareCall(insertStoreProc);
+			callableStatement.setLong(1, friendBean.getUserId());
+			callableStatement.setLong(2, friendBean.getFreindId());
+			callableStatement.setString(3, FriendStatusEnum.BLOCKED.toString());
+			callableStatement.setLong(4, friendBean.getUserId());
+			callableStatement.setTimestamp(5, sqlDateNow);
+			callableStatement.setDate(6, null);
+			callableStatement.registerOutParameter(7, Types.INTEGER);
+			
+			int value = callableStatement.executeUpdate();
+
+			if (value == 1) {
+				finalJson.put("status", true);
+				finalJson.put("message", "Successfully unfriend");
+				return finalJson.toString();
+			}
+
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		finally{
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(stmt);
+		}
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		return finalJson.toString();
+	}
+	
+	
+	
 	@GET
 	@Path("/friendsList/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -494,7 +506,7 @@ public class UserFriendList {
 				}
 				rowCount++;
 			}
-			System.out.println("userArray============"+userArray.toString());
+			//System.out.println("userArray============"+userArray.toString());
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob FROM tbl_users AS U  where (U.FirstName LIKE '%"
@@ -653,9 +665,9 @@ public class UserFriendList {
 	}
 	
 	@GET
-	@Path("/friendStatus/{senderUserID}/{receiverUserID}")
+	@Path("/friendStatus/{userId}/{friendId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String friendStatus(@PathParam("senderUserID") Long senderUserID, @PathParam("receiverUserID") Long receiverUserID) {
+	public String friendStatus(@PathParam("userId") Long userId, @PathParam("friendId") Long friendId) {
 		Connection conn = null;
 		Statement stmt = null;
 		String requestStatus = "-1";
@@ -663,8 +675,8 @@ public class UserFriendList {
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
 			String sql;
-			sql = "SELECT RequestStatus from tbl_userfriendlist where SenderUserID ='" + senderUserID + "'and ReceiverUserID ='"
-					+ receiverUserID + "' limit 1";
+			sql = "SELECT RequestStatus from tbl_userfriendlist where SenderUserID ='" + userId + "'and ReceiverUserID ='"
+					+ friendId + "' limit 1";
 			ResultSet rs = stmt.executeQuery(sql);
 
 			while (rs.next()) {
@@ -672,8 +684,8 @@ public class UserFriendList {
 			}
 
 			if (requestStatus.equals("-1")) {
-				sql = "SELECT RequestStatus from tbl_userfriendlist where SenderUserID ='" + receiverUserID + "'and ReceiverUserID ='"
-						+ senderUserID + "' and limit 1";
+				sql = "SELECT RequestStatus from tbl_userfriendlist where SenderUserID ='" + friendId + "'and ReceiverUserID ='"
+						+ userId + "' and limit 1";
 				rs = stmt.executeQuery(sql);
 
 				while (rs.next()) {
@@ -712,9 +724,15 @@ public class UserFriendList {
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setLong(1, userId);
 			pstmt.setLong(2, userId);
-			pstmt.setString(3, FriendStatusEnum.REJECTED.toString());
+			pstmt.setString(3, FriendStatusEnum.UNFRIEND.toString());
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
+				
+				List<String> statusList = new ArrayList<>();
+				statusList.add(FriendStatusEnum.BLOCKED.toString());
+				statusList.add(FriendStatusEnum.REJECTED.toString());
+				statusList.add(FriendStatusEnum.ACCEPTED.toString());
+				
 				if (ServiceUtility.checkValidString(rs.getString("RequestStatus"))) {
 
 					if (rs.getString("RequestStatus").trim().equals(FriendStatusEnum.WAITING.toString())) {
@@ -722,7 +740,7 @@ public class UserFriendList {
 							waitingUserIds.add(rs.getLong("ReceiverUserID"));
 						if (userId != rs.getLong("SenderUserID"))
 							waitingUserIds.add(rs.getLong("SenderUserID"));
-					} else if (rs.getString("RequestStatus").trim().equals(FriendStatusEnum.ACCEPTED.toString())) {
+					} else if (statusList.contains(rs.getString("RequestStatus").trim())) {
 						if (userId != rs.getLong("ReceiverUserID"))
 							acceptedUserIds.add(rs.getLong("ReceiverUserID"));
 						if (userId != rs.getLong("SenderUserID"))
@@ -752,10 +770,8 @@ public class UserFriendList {
 		JSONObject finalJson = new JSONObject();
 		try {
 			JSONObject userIdsJson = new JSONObject(userIds);
-			Long userId =  userIdsJson.getLong("userId");
-			Long friendUserId =  userIdsJson.getLong("friendUserId");
-			
-			
+			FriendBean friendBean = new FriendBean();
+			friendBean.toFriendBean(userIdsJson);
 				conn = DataSourceConnection.getDBConnection();
 				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
 							  + " ON (U.UserID=FR.ReceiverUserID)  "
@@ -763,14 +779,14 @@ public class UserFriendList {
 							  + " UNION "
 							  + " SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
 							  + " ON (U.UserID=FR.SenderUserID) "
-							  + " WHERE (FR.ReceiverUserID =? AND FR.SenderUserID =?)";
+							  + " WHERE (FR.ReceiverUserID =? AND FR.SenderUserID =?) ";
 					
 				pstmt = conn.prepareStatement(sql);
 					
-				pstmt.setLong(1, userId);
-				pstmt.setLong(2, friendUserId);
-				pstmt.setLong(3, userId);
-				pstmt.setLong(4, friendUserId);
+				pstmt.setLong(1, friendBean.getUserId());
+				pstmt.setLong(2, friendBean.getFreindId());
+				pstmt.setLong(3, friendBean.getUserId());
+				pstmt.setLong(4, friendBean.getFreindId());
 				
 				ResultSet rs = pstmt.executeQuery();
 				JSONObject jsonObject = new JSONObject();
@@ -784,9 +800,9 @@ public class UserFriendList {
 						if (ServiceUtility.checkValidString(rs.getString("RequestStatus"))) {
 
 							if (rs.getString("RequestStatus").trim().equals(FriendStatusEnum.WAITING.toString())) {
-								if(userId == rs.getLong("SenderUserID") && friendUserId == rs.getLong("ReceiverUserID")){
+								if(friendBean.getUserId() == rs.getLong("SenderUserID") && friendBean.getFreindId() == rs.getLong("ReceiverUserID")){
 									jsonObject.put("status", FriendStatusEnum.WAITING);
-								}else if(userId == rs.getLong("ReceiverUserID") && friendUserId == rs.getLong("SenderUserID")){
+								}else if(friendBean.getUserId() == rs.getLong("ReceiverUserID") && friendBean.getFreindId() == rs.getLong("SenderUserID")){
 									jsonObject.put("status", FriendStatusEnum.CONFIRM);
 								}
 							} else if (rs.getString("RequestStatus").trim().equals(FriendStatusEnum.ACCEPTED.toString())) {
@@ -800,7 +816,7 @@ public class UserFriendList {
 				}
 				System.out.println((!jsonObject.has("userId"))+"    jsonObject===== :   "+jsonObject);
 				if(!jsonObject.has("userId")){
-				 finalJson = 	seeUnknownProfile(friendUserId);
+				 finalJson = 	seeUnknownProfile(friendBean.getFreindId());
 				}
 				
 				finalJson.put("status", true);

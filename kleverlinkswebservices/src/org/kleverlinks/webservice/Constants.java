@@ -28,4 +28,11 @@ public class Constants {
 	//local Server Urls
 	public static final String SERVER_URL = "http://192.168.2.94:9090";
 	
+	
+	//Constant values for sending SMS
+	public static final String SMS_METHOD =  "sms";
+	public static final String SMS_API_KEY = "A522b6cc9d85a747c0a551d638ccc49d9";
+	public static final String SMS_SENDER =  "INFINI";
+	public static final String SMS_API_URL =  "http://alerts.solutionsinfini.com";
+	
 }
