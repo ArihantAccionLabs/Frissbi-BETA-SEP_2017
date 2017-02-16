@@ -593,7 +593,7 @@ public class MeetingDetails {
 		JSONObject finalJson = new JSONObject();
 		try {
 			JSONObject meetingDateJsonObject = new JSONObject(meetingDate);
-			System.out.println("meetingDateJsonObject=============="+meetingDateJsonObject.toString());
+			System.out.println("meetingDateJsonObject  =============="+meetingDateJsonObject.toString());
 			Map<String , Date> map = ServiceUtility.getOneDayDate(meetingDateJsonObject.getString("date"));
 			conn = DataSourceConnection.getDBConnection();
 			String insertStoreProc = "{call usp_GetMeetingDetails_ByUserID(?,?,?)}";
@@ -641,7 +641,7 @@ public class MeetingDetails {
 			
 			finalJson.put("status", true);
 			finalJson.put("message", "Success");
-			finalJson.put("meetingArrays", jsonResultsArray);
+			finalJson.put("meetingArray", jsonResultsArray);
 			return finalJson.toString();
 		} catch (SQLException se) {
 			se.printStackTrace();

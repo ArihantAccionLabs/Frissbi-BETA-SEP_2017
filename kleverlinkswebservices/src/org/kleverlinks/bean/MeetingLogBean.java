@@ -1,5 +1,6 @@
 package org.kleverlinks.bean;
 
+import java.sql.ResultSet;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
