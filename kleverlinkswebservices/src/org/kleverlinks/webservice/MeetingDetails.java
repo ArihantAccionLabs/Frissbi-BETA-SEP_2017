@@ -140,7 +140,7 @@ public class MeetingDetails {
 			meetingId = callableStatement.getLong(12);
 			System.out.println(isError + "meetingId >>>>>>>>>>>>>>>>>> " + meetingId+"  value=="+value);
 
-			if (isError == 0) {
+			if (isError == 0 && value != 0) {
 
 				JSONArray jsonArrayData = meetingInsertionObject.getJSONArray("friendsIdJsonArray");
 				// System.out.println(">>>>>>>>>>>>>" + jsonArrayData.length());
@@ -166,25 +166,24 @@ public class MeetingDetails {
 
 				}
 				int[] insertedRow = ps.executeBatch();
-				/*for (int i = 0; i < insertedRow.length; i++) {
-					 System.out.println("insertedRow[i]========="+insertedRow[i]);
-				}*/
 				connection.commit();
-				// return Response.status(201).entity(i).build();
 				if (insertedRow.length != 0) {
-					try {
-						ServiceUtility.insertingAndSendingMails(meetingInsertionObject.getJSONArray("emailIdJsonArray"),senderUserId, meetingId);
-					} catch (Exception e) {
-						e.printStackTrace();
-						finalJson.put("status", false);
-						finalJson.put("isInserted", false);
-						finalJson.put("message", "Mail not sent");
-
-						return finalJson.toString();
-					}
+					
 					NotificationService.sendingMeetingCreationNotification(meetingInsertionObject, meetingId);
-					// Inserting the contact number of the user who is not on the Fissbi
-					ServiceUtility.insertMeetingContactNumbers(meetingInsertionObject.getJSONArray("contactsJsonArray"),senderUserId, meetingId);
+					MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
+					JSONObject userDetail = ServiceUtility.getUserDetailByUserId(senderUserId);
+                    if(meetingInsertionObject.getJSONArray("emailIdJsonArray").length() != 0){
+                    	int insertedEmails = ServiceUtility.insertingAndSendingMails(meetingInsertionObject.getJSONArray("emailIdJsonArray"),senderUserId, meetingId);
+                    	if(insertedEmails != 0){
+                    		sendingEmail(meetingInsertionObject.getJSONArray("emailIdJsonArray"),userDetail, meetingLogBean);
+                    	}
+                    }
+					if(meetingInsertionObject.getJSONArray("contactsJsonArray").length() != 0){
+						int insertedContact = ServiceUtility.insertMeetingContactNumbers(meetingInsertionObject.getJSONArray("contactsJsonArray"),senderUserId, meetingId);
+						if(insertedContact != 0){
+							sendMeetingSms(meetingInsertionObject.getJSONArray("contactsJsonArray"),userDetail, meetingLogBean);
+						}
+					}
 				}
 
 				finalJson.put("status", true);
@@ -1340,6 +1339,65 @@ public class MeetingDetails {
 		return finalJson.toString();
 	}
 	
+    public void sendMeetingSms(JSONArray contactJsonArrary , JSONObject userDetail ,  MeetingLogBean meetingLogBean){
+    	
+		String contactNumbers = "";
+		int rowCount = 1;
+
+		for (int i = 0; i < contactJsonArrary.length(); i++) {
+			//
+			String mobileNumber = contactJsonArrary.getString(i);
+			if (mobileNumber != null && !mobileNumber.trim().isEmpty()) {
+				mobileNumber = mobileNumber.replaceAll("(\\d)\\s(\\d)", "$1$2");
+				if (contactJsonArrary.length() == rowCount) {
+					contactNumbers += mobileNumber;
+				} else {
+					contactNumbers += mobileNumber + ",";
+				}
+			}
+			rowCount++;
+		}
+
+		String message = "";
+		message = " You have a meeting " + meetingLogBean.getDescription() + " on " + meetingLogBean.getDate()
+				+ " from " + meetingLogBean.getStartTime() + " to " + meetingLogBean.getEndTime() + " created by "
+				+ userDetail.getString("fullName") + " Please click this url " + "https://alerts.solutionsinfini.com "
+				+ " to install Frissbi App";
+
+		try {
+			SmsService smsService = new SmsService();
+			smsService.sendSms(contactNumbers, message);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+ 	
+    }
+    public void sendingEmail(JSONArray emailJsonArrary , JSONObject userDetail ,  MeetingLogBean meetingLogBean){
+    	
+    	String emailTo = "";
+    	int rowCount = 1;
+      	for (int i = 0; i < emailJsonArrary.length(); i++) {
+			
+      		if(emailJsonArrary.length() == rowCount){
+      			emailTo +=  emailJsonArrary.getString(i);
+      		}else{
+      			emailTo +=  emailJsonArrary.getString(i)+",";	
+      		}
+      		 rowCount++;
+		}
+      	
+      	String htmlMessage = "";
+      	htmlMessage = " You have a meeting "+ meetingLogBean.getDescription() + " on "+meetingLogBean.getDate()+" from "+meetingLogBean.getStartTime() 
+      	+" to "+ meetingLogBean.getEndTime() + " created by "+userDetail.getString("fullName")
+      	+" Please click this url "+"https://alerts.solutionsinfini.com "+" to install Frissbi App";
+      	
+      	try {
+			
+			MyEmailer.SendMail(emailTo, "Frissbi Meeting", htmlMessage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+    }
 	
 	/*//logic for checking the source and destination  distance wrt Time
 	if(! timePostedFriendList.isEmpty()){

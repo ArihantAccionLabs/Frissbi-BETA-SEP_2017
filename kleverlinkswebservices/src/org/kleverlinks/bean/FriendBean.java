@@ -29,6 +29,10 @@ public class FriendBean {
 	}
 
 	
+	@Override
+	public String toString() {
+		return "FriendBean [userId=" + userId + ", freindId=" + freindId + ", status=" + status + "]";
+	}
 	public void toFriendBean(JSONObject friendJson){
 		
       this.setUserId(friendJson.getLong("userId"));

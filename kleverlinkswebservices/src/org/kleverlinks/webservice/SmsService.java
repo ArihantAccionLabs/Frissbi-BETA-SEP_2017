@@ -112,7 +112,7 @@ public class SmsService {
 				else 
 					time="&time="+URLEncoder.encode(time, "UTF-8");
 				
-		        URL url = new URL(""+start+api_url+"/api/v3/?method="+method+"&api_key="+api_key+"&sender="+sender_id+"&to="+mob_no+"&message="+message+unicode+time+"&format=xml" );
+		        URL url = new URL(start+api_url+"/api/v3/?method="+method+"&api_key="+api_key+"&sender="+sender_id+"&to="+mob_no+"&message="+message+unicode+time+"&format=xml" );
 			    
 			    HttpURLConnection con = (HttpURLConnection) url.openConnection();
 			    con.setRequestMethod("POST");

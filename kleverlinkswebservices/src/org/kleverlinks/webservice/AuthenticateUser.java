@@ -10,11 +10,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Calendar;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -23,7 +21,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
-import org.kleverlinks.enums.FriendStatusEnum;
+import org.kleverlinks.bean.FriendBean;
 import org.util.service.ServiceUtility;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
@@ -35,10 +33,14 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
-		
-		    LocalDateTime localDateTime = LocalDateTime.now();
-		    System.out.println("localDateTime  B "+localDateTime.toString());
-        System.out.println("localDateTime  A "+localDateTime.toString());
+		String htmlMessage = "";
+      	htmlMessage = " You have a meeting ";
+      	try {
+			String emailTo = "sunil@thrymr.net";
+			MyEmailer.SendMail(emailTo, "Frissbi Meeting", htmlMessage);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
         return "ok";
 			
 	}

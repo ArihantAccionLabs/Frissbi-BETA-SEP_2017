@@ -97,12 +97,12 @@ public class UserRegistration {
 		        message +="</p>";
 				
 				MyEmailer.SendMail(email,"Frissbi Account Activation","Your new password is: "+ message) ;
-				try {
+				/*try {
 					SmsService smsService = new SmsService();
 					smsService.sendSms(contactNo,"Your Frissbi account sms verification code is: " + contactNumberVerificationCode);
 				} catch (Exception e) {
 					e.printStackTrace();
-				}
+				}*/
 				}
 				return userId+"";
 			}

@@ -41,18 +41,19 @@ public class CalendarService {
 		JSONArray jsonResultsArray = new JSONArray();
 		List<LocalDate> localDateList = new ArrayList<>();
 		try{
-			JSONObject meetingInfoJson = new JSONObject(meetingDetails);
-			java.util.Date date = new SimpleDateFormat("yyyy-MM").parse(meetingInfoJson.getString("date"));
-		    Calendar monthFirstDate = Calendar.getInstance();  
-		    monthFirstDate.setTime(date); 
-		    LocalDateTime localDateTime = LocalDateTime.now();
+		    /* LocalDateTime localDateTime = LocalDateTime.now();
 		    System.out.println(localDateTime.getYear()+"   "+(localDateTime.getMonth().getValue() == monthFirstDate.get(Calendar.MONTH)+1)+"   MONTH      "+(monthFirstDate.get(Calendar.YEAR)));
-		    /*if(localDateTime.getYear() == monthFirstDate.get(Calendar.YEAR)){
+		    if(localDateTime.getYear() == monthFirstDate.get(Calendar.YEAR)){
 		    }*/
 		  /*   if((localDateTime.getMonth().getValue() == monthFirstDate.get(Calendar.MONTH)+1)){
 		    	monthFirstDate = Calendar.getInstance();
 		      } else {
 		      }*/
+			JSONObject meetingInfoJson = new JSONObject(meetingDetails);
+			java.util.Date date = new SimpleDateFormat("yyyy-MM").parse(meetingInfoJson.getString("date"));
+			
+			Calendar monthFirstDate = Calendar.getInstance();  
+			monthFirstDate.setTime(date); 
 		    monthFirstDate.set(Calendar.DAY_OF_MONTH, 1);
 			monthFirstDate.set(Calendar.HOUR, 0);
 			monthFirstDate.set(Calendar.MINUTE, 0);
@@ -87,7 +88,7 @@ public class CalendarService {
 				pstmt.setTimestamp(4, new Timestamp(monthLastDate.getTime().getTime()));
 				
 				ResultSet rs = pstmt.executeQuery();
-				DateTimeFormatter monthFormat = DateTimeFormatter.ofPattern("yyyy-MM");
+				DateTimeFormatter monthFormat = DateTimeFormatter.ofPattern("yyyy-M");
 				DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");				
 				while (rs.next()) {
 					JSONObject jsonObject = new JSONObject();
@@ -101,7 +102,7 @@ public class CalendarService {
 					jsonObject.put("to" , senderToDateTime.getHour() + ":" + senderToDateTime.getMinute());
 					jsonObject.put("description" , rs.getString("MeetingDescription"));
 					
-					if(rs.getString("Latitude") != null && ! rs.getString("Latitude").trim().isEmpty()){
+					if(rs.getString("GoogleAddress") != null && ! rs.getString("GoogleAddress").trim().isEmpty()){
 						
 						jsonObject.put("isLocationSelected",true);
 						jsonObject.put("address" , rs.getString("GoogleAddress"));

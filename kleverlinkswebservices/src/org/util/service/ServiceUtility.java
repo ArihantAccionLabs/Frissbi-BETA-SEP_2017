@@ -301,7 +301,7 @@ public class ServiceUtility {
 		return timeToBeTaken;
 	}
 
-	public static void insertingAndSendingMails(JSONArray mailsArray, Long senderUserId, Long meetingId)
+	public static int insertingAndSendingMails(JSONArray mailsArray, Long senderUserId, Long meetingId)
 			throws Exception {
 		try {
 			Connection connection = null;
@@ -319,42 +319,47 @@ public class ServiceUtility {
 			}
 			int[] insertedRow = ps.executeBatch();
 			connection.commit();
-			System.out.println(" insertingAndSendingMails    insertedRow[i]=========" + insertedRow.length);
+			
+			return insertedRow.length;
+			/*System.out.println(" insertingAndSendingMails    insertedRow[i]=========" + insertedRow.length);
 			for (int i = 0; i < mailsArray.length(); i++) {
 				MyEmailer.SendMail(mailsArray.getString(i), "Your meeting request ", "");
-			}
+			}*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return 0;
 	}
 
-	public static void insertMeetingContactNumbers(JSONArray contactArray, Long senderUserId, Long meetingId) {
-		try {
-			
-		
+	public static int insertMeetingContactNumbers(JSONArray contactArray, Long senderUserId, Long meetingId) {
 		Connection connection = null;
+		int[] insertedRow;
+		PreparedStatement ps = null;
+		try {
+		
 		connection = DataSourceConnection.getDBConnection();
 		connection.setAutoCommit(false);
-		PreparedStatement ps = null;
 		String query = "INSERT into tbl_MeetingContacts(MeetingID,ContactNumber) values(?,?)";
 		ps = connection.prepareStatement(query);
 
 		for (int i = 0; i < contactArray.length(); i++) {
-
-			ps.setLong(1, meetingId);
-			ps.setString(2, contactArray.getString(i));
-			ps.addBatch();
-
+	       if(contactArray.getString(i) != null && ! contactArray.getString(i).trim().isEmpty()){
+	    	   
+	    	   ps.setLong(1, meetingId);
+	    	   ps.setString(2, contactArray.getString(i).replaceAll("(\\d)\\s(\\d)", "$1$2"));
+	    	   ps.addBatch();
+	       }
 		}
-		int[] insertedRow = ps.executeBatch();
+		insertedRow = ps.executeBatch();
 		connection.commit();
-	/*	for (int i = 0; i < insertedRow.length; i++) {
-			System.out.println("insertedRow[i]=========" + insertedRow[i]);
-
-		}*/
+		return insertedRow.length;
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally {
+			closeConnection(connection);
+			closeSatetment(ps);
 		}
+		return 0;
 	}
 
 	public static void deleteUserFromMeeting(JSONArray meetingArray , Long senderUserId)throws IOException, SQLException, PropertyVetoException {
