@@ -370,6 +370,7 @@ public class TSNetworkHandler {
             try {
 
                 URL url = new URL(_url);
+
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
                 conn.setRequestMethod("POST");
                 conn.setRequestProperty("Content-Type",

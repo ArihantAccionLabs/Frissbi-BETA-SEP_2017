@@ -93,7 +93,7 @@
         <activity
             android:name=".frissbi.Login"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
+            />
         <activity
             android:name=".frissbi.Update_profile"
             android:screenOrientation="portrait" />
@@ -228,6 +228,9 @@
         <activity
             android:name=".activities.MeetingCalendarActivity"
             android:label="Meetings" />
+        <activity
+            android:name=".activities.LoginActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

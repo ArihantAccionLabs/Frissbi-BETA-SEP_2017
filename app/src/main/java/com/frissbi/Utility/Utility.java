@@ -25,7 +25,8 @@ public class Utility {
     public static final String ADD_FRIEND = "/FriendListService/sendFriendRequest/";
     public static final String APPROVE_FRIEND = "/FriendListService/approveFriendRequest/";
     public static final String VIEW_PROFILE = "/FriendListService/seeOtherProfile/";
-    public static final String MEETING_LOG_BY_DATE = "/MeetingDetailsService/getMeetingDetailsByUserID/";
+    public static final String MEETING_LOG_BY_DATE = "/MeetingDetailsService/getMeetingDetailsByUserID";
+    public static final String MEETING_COUNT_BY_MONTH = "/CalendarService/getMeetingMonthWise";
     private static Utility ourInstance = new Utility();
 
     public static Utility getInstance() {

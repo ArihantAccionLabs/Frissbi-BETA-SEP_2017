@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.activities.HomeActivity;
 import com.frissbi.R;
+import com.frissbi.activities.LoginActivity;
 
 public class SplashScreen extends Activity implements AnimationListener {
     private static int SPLASH_TIME_OUT = 1000;
@@ -74,7 +75,7 @@ public class SplashScreen extends Activity implements AnimationListener {
                     finish();
                 } else {
 
-                    Intent intent = new Intent(getApplicationContext(), Login.class);
+                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
                     startActivity(intent);
                     finish();
                     // Check for login status Using SharedPreference

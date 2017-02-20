@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "475280497320",
+    "firebase_url": "https://frissbi1-998.firebaseio.com",
+    "project_id": "frissbi1-998",
+    "storage_bucket": "frissbi1-998.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:475280497320:android:e3d5e59a5d263a77",
+        "android_client_info": {
+          "package_name": "com.frissbi"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "475280497320-3dqvt12g51nb1ddfjurs627j5d4leh5r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.frissbi",
+            "certificate_hash": "3825EE069EA5ADA4B66432EF95C350F73860952B"
+          }
+        },
+        {
+          "client_id": "475280497320-gd0d8p5t17i4bmlh9j731vvj072jfn62.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCmJAbD3ijBFz_oFjOLvNJnh5e9chInBdc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "475280497320-gd0d8p5t17i4bmlh9j731vvj072jfn62.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

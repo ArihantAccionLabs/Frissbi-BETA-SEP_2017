@@ -1,16 +1,23 @@
 package com.frissbi.models;
 
+import com.orm.SugarRecord;
+
 import java.io.Serializable;
 
 /**
  * Created by thrymr on 30/1/17.
  */
 
-public class MeetingFriends implements Serializable {
+public class MeetingFriends extends SugarRecord implements Serializable {
     private String name;
     private String profileImage;
     private String type;
     private int status;
+    private Long meetingId;
+
+    public MeetingFriends() {
+
+    }
 
     public String getName() {
         return name;
@@ -43,6 +50,14 @@ public class MeetingFriends implements Serializable {
 
     public void setStatus(int status) {
         this.status = status;
+    }
+
+    public Long getMeetingId() {
+        return meetingId;
+    }
+
+    public void setMeetingId(Long meetingId) {
+        this.meetingId = meetingId;
     }
 
     @Override

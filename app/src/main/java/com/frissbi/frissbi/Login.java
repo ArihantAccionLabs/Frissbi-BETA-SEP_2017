@@ -30,9 +30,12 @@ import com.frissbi.Gmail.GmailSyncActivity;
 import com.frissbi.Notifications.Config;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
+import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.ServiceHandler;
 import com.frissbi.activities.HomeActivity;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONObject;
 
@@ -76,7 +79,6 @@ public class Login extends Activity {
         btnLogin = (ImageButton) findViewById(R.id.login);
         forgot = (TextView) findViewById(R.id.forgot);
         mail = (ImageButton) findViewById(R.id.gmail);
-
         mail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

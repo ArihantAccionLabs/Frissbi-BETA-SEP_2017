@@ -3,6 +3,8 @@ package com.frissbi.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.orm.SugarRecord;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +13,7 @@ import java.util.List;
  * Created by thrymr on 24/1/17.
  */
 
-public class Meeting implements Serializable {
+public class Meeting extends SugarRecord implements Serializable {
 
     private Long meetingId;
     private String date;
@@ -25,7 +27,8 @@ public class Meeting implements Serializable {
     private boolean isLocationSelected;
     private List<MeetingFriends> meetingFriendsList;
     private Long meetingSenderId;
-    private String  userStatus;
+    private String userStatus;
+    private String month;
 
 
     public Meeting() {
@@ -137,6 +140,14 @@ public class Meeting implements Serializable {
 
     public void setUserStatus(String userStatus) {
         this.userStatus = userStatus;
+    }
+
+    public String getMonth() {
+        return month;
+    }
+
+    public void setMonth(String month) {
+        this.month = month;
     }
 
     @Override
