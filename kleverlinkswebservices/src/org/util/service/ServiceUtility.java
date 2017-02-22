@@ -34,12 +34,14 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.kleverlinks.bean.AppUserBean;
 import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
 import org.kleverlinks.webservice.MyEmailer;
 import org.service.dto.UserDTO;
+import org.util.Utility;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
@@ -48,9 +50,6 @@ import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 public class ServiceUtility {
 
-	public static Boolean checkValidString(String string) {
-		return string != null && !string.trim().isEmpty();
-	}
 	public static JSONObject getUserDetailByUserId(Long userId) {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
@@ -107,33 +106,34 @@ public class ServiceUtility {
 
 	}
 
-	public static UserDTO getUserDetailsByUserNameAndEmail(String userName, String emailId) {
+	public static AppUserBean getUserDetailsByUserNameAndEmail(String userName, String emailId , String contactNumber) {
 		Connection conn = null;
-		Statement stmt = null;
+		PreparedStatement pstmt = null;
 		ResultSet rs = null;
-		UserDTO userDTO = null;
 		String sql;
+		AppUserBean appUserBean = null;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			sql = "SELECT userId , userName , EmailName  FROM tbl_users WHERE userName ='" + userName
-					+ "' OR EmailName ='" + emailId + "'" + " limit 1";
-			rs = stmt.executeQuery(sql);
+			sql = "SELECT ContactNumber,UserName,EmailName FROM tbl_users WHERE userName=? OR EmailName=? OR ContactNumber=? limit 1";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, userName);
+			pstmt.setString(2, emailId);
+			pstmt.setString(3, contactNumber);
+			rs = pstmt.executeQuery();
 			while (rs.next()) {
-				userDTO = new UserDTO();
-				userDTO.setUserId(rs.getLong("userId"));
-				userDTO.setEmailId(rs.getString("emailName"));
-				userDTO.setUserName(rs.getString("userName"));
+				appUserBean = new AppUserBean();
+				appUserBean.setUsername(rs.getString("UserName"));
+				appUserBean.setContactno(rs.getString("ContactNumber"));
+				appUserBean.setEmail(rs.getString("EmailName"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		// closing db resources
 		finally{
 			ServiceUtility.closeConnection(conn);
-		    ServiceUtility.closeSatetment(stmt);
+		    ServiceUtility.closeSatetment(pstmt);
 		    }
-		return userDTO;
+		return appUserBean;
 
 	}
 
@@ -805,5 +805,34 @@ public class ServiceUtility {
 			ServiceUtility.closeCallableSatetment(callableStatement);
 		}
 		return jsonObject;
+	}
+	
+	public static JSONObject getUserImageId(Long userId) {
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		String sql = "";
+		JSONObject jsonObject = null;
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			sql = "SELECT ProfileImageId,BackGroundImageId FROM tbl_usertransactions WHERE UserID=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setLong(1, userId);
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				if(Utility.checkValidString(rs.getString("ProfileImageId"))){
+					jsonObject = new JSONObject();
+					jsonObject.put("profileImageId", rs.getString("ProfileImageId"));
+					jsonObject.put("backGroundImageId", rs.getString("BackGroundImageId"));
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(pstmt);
+		}
+		return jsonObject;
+
 	}
 }

@@ -31,7 +31,7 @@ import org.json.JSONObject;
 import org.kleverlinks.bean.FriendBean;
 import org.kleverlinks.enums.FriendStatusEnum;
 import org.service.dto.NotificationInfoDTO;
-import org.service.dto.UserDTO;
+import org.util.Utility;
 import org.util.service.NotificationService;
 import org.util.service.ServiceUtility;
 
@@ -327,7 +327,7 @@ public class UserFriendList {
 				ResultSet rs = pstmt.executeQuery();
                 while(rs.next()){
                 	
-				if(ServiceUtility.checkValidString(rs.getString("RequestStatus"))){
+				if(Utility.checkValidString(rs.getString("RequestStatus"))){
 					if(userId != rs.getLong("ReceiverUserID"))
 						userIds.add(rs.getLong("ReceiverUserID"));
 					if(userId != rs.getLong("SenderUserID"))
@@ -398,11 +398,6 @@ public class UserFriendList {
 					jsonObject.put("FirstName", rs.getString("FirstName"));
 					jsonObject.put("LastName", rs.getString("LastName"));
 					jsonObject.put("EmailName", rs.getString("EmailName"));
-					if (rs.getString("AvatarPath") == null) {
-						jsonObject.put("AvatarPath", "");
-					} else {
-						jsonObject.put("AvatarPath", rs.getString("AvatarPath"));
-					}
 					jsonResultsArray.put(jsonObject);
 				}
 			}
@@ -574,11 +569,7 @@ public class UserFriendList {
 				jsonObject.put("UserName", rs.getString("UserName"));
 				jsonObject.put("FirstName", rs.getString("FirstName"));
 				jsonObject.put("LastName", rs.getString("LastName"));
-				if (rs.getString("AvatarPath") == null) {
-					jsonObject.put("AvatarPath", "");
-				} else {
-					jsonObject.put("AvatarPath", rs.getString("AvatarPath"));
-				}
+				
 				jsonResultsArray.put(jsonObject);
 			}
 		} catch (SQLException se) {
@@ -644,10 +635,10 @@ public class UserFriendList {
 					jsonObject.put("FirstName", rs.getString("FirstName"));
 					jsonObject.put("LastName", rs.getString("LastName"));
 					jsonObject.put("EmailName", rs.getString("EmailName"));
-					if (rs.getString("AvatarPath") == null) {
-						jsonObject.put("AvatarPath", "");
+					if (rs.getString("ProfileImageId") == null) {
+						jsonObject.put("ProfileImageId", "");
 					} else {
-						jsonObject.put("AvatarPath", rs.getString("AvatarPath"));
+						jsonObject.put("ProfileImageId", rs.getString("ProfileImageId"));
 					}
 					jsonResultsArray.put(jsonObject);
 				}
@@ -733,7 +724,7 @@ public class UserFriendList {
 				statusList.add(FriendStatusEnum.REJECTED.toString());
 				statusList.add(FriendStatusEnum.ACCEPTED.toString());
 				
-				if (ServiceUtility.checkValidString(rs.getString("RequestStatus"))) {
+				if (Utility.checkValidString(rs.getString("RequestStatus"))) {
 
 					if (rs.getString("RequestStatus").trim().equals(FriendStatusEnum.WAITING.toString())) {
 						if (userId != rs.getLong("ReceiverUserID"))
@@ -773,11 +764,11 @@ public class UserFriendList {
 			FriendBean friendBean = new FriendBean();
 			friendBean.toFriendBean(userIdsJson);
 				conn = DataSourceConnection.getDBConnection();
-				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
+				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,UT.ProfileImageId,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID INNER JOIN tbl_userfriendlist AS FR "
 							  + " ON (U.UserID=FR.ReceiverUserID)  "
 							  + "  WHERE (FR.SenderUserID =? AND FR.ReceiverUserID =?) "
 							  + " UNION "
-							  + " SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
+							  + " SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,UT.ProfileImageId,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID INNER JOIN tbl_userfriendlist AS FR "
 							  + " ON (U.UserID=FR.SenderUserID) "
 							  + " WHERE (FR.ReceiverUserID =? AND FR.SenderUserID =?) ";
 					
@@ -796,8 +787,10 @@ public class UserFriendList {
 						jsonObject.put("emailId", rs.getString("EmailName"));
 						jsonObject.put("gender", rs.getString("Gender"));
 						jsonObject.put("dob", rs.getString("dob"));
+						jsonObject.put("image", rs.getString("ProfileImageId"));
+						jsonObject.put("userName", rs.getString("UserName"));
 						
-						if (ServiceUtility.checkValidString(rs.getString("RequestStatus"))) {
+						if (Utility.checkValidString(rs.getString("RequestStatus"))) {
 
 							if (rs.getString("RequestStatus").trim().equals(FriendStatusEnum.WAITING.toString())) {
 								if(friendBean.getUserId() == rs.getLong("SenderUserID") && friendBean.getFreindId() == rs.getLong("ReceiverUserID")){
@@ -816,7 +809,7 @@ public class UserFriendList {
 				}
 				System.out.println((!jsonObject.has("userId"))+"    jsonObject===== :   "+jsonObject);
 				if(!jsonObject.has("userId")){
-				 finalJson = 	seeUnknownProfile(friendBean.getFreindId());
+				 finalJson = 	seeProfile(friendBean.getFreindId());
 				}
 				
 				finalJson.put("status", true);
@@ -834,14 +827,39 @@ public class UserFriendList {
 		return	finalJson.toString();
 	}
 	
-	public JSONObject seeUnknownProfile(Long friendUserId){
+	@GET
+	@Path("/viewProfile/{userId}")
+	public String viewProfile(@PathParam("userId") Long userId) {
+		JSONObject finalJson = new JSONObject();
+		try {
+			finalJson = seeProfile(userId);
+			if(finalJson.length() == 0){
+				finalJson.put("status", false);
+				finalJson.put("message", "No profile is there  with requested user id");	
+			}else{
+				finalJson.put("message", "profile fetched successfully");
+				finalJson.put("status", true);
+			}
+			
+			return	finalJson.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finalJson.put("status", false);
+		finalJson.put("message", "Something went wrong");
+		return	finalJson.toString();
+	}
+	
+	
+	
+	public JSONObject seeProfile(Long friendUserId){
 		
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		JSONObject finalJson = new JSONObject();
 		try {
 				conn = DataSourceConnection.getDBConnection();
-				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob FROM tbl_users AS U WHERE U.UserID=?";
+				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ContactNumber,UT.ProfileImageId FROM tbl_users AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID WHERE U.UserID=?";
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setLong(1, friendUserId);
 				
@@ -849,11 +867,15 @@ public class UserFriendList {
 				while(rs.next()){
 					    JSONObject jsonObject = new JSONObject();
 						jsonObject.put("userId", rs.getLong("UserId"));
-						jsonObject.put("fullName", rs.getString("FirstName")+" " + rs.getString("LastName"));
-						jsonObject.put("emailId", rs.getString("EmailName"));
+						jsonObject.put("firstName", rs.getString("FirstName"));
+						jsonObject.put("lastName", rs.getString("LastName"));
+						jsonObject.put("userName", rs.getString("UserName"));
+						jsonObject.put("email", rs.getString("EmailName"));
 						jsonObject.put("gender", rs.getString("Gender"));
+						jsonObject.put("contactNumber", rs.getString("ContactNumber"));
 						jsonObject.put("dob", rs.getString("dob"));
 					    jsonObject.put("status", FriendStatusEnum.UNFRIEND);
+						jsonObject.put("image", rs.getString("ProfileImageId"));
 					    
 					    finalJson.put("viewProfile", jsonObject);
 				}

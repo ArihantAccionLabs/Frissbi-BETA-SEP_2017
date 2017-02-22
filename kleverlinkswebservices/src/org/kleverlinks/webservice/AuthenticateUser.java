@@ -10,45 +10,44 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.LocalDateTime;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.TimeZone;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
-import org.kleverlinks.bean.FriendBean;
 import org.util.service.ServiceUtility;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
 
 	private SecureRandom random = new SecureRandom();
-	//Testing any method
-	
+	// Testing any method
+
 	@GET
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
-		String htmlMessage = "";
-      	htmlMessage = " You have a meeting ";
-      	try {
-			String emailTo = "sunil@thrymr.net";
-			MyEmailer.SendMail(emailTo, "Frissbi Meeting", htmlMessage);
+		
+		String id = null;
+		try {
+			SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
+				format.setTimeZone(TimeZone.getTimeZone("UTC"));
+				System.out.println(format.parse("2017-02-22T11:21:21.838Z"));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        return "ok";
-			
+		return id;
 	}
 
 	@GET  
     @Path("/authenticateUser/{userId}/{deviceRegistrationId}")  
     @Produces(MediaType.TEXT_PLAIN)
-	public String authenticateUser(@PathParam("userId") int userId,@PathParam("deviceRegistrationId") String deviceRegistrationId) {
+	public String authenticateUser(@PathParam("userId") Long userId,@PathParam("deviceRegistrationId") String deviceRegistrationId) {
 		Connection conn = null;
 		Statement stmt = null;
 		boolean exists = false;
@@ -80,7 +79,7 @@ public class AuthenticateUser {
 			CallableStatement cs = null;
 			String storeProc = "{call usp_InsertUpdateUserGCMCode(?,?,?)}";
 			cs = conn.prepareCall(storeProc);
-			cs.setInt(1, userId);
+			cs.setLong(1, userId);
 			cs.setString(2, deviceRegistrationId);
 			cs.registerOutParameter(3, Types.INTEGER);
 			cs.executeUpdate();
@@ -217,14 +216,14 @@ public class AuthenticateUser {
 		String encodedString = "";
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertStoreProc = "{call usp_GetUserAvatarPath(?)}";
+			String insertStoreProc = "{call usp_GetUserProfileImage(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setInt(1, userId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
 			while(rs.next()){
-				encodedString = rs.getString("AvatarPath");
+				encodedString = rs.getString("ProfileImageId");
 			}
 		} catch (SQLException se) {
 			se.printStackTrace();
@@ -390,16 +389,5 @@ public class AuthenticateUser {
 		ServiceUtility.closeSatetment(stmt);
 		return "0" ;
 	}
-	public static void main(String args[]){
-		AuthenticateUser authenticateUser = new AuthenticateUser();
-		//authenticateUser.forgetPassword("dharmakolla85@gmail.com");
-		
-		//authenticateUser.userHoldFriendRequest(5,"dharma_kolla99@gmail.com","9902317358");
-		java.util.Date dateobj = new java.util.Date();
-		java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
-		//System.out.println(authenticateUser.updateUserProfileSetting(40,"Dharmateja85","kolla85","M",sqlDateNow));
-		System.out.println(authenticateUser.updateUserPassword(50, "chandu", "teja") );
-		System.out.println(authenticateUser.authenticateUser(50, "test"));
-	}
-	
+
 }

@@ -1,6 +1,11 @@
 package org.kleverlinks.bean;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Date;
+
+import org.json.JSONObject;
 
 public class UserFreeTimeBean {
 
@@ -10,10 +15,17 @@ public class UserFreeTimeBean {
 	private String description;
 	private String firstName;
 	private String lastName;
+	private LocalDate date;
 	
 	private Float startTime;
 	private Float endTime;
 	
+	public LocalDate getDate() {
+		return date;
+	}
+	public void setDate(LocalDate date) {
+		this.date = date;
+	}
 	public Long getUserId() {
 		return userId;
 	}
@@ -66,5 +78,18 @@ public class UserFreeTimeBean {
 	public String toString() {
 		return "UserFreeTimeBean [userId=" + userId + ", freeFromTime=" + freeFromTime + ", freeToTime=" + freeToTime
 				+ ", description=" + description + "]";
+	}
+	public UserFreeTimeBean() {
+	}
+	public UserFreeTimeBean(JSONObject jsonObject){
+		try{
+		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
+		this.userId = jsonObject.getLong("userId");
+		this.freeFromTime = dateFormat.parse(jsonObject.getString("freeFromTime"));
+		this.freeToTime = dateFormat.parse(jsonObject.getString("freeToTime"));
+		this.description = jsonObject.getString("description");
+	}catch (Exception e) {
+		e.printStackTrace();
+	}
 	}
 }

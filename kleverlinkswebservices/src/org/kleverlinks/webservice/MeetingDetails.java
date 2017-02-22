@@ -493,10 +493,10 @@ public class MeetingDetails {
 				jsonObject.put("LastName", rs.getString("LastName"));
 				jsonObject.put("ResponseDateTime", rs.getString("ResponseDateTime"));
 				jsonObject.put("Status", rs.getString("Status"));
-				if (rs.getString("AvatarPath") == null) {
-					jsonObject.put("AvatarPath", "");
+				if (rs.getString("ProfileImageId") == null) {
+					jsonObject.put("ProfileImageId", "");
 				} else {
-					jsonObject.put("AvatarPath", rs.getString("AvatarPath"));
+					jsonObject.put("ProfileImageId", rs.getString("ProfileImageId"));
 				}
 				jsonObject.put("RecipientFromDateTime", rs.getString("RecipientFromDateTime"));
 				jsonObject.put("RecipientToDateTime", rs.getString("RecipientToDateTime"));
@@ -547,10 +547,10 @@ public class MeetingDetails {
 				jsonObject.put("LastName", rs.getString("LastName"));
 				jsonObject.put("ResponseDateTime", rs.getString("ResponseDateTime"));
 				jsonObject.put("Status", rs.getString("Status"));
-				if (rs.getString("AvatarPath") == null) {
-					jsonObject.put("AvatarPath", "");
+				if (rs.getString("ProfileImageId") == null) {
+					jsonObject.put("ProfileImageId", "");
 				} else {
-					jsonObject.put("AvatarPath", rs.getString("AvatarPath"));
+					jsonObject.put("ProfileImageId", rs.getString("ProfileImageId"));
 				}
 				jsonObject.put("RecipientFromDateTime", rs.getString("RecipientFromDateTime"));
 				jsonObject.put("RecipientToDateTime", rs.getString("RecipientToDateTime"));

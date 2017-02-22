@@ -31,8 +31,11 @@ public class MyEmailer {
 		MimeMessage message = new MimeMessage(mailSession);
 		
 		message.setFrom(new InternetAddress(Constants.SEND_EMAIL_FROM));
-		 InternetAddress[] toAddresses = { new InternetAddress(emailTo) };
-		 message.setRecipients(Message.RecipientType.TO, toAddresses);
+		
+		message.addRecipients(Message.RecipientType.CC, InternetAddress.parse(emailTo));
+		
+		//InternetAddress[] toAddresses = { new InternetAddress(emailTo) };
+		// message.setRecipients(Message.RecipientType.TO, toAddresses);
 		 message.setSubject(subject);
 		 message.setContent(htmlMessage , "text/html");
 		Transport transport = mailSession.getTransport();

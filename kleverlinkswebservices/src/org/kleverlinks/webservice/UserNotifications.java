@@ -111,11 +111,6 @@ public class UserNotifications {
 					jsonObject.put("UserName", rs.getString("UserName"));
 					jsonObject.put("FirstName", rs.getString("FirstName"));
 					jsonObject.put("LastName", rs.getString("LastName"));
-					if ( rs.getString("AvatarPath") == null ){
-						jsonObject.put("AvatarPath", "");
-					}else{
-					jsonObject.put("AvatarPath", rs.getString("AvatarPath"));
-					}
 					jsonObject.put("NotificationName", rs.getString("NotificationName"));
 					jsonObject.put("NotificationMessage", rs.getString("NotificationMessage"));
 					jsonResultsArray.put(jsonObject);
