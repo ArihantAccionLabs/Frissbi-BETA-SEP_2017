@@ -10,6 +10,7 @@ import org.json.JSONObject;
 public class UserFreeTimeBean {
 
 	private Long userId;
+	private Long userFreeTimeId;
 	private Date freeFromTime;
 	private Date freeToTime;
 	private String description;
@@ -19,7 +20,20 @@ public class UserFreeTimeBean {
 	
 	private Float startTime;
 	private Float endTime;
+	private Boolean isConflicted;
 	
+	public Boolean getIsConflicted() {
+		return isConflicted;
+	}
+	public void setIsConflicted(Boolean isConflicted) {
+		this.isConflicted = isConflicted;
+	}
+	public Long getUserFreeTimeId() {
+		return userFreeTimeId;
+	}
+	public void setUserFreeTimeId(Long userFreeTimeId) {
+		this.userFreeTimeId = userFreeTimeId;
+	}
 	public LocalDate getDate() {
 		return date;
 	}
@@ -88,6 +102,11 @@ public class UserFreeTimeBean {
 		this.freeFromTime = dateFormat.parse(jsonObject.getString("freeFromTime"));
 		this.freeToTime = dateFormat.parse(jsonObject.getString("freeToTime"));
 		this.description = jsonObject.getString("description");
+		this.isConflicted = jsonObject.getBoolean("isConflicted");
+		if(jsonObject.has("userFreeTimeId")){
+		this.userFreeTimeId = jsonObject.getLong("userFreeTimeId");
+		}
+		this.isConflicted = jsonObject.getBoolean("isConflicted");
 	}catch (Exception e) {
 		e.printStackTrace();
 	}

@@ -5,30 +5,23 @@ import java.util.Date;
 
 public class FreeTimePostBean {
 	private Long userId;
-	private Date freeFromTime;
-	private Date freeToTime;
+	private Long userFreeTimeId;
 	private String description;
 	private LocalDate date;
-	
 	private String startTime;
 	private String endTime;
+	
 	public Long getUserId() {
 		return userId;
 	}
 	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
-	public Date getFreeFromTime() {
-		return freeFromTime;
+	public Long getUserFreeTimeId() {
+		return userFreeTimeId;
 	}
-	public void setFreeFromTime(Date freeFromTime) {
-		this.freeFromTime = freeFromTime;
-	}
-	public Date getFreeToTime() {
-		return freeToTime;
-	}
-	public void setFreeToTime(Date freeToTime) {
-		this.freeToTime = freeToTime;
+	public void setUserFreeTimeId(Long userFreeTimeId) {
+		this.userFreeTimeId = userFreeTimeId;
 	}
 	public String getDescription() {
 		return description;
