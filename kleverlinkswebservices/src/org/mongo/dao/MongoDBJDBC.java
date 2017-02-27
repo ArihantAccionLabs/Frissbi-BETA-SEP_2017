@@ -83,7 +83,7 @@ public class MongoDBJDBC {
 		BasicDBObject query = new BasicDBObject();
 		query.put("_id", new ObjectId(id));
 		DBObject dbObj = collection.findOne(query);
-		
+		System.out.println("dbObj=="+new JSONObject(dbObj.toString()).getJSONObject("_id").getString("$oid"));
 		if(dbObj != null){
 		 return dbObj;
 		}

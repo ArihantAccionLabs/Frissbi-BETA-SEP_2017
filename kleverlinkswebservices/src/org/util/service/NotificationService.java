@@ -563,17 +563,13 @@ public class NotificationService {
 			conn = DataSourceConnection.getDBConnection();
 			String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertNotificationStoreProc);
-				callableStatement.setLong(1, notificationInfoDTO.getUserId());
-				if(notificationInfoDTO.getSenderUserId() != null){
-					callableStatement.setLong(2, notificationInfoDTO.getSenderUserId());
-				}else{
-					callableStatement.setLong(2, 0);
-				}
-				callableStatement.setLong(3, 501);
-				callableStatement.setString(4, notificationInfoDTO.getNotificationType());
-				callableStatement.setString(5, notificationInfoDTO.getMessage());
-				callableStatement.setTimestamp(6, new Timestamp(new Date().getTime()));
-                value = callableStatement.executeUpdate();
+			callableStatement.setLong(1, notificationInfoDTO.getUserId());
+			callableStatement.setLong(2, notificationInfoDTO.getSenderUserId());
+			callableStatement.setLong(3, notificationInfoDTO.getMeetingId());
+			callableStatement.setString(4, notificationInfoDTO.getNotificationType());
+			callableStatement.setString(5, notificationInfoDTO.getMessage());
+			callableStatement.setTimestamp(6, new Timestamp(new Date().getTime()));
+			value = callableStatement.executeUpdate();
 			  return value;
 
 		} catch (Exception e) {

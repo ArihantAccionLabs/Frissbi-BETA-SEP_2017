@@ -205,10 +205,6 @@ public class MeetingDetails {
 		return finalJson.toString();
 	}
 
-	public static String getOutputAsString(WebResource service) {
-		return service.accept(MediaType.TEXT_PLAIN).get(String.class);
-	}
-
 	@GET
 	@Path("/getRecipientXMLByMeetingID/{meetingId}")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -1099,8 +1095,6 @@ public class MeetingDetails {
 					 pstmt.setLong(3, meetingId);
 					 pstmt.setLong(4, userId);
 						
-				updatedRow = pstmt.executeUpdate();
-						
 			} else {
 				sql = "UPDATE tbl_RecipientsDetails SET Latitude=?,Longitude=?,ResponseDateTime=? WHERE MeetingID=? AND UserID=?"; 
 				pstmt = conn.prepareStatement(sql);
@@ -1110,8 +1104,8 @@ public class MeetingDetails {
 				pstmt.setLong(4, meetingId);
 				pstmt.setLong(5, userId);
 				
-				updatedRow =	pstmt.executeUpdate();
 			}
+			updatedRow =	pstmt.executeUpdate();
 			
 			System.out.println("updatedRow == "+updatedRow);
 			if(updatedRow == 0){
@@ -1393,7 +1387,7 @@ public class MeetingDetails {
       	
       	try {
 			
-			MyEmailer.SendMail(emailTo, "Frissbi Meeting", htmlMessage);
+			EmailService.SendMail(emailTo, "Frissbi Meeting", htmlMessage);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

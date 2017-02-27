@@ -123,7 +123,7 @@ public class UserRegistration {
 						message += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;www.friss.bi<br />";
 						message += "</p>";
 
-						MyEmailer.SendMail(appUserBean.getEmail(), "Frissbi Account Activation","Your new password is: " + message);
+						EmailService.SendMail(appUserBean.getEmail(), "Frissbi Account Activation","Your new password is: " + message);
 						finalJson.put("status", true);
 						finalJson.put("message", "User registration completed successfully");
 						finalJson.put("userId", userId);
@@ -479,18 +479,28 @@ public class UserRegistration {
 		return userId;
 	}
 
+	@GET
+	@Path("/testMethod")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String doSomething(){
+		System.out.println("test Method  :  ");
+	return "ok";	
+	}
+	
+	
 	@POST
 	@Path("/insertImage")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String insertImage(String imageFile) {
 
+		System.out.println("imageFile  :  "+imageFile.toString());
 		JSONObject finalJson = new JSONObject();
 		JSONObject imageJson = new JSONObject(imageFile);
 		String mongoFileId = null;
 		try {
 			mongoFileId =  insertFileToMongoDb(imageJson);
-            System.out.println("mongoFileId   "+mongoFileId);
+            System.out.println("mongoFileId :   "+mongoFileId);
 			if (mongoFileId != null) {
 				imageJson.remove("file");
 				imageJson.put("mongoFileId", mongoFileId);
@@ -537,10 +547,11 @@ public class UserRegistration {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		Boolean isInserted = false;
+		System.out.println("imageJson  :  "+imageJson.toString());
 		try {
 			
 				conn = DataSourceConnection.getDBConnection();
-				String insertStoreProc = "{call usp_UpdateUserTransactionDetails(?,?,?)}";
+				String insertStoreProc = "{call usp_UpdateUserProfile(?,?,?)}";
 				callableStatement = conn.prepareCall(insertStoreProc);
 				callableStatement.setLong(1, imageJson.getLong("userId"));
 				callableStatement.setString(2, imageJson.getString("mongoFileId"));
@@ -548,8 +559,8 @@ public class UserRegistration {
 				int value = callableStatement.executeUpdate();
 				
 				int isError = callableStatement.getInt(3);
-				
-				if(value != 0 && isError ==0){
+				System.out.println(isError+"  value  :" +value);
+				if(value != 0){
 					isInserted = true;
 				}
 		} catch (SQLException se) {

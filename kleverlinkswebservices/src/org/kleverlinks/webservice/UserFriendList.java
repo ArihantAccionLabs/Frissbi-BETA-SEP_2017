@@ -960,14 +960,16 @@ public class UserFriendList {
 				}
 				rowCount++;
 			}
-			String sql = "SELECT U.UserId FROM tbl_users AS U WHERE U.UserID  IN (" + userArray +") AND (U.FirstName like '%"
-					+ search_criteria + "%' or U.LastName like '%" + search_criteria + "%' or U.UserName like '%"
-					+ search_criteria + "%')";
-			
-			pstmt = conn.prepareStatement(sql);
-			ResultSet rs = pstmt.executeQuery();
-			while (rs.next()) {
-				filterWaitingList.add(rs.getLong("UserId"));
+			if(userArray.length() != 0){
+				
+				String sql = "SELECT U.UserId FROM tbl_users AS U WHERE U.UserID  IN (" + userArray +") AND (U.FirstName like '%"
+						+ search_criteria + "%' or U.LastName like '%" + search_criteria + "%' or U.UserName like '%"+ search_criteria + "%')";
+				
+				pstmt = conn.prepareStatement(sql);
+				ResultSet rs = pstmt.executeQuery();
+				while (rs.next()) {
+					filterWaitingList.add(rs.getLong("UserId"));
+				}
 			}
 		} catch (Exception e) {
 			e.printStackTrace();

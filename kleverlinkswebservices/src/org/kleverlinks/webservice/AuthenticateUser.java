@@ -10,9 +10,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-import java.util.TimeZone;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,15 +30,8 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
 		
-		String id = null;
-		try {
-			SimpleDateFormat format = new SimpleDateFormat( "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);
-				format.setTimeZone(TimeZone.getTimeZone("UTC"));
-				System.out.println(format.parse("2017-02-22T11:21:21.838Z"));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return id;
+		EmailService.SendMail("sunilvermaec@gmail.com,sunil@thrymr.net", "sunil", "Everyone mail");
+	return "ok";	
 	}
 
 	@GET  
@@ -211,7 +201,6 @@ public class AuthenticateUser {
 	public String getUserAvatarPath(@PathParam("userId") int userId ) {
 
 		Connection conn = null;
-		Statement stmt = null;
 		CallableStatement callableStatement = null;
 		String encodedString = "";
 		try {
@@ -281,7 +270,7 @@ public class AuthenticateUser {
 							"Forgot Password",
 							"Your new password is: "+ newPassword
 									);*/
-			MyEmailer.SendMail(emailname,"Forgot Password", "Your new password is: "+ newPassword) ;
+			EmailService.SendMail(emailname,"Forgot Password", "Your new password is: "+ newPassword) ;
 			
 			String insertStoreProc = "{call usp_UpdatePassword_ByEmailAddress(?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);

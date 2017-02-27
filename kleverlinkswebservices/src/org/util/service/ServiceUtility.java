@@ -39,7 +39,7 @@ import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
-import org.kleverlinks.webservice.MyEmailer;
+import org.kleverlinks.webservice.EmailService;
 import org.service.dto.UserDTO;
 import org.util.Utility;
 
@@ -815,7 +815,7 @@ public class ServiceUtility {
 		JSONObject jsonObject = null;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			sql = "SELECT ProfileImageId,BackGroundImageId FROM tbl_usertransactions WHERE UserID=?";
+			sql = "SELECT ProfileImageId FROM tbl_users WHERE UserID=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setLong(1, userId);
 			rs = pstmt.executeQuery();
@@ -823,7 +823,7 @@ public class ServiceUtility {
 				if(Utility.checkValidString(rs.getString("ProfileImageId"))){
 					jsonObject = new JSONObject();
 					jsonObject.put("profileImageId", rs.getString("ProfileImageId"));
-					jsonObject.put("backGroundImageId", rs.getString("BackGroundImageId"));
+					//jsonObject.put("backGroundImageId", rs.getString("BackGroundImageId"));
 				}
 			}
 		} catch (Exception e) {

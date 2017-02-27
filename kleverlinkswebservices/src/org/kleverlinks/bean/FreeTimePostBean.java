@@ -1,7 +1,6 @@
 package org.kleverlinks.bean;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class FreeTimePostBean {
 	private Long userId;
