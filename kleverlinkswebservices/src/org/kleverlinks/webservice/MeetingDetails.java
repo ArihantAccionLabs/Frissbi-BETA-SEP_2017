@@ -30,9 +30,11 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.kleverlinks.bean.MeetingCreationBean;
 import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.gcm.Message;
@@ -43,8 +45,6 @@ import org.service.dto.UserDTO;
 import org.util.service.NotificationService;
 import org.util.service.ServiceUtility;
 
-import com.sun.jersey.api.client.WebResource;
-
 @Path("MeetingDetailsService")
 public class MeetingDetails {
 
@@ -53,9 +53,154 @@ public class MeetingDetails {
 	 * @Action : Meeting creation but if any meeting exist with same date and time then check conflict
 	 * 
 	 */
-
-	
 	@POST
+	@Path("/insertMeetingDetails")
+	@Consumes(MediaType.APPLICATION_JSON)
+	public String insertMeetingDetails(String meetingInsertion) {
+		JSONObject finalJson = new JSONObject();
+		JSONArray jsonArray = new JSONArray();
+		System.out.println("meetingInsertion==========" + meetingInsertion);
+		try {
+
+			JSONObject meetingInsertionObject = new JSONObject(meetingInsertion);
+			MeetingCreationBean meetingCreationBean = new MeetingCreationBean(meetingInsertionObject);
+
+			if (!meetingCreationBean.getMeetingIdList().isEmpty()) {
+
+				ServiceUtility.deleteUserFromMeeting(meetingCreationBean.getMeetingIdList(),
+						meetingCreationBean.getSenderUserId());
+				NotificationService.sendNotification(meetingCreationBean.getMeetingIdList(),
+						meetingCreationBean.getSenderUserId(), NotificationsEnum.MEETING_REJECTED.ordinal());
+
+			} else {
+
+				List<UserDTO> userDTOList = null;
+				userDTOList = ServiceUtility.checkingMeetingConfliction(meetingCreationBean);
+				if (!userDTOList.isEmpty()) {
+
+					if (userDTOList.size() > 1) {
+						for (UserDTO userDTO : userDTOList) {
+							jsonArray.put(userDTO.getMeetingId());
+						}
+						finalJson.put("message", "Conflicting with multiple meetings");
+					} else {
+						UserDTO userDTO = userDTOList.get(0);
+						JSONObject jsonObject = new JSONObject();
+						jsonObject.put("from", userDTO.getMeetingFromTime().getHour() + ":"
+								+ userDTO.getMeetingFromTime().getMinute());
+						jsonObject.put("to",
+								userDTO.getMeetingToTime().getHour() + ":" + userDTO.getMeetingToTime().getMinute());
+						jsonObject.put("meetingId", userDTO.getMeetingId());
+						finalJson.put("message", "Conflicting with meeting : " + userDTO.getDescription() + " on date "
+								+ userDTO.getMeetingFromTime().toLocalDate());
+
+						jsonArray.put(jsonObject);
+					}
+					finalJson.put("isInserted", false);
+					finalJson.put("status", true);
+					finalJson.put("meetingIdsJsonArray", jsonArray);
+
+					System.out.println("finalJson=====" + finalJson.toString());
+
+					return finalJson.toString();
+				}
+			}
+			Connection connection = null;
+			CallableStatement callableStatement = null;
+			connection = DataSourceConnection.getDBConnection();
+			Long meetingId = 0l;
+			String insertStoreProc = "{call usp_InsertMeetingDetails(?,?,?,?,?,?,?,?,?,?,?,?)}";
+			callableStatement = connection.prepareCall(insertStoreProc);
+			callableStatement.setLong(1, meetingCreationBean.getSenderUserId());
+			callableStatement.setTimestamp(2, new Timestamp(new Date().getTime()));
+			callableStatement.setTimestamp(3, Timestamp.valueOf(meetingCreationBean.getSenderFromDateTime()));
+			callableStatement.setTimestamp(4, Timestamp.valueOf(meetingCreationBean.getSenderToDateTime()));
+			callableStatement.setTime(5, java.sql.Time.valueOf(meetingCreationBean.getDuration()));
+			callableStatement.setString(6, meetingCreationBean.getMeetingTitle());
+			if (meetingCreationBean.getIsLocationSelected()) {
+				callableStatement.setString(7, meetingInsertionObject.getString("latitude"));
+				callableStatement.setString(8, meetingInsertionObject.getString("longitude"));
+				callableStatement.setString(9, meetingInsertionObject.getString("address"));
+			} else {
+				callableStatement.setString(7, null);
+				callableStatement.setString(8, null);
+				callableStatement.setString(9, null);
+			}
+			callableStatement.setString(10, MeetingStatus.ACTIVE.toString());
+			callableStatement.registerOutParameter(11, Types.INTEGER);
+			callableStatement.registerOutParameter(12, Types.BIGINT);
+
+			int value = callableStatement.executeUpdate();
+			int isError = callableStatement.getInt(11);
+			meetingId = callableStatement.getLong(12);
+			System.out.println(isError + "meetingId >>>>>>>>>>>>>>>>>> " + meetingId + "  value==" + value);
+
+			if (isError == 0 && value != 0) {
+
+				connection.setAutoCommit(false);
+				PreparedStatement ps = null;
+				String query = "INSERT into tbl_RecipientsDetails(MeetingID,UserID,Status,RecipientFromDateTime,RecipientToDateTime,Latitude,Longitude,DestinationType,GoogleAddress) values(?,?,?,?,?,?,?,?,?)";
+				ps = connection.prepareStatement(query);
+
+				for (Long friendId : meetingCreationBean.getFriendsIdList()) {
+
+					ps.setLong(1, meetingId);
+					ps.setLong(2, friendId);
+					ps.setString(3, "0");
+					ps.setTimestamp(4, null);
+					ps.setTimestamp(5, null);
+					ps.setString(6, null);
+					ps.setString(7, null);
+					ps.setLong(8, 0);
+					ps.setString(9, null);
+
+					ps.addBatch();
+
+				}
+				int[] insertedRow = ps.executeBatch();
+				connection.commit();
+				if (insertedRow.length != 0) {
+
+					NotificationService.sendingMeetingCreationNotification(meetingCreationBean, meetingId);
+					MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
+					JSONObject userDetail = ServiceUtility.getUserDetailByUserId(meetingCreationBean.getSenderUserId());
+					if (!meetingCreationBean.getEmailIdList().isEmpty()) {
+						int insertedEmails = ServiceUtility.insertingAndSendingMails(meetingCreationBean, meetingId);
+						if (insertedEmails != 0) {
+							sendingEmail(meetingCreationBean.getEmailIdList(), userDetail, meetingLogBean);
+						}
+					}
+					if (!meetingCreationBean.getContactList().isEmpty()) {
+						int insertedContact = ServiceUtility.insertMeetingContactNumbers(meetingCreationBean,
+								meetingId);
+						if (insertedContact != 0) {
+							sendMeetingSms(meetingCreationBean.getContactList(), userDetail, meetingLogBean);
+						}
+					}
+				}
+
+				finalJson.put("status", true);
+				finalJson.put("isInserted", true);
+				finalJson.put("isLocationSelected", meetingInsertionObject.getBoolean("isLocationSelected"));
+				finalJson.put("meetingId", meetingId);//
+				finalJson.put("message", "meeting inserted successfully");
+
+				return finalJson.toString();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+
+		}
+		finalJson.put("status", false);
+		finalJson.put("isInserted", false);
+		finalJson.put("message", "Oops something went wrong");
+
+		return finalJson.toString();
+	}
+	
+	
+	
+/*	@POST
 	@Path("/insertMeetingDetails")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String insertMeetingDetails(String meetingInsertion) {
@@ -65,6 +210,8 @@ public class MeetingDetails {
 		try {
 			
 			 JSONObject meetingInsertionObject = new JSONObject(meetingInsertion);
+			 MeetingCreationBean meetingCreationBean = new MeetingCreationBean(meetingInsertionObject);
+			 System.out.println("meetingCreationBean ==  "+meetingCreationBean.toString());
 			 Long senderUserId = meetingInsertionObject.getLong("senderUserId");
 			 if(meetingInsertionObject.has("meetingIdsJsonArray")){
 				ServiceUtility.deleteUserFromMeeting(meetingInsertionObject.getJSONArray("meetingIdsJsonArray") , senderUserId);
@@ -203,7 +350,7 @@ public class MeetingDetails {
 		finalJson.put("message", "Oops something went wrong");
 
 		return finalJson.toString();
-	}
+	}*/
 
 	@GET
 	@Path("/getRecipientXMLByMeetingID/{meetingId}")
@@ -674,9 +821,12 @@ public class MeetingDetails {
 		Connection conn = null;
 		try {
 			 if(meetingDetailsJsonObject.has("meetingIdsJsonArray")){
-				 
-					ServiceUtility.deleteUserFromMeeting(meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray") , meetingDetailsJsonObject.getLong("userId"));
-					NotificationService.sendNotification(meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray"), meetingDetailsJsonObject.getLong("userId"), NotificationsEnum.MEETING_REJECTED.ordinal());
+				 List<Long> meetingIdList = new ArrayList<Long>();
+				  for (int i = 0; i < meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray").length(); i++) {
+						meetingIdList.add(meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray").getLong(i));
+					} 
+					ServiceUtility.deleteUserFromMeeting(meetingIdList , meetingDetailsJsonObject.getLong("userId"));
+					NotificationService.sendNotification(meetingIdList, meetingDetailsJsonObject.getLong("userId"), NotificationsEnum.MEETING_REJECTED.ordinal());
 			
 			 }else if(! meetingDetailsJsonObject.has("isRejected")){
 				
@@ -1333,24 +1483,10 @@ public class MeetingDetails {
 		return finalJson.toString();
 	}
 	
-    public void sendMeetingSms(JSONArray contactJsonArrary , JSONObject userDetail ,  MeetingLogBean meetingLogBean){
-    	
-		String contactNumbers = "";
-		int rowCount = 1;
+	public void sendMeetingSms(List<String> contactList, JSONObject userDetail, MeetingLogBean meetingLogBean) {
 
-		for (int i = 0; i < contactJsonArrary.length(); i++) {
-			//
-			String mobileNumber = contactJsonArrary.getString(i);
-			if (mobileNumber != null && !mobileNumber.trim().isEmpty()) {
-				mobileNumber = mobileNumber.replaceAll("(\\d)\\s(\\d)", "$1$2");
-				if (contactJsonArrary.length() == rowCount) {
-					contactNumbers += mobileNumber;
-				} else {
-					contactNumbers += mobileNumber + ",";
-				}
-			}
-			rowCount++;
-		}
+		try {
+		String contactNumbers = contactList.stream().collect(Collectors.joining(", "));
 
 		String message = "";
 		message = " You have a meeting " + meetingLogBean.getDescription() + " on " + meetingLogBean.getDate()
@@ -1358,41 +1494,32 @@ public class MeetingDetails {
 				+ userDetail.getString("fullName") + " Please click this url " + "https://alerts.solutionsinfini.com "
 				+ " to install Frissbi App";
 
-		try {
 			SmsService smsService = new SmsService();
 			smsService.sendSms(contactNumbers, message);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
- 	
-    }
-    public void sendingEmail(JSONArray emailJsonArrary , JSONObject userDetail ,  MeetingLogBean meetingLogBean){
-    	
-    	String emailTo = "";
-    	int rowCount = 1;
-      	for (int i = 0; i < emailJsonArrary.length(); i++) {
-			
-      		if(emailJsonArrary.length() == rowCount){
-      			emailTo +=  emailJsonArrary.getString(i);
-      		}else{
-      			emailTo +=  emailJsonArrary.getString(i)+",";	
-      		}
-      		 rowCount++;
-		}
-      	
-      	String htmlMessage = "";
-      	htmlMessage = " You have a meeting "+ meetingLogBean.getDescription() + " on "+meetingLogBean.getDate()+" from "+meetingLogBean.getStartTime() 
-      	+" to "+ meetingLogBean.getEndTime() + " created by "+userDetail.getString("fullName")
-      	+" Please click this url "+"https://alerts.solutionsinfini.com "+" to install Frissbi App";
-      	
-      	try {
-			
+
+	}
+
+	public void sendingEmail(List<String> emailIdList, JSONObject userDetail, MeetingLogBean meetingLogBean) {
+
+		try {
+		String emailTo = emailIdList.stream().collect(Collectors.joining(", "));
+
+		String htmlMessage = "";
+		htmlMessage = " You have a meeting " + meetingLogBean.getDescription() + " on " + meetingLogBean.getDate()
+				+ " from " + meetingLogBean.getStartTime() + " to " + meetingLogBean.getEndTime() + " created by "
+				+ userDetail.getString("fullName") + " Please click this url " + "https://alerts.solutionsinfini.com "
+				+ " to install Frissbi App";
+
+
 			EmailService.SendMail(emailTo, "Frissbi Meeting", htmlMessage);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-    }
-	
+	}
+
 	/*//logic for checking the source and destination  distance wrt Time
 	if(! timePostedFriendList.isEmpty()){
 		

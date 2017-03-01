@@ -12,6 +12,7 @@ import java.sql.Timestamp;
 import java.sql.Types;
 
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -25,12 +26,12 @@ public class AuthenticateUser {
 	private SecureRandom random = new SecureRandom();
 	// Testing any method
 
-	@GET
+	@POST
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
 		
-		EmailService.SendMail("sunilvermaec@gmail.com,sunil@thrymr.net", "sunil", "Everyone mail");
+
 	return "ok";	
 	}
 

@@ -43,6 +43,7 @@ public class UserFriendList {
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
 	public String sendFriendRequest(String userIds) {
+		System.out.println("userIds   :  "+userIds.toString());
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		JSONObject jsonObject = new JSONObject();

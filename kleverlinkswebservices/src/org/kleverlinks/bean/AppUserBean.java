@@ -19,7 +19,14 @@ public class AppUserBean {
 	private String lastName;
 	private Boolean isGmailLogin;
 	private String image;
+	private String deviceRegistrationId;
 	
+	public String getDeviceRegistrationId() {
+		return deviceRegistrationId;
+	}
+	public void setDeviceRegistrationId(String deviceRegistrationId) {
+		this.deviceRegistrationId = deviceRegistrationId;
+	}
 	public String getUsername() {
 		return username;
 	}
@@ -101,7 +108,7 @@ public class AppUserBean {
 	public AppUserBean(JSONObject userJson) {
 		super();
 	try{
-			
+		    this.deviceRegistrationId = userJson.getString("deviceRegistrationId");
 			this.username = userJson.getString("userName");
 			this.password = userJson.getString("password");
 			this.email = userJson.getString("email");

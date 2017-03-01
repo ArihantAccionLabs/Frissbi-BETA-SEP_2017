@@ -21,6 +21,9 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.imageio.ImageIO;
 import javax.ws.rs.Consumes;
@@ -72,7 +75,7 @@ public class UserRegistration {
 					java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
 					String contactNumberVerificationCode = phoneVerificationCode();
 					String emailVerificationCode = nextSessionId();
-					String insertStoreProc = "{call usp_InsertUserMasterDetails(?,?,?,?,?,?,?,?,?,?,?,?)}";
+					String insertStoreProc = "{call usp_InsertUserMasterDetails(?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 					callableStatement = conn.prepareCall(insertStoreProc);
 					callableStatement.setString(1, appUserBean.getUsername());
 					callableStatement.setString(2, appUserBean.getPassword());
@@ -84,14 +87,15 @@ public class UserRegistration {
 					callableStatement.setTimestamp(8, sqlDateNow);
 					callableStatement.setString(9, contactNumberVerificationCode);
 					callableStatement.setString(10, emailVerificationCode);
-					callableStatement.registerOutParameter(11, Types.INTEGER);
+					callableStatement.setString(11, appUserBean.getDeviceRegistrationId());
 					callableStatement.registerOutParameter(12, Types.INTEGER);
+					callableStatement.registerOutParameter(13, Types.INTEGER);
 					int value = callableStatement.executeUpdate();
 
-					int isError = callableStatement.getInt(11);
-					userId = callableStatement.getLong(12);
+					int isError = callableStatement.getInt(12);
+					userId = callableStatement.getLong(13);
 					System.out.println("userId     "+userId+"   "+(isError == 0 && value != 0 && userId != 0l) +"        "+(appUserBean.getImage() != null && !appUserBean.getImage().trim().isEmpty()));
-					if (isError == 0 && value != 0 && userId != 0l) {
+					if (value != 0 && userId != 0l) {
                         
 						if(appUserBean.getImage() != null && !appUserBean.getImage().trim().isEmpty()){
 							
@@ -704,5 +708,5 @@ public class UserRegistration {
 		return userId;
 
 	}
-
+	
 }

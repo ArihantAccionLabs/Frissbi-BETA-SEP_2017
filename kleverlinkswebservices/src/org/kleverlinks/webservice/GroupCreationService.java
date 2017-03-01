@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -17,18 +18,21 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kleverlinks.bean.GroupBean;
 import org.kleverlinks.bean.GroupInfoBean;
 import org.mongo.dao.MongoDBJDBC;
+import org.service.dto.NotificationInfoDTO;
+import org.util.Utility;
+import org.util.service.NotificationService;
 import org.util.service.ServiceUtility;
 
 import com.mongodb.DBObject;
 
-@Path("/GroupCreationService")
-public class GroupCreation {
-
+@Path("GroupCreationService")
+public class GroupCreationService {
 	
 	@POST
     @Path("/create")
@@ -46,7 +50,7 @@ public class GroupCreation {
 			GroupBean groupBean = new GroupBean(jsonObject);
 			System.out.println("jsonObject  : "+jsonObject.toString());
 			conn = DataSourceConnection.getDBConnection();
-			String insertGroupStorPro = "{call usp_insertGroup(?,?,?,?,?,?)}";
+			String insertGroupStorPro = "{call usp_insertGroup(?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertGroupStorPro);
 			callableStatement.setLong(1, groupBean.getUserId());
 			callableStatement.setString(2, groupBean.getGroupName());
@@ -54,14 +58,25 @@ public class GroupCreation {
 			callableStatement.registerOutParameter(4, Types.INTEGER);
 			callableStatement.registerOutParameter(5, Types.BIGINT);
 			int value = callableStatement.executeUpdate();
-			int isError = callableStatement.getInt(5);
-			groupId = callableStatement.getLong(6);
+			int isError = callableStatement.getInt(4);
+			groupId = callableStatement.getLong(5);
 			System.out.println("value "+value+" isError "+isError+" groupId "+groupId);
 			if(value != 0 && groupId != null && groupId != 0l){
 				groupBean.setGroupId(groupId);
 			Boolean friendInserted =	addGroupMember(groupBean);
 			
 			if(friendInserted){
+				JSONObject userObject = ServiceUtility.getUserDetailByUserId(groupBean.getUserId());
+				String message = groupBean.getGroupName()+" is created by "+userObject.getString("fullName")+" on "+new SimpleDateFormat("yyyy-mm-dd hh:mm a").format(new Date());
+				
+			   NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
+			   notificationInfoDTO.setSenderUserId(groupBean.getUserId());
+			   notificationInfoDTO.setMessage(message);
+			   notificationInfoDTO.setUserList(groupBean.getFriendList());
+			   notificationInfoDTO.setNotificationType(NotificationsEnum.Group_CREATION.toString());
+			   
+			   NotificationService.sendGroupCreationNotification(notificationInfoDTO);
+			   
 				responseJson.put("status", true);
 				responseJson.put("message", jsonObject.getString("groupName")+" group created successfully");
 				responseJson.put("groupCreated", true);
@@ -84,18 +99,16 @@ public class GroupCreation {
 	}
 	
 	@POST
-    @Path("/removeMemeber")
+    @Path("/leftGroupByMember")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String removeGroupMember(String deleteData){
-		
 	  JSONObject responseJson = new JSONObject();
       JSONObject jsonObject = new JSONObject(deleteData);
       Connection conn = null;
 		PreparedStatement preparedStatement = null;	
 		try{
-			GroupBean groupBean = getGroupAdmin(jsonObject.getLong("userId"));
+			GroupBean groupBean = new GroupBean(jsonObject);
 			
-			if(groupBean != null){
 				
 				String sql = "UPDATE tbl_FriendGroup SET IsActive=? WHERE  GroupID=? AND UserID=?";	
 				conn = DataSourceConnection.getDBConnection();
@@ -103,7 +116,7 @@ public class GroupCreation {
 				
 				preparedStatement.setInt(1, 1);
 				preparedStatement.setLong(2, groupBean.getGroupId());
-				preparedStatement.setLong(3, jsonObject.getLong("friendId"));
+				preparedStatement.setLong(3, groupBean.getUserId());
 				
 				if(preparedStatement.executeUpdate() != 0){
 					responseJson.put("status", true);
@@ -112,10 +125,6 @@ public class GroupCreation {
 					responseJson.put("status", false);
 					responseJson.put("message","Oops something went wrong");
 				}
-			}else{
-				responseJson.put("status", false);
-				responseJson.put("message","You do'not have access to remove member in this group ");
-			}
 			return responseJson.toString();
 	} catch (Exception e) {
 		e.printStackTrace();
@@ -134,7 +143,6 @@ public class GroupCreation {
     @Path("/addMember")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String updateGroupMember(String deleteData){
-		
 		JSONObject responseJson = new JSONObject();
 		JSONObject jsonObject = new JSONObject(deleteData);
 		GroupBean groupBean = getGroupAdmin(jsonObject.getLong("userId"));
@@ -157,23 +165,33 @@ public class GroupCreation {
 	}
 
 	
-	@GET
-    @Path("/removeGroup/{userId}")
+	@POST
+    @Path("/updateGroupAdmin")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String removeGroup(@PathParam("userId") Long userId){
+	public String removeGroup(String groupData){
 		
 		JSONObject responseJson = new JSONObject();
+		JSONObject jsonObject = new JSONObject(groupData);
+		GroupBean groupBean = new GroupBean(jsonObject);
 		Connection conn = null;
-		PreparedStatement preparedStatement = null;	
+		CallableStatement callableStatement = null;
 		try{
-			String sql = "UPDATE tbl_Group SET IsActive=? WHERE UserID=?";	
 			conn = DataSourceConnection.getDBConnection();
-			preparedStatement = conn.prepareStatement(sql);
+			String updateStorPro = "{call usp_updateGroupAdmin(?,?,?,?)}";
 			
-			preparedStatement.setInt(1, 1);
-			preparedStatement.setLong(2, userId);
+			callableStatement = conn.prepareCall(updateStorPro);
 			
-			if(preparedStatement.executeUpdate() != 0){
+			callableStatement.setLong(1, groupBean.getUserId());
+			callableStatement.setLong(2, groupBean.getGroupId());
+			callableStatement.setTimestamp(3, new Timestamp(new Date().getTime()));
+			callableStatement.registerOutParameter(4, Types.INTEGER);
+			
+			int value = callableStatement.executeUpdate();
+			int isError = callableStatement.getInt(4);
+			
+	        System.out.println("value  :  "+value+"  isError : "+isError);
+			
+			if(value != 0){
 				responseJson.put("status", true);
 				responseJson.put("message","Left the group");
 			}else{
@@ -185,7 +203,7 @@ public class GroupCreation {
 		e.printStackTrace();
 	} finally {
 		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(preparedStatement);
+		ServiceUtility.closeCallableSatetment(callableStatement);
 	}	
 		responseJson.put("status", false);
 		responseJson.put("message", "Oops something went wrong");
@@ -196,7 +214,7 @@ public class GroupCreation {
 	@Path("/getGroupInfo/{userId}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String getGroupInfo(@PathParam("userId") Long userId){
-		
+		System.out.println("System  coming to method getGroupInfo :  "+userId);
 		Connection conn = null;
 		PreparedStatement preparedStatement = null;
 		JSONArray finalJsonArray = new JSONArray();
@@ -216,6 +234,8 @@ public class GroupCreation {
 				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 		      	for (GroupInfoBean groupInfoBean : groupInfoBeanList) {
 		      		
+		      		System.out.println("groupInfoBean: "+groupInfoBean.getProfileImageId());
+		      		
 		      		JSONArray receiptionistArray = new JSONArray();					
 		      		JSONObject outerJson = new JSONObject();
 		      		
@@ -227,19 +247,23 @@ public class GroupCreation {
 					outerJson.put("groupName", groupInfoBean.getGroupName());
 					outerJson.put("adminId", groupInfoBean.getUserId());
 					outerJson.put("fullName", groupInfoBean.getFullName());
-					outerJson.put("fullName", groupInfoBean.getFullName());//new JSONObject(dbObj.toString()).getJSONObject("_id").getString("$oid")
-					 dbObj = mongoDBJDBC.getFile(groupInfoBean.getProfileImageId());
-					if(dbObj != null){
-						outerJson.put("image", new JSONObject(dbObj.toString()).getJSONObject("_id").getString("$oid"));
+					if(Utility.checkValidString(groupInfoBean.getProfileImageId())){
+						dbObj = mongoDBJDBC.getFile(groupInfoBean.getProfileImageId());
+						if(dbObj != null){
+							outerJson.put("image", new JSONObject(dbObj.toString()).getJSONObject("_id").getString("$oid"));
+						}
 					}
 					
 					while(rs.next()){
 					
 						JSONObject jsonObject = new JSONObject();
 						jsonObject.put("fullName", rs.getString("U.FirstName")+" "+rs.getString("U.LastName"));
-						 dbObj = mongoDBJDBC.getFile(groupInfoBean.getProfileImageId());
+						dbObj = null;
+						if(Utility.checkValidString(rs.getString("U.ProfileImageID"))){
+						 dbObj = mongoDBJDBC.getFile(rs.getString("U.ProfileImageID"));
 						if(dbObj != null){
-							outerJson.put("image", new JSONObject(dbObj.toString()).getJSONObject("_id").getString("$oid"));
+							jsonObject.put("image", new JSONObject(dbObj.toString()).getJSONObject("_id").getString("$oid"));
+						}
 						}
 						jsonObject.put("userId", rs.getString("U.UserID"));
 						

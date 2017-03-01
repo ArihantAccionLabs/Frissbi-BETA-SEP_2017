@@ -36,7 +36,7 @@ public class FriendBean {
 	public void toFriendBean(JSONObject friendJson){
 		
       this.setUserId(friendJson.getLong("userId"));
-      this.setFreindId(friendJson.getLong("friendUserId"));
+      this.setFreindId(friendJson.getLong("friendId"));
       if(friendJson.has("status")){
     	  this.setStatus(friendJson.getString("status"));
       }

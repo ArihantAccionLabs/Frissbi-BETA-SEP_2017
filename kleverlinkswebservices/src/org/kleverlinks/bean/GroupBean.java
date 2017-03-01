@@ -8,9 +8,13 @@ import org.json.JSONObject;
 public class GroupBean {
 
 	private Long userId;
+	
 	private Long groupId;
+	
 	private Long friendId;
+	
 	private String groupName;
+	
 	private List<Long> friendList = new ArrayList<>();
 	
     public GroupBean(){
@@ -54,9 +58,17 @@ public class GroupBean {
 	public GroupBean(JSONObject jsonObject) {
 		super();
 		this.userId = jsonObject.getLong("userId");
-		this.groupName = jsonObject.getString("groupName");
-		for(int i=0 ; i<jsonObject.getJSONArray("friendList").length() ; i++){
-			friendList.add(jsonObject.getJSONArray("friendList").getLong(i));
+		
+		if(jsonObject.has("groupId")){
+			this.groupId = jsonObject.getLong("groupId");
+		}
+		if(jsonObject.has("groupName")){
+			this.groupName = jsonObject.getString("groupName");
+		}
+		if(jsonObject.has("friendList")){
+			for(int i=0 ; i<jsonObject.getJSONArray("friendList").length() ; i++){
+				friendList.add(jsonObject.getJSONArray("friendList").getLong(i));
+			}
 		}
 	}
 }

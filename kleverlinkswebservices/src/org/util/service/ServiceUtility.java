@@ -35,6 +35,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.kleverlinks.bean.AppUserBean;
+import org.kleverlinks.bean.MeetingCreationBean;
 import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.Constants;
@@ -64,7 +65,7 @@ public class ServiceUtility {
 			while (rs.next()) {
 				jsonObject.put("email" , rs.getString("emailName"));
 				jsonObject.put("fullName" , rs.getString("FirstName") + rs.getString("LastName"));
-				jsonObject.put("userId" , rs.getInt("UserID"));
+				jsonObject.put("userId" , rs.getLong("UserID"));//DeviceRegistrationID
 			}
 			return jsonObject;
 		} catch (Exception e) {
@@ -301,7 +302,7 @@ public class ServiceUtility {
 		return timeToBeTaken;
 	}
 
-	public static int insertingAndSendingMails(JSONArray mailsArray, Long senderUserId, Long meetingId)
+	public static int insertingAndSendingMails(MeetingCreationBean meetingBean, Long meetingId)
 			throws Exception {
 		try {
 			Connection connection = null;
@@ -311,27 +312,24 @@ public class ServiceUtility {
 			String query = "INSERT into tbl_MeetingEmails(MeetingID,UserEmailID) values(?,?)";
 			ps = connection.prepareStatement(query);
 
-			for (int i = 0; i < mailsArray.length(); i++) {
+			for (String emailId : meetingBean.getEmailIdList()) {
+
 				ps.setLong(1, meetingId);
-				ps.setString(2, mailsArray.getString(i));
+				ps.setString(2, emailId);
 
 				ps.addBatch();
 			}
 			int[] insertedRow = ps.executeBatch();
 			connection.commit();
-			
+
 			return insertedRow.length;
-			/*System.out.println(" insertingAndSendingMails    insertedRow[i]=========" + insertedRow.length);
-			for (int i = 0; i < mailsArray.length(); i++) {
-				MyEmailer.SendMail(mailsArray.getString(i), "Your meeting request ", "");
-			}*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return 0;
 	}
 
-	public static int insertMeetingContactNumbers(JSONArray contactArray, Long senderUserId, Long meetingId) {
+	public static int insertMeetingContactNumbers(MeetingCreationBean meetingBean, Long meetingId) {
 		Connection connection = null;
 		int[] insertedRow;
 		PreparedStatement ps = null;
@@ -342,11 +340,10 @@ public class ServiceUtility {
 		String query = "INSERT into tbl_MeetingContacts(MeetingID,ContactNumber) values(?,?)";
 		ps = connection.prepareStatement(query);
 
-		for (int i = 0; i < contactArray.length(); i++) {
-	       if(contactArray.getString(i) != null && ! contactArray.getString(i).trim().isEmpty()){
-	    	   
+		for (String contactNumber : meetingBean.getContactList()) {
+	       if(Utility.checkValidString(contactNumber)){
 	    	   ps.setLong(1, meetingId);
-	    	   ps.setString(2, contactArray.getString(i).replaceAll("(\\d)\\s(\\d)", "$1$2"));
+	    	   ps.setString(2, contactNumber.replaceAll("(\\d)\\s(\\d)", "$1$2"));
 	    	   ps.addBatch();
 	       }
 		}
@@ -362,23 +359,23 @@ public class ServiceUtility {
 		return 0;
 	}
 
-	public static void deleteUserFromMeeting(JSONArray meetingArray , Long senderUserId)throws IOException, SQLException, PropertyVetoException {
+	public static void deleteUserFromMeeting(List<Long> meetingIdList , Long senderUserId)throws IOException, SQLException, PropertyVetoException {
 
 		Connection connection = null;
 		PreparedStatement preparedStatement = null;
 		String sql = "";
 		try{
 		connection = DataSourceConnection.getDBConnection();
-		List<Long> meetingList = new ArrayList<>();
 		
+	/*	List<Long> meetingList = new ArrayList<>();
 			if (meetingArray.length() > 1) {
 				for (int i = 0; i < meetingArray.length(); i++) {
 					meetingList.add(meetingArray.getLong(i));
 				}
 			} else
 				meetingList.add(meetingArray.getJSONObject(0).getLong("meetingId"));
-		
-		for (Long meetingId : meetingList) {
+		*/
+		for (Long meetingId : meetingIdList) {
 			preparedStatement = null;
 			if(! isMeetingCreatorRemoved(meetingId , senderUserId)){
 				sql = "UPDATE  tbl_MeetingDetails SET MeetingStatus=? WHERE MeetingID=? AND SenderUserId=?";
@@ -404,8 +401,8 @@ public class ServiceUtility {
 	}
 
 
-	public static List<UserDTO> checkingMeetingConfliction(Long senderUserId, String meetingDate,LocalDateTime senderFromDateTime, LocalDateTime senderToDateTime) throws ParseException {
-		Map<String , Date> map = getOneDayDate(meetingDate);
+	public static List<UserDTO> checkingMeetingConfliction(MeetingCreationBean meetingBean) throws ParseException {
+		Map<String , Date> map = getOneDayDate(meetingBean.getMeetingDateTime());
 		try {
 			CallableStatement callableStatement = null;
 			Connection conn = null;
@@ -413,7 +410,7 @@ public class ServiceUtility {
 			String selectStoreProcedue = "{call usp_CheckingConflicatedMeetings(?,?,?)}";
 			System.out.println("from =="+new Timestamp(map.get("today").getTime())+"==="+new Timestamp(map.get("today").getTime()));
 			callableStatement = conn.prepareCall(selectStoreProcedue);
-			callableStatement.setLong(1, senderUserId);
+			callableStatement.setLong(1, meetingBean.getSenderUserId());
 			callableStatement.setTimestamp(2, new Timestamp(map.get("today").getTime()));
 			callableStatement.setTimestamp(3, new Timestamp(map.get("tomorrow").getTime()));
 			
@@ -439,8 +436,8 @@ public class ServiceUtility {
 			}
            System.out.println("meetingList====="+meetingList.size());
 			// logic for avoiding the time collapse b/w meetings
-			Float meetingStartTime = Float.parseFloat(senderFromDateTime.getHour() + "." + senderFromDateTime.getMinute());
-			Float meetingEndTime = Float.parseFloat(senderToDateTime.getHour() + "." + senderToDateTime.getMinute());
+			Float meetingStartTime = Float.parseFloat(meetingBean.getSenderFromDateTime().getHour() + "." + meetingBean.getSenderFromDateTime().getMinute());
+			Float meetingEndTime = Float.parseFloat(meetingBean.getSenderToDateTime().getHour() + "." + meetingBean.getSenderToDateTime().getMinute());
 
 			for (UserDTO userDTO : meetingList) {
 				//System.out.println(meetingStartTime + "=====" + meetingEndTime + "    " + userDTO.getStartTime()+"   "+userDTO.getEndTime()+"==="+((meetingStartTime < userDTO.getStartTime() && userDTO.getStartTime() < meetingEndTime)|| (meetingStartTime < userDTO.getEndTime()  && userDTO.getEndTime() < meetingEndTime)));
