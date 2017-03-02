@@ -16,9 +16,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kleverlinks.bean.GroupBean;
@@ -33,6 +33,9 @@ import com.mongodb.DBObject;
 
 @Path("GroupCreationService")
 public class GroupCreationService {
+	
+	private static final String participantSql = "SELECT FG.GroupID,U.UserID,U.FirstName,U.LastName,U.ProfileImageID FROM tbl_FriendGroup AS FG  "
+		                                         +"INNER JOIN tbl_users AS U ON FG.UserID = U.UserID WHERE FG.GroupID =? AND FG.IsActive=?";	
 	
 	@POST
     @Path("/create")
@@ -49,17 +52,24 @@ public class GroupCreationService {
 			JSONObject jsonObject = new JSONObject(group);
 			GroupBean groupBean = new GroupBean(jsonObject);
 			System.out.println("jsonObject  : "+jsonObject.toString());
+			String groupImageId = null;
+			if(Utility.checkValidString(groupBean.getGroupImage())){
+				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
+				groupImageId = mongoDBJDBC.insertFile(groupBean.getGroupImage());
+			}
+			
 			conn = DataSourceConnection.getDBConnection();
-			String insertGroupStorPro = "{call usp_insertGroup(?,?,?,?,?)}";
+			String insertGroupStorPro = "{call usp_insertGroup(?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertGroupStorPro);
 			callableStatement.setLong(1, groupBean.getUserId());
 			callableStatement.setString(2, groupBean.getGroupName());
-			callableStatement.setTimestamp(3, new Timestamp(new Date().getTime()));
-			callableStatement.registerOutParameter(4, Types.INTEGER);
-			callableStatement.registerOutParameter(5, Types.BIGINT);
+			callableStatement.setString(3, groupImageId);
+			callableStatement.setTimestamp(4, new Timestamp(new Date().getTime()));
+			callableStatement.registerOutParameter(5, Types.INTEGER);
+			callableStatement.registerOutParameter(6, Types.BIGINT);
 			int value = callableStatement.executeUpdate();
-			int isError = callableStatement.getInt(4);
-			groupId = callableStatement.getLong(5);
+			int isError = callableStatement.getInt(5);
+			groupId = callableStatement.getLong(6);
 			System.out.println("value "+value+" isError "+isError+" groupId "+groupId);
 			if(value != 0 && groupId != null && groupId != 0l){
 				groupBean.setGroupId(groupId);
@@ -140,27 +150,48 @@ public class GroupCreationService {
 	
 	
 	@POST
-    @Path("/addMember")
+	@Path("/addMember")
 	@Consumes(MediaType.APPLICATION_JSON)
-	public String updateGroupMember(String deleteData){
+	public String updateGroupMember(String deleteData) {
+
 		JSONObject responseJson = new JSONObject();
-		JSONObject jsonObject = new JSONObject(deleteData);
-		GroupBean groupBean = getGroupAdmin(jsonObject.getLong("userId"));
-		if(groupBean != null){
-			groupBean.setFriendId(jsonObject.getLong("friendId"));
-			
-			addGroupMember(groupBean);
-			if(addGroupMember(groupBean)){
-				responseJson.put("status", true);
-				responseJson.put("message","New memeber is added in group "+groupBean.getGroupName());
-			}else{
-				responseJson.put("status", false);
-				responseJson.put("message","Something went wrong");
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		try {
+			JSONObject jsonObject = new JSONObject(deleteData);
+			GroupBean groupBean = new GroupBean(jsonObject);
+			String sql = "SELECT GroupName FROM tbl_Group WHERE GroupID=? AND UserID=? AND IsActive=?";
+
+			conn = DataSourceConnection.getDBConnection();
+			preparedStatement = conn.prepareStatement(sql);
+
+			preparedStatement.setLong(1, groupBean.getGroupId());
+			preparedStatement.setLong(2, groupBean.getUserId());
+			preparedStatement.setLong(3, 0);
+
+			ResultSet rs = preparedStatement.executeQuery();
+
+			while (rs.next()) {
+
+				if (addGroupMember(groupBean)) {
+					responseJson.put("status", true);
+					responseJson.put("message", "New memeber is added in group " + rs.getString("GroupName"));
+				} else {
+					responseJson.put("status", false);
+					responseJson.put("message", "Something went wrong during adding the member");
+				}
+				return responseJson.toString();
 			}
-		}else{
+
 			responseJson.put("status", false);
-			responseJson.put("message","You do'not have access to add member in this group ");
+			responseJson.put("message", "You are not a admin so can'nt modify group");
+
+			return responseJson.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+		responseJson.put("status", false);
+		responseJson.put("message", "Oops something went wrong");
 		return responseJson.toString();
 	}
 
@@ -212,92 +243,149 @@ public class GroupCreationService {
 
 	@GET
 	@Path("/getGroupInfo/{userId}")
-	@Consumes(MediaType.APPLICATION_JSON)
-	public String getGroupInfo(@PathParam("userId") Long userId){
-		System.out.println("System  coming to method getGroupInfo :  "+userId);
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getGroupInfo(@PathParam("userId") Long userId) {
+		System.out.println("System  coming to method getGroupInfo :  " + userId);
 		Connection conn = null;
 		PreparedStatement preparedStatement = null;
 		JSONArray finalJsonArray = new JSONArray();
 		JSONObject responseJson = new JSONObject();
-		
-		try{
-			
+
+		try {
+
 			List<GroupInfoBean> groupInfoBeanList = getAllGroupByUserId(userId);
-			DBObject dbObj = null;
-			if(! groupInfoBeanList.isEmpty()){
-				
-				String sql = "SELECT FG.GroupID,U.UserID,U.FirstName,U.LastName,U.ProfileImageID FROM tbl_FriendGroup AS FG  "
-						+"INNER JOIN tbl_users AS U ON FG.UserID = U.UserID WHERE FG.GroupID =? AND FG.IsActive=?";	
-				
+			if (!groupInfoBeanList.isEmpty()) {
+
 				conn = DataSourceConnection.getDBConnection();
-				preparedStatement = conn.prepareStatement(sql);
+				preparedStatement = conn.prepareStatement(participantSql);
 				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
-		      	for (GroupInfoBean groupInfoBean : groupInfoBeanList) {
-		      		
-		      		System.out.println("groupInfoBean: "+groupInfoBean.getProfileImageId());
-		      		
-		      		JSONArray receiptionistArray = new JSONArray();					
-		      		JSONObject outerJson = new JSONObject();
-		      		
-		      		preparedStatement.setLong(1, groupInfoBean.getGroupId());
-		      		preparedStatement.setInt(2, 0);
-		      		
+				for (GroupInfoBean groupInfoBean : groupInfoBeanList) {
+
+					System.out.println("groupInfoBean: " + groupInfoBean.getProfileImageId());
+
+					JSONArray receiptionistArray = new JSONArray();
+					JSONObject outerJson = new JSONObject();
+
+					preparedStatement.setLong(1, groupInfoBean.getGroupId());
+					preparedStatement.setInt(2, 0);
+
 					ResultSet rs = preparedStatement.executeQuery();
 					outerJson.put("groupId", groupInfoBean.getGroupId());
 					outerJson.put("groupName", groupInfoBean.getGroupName());
 					outerJson.put("adminId", groupInfoBean.getUserId());
 					outerJson.put("fullName", groupInfoBean.getFullName());
+					
 					if(Utility.checkValidString(groupInfoBean.getProfileImageId())){
-						dbObj = mongoDBJDBC.getFile(groupInfoBean.getProfileImageId());
-						if(dbObj != null){
-							outerJson.put("image", new JSONObject(dbObj.toString()).getJSONObject("_id").getString("$oid"));
-						}
+						outerJson.put("adminImage", mongoDBJDBC.getUriImage(groupInfoBean.getProfileImageId()));
+					}
+					if(Utility.checkValidString(groupInfoBean.getGroupImage())){
+						outerJson.put("groupImage", mongoDBJDBC.getUriImage(groupInfoBean.getGroupImage()));
 					}
 					
-					while(rs.next()){
-					
+					while (rs.next()) {
+
 						JSONObject jsonObject = new JSONObject();
-						jsonObject.put("fullName", rs.getString("U.FirstName")+" "+rs.getString("U.LastName"));
-						dbObj = null;
-						if(Utility.checkValidString(rs.getString("U.ProfileImageID"))){
-						 dbObj = mongoDBJDBC.getFile(rs.getString("U.ProfileImageID"));
-						if(dbObj != null){
-							jsonObject.put("image", new JSONObject(dbObj.toString()).getJSONObject("_id").getString("$oid"));
+						jsonObject.put("fullName", rs.getString("FirstName") + " " + rs.getString("LastName"));
+						if (Utility.checkValidString(rs.getString("ProfileImageID"))) {
+								jsonObject.put("profileImage", rs.getString("U.ProfileImageID").trim());
 						}
-						}
-						jsonObject.put("userId", rs.getString("U.UserID"));
-						
+						jsonObject.put("userId", rs.getString("UserID"));
+
 						receiptionistArray.put(jsonObject);
 					}
 					outerJson.put("receiptionistArray", receiptionistArray);
 					finalJsonArray.put(outerJson);
-		      	}
-				responseJson.put("message","group fetched successfully");
-				}else{
-				   responseJson.put("message","You have no group");
 				}
+				responseJson.put("message", "group fetched successfully");
+			} else {
+				responseJson.put("message", "You have no group");
+			}
 			responseJson.put("status", true);
-			responseJson.put("groupArray", finalJsonArray);			
+			responseJson.put("groupArray", finalJsonArray);
 			return responseJson.toString();
-	} catch (Exception e) {
-		e.printStackTrace();
-	} finally {
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(preparedStatement);
-	}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(preparedStatement);
+		}
 		responseJson.put("status", false);
 		responseJson.put("message", "Oops something went wrong");
 		return responseJson.toString();
 	}
 	
-	
+		@GET
+		@Path("/getGroupInfoByGroupId/{groupId}")
+		@Produces(MediaType.TEXT_PLAIN)
+		public String getGroupInfoById(@PathParam("groupId") Long groupId) {
+
+		System.out.println("System  coming to method getGroupInfoById :  " + groupId);
+		JSONObject responseJson = new JSONObject();
+		Connection conn = null;
+		PreparedStatement preparedStatement = null;
+		JSONArray receiptionistArray = new JSONArray();
+		try {
+			GroupInfoBean groupInfoBean = getGroupAdmin(groupId);
+			
+			if (groupInfoBean != null) {
+
+				responseJson.put("groupId", groupInfoBean.getGroupId());
+				responseJson.put("groupName", groupInfoBean.getGroupName());
+				responseJson.put("adminId", groupInfoBean.getUserId());
+				responseJson.put("fullName", groupInfoBean.getFullName());
+
+				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
+				
+				if(Utility.checkValidString(groupInfoBean.getProfileImageId())){
+					responseJson.put("adminImage", mongoDBJDBC.getUriImage(groupInfoBean.getProfileImageId()));
+				}
+				if(Utility.checkValidString(groupInfoBean.getGroupImage())){
+					responseJson.put("groupImage", mongoDBJDBC.getUriImage(groupInfoBean.getGroupImage()));
+				}
+
+				conn = DataSourceConnection.getDBConnection();
+				preparedStatement = conn.prepareStatement(participantSql);
+
+				preparedStatement.setLong(1, groupInfoBean.getGroupId());
+				preparedStatement.setInt(2, 0);
+
+				ResultSet rs = preparedStatement.executeQuery();
+
+				while (rs.next()) {
+
+					JSONObject jsonObject = new JSONObject();
+					jsonObject.put("fullName", rs.getString("U.FirstName") + " " + rs.getString("U.LastName"));
+					if (Utility.checkValidString(rs.getString("U.ProfileImageID"))) {
+							jsonObject.put("profileImage",mongoDBJDBC.getUriImage(rs.getString("U.ProfileImageID").trim()));
+					}
+					jsonObject.put("userId", rs.getString("U.UserID"));
+
+					receiptionistArray.put(jsonObject);
+				}
+				responseJson.put("receiptionistArray", receiptionistArray);
+			}
+
+			responseJson.put("status", true);
+			responseJson.put("message", "Group info fetched successfully");
+			return responseJson.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(preparedStatement);
+		}
+		responseJson.put("status", false);
+		responseJson.put("message", "Oops something went wrong");
+		return responseJson.toString();
+	}
+
 	public List<GroupInfoBean> getAllGroupByUserId(Long userId){
 
 		Connection conn = null;
 		PreparedStatement preparedStatement = null;	
 		List<GroupInfoBean> list = new ArrayList<>();
 		try{
-			String sql = "SELECT  DISTINCT(G.GroupID) , G.UserID ,G.GroupName,U.FirstName,U.LastName,U.ProfileImageID  "
+			String sql = "SELECT  DISTINCT(G.GroupID) , G.UserID ,G.GroupName,G.GroupImage,U.FirstName,U.LastName,U.ProfileImageID  "
 					   + "FROM FrissDB.tbl_Group G INNER JOIN FrissDB.tbl_FriendGroup GF  ON G.GroupID=GF.GroupID "
 				       + "INNER JOIN FrissDB.tbl_users U  ON G.UserID=U.UserID "
 				       + "WHERE (G.UserID=? OR GF.UserID=?) AND G.IsActive=0 AND GF.IsActive=0";	
@@ -317,6 +405,7 @@ public class GroupCreationService {
 				groupInfoBean.setGroupName(rs.getString("GroupName"));
 				groupInfoBean.setFullName(rs.getString("FirstName")+" "+rs.getString("LastName"));
 				groupInfoBean.setProfileImageId(rs.getString("ProfileImageID"));
+				groupInfoBean.setGroupImage(rs.getString("GroupImage"));
 				
 				list.add(groupInfoBean);
 			}
@@ -371,28 +460,32 @@ public class GroupCreationService {
 		return false;
 	}
 	
-	public GroupBean getGroupAdmin(Long userId){
+	public GroupInfoBean getGroupAdmin( Long groupId){
 		
 		Connection conn = null;
 		PreparedStatement preparedStatement = null;	
-		GroupBean groupBean = null;
+		GroupInfoBean groupInfoBean = null;
 		try{
 		conn = DataSourceConnection.getDBConnection();
-		String sql = "SELECT * FROM tbl_Group WHERE UserID=? AND IsActive=?";	
+		
+		String sql = "SELECT  G.GroupID , G.UserID ,G.GroupName,G.GroupImage,U.FirstName,U.LastName,U.ProfileImageID "
+					   + "FROM tbl_Group G INNER JOIN tbl_users U  ON G.UserID=U.UserID "
+				       + "WHERE G.GroupID=? AND G.IsActive=?";	
+		
 		preparedStatement = conn.prepareStatement(sql);
-		preparedStatement.setLong(1, userId);
+		preparedStatement.setLong(1, groupId);
 		preparedStatement.setInt(2, 0);
 		
 	    ResultSet rs = preparedStatement.executeQuery();
 		
 	    while(rs.next()){
-	    
-	    	if(rs.getLong("GroupID") != 0l){
-	    		groupBean = new GroupBean();
-	    		groupBean.setGroupId(rs.getLong("GroupID"));
-	    		groupBean.setUserId(rs.getLong("UserID"));
-	    		groupBean.setGroupName(rs.getString("GroupName"));
-	    	}
+	    	groupInfoBean = new GroupInfoBean();
+			groupInfoBean.setGroupId(rs.getLong("GroupID"));
+			groupInfoBean.setUserId(rs.getLong("UserID"));
+			groupInfoBean.setGroupName(rs.getString("GroupName"));
+			groupInfoBean.setFullName(rs.getString("FirstName")+" "+rs.getString("LastName"));
+			groupInfoBean.setProfileImageId(rs.getString("ProfileImageID"));
+			groupInfoBean.setGroupImage(rs.getString("GroupImage"));
 	    }
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -400,6 +493,6 @@ public class GroupCreationService {
 			ServiceUtility.closeConnection(conn);
 			ServiceUtility.closeSatetment(preparedStatement);	
 		}
-		return groupBean;
+		return groupInfoBean;
 	}
 }

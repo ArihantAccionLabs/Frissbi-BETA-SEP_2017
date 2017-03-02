@@ -30,6 +30,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kleverlinks.bean.FriendBean;
 import org.kleverlinks.enums.FriendStatusEnum;
+import org.mongo.dao.MongoDBJDBC;
 import org.service.dto.NotificationInfoDTO;
 import org.util.Utility;
 import org.util.service.NotificationService;
@@ -505,11 +506,13 @@ public class UserFriendList {
 			//System.out.println("userArray============"+userArray.toString());
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
-			String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob FROM tbl_users AS U  where (U.FirstName LIKE '%"
+			String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ProfileImageID FROM tbl_users AS U  where (U.FirstName LIKE '%"
 					+ search_criteria + "%' OR U.LastName LIKE '%" + search_criteria + "%' OR U.UserName LIKE '%"
 					+ search_criteria + "%') AND U.UserID NOT IN (" + userArray +")";
 
 			ResultSet rs = stmt.executeQuery(sql);
+			MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
+			 
 			while (rs.next()) {
 				JSONObject jsonObject = new JSONObject();
 				jsonObject.put("userId", rs.getString("UserId"));
@@ -517,6 +520,9 @@ public class UserFriendList {
 				jsonObject.put("emailId", rs.getString("EmailName"));
 				jsonObject.put("gender", rs.getString("Gender"));
 				jsonObject.put("dob", rs.getString("dob"));
+				if (Utility.checkValidString(rs.getString("ProfileImageID"))) {
+				    jsonObject.put("profileImage", mongoDBJDBC.getUriImage(rs.getString("ProfileImageID").trim()));
+				 }
 				jsonObject.put("status", FriendStatusEnum.UNFRIEND);
 				
 				jsonResultsArray.put(jsonObject);
@@ -764,14 +770,15 @@ public class UserFriendList {
 			JSONObject userIdsJson = new JSONObject(userIds);
 			FriendBean friendBean = new FriendBean();
 			friendBean.toFriendBean(userIdsJson);
+			System.out.println(""+friendBean.toString());
 				conn = DataSourceConnection.getDBConnection();
-				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,UT.ProfileImageId,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID INNER JOIN tbl_userfriendlist AS FR "
-							  + " ON (U.UserID=FR.ReceiverUserID)  "
-							  + "  WHERE (FR.SenderUserID =? AND FR.ReceiverUserID =?) "
+				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ProfileImageID,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U  INNER JOIN tbl_userfriendlist AS FR "
+							  + " ON U.UserID=FR.ReceiverUserID "
+							  + "  WHERE FR.SenderUserID =? AND FR.ReceiverUserID =? "
 							  + " UNION "
-							  + " SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,UT.ProfileImageId,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID INNER JOIN tbl_userfriendlist AS FR "
-							  + " ON (U.UserID=FR.SenderUserID) "
-							  + " WHERE (FR.ReceiverUserID =? AND FR.SenderUserID =?) ";
+							  + " SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ProfileImageID,FR.SenderUserID,FR.ReceiverUserID,FR.RequestStatus FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
+							  + " ON U.UserID=FR.SenderUserID "
+							  + " WHERE FR.ReceiverUserID =? AND FR.SenderUserID =? ";
 					
 				pstmt = conn.prepareStatement(sql);
 					
@@ -782,13 +789,16 @@ public class UserFriendList {
 				
 				ResultSet rs = pstmt.executeQuery();
 				JSONObject jsonObject = new JSONObject();
+				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 				while(rs.next()){
 						jsonObject.put("userId", rs.getLong("UserId"));
 						jsonObject.put("fullName", rs.getString("FirstName")+" " + rs.getString("LastName"));
 						jsonObject.put("emailId", rs.getString("EmailName"));
 						jsonObject.put("gender", rs.getString("Gender"));
 						jsonObject.put("dob", rs.getString("dob"));
-						jsonObject.put("image", rs.getString("ProfileImageId"));
+						 if (Utility.checkValidString(rs.getString("ProfileImageID"))) {
+						    jsonObject.put("profileImage", mongoDBJDBC.getUriImage(rs.getString("ProfileImageID").trim()));
+						 }
 						jsonObject.put("userName", rs.getString("UserName"));
 						
 						if (Utility.checkValidString(rs.getString("RequestStatus"))) {
@@ -860,10 +870,10 @@ public class UserFriendList {
 		JSONObject finalJson = new JSONObject();
 		try {
 				conn = DataSourceConnection.getDBConnection();
-				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ContactNumber,UT.ProfileImageId FROM tbl_users AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID WHERE U.UserID=?";
+				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ContactNumber,U.ProfileImageID FROM tbl_users  U WHERE U.UserID=?";
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setLong(1, friendUserId);
-				
+				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 				ResultSet rs = pstmt.executeQuery();
 				while(rs.next()){
 					    JSONObject jsonObject = new JSONObject();
@@ -876,7 +886,10 @@ public class UserFriendList {
 						jsonObject.put("contactNumber", rs.getString("ContactNumber"));
 						jsonObject.put("dob", rs.getString("dob"));
 					    jsonObject.put("status", FriendStatusEnum.UNFRIEND);
-						jsonObject.put("image", rs.getString("ProfileImageId"));
+					    
+					    if (Utility.checkValidString(rs.getString("U.ProfileImageID"))) {
+							jsonObject.put("profileImage", mongoDBJDBC.getUriImage(rs.getString("U.ProfileImageID").trim()));
+					    }
 					    
 					    finalJson.put("viewProfile", jsonObject);
 				}
@@ -896,11 +909,11 @@ public class UserFriendList {
 		PreparedStatement pstmt = null;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,FR.SenderUserID FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
+			String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ProfileImageID,FR.SenderUserID FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
 						  + " ON (U.UserID=FR.SenderUserID)  "
 						  + "  WHERE (FR.SenderUserID =? AND FR.ReceiverUserID =?) OR (FR.ReceiverUserID =? AND FR.SenderUserID =?) "
 						  + " UNION "
-						  + " SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,FR.SenderUserID FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
+						  + " SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ProfileImageID,FR.SenderUserID FROM tbl_users AS U INNER JOIN tbl_userfriendlist AS FR "
 						  + " ON (U.UserID=FR.ReceiverUserID) "
 						  + " WHERE (FR.SenderUserID =? AND FR.ReceiverUserID =?) OR (FR.ReceiverUserID =? AND FR.SenderUserID =?)";
 				
@@ -915,7 +928,7 @@ public class UserFriendList {
 			pstmt.setLong(6, waitingUserId);
 			pstmt.setLong(7, senderUserId);
 			pstmt.setLong(8, waitingUserId);
-			
+			MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 			ResultSet rs = pstmt.executeQuery();
 			while(rs.next()){
 					JSONObject jsonObject = new JSONObject();
@@ -926,6 +939,9 @@ public class UserFriendList {
 					jsonObject.put("emailId", rs.getString("EmailName"));
 					jsonObject.put("gender", rs.getString("Gender"));
 					jsonObject.put("dob", rs.getString("dob"));
+					if (Utility.checkValidString(rs.getString("U.ProfileImageID"))) {
+						jsonObject.put("profileImage", mongoDBJDBC.getUriImage(rs.getString("U.ProfileImageID").trim()));
+				    }
 					Long senderId = 	rs.getLong("SenderUserID");
 					jsonObject.put("status", (senderId.longValue() == senderUserId.longValue()) ?FriendStatusEnum.WAITING: FriendStatusEnum.CONFIRM);
 					

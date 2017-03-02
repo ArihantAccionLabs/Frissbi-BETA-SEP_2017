@@ -15,6 +15,8 @@ public class GroupBean {
 	
 	private String groupName;
 	
+	private String groupImage;
+	
 	private List<Long> friendList = new ArrayList<>();
 	
     public GroupBean(){
@@ -49,6 +51,14 @@ public class GroupBean {
 		this.groupName = groupName;
 	}
 
+	public String getGroupImage() {
+		return groupImage;
+	}
+
+	public void setGroupImage(String groupImage) {
+		this.groupImage = groupImage;
+	}
+
 	public List<Long> getFriendList() {
 		return friendList;
 	}
@@ -58,6 +68,14 @@ public class GroupBean {
 	public GroupBean(JSONObject jsonObject) {
 		super();
 		this.userId = jsonObject.getLong("userId");
+		
+		if(jsonObject.has("friendId")){
+			this.friendId = jsonObject.getLong("friendId");
+		}
+		
+		if(jsonObject.has("groupImage")){
+			this.groupImage = jsonObject.getString("groupImage");
+		}
 		
 		if(jsonObject.has("groupId")){
 			this.groupId = jsonObject.getLong("groupId");

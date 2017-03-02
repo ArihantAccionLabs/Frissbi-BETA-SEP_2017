@@ -4,6 +4,7 @@ import java.util.Date;
 
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
+import org.util.Utility;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -107,4 +108,14 @@ public class MongoDBJDBC {
 		}
 	}
 
+	public String getUriImage(String imageId){
+		
+		if (Utility.checkValidString(imageId)) {
+			DBObject dbObj = getFile(imageId);
+			if (dbObj != null) {
+				return new JSONObject(dbObj.toString()).getString("documentBytes");
+			}
+		}
+		return null;
+	}
 }
