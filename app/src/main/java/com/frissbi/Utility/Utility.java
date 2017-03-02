@@ -1,5 +1,12 @@
 package com.frissbi.Utility;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.util.Base64;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -27,6 +34,11 @@ public class Utility {
     public static final String VIEW_PROFILE = "/FriendListService/seeOtherProfile/";
     public static final String MEETING_LOG_BY_DATE = "/MeetingDetailsService/getMeetingDetailsByUserID";
     public static final String MEETING_COUNT_BY_MONTH = "/CalendarService/getMeetingMonthWise";
+    public static final String USER_REGISTRATION = "/UserRegistrationService/registerUser";
+    public static final String CREATE_GROUP = "/GroupCreationService/create";
+    public static final String GROUPS = "/GroupCreationService/getGroupInfo/";
+    public static final String  ADD_PARTICIPANT= "/GroupCreationService/addMember";
+    public static final String  GET_GROUP_DETAILS= "/GroupCreationService/getGroupInfoByGroupId/";
     private static Utility ourInstance = new Utility();
 
     public static Utility getInstance() {
@@ -34,6 +46,7 @@ public class Utility {
     }
 
     private Utility() {
+
     }
 
     public String convertTime(String time) {
@@ -55,4 +68,30 @@ public class Utility {
         return convertedTime;
     }
 
+
+    public Bitmap decodeFile(File f) {
+        try {
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(new FileInputStream(f), null, o);
+
+            final int REQUIRED_SIZE = 200;
+
+            int scale = 1;
+            while (o.outWidth / scale / 2 >= REQUIRED_SIZE && o.outHeight / scale / 2 >= REQUIRED_SIZE)
+                scale *= 2;
+
+            BitmapFactory.Options o2 = new BitmapFactory.Options();
+            o2.inSampleSize = scale;
+            return BitmapFactory.decodeStream(new FileInputStream(f), null, o2);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public Bitmap getBitmapFromString(String imageString) {
+        byte[] decodedString = Base64.decode(imageString, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+    }
 }

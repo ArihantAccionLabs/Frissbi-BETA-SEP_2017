@@ -1,0 +1,70 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.frissbi.fragments.NewGroupFragment">
+
+    <RelativeLayout
+        android:id="@+id/participant_rl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/participant_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Participants"
+            android:textColor="@color/black"
+            android:textSize="20dp" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/participant_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/participant_text" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/participant_rl"
+        android:layout_marginTop="4dp">
+
+        <RelativeLayout
+            android:id="@+id/search_participant"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.frissbi.CustomFontTextView
+                android:id="@+id/select_participant_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="6dp"
+                android:textColor="@color/black"
+                android:text="Select participants" />
+
+        </RelativeLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/select_participant_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/search_participant" />
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/create_group_button"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="50dp"
+        android:layout_marginRight="20dp"
+        android:visibility="gone"
+        android:background="@drawable/done" />
+
+</RelativeLayout>

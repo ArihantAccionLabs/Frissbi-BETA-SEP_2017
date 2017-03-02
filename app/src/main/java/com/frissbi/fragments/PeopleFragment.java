@@ -1,9 +1,7 @@
 package com.frissbi.fragments;
 
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,6 +14,7 @@ import android.widget.Toast;
 
 import com.frissbi.R;
 import com.frissbi.Utility.FriendStatus;
+import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.activities.ProfileActivity;
 import com.frissbi.adapters.PeopleAdapter;
@@ -39,8 +38,7 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
 
     private RecyclerView mPeopleRecyclerView;
     private TextView mSearchPeopleTextView;
-    private SharedPreferences mSharedPreferences;
-    private String mUserId;
+    private Long mUserId;
     private List<Friend> mFriendList;
     private FriendRequestListener mFriendRequestListener;
 
@@ -49,8 +47,7 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_people, container, false);
-        mSharedPreferences = getActivity().getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
-        mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
+        mUserId = SharedPreferenceHandler.getInstance(getActivity()).getUserId();
         mFriendList = new ArrayList<>();
         mFriendRequestListener = (FriendRequestListener) this;
         mPeopleRecyclerView = (RecyclerView) view.findViewById(R.id.people_recyclerView);
@@ -85,7 +82,9 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
                                 friend.setFullName(peopleJsonObject.getString("fullName"));
                                 friend.setEmailId(peopleJsonObject.getString("emailId"));
                                 friend.setStatus(peopleJsonObject.getString("status"));
-                                friend.setDob(peopleJsonObject.getString("dob"));
+                                if (peopleJsonObject.has("dob")) {
+                                    friend.setDob(peopleJsonObject.getString("dob"));
+                                }
                                 if (peopleJsonObject.has("gender")) {
                                     friend.setGender(peopleJsonObject.getString("gender"));
                                 }
@@ -118,8 +117,15 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
     @Override
     public void sendFriendRequest(Friend friend) {
         if (friend.getStatus().equalsIgnoreCase(FriendStatus.UNFRIEND.toString())) {
-            String url = Utility.REST_URI + Utility.ADD_FRIEND + mUserId + "/" + friend.getUserId();
-            TSNetworkHandler.getInstance(getActivity()).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
+            JSONObject jsonObject=new JSONObject();
+            try {
+                jsonObject.put("userId",mUserId);
+                jsonObject.put("friendId",friend.getUserId());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            String url = Utility.REST_URI + Utility.ADD_FRIEND;
+            TSNetworkHandler.getInstance(getActivity()).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
                 @Override
                 public void handleResponse(TSNetworkHandler.TSResponse response) {
 
@@ -137,8 +143,15 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
                 }
             });
         } else if (friend.getStatus().equalsIgnoreCase(FriendStatus.CONFIRM.toString())) {
-            String url = Utility.REST_URI + Utility.APPROVE_FRIEND + mUserId + "/" + friend.getUserId();
-            TSNetworkHandler.getInstance(getActivity()).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
+            JSONObject jsonObject=new JSONObject();
+            try {
+                jsonObject.put("userId",mUserId);
+                jsonObject.put("friendId",friend.getUserId());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            String url = Utility.REST_URI + Utility.APPROVE_FRIEND;
+            TSNetworkHandler.getInstance(getActivity()).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
                 @Override
                 public void handleResponse(TSNetworkHandler.TSResponse response) {
 

@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.FriendsAdapter;
 import com.frissbi.models.Friend;
@@ -39,8 +40,7 @@ public class MyFriendsFragment extends Fragment {
     private RecyclerView mFriendsRecyclerView;
     private FriendsAdapter mFriendsAdapter;
     private ProgressDialog mProgressDialog;
-    private SharedPreferences mSharedPreferences;
-    private String mUserId;
+    private Long mUserId;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,8 +48,7 @@ public class MyFriendsFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_my_friends, container, false);
         mProgressDialog = new CustomProgressDialog(getActivity());
-        mSharedPreferences = getActivity().getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
-        mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
+        mUserId = SharedPreferenceHandler.getInstance(getActivity()).getUserId();
         mFriendsRecyclerView = (RecyclerView) view.findViewById(R.id.my_friends_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mFriendsRecyclerView.getContext(),

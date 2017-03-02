@@ -39,6 +39,7 @@
                 android:text="Email Id" />
 
             <com.frissbi.CustomFontTextView
+                android:visibility="gone"
                 android:id="@+id/dob_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

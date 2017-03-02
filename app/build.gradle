@@ -39,7 +39,9 @@ dependencies {
     compile 'com.google.android.gms:play-services-auth:10.0.1'
     compile 'com.google.android.gms:play-services-location:10.0.1'*/
 
-
+    /* compile 'com.google.api-client:google-api-client:1.22.0'
+    compile 'com.google.api-client:google-api-client-android:1.22.0'
+    compile 'com.google.apis:google-api-services-people:v1-rev4-1.22.0'*/
     compile 'com.android.support:appcompat-v7:25.1.1'
     compile 'com.android.support:support-annotations:25.1.1'
     compile 'com.android.support:design:25.1.1'
@@ -49,10 +51,7 @@ dependencies {
     compile 'com.android.support:multidex:1.0.1'
     compile 'com.github.satyan:sugar:1.5'
     compile 'com.oguzdev:CircularFloatingActionMenu:1.0.2'
-    compile 'com.google.firebase:firebase-messaging:9.6.1'
-    compile 'com.google.android.gms:play-services:9.6.1'
-   /* compile 'com.google.api-client:google-api-client:1.22.0'
-    compile 'com.google.api-client:google-api-client-android:1.22.0'
-    compile 'com.google.apis:google-api-services-people:v1-rev4-1.22.0'*/
+    compile 'com.google.firebase:firebase-messaging:10.2.0'
+    compile 'com.google.android.gms:play-services:10.2.0'
 }
 apply plugin: 'com.google.gms.google-services'

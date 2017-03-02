@@ -30,6 +30,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -55,6 +56,7 @@ import com.frissbi.Frissbi_profilePic.Profile_Pic;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.TSLocationManager;
 import com.frissbi.Utility.Utility;
 import com.frissbi.fragments.FriendRequestFragment;
@@ -96,7 +98,7 @@ public class HomeActivity extends AppCompatActivity
     private static final String TAG = "HomeActivity";
     private ConnectionDetector mConnectionDetector;
     private boolean mIsInternetPresent;
-    private SharedPreferences mSharedPreferences;
+    private SharedPreferenceHandler mSharedPreferences;
     private SharedPreferences.Editor mEditor;
     private TextView mUserNameTextView;
     android.support.design.widget.FloatingActionButton fab;
@@ -118,7 +120,7 @@ public class HomeActivity extends AppCompatActivity
     private ViewPager mViewPager;
     private List<EmailContacts> emailContactsList;
     private Button mAddMeetingButton;
-    private String mUserId;
+    private Long mUserId;
     private String mUserName;
     private CustomProgressDialog mProgressDialog;
     private SharedPreferences mEmailSharedPreferences;
@@ -128,6 +130,7 @@ public class HomeActivity extends AppCompatActivity
     private Animation rotate_backward;
     private AlertDialog locationAlertDialog;
     private EmailIdsAsync mEmailIdsAsync;
+    private RecyclerView mNavRecyclerView;
 
 
     @Override
@@ -141,15 +144,17 @@ public class HomeActivity extends AppCompatActivity
         emailContactsList = new ArrayList<>();
         mEmailSharedPreferences = getSharedPreferences("GMAIL_REG", Context.MODE_PRIVATE);
         mEmailIdsAsync = new EmailIdsAsync();
+        mSharedPreferences = SharedPreferenceHandler.getInstance(this);
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
                 if (EmailContacts.listAll(EmailContacts.class).size() == 0) {
-                 //   getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
+                    //   getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
                     mEmailIdsAsync.execute();
                 }
                 if (Contacts.listAll(Contacts.class).size() == 0) {
-                   // readContacts();
+                    // readContacts();
                 }
             }
 
@@ -187,7 +192,7 @@ public class HomeActivity extends AppCompatActivity
 
             }
             if (Contacts.listAll(Contacts.class).size() == 0) {
-               // readContacts();
+                // readContacts();
             }
 
 
@@ -195,9 +200,8 @@ public class HomeActivity extends AppCompatActivity
 
         }
 
-        mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
-        mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
-        mUserName = mSharedPreferences.getString("USERNAME_FROM", "editor");
+        mUserId = mSharedPreferences.getUserId();
+        mUserName = mSharedPreferences.getUserName();
 
 
         mTabLayout = (TabLayout) toolbar.findViewById(R.id.tabLayout);
@@ -364,7 +368,6 @@ public class HomeActivity extends AppCompatActivity
 
     private void getAllContacts() {
 
-
         ContentResolver cr = getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
@@ -464,9 +467,14 @@ public class HomeActivity extends AppCompatActivity
             Intent intent = new Intent(getApplication(), FriendsListActivity.class);
             startActivity(intent);
 
+        } else if (id == R.id.nav_groups) {
+
+            Intent intent = new Intent(getApplication(), GroupsActivity.class);
+            startActivity(intent);
+
         } else if (id == R.id.nav_profile) {
 
-            Intent intent = new Intent(getApplication(), Update_profile.class);
+            Intent intent = new Intent(getApplication(), ProfileActivity.class);
             startActivity(intent);
 
 
@@ -474,15 +482,11 @@ public class HomeActivity extends AppCompatActivity
             Intent intent = new Intent(getApplication(), Profile_Pic.class);
             startActivity(intent);
         } else if (id == R.id.nav_logout) {
-
-            mSharedPreferences.edit().clear();
-
-            System.out.print("value is:" + mSharedPreferences.edit());
+            mSharedPreferences.clearUserDetails();
             Intent intent = new Intent(getApplicationContext(), Login.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
-
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -774,11 +778,11 @@ public class HomeActivity extends AppCompatActivity
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
                     if (EmailContacts.listAll(EmailContacts.class).size() == 0) {
-                       // getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
+                        // getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
                         mEmailIdsAsync.execute();
                     }
                     if (Contacts.listAll(Contacts.class).size() == 0) {
-                       // readContacts();
+                        // readContacts();
                     }
 
                 } else {

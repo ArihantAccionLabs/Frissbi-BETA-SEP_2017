@@ -15,9 +15,7 @@ public class SelectedContacts {
     public static SelectedContacts getInstance() {
         if (ourInstance == null)
             return ourInstance = new SelectedContacts();
-
         return ourInstance;
-
     }
 
     private SelectedContacts() {
@@ -27,9 +25,7 @@ public class SelectedContacts {
     }
 
     public void clearContacts() {
-
         mContactsSelectedIdsList.clear();
-
         mEmailsSelectedIdsList.clear();
         mFriendsSelectedIdList.clear();
     }

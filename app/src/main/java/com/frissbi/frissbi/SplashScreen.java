@@ -16,6 +16,7 @@ import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 
 import com.frissbi.Utility.ConnectionDetector;
+import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.activities.HomeActivity;
 import com.frissbi.R;
 import com.frissbi.activities.LoginActivity;
@@ -60,15 +61,14 @@ public class SplashScreen extends Activity implements AnimationListener {
                 // Start your app main activity
                 //SharedOreferences using
 
-                UserId = preferences.getString("USERID_FROM", "editor");
+               /* UserId = preferences.getString("USERID_FROM", "editor");
                 Log.d("value is", UserId);
                 UserEmail = preferences.getString("EMAIL", "editor");
                 UserName = preferences.getString("USERNAME_FROM", "editor");
                 Log.d("value is", UserName);
-                editor.commit();
+                editor.commit();*/
                 //String password = myPrefs.getString("PASSWORD",null);
-                if (!(UserId.equals("editor"))) {
-
+                if (SharedPreferenceHandler.getInstance(SplashScreen.this).isLoggedIn()) {
                     //username and password are present, do your stuff
                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);
                     startActivity(intent);

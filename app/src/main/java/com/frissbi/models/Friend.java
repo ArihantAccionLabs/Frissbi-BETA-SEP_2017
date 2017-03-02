@@ -16,6 +16,7 @@ public class Friend extends SugarRecord implements Serializable, Comparable<Frie
     private String status;
     private String dob;
     private String gender;
+    private boolean isSelected;
 
     public Friend() {
 
@@ -77,6 +78,14 @@ public class Friend extends SugarRecord implements Serializable, Comparable<Frie
         this.gender = gender;
     }
 
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
+    }
+
     @Override
     public String toString() {
         return "Friend{" +
@@ -87,6 +96,7 @@ public class Friend extends SugarRecord implements Serializable, Comparable<Frie
                 ", status='" + status + '\'' +
                 ", dob='" + dob + '\'' +
                 ", gender='" + gender + '\'' +
+                ", isSelected=" + isSelected +
                 '}';
     }
 

@@ -399,7 +399,7 @@ public class TSNetworkHandler {
                     JSONObject jsonObject = new JSONObject(responseBuilder.toString());
 
                     if (jsonObject.getBoolean("status")) {
-                        return new TSResponse(TSResponse.STATUS_SUCCESS, responseBuilder.toString(), "");
+                        return new TSResponse(TSResponse.STATUS_SUCCESS, responseBuilder.toString(), jsonObject.getString("message"));
                     } else {
                         return new TSResponse(TSResponse.STATUS_FAIL, "", jsonObject.getString("message"));
                     }

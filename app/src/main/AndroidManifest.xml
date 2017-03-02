@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.MANAGE_ACCOUNTS" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
     <!--
  The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -35,6 +34,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.TYPE_SYSTEM_ALERT" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS_PRIVILEGED" />
@@ -92,8 +92,7 @@
         </activity>
         <activity
             android:name=".frissbi.Login"
-            android:screenOrientation="portrait"
-            />
+            android:screenOrientation="portrait" />
         <activity
             android:name=".frissbi.Update_profile"
             android:screenOrientation="portrait" />
@@ -199,7 +198,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.MeetingActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/CustomActivityTheme" />
         <activity android:name=".MyPlacesActivity" />
         <activity
             android:name=".activities.SelectLocationAndSaveActivity"
@@ -231,6 +230,18 @@
         <activity
             android:name=".activities.LoginActivity"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".activities.CreateGroupActivity"
+            android:label="New Group" />
+        <activity
+            android:name=".activities.GroupsActivity"
+            android:label="Groups" />
+        <activity
+            android:name=".activities.GroupDetailsActivity"
+            android:label="Group Details" />
+        <activity
+            android:name=".activities.AddParticipantActivity"
+            android:label="Add Participant" />
     </application>
 
 </manifest>
