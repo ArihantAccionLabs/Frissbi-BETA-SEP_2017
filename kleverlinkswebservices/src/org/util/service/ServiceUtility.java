@@ -210,34 +210,7 @@ public class ServiceUtility {
 		return fromTime;
 	}
 
-	public static Map<String , Date> getOneDayDate(String date){
-		
-		System.out.println("date=============="+date);
-		Map<String , Date> map = new HashMap<String , Date>();
-		try{
-		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-		Calendar now = Calendar.getInstance();
-		now.setTime(formatter.parse(date));
-		now.set(Calendar.HOUR, 0);
-		now.set(Calendar.MINUTE, 0);
-		now.set(Calendar.SECOND, 0);
-		now.set(Calendar.HOUR_OF_DAY, 0);
-
-		Calendar tomorrow = Calendar.getInstance();
-		tomorrow.setTime(now.getTime());
-		tomorrow.set(Calendar.HOUR, 23);
-		tomorrow.set(Calendar.MINUTE, 59);
-		tomorrow.set(Calendar.SECOND, 00);
-		//tomorrow.add(Calendar.DATE, 1);
-		
-		map.put("today", now.getTime());
-		map.put("tomorrow", tomorrow.getTime());
-		//System.out.println("map=================="+map.toString());
-		}catch (Exception e) {
-		e.printStackTrace();
-		}
-		return map;
-	}
+	
 	public static void closeConnection(Connection connection) {
 		try {
 			if (connection != null)
@@ -402,7 +375,7 @@ public class ServiceUtility {
 
 
 	public static List<UserDTO> checkingMeetingConfliction(MeetingCreationBean meetingBean) throws ParseException {
-		Map<String , Date> map = getOneDayDate(meetingBean.getMeetingDateTime());
+		Map<String , Date> map = Utility.getOneDayDate(meetingBean.getMeetingDateTime());
 		try {
 			CallableStatement callableStatement = null;
 			Connection conn = null;
@@ -830,6 +803,69 @@ public class ServiceUtility {
 		ServiceUtility.closeSatetment(pstmt);
 		}
 		return jsonObject;
+	}
+	
+	
+	public static JSONArray getMeetingArray(Long userId , Date fromTime , Date toTime){
+		
+		JSONArray meetingArray = new JSONArray();
+		JSONArray jsonResultsArray = new JSONArray();
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		System.out.println("userId  : "+userId+"  fromTime :  "+fromTime+" toTime :"+toTime);
+		try {
+		
+			conn = DataSourceConnection.getDBConnection();
+			String insertStoreProc = "{call usp_GetMeetingDetails_ByUserID(?,?,?)}";
+			callableStatement = conn.prepareCall(insertStoreProc);
+			callableStatement.setLong(1, userId);
+			callableStatement.setTimestamp(2, new Timestamp(fromTime.getTime()));
+			callableStatement.setTimestamp(3, new Timestamp(toTime.getTime()));
+			callableStatement.execute();
+			ResultSet rs = callableStatement.getResultSet();
 
+			while (rs.next()) {
+				JSONObject jsonObject = new JSONObject();
+				DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");				
+				LocalDateTime senderFromDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
+				LocalDateTime senderToDateTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
+				jsonObject.put("meetingId" , rs.getLong("MeetingID"));
+				jsonObject.put("meetingSenderId" , rs.getLong("SenderUserID"));
+				jsonObject.put("date" , LocalDateTime.ofInstant(formatter.parse(rs.getString("SenderFromDateTime")).toInstant(), ZoneId.systemDefault()).toLocalDate());
+				jsonObject.put("from" , senderFromDateTime.getHour() + ":" + senderFromDateTime.getMinute());
+				jsonObject.put("to" , senderToDateTime.getHour() + ":" + senderToDateTime.getMinute());
+				jsonObject.put("description" , rs.getString("MeetingDescription"));
+				jsonObject.put("meetingType" , rs.getString("MeetingType"));	
+				jsonObject.put("MeetingOnlineId" , rs.getString("MeetingOnlineId"));	
+				if(rs.getString("Latitude") != null && ! rs.getString("Latitude").trim().isEmpty()){
+					
+					jsonObject.put("isLocationSelected",true);
+					jsonObject.put("address" , rs.getString("GoogleAddress"));
+					jsonObject.put("latitude" , rs.getString("Latitude"));
+					jsonObject.put("longitude" , rs.getString("Longitude"));
+				}else{
+					jsonObject.put("isLocationSelected",false);
+				}
+		
+				jsonResultsArray.put(jsonObject);
+	         }
+			
+				 for (int i = 0; i < jsonResultsArray.length(); i++) {
+					   JSONObject jsonObject = jsonResultsArray.getJSONObject(i);
+					   jsonObject.put("emailIdJsonArray", ServiceUtility.getEmailIdByMeetingId(jsonObject.getLong("meetingId")));
+					   jsonObject.put("contactsJsonArray",  ServiceUtility.getContactByMeetingId(jsonObject.getLong("meetingId")));
+					   jsonObject.put("friendsJsonArray", ServiceUtility.getReceptionistByMeetingId(jsonObject.getLong("meetingId") , userId).get("friendsArray"));
+					   jsonObject.put("status", ServiceUtility.getMeetingStatusByUserId(jsonObject.getLong("meetingId") , userId));
+					   
+					   meetingArray.put(jsonObject);
+				}
+			
+		}catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		return meetingArray;
 	}
 }

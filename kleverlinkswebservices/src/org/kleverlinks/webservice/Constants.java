@@ -26,7 +26,7 @@ public class Constants {
 	
 	public static final String GOOGLE_MAP_KEY = "AIzaSyAgM-mwjfosilNEdn5aCe4FJ9aDOp_U7JM";
 	//local Server Urls
-	public static final String SERVER_URL = "http://192.168.2.94:9090";
+	public static final String SERVER_URL = "http://192.168.2.130:9090";
 	
 	
 	//Constant values for sending SMS

@@ -62,7 +62,7 @@ public class NotificationService {
 				try {
 					 String deviceRegistrationId = getDeviceRegistrationId(receptionId);
 						if (Utility.checkValidString(deviceRegistrationId)) {
-							Result result = sender.send(message, deviceRegistrationId, 1);
+							Result result = sender.send(message, deviceRegistrationId.trim(), 1);
 							System.out.println(result);
 						}
 				} catch (Exception e) {
@@ -361,8 +361,7 @@ public class NotificationService {
 		System.out.println("sendMeetingAlarmNotification=====" + addressMeetingList.size());
 		for (MeetingLogBean meetingCreatorLogBean : addressMeetingList) {
 
-			JSONArray jsonArray = ServiceUtility
-					.getReceptionistDetailsByMeetingId(meetingCreatorLogBean.getMeetingId());
+			JSONArray jsonArray = ServiceUtility.getReceptionistDetailsByMeetingId(meetingCreatorLogBean.getMeetingId());
 			Set<Long> userIdSet = new HashSet<>();
 
 			String fullName = "";
@@ -372,13 +371,12 @@ public class NotificationService {
 					fullName = jsonArray.getJSONObject(i).getString("fullName");
 				}
 			}
-			userIdSet.add(meetingCreatorLogBean.getSenderUserId());
 			if (meetingCreatorLogBean.getSenderUserId() != null) {
 				userIdSet.add(meetingCreatorLogBean.getSenderUserId());
 			}
 
 			NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
-			System.out.println("userIdSet=========" + userIdSet.size());
+			System.out.println(meetingCreatorLogBean.getSenderUserId()  +"  userIdSet=========" + userIdSet.toString());
 			if (!userIdSet.isEmpty()) {
 
 				notificationInfoDTO.setMeetingId(meetingCreatorLogBean.getMeetingId());
@@ -557,22 +555,47 @@ public class NotificationService {
 		}
 	}
 
+	public static void sendNewMemeberAddingNotification(NotificationInfoDTO notificationInfoDTO) {
+		try {
+			int insertedNotification = insertNotification(notificationInfoDTO);
+			System.out.println("insertedNotification=============="+insertedNotification);
+			Sender sender = new Sender(Constants.GCM_APIKEY);
+			Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true).addData("groupId", notificationInfoDTO.getGroupId()+"").addData("message", notificationInfoDTO.getMessage()).addData("NotificationName", notificationInfoDTO.getNotificationType()).build();
+			String deviceRegistrationId  = "";
+			Result result = null;
+			if (insertedNotification != 0) {
+
+					
+				 deviceRegistrationId = getDeviceRegistrationId(notificationInfoDTO.getUserId());
+				if (Utility.checkValidString(deviceRegistrationId)) {
+					 result = sender.send(message, deviceRegistrationId, 1);
+					System.out.println(result);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
 	public static void sendGroupCreationNotification(NotificationInfoDTO notificationInfoDTO) {
 		try {
 			int insertedNotification = insertBatchNotification(notificationInfoDTO);
-			System.out.println("insertedNotification=============="+insertedNotification);
+			System.out.println(notificationInfoDTO.getUserList().size()+"  insertedNotification=============="+insertedNotification);
 			Sender sender = new Sender(Constants.GCM_APIKEY);
-			Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true).addData("friendUserId", notificationInfoDTO.getSenderUserId()+"").addData("message", notificationInfoDTO.getMessage()).addData("NotificationName", notificationInfoDTO.getNotificationType()).build();
+			Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true).addData("groupId", notificationInfoDTO.getGroupId()+"").addData("message", notificationInfoDTO.getMessage()).addData("NotificationName", notificationInfoDTO.getNotificationType()).build();
 			String deviceRegistrationId  = "";
 			Result result = null;
 			if (insertedNotification != 0) {
 
 				for (Long userId : notificationInfoDTO.getUserList()) {
 					
+					System.out.println("userId   :::   "+userId);
+					
 				 deviceRegistrationId = getDeviceRegistrationId(userId);
 				if (Utility.checkValidString(deviceRegistrationId)) {
 					 result = sender.send(message, deviceRegistrationId, 1);
-					System.out.println(result);
+					System.out.println("result  :   "+result);
 				}
 				}
 			}
@@ -602,6 +625,9 @@ public class NotificationService {
 		} 
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeCallableSatetment(callableStatement);
+		
+		System.out.println("deviceRegistrationID    :   "+deviceRegistrationID);
+		
 		return deviceRegistrationID;
 	}
 }

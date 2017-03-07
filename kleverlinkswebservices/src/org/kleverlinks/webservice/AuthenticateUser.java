@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Calendar;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -26,12 +27,13 @@ public class AuthenticateUser {
 	private SecureRandom random = new SecureRandom();
 	// Testing any method
 
-	@POST
+	@GET
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
+		System.out.println("hellooo    :  ");
+	
 		
-
 	return "ok";	
 	}
 

@@ -1,5 +1,6 @@
 package org.kleverlinks.webservice;
 
+
 import com.google.api.client.auth.oauth2.Credential;
 import com.google.api.client.extensions.java6.auth.oauth2.AuthorizationCodeInstalledApp;
 import com.google.api.client.extensions.jetty.auth.oauth2.LocalServerReceiver;
@@ -34,12 +35,16 @@ public class CalendarQuickstart {
     private static FileDataStoreFactory DATA_STORE_FACTORY;
 
     /** Global instance of the JSON factory. */
-    private static  JsonFactory JSON_FACTORY;
+    private static final JsonFactory JSON_FACTORY = new JacksonFactory();
 
     /** Global instance of the HTTP transport. */
     private static HttpTransport HTTP_TRANSPORT;
 
-    /** Global instance of the scopes required by this quickstart. */
+    /** Global instance of the scopes required by this quickstart.
+     *
+     * If modifying these scopes, delete your previously saved credentials
+     * at ~/.credentials/calendar-java-quickstart
+     */
     private static final List<String> SCOPES =
         Arrays.asList(CalendarScopes.CALENDAR_READONLY);
 
@@ -60,9 +65,8 @@ public class CalendarQuickstart {
      */
     public static Credential authorize() throws IOException {
         // Load client secrets.
-    	JSON_FACTORY = new JacksonFactory();
         InputStream in =
-            CalendarQuickstart.class.getResourceAsStream("/client_secret.json");
+        		CalendarQuickstart.class.getResourceAsStream("kleverlinkswebservices/WebContent/WEB-INF/client_secret.json");
         GoogleClientSecrets clientSecrets =
             GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
 

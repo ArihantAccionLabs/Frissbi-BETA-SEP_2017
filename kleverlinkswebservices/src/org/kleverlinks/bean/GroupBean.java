@@ -15,6 +15,8 @@ public class GroupBean {
 	
 	private String groupName;
 	
+	private Boolean isGroupDeletion;
+	
 	private String groupImage;
 	
 	private List<Long> friendList = new ArrayList<>();
@@ -62,6 +64,14 @@ public class GroupBean {
 	public List<Long> getFriendList() {
 		return friendList;
 	}
+	public Boolean getIsGroupDeletion() {
+		return isGroupDeletion;
+	}
+
+	public void setIsGroupDeletion(Boolean isGroupDeletion) {
+		this.isGroupDeletion = isGroupDeletion;
+	}
+
 	public void setFriendList(List<Long> friendList) {
 		this.friendList = friendList;
 	}
@@ -75,6 +85,10 @@ public class GroupBean {
 		
 		if(jsonObject.has("groupImage")){
 			this.groupImage = jsonObject.getString("groupImage");
+		}
+		
+		if(jsonObject.has("isGroupDeletion")){
+			this.isGroupDeletion = jsonObject.getBoolean("isGroupDeletion");
 		}
 		
 		if(jsonObject.has("groupId")){

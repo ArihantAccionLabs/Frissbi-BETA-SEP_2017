@@ -1,11 +1,17 @@
 package org.kleverlinks.bean;
 
 public class GroupInfoBean {
+	
 	private Long userId;
+	
 	private Long groupId;
+	
 	private String groupName;
+	
 	private String fullName;
+	
 	private String profileImageId;
+	
 	private String groupImage;
 	
 	public Long getUserId() {

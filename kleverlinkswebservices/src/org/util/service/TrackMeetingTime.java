@@ -49,9 +49,9 @@ public class TrackMeetingTime {
 				   meetingLogBean.setStartTime(ServiceUtility.updateTime(fromTime1.getHour(), fromTime1.getMinute()));
 				   meetingLogBean.setEndTime(ServiceUtility.updateTime(toTime1.getHour(), toTime1.getMinute()));
 				   meetingLogBean.setDescription(rs.getString("MeetingDescription"));
-				   meetingLogBean.setLatitude(rs.getString("Latitude"));
+				/*   meetingLogBean.setLatitude(rs.getString("Latitude"));
 				   meetingLogBean.setLongitude(rs.getString("Longitude"));
-				   meetingLogBean.setAddress(rs.getString("GoogleAddress"));
+				   meetingLogBean.setAddress(rs.getString("GoogleAddress"));*/
 				   
 				   meetingList.add(meetingLogBean);
 			  }

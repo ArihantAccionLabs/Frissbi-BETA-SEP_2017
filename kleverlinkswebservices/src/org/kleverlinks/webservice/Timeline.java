@@ -22,9 +22,6 @@ import org.util.service.ServiceUtility;
 @Path("TimelineService")
 public class Timeline {
 
-		// JDBC driver name and database URL
-		static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-		
 		@GET  
 	    @Path("/insertUserFreeTimes/{userId}/{fromTime}/{toTime}/{description}")
 	    @Produces(MediaType.TEXT_PLAIN)

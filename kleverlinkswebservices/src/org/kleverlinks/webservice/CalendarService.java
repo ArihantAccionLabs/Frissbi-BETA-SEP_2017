@@ -13,7 +13,9 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
@@ -137,58 +139,30 @@ public class CalendarService {
 		finalJson.put("message", "Oopse something went wrong");
         return finalJson.toString();
 	}
-	
+
 	public JSONArray dateCountMeetingArray(List<LocalDate> localDateList){
 		
-		JSONObject jsonObject = null;
-		JSONArray dateCountJsonArray = new JSONArray();
-		List<LocalDate> dateList = new ArrayList<>();
-		int count = 0;
-		int loopCount = 0;
-      try{
+		 Map<LocalDate, Integer> dupMap = new HashMap<LocalDate, Integer>(); 
+		 JSONArray dateCountJsonArray = new JSONArray();
+		
 		 for (LocalDate localDate : localDateList) {
-
-			if (loopCount == 0) {
-				count++;
-				dateList.add(localDate);
-				if (localDateList.size() == 1) {
-
-					jsonObject = new JSONObject();
-					jsonObject.put("date", dateList.get(dateList.size() - 1));
-					jsonObject.put("count", count);
-					dateCountJsonArray.put(jsonObject);
-				}
-			} else {
-
-				if (dateList.contains(localDate)) {
-					count++;
-
-					if (localDateList.size() == (loopCount + 1)) {
-						jsonObject = new JSONObject();
-						jsonObject.put("date", dateList.get(dateList.size() - 1));
-						jsonObject.put("count", count);
-						dateCountJsonArray.put(jsonObject);
-					}
-				} else {
-					jsonObject = new JSONObject();
-					jsonObject.put("date", dateList.get(dateList.size() - 1));
-					jsonObject.put("count", count);
-					count = 0;
-					dateList.add(localDate);
-					dateCountJsonArray.put(jsonObject);
-					count++;
-				}
-			}
-			loopCount++;
-		}
-		//System.out.println("" + dateCountJsonArray.toString());
-	}catch (Exception e) {
-		e.printStackTrace();
+			 if(dupMap.containsKey(localDate)){
+	                dupMap.put(localDate, dupMap.get(localDate)+1);
+	            } else {
+	                dupMap.put(localDate, 1);
+	            } 
+		 }
+		 for (LocalDate localDate :  dupMap.keySet()) {
+			
+			 JSONObject   jsonObject = new JSONObject();
+				jsonObject.put("date", localDate);
+				jsonObject.put("count", dupMap.get(localDate));
+				dateCountJsonArray.put(jsonObject); 
+		 }
+			//System.out.println("" + dateCountJsonArray.toString());
+			
+			return dateCountJsonArray;
 	}
-      
-      return dateCountJsonArray;
-	} 
-	
 }
 
 

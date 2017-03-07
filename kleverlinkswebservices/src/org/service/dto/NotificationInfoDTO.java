@@ -14,6 +14,7 @@ public class NotificationInfoDTO {
 	private String notificationType;
 	private String notificationDescription;
 	private Long meetingId;
+	private Long groupId;
 	private JSONObject jsonObject;
 	
 	private MeetingLogBean meetingLogBean;
@@ -31,6 +32,12 @@ public class NotificationInfoDTO {
 	}
 	public void setUserId(Long userId) {
 		this.userId = userId;
+	}
+	public Long getGroupId() {
+		return groupId;
+	}
+	public void setGroupId(Long groupId) {
+		this.groupId = groupId;
 	}
 	public Long getMeetingId() {
 		return meetingId;

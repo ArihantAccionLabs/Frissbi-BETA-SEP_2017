@@ -13,7 +13,6 @@ import org.json.JSONObject;
 public class MeetingCreationBean {
 
 	private Long senderUserId;
-	private String durationTime;
 	private String latitude;
 	private String longitude;
 	private String address;
@@ -41,10 +40,19 @@ public class MeetingCreationBean {
 	public MeetingCreationBean(JSONObject jsonObject) {
 		super();
 		this.senderUserId = jsonObject.getLong("senderUserId");
-		this.durationTime = jsonObject.getString("durationTime");
-		this.latitude = jsonObject.getString("latitude");
-		this.longitude = jsonObject.getString("longitude");
-		this.address = jsonObject.getString("address");
+		
+		if(jsonObject.has("latitude")){
+			
+			this.latitude = jsonObject.getString("latitude");
+		}
+		if (jsonObject.has("longitude")) {
+
+			this.longitude = jsonObject.getString("longitude");
+		}
+		if (jsonObject.has("address")) {
+
+			this.address = jsonObject.getString("address");
+		}
 		this.meetingTitle = jsonObject.getString("meetingTitle");
 		this.meetingDateTime = jsonObject.getString("meetingDateTime");
 		
@@ -99,16 +107,6 @@ public class MeetingCreationBean {
 
 	public void setSenderUserId(Long senderUserId) {
 		this.senderUserId = senderUserId;
-	}
-
-
-	public String getDurationTime() {
-		return durationTime;
-	}
-
-
-	public void setDurationTime(String durationTime) {
-		this.durationTime = durationTime;
 	}
 
 
@@ -232,7 +230,7 @@ public class MeetingCreationBean {
 
 	@Override
 	public String toString() {
-		return "MeetingCreationBean [senderUserId=" + senderUserId + ", durationTime=" + durationTime + ", latitude="
+		return "MeetingCreationBean [senderUserId=" + senderUserId +  ", latitude="
 				+ latitude + ", longitude=" + longitude + ", address=" + address + ", meetingTitle=" + meetingTitle
 				+ ", duration=" + duration + ", senderFromDateTime=" + senderFromDateTime + ", senderToDateTime="
 				+ senderToDateTime + ", isLocationSelected=" + isLocationSelected + ", friendsIdList=" + friendsIdList

@@ -38,6 +38,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.json.JSONObject;
 import org.kleverlinks.bean.AppUserBean;
 import org.mongo.dao.MongoDBJDBC;
+import org.util.Utility;
 import org.util.service.ServiceUtility;
 
 @Path("UserRegistrationService")
@@ -58,15 +59,19 @@ public class UserRegistration {
 		JSONObject jsonObject = new JSONObject(registerationData);
 		try {
 			AppUserBean appUserBean = new AppUserBean(jsonObject);
+			
 			if (appUserBean.getEmail() != null) {
 
 				conn = DataSourceConnection.getDBConnection();
 				if (appUserBean.getIsGmailLogin()) {
-					Long userId = checkEmail(appUserBean.getEmail());
-					System.out.println("userId     "+userId);
-					if (userId != null && userId != 0l) {
-						finalJson.put("userId", userId);
-						finalJson.put("userName", appUserBean.getUsername());
+					AppUserBean existedUser = checkEmail(appUserBean.getEmail());
+					System.out.println("existedUser     "+existedUser);
+					if (existedUser != null) {
+						
+						updateDeviceRegId(existedUser.getUserId() , existedUser.getDeviceRegistrationId() , appUserBean.getDeviceRegistrationId());
+						
+						finalJson.put("userId", existedUser.getUserId());
+						finalJson.put("userName", existedUser.getUsername());
 						finalJson.put("status", true);
 						finalJson.put("message", "EmailId are exist");
 						return finalJson.toString();
@@ -93,7 +98,7 @@ public class UserRegistration {
 					int value = callableStatement.executeUpdate();
 
 					int isError = callableStatement.getInt(12);
-					userId = callableStatement.getLong(13);
+					Long userId = callableStatement.getLong(13);
 					System.out.println("userId     "+userId+"   "+(isError == 0 && value != 0 && userId != 0l) +"        "+(appUserBean.getImage() != null && !appUserBean.getImage().trim().isEmpty()));
 					if (value != 0 && userId != 0l) {
                         
@@ -684,20 +689,23 @@ public class UserRegistration {
 		return finalJson.toString();
 	}
 
-	public Long checkEmail(String emailId) {
+	private AppUserBean checkEmail(String emailId) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		String sql;
-		Long userId = null;
+		AppUserBean appUserBean = null;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			sql = "SELECT UserID FROM tbl_users WHERE EmailName=? limit 1";
+			sql = "SELECT UserID,DeviceRegistrationID,UserName FROM tbl_users WHERE EmailName=? limit 1";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, emailId);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
-				userId = rs.getLong("UserID");
+				appUserBean = new AppUserBean();
+				appUserBean.setUsername(rs.getString("UserName"));
+				appUserBean.setUserId(rs.getLong("UserID"));
+				appUserBean.setDeviceRegistrationId(rs.getString("DeviceRegistrationID"));
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -705,8 +713,31 @@ public class UserRegistration {
 			ServiceUtility.closeConnection(conn);
 			ServiceUtility.closeSatetment(pstmt);
 		}
-		return userId;
-
+		return appUserBean;
 	}
-	
+	private void updateDeviceRegId(Long userId , String existedDeviceRegId , String deviceRegId) {
+		
+		System.out.println("updateDeviceRegId   :    "+!deviceRegId.trim().equals(existedDeviceRegId));
+		
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		try {
+			
+			if(Utility.checkValidString(deviceRegId)  && !deviceRegId.trim().equals(existedDeviceRegId)){
+			
+			conn = DataSourceConnection.getDBConnection();
+			String	sql = "UPDATE tbl_users SET DeviceRegistrationID =? WHERE UserID=?";
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, deviceRegId);
+			pstmt.setLong(2, userId);
+		int deviceRegIdUpdate = 	pstmt.executeUpdate();
+		System.out.println("deviceRegistrationId   ==  "+deviceRegIdUpdate);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(pstmt);
+		}
+	}
 }

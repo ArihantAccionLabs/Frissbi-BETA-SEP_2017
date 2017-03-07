@@ -9,7 +9,10 @@ import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -28,8 +31,6 @@ import org.service.dto.NotificationInfoDTO;
 import org.util.Utility;
 import org.util.service.NotificationService;
 import org.util.service.ServiceUtility;
-
-import com.mongodb.DBObject;
 
 @Path("GroupCreationService")
 public class GroupCreationService {
@@ -81,9 +82,10 @@ public class GroupCreationService {
 				
 			   NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
 			   notificationInfoDTO.setSenderUserId(groupBean.getUserId());
+			   notificationInfoDTO.setGroupId(groupBean.getGroupId());
 			   notificationInfoDTO.setMessage(message);
 			   notificationInfoDTO.setUserList(groupBean.getFriendList());
-			   notificationInfoDTO.setNotificationType(NotificationsEnum.Group_CREATION.toString());
+			   notificationInfoDTO.setNotificationType(NotificationsEnum.ADDED_TO_GROUP.toString());
 			   
 			   NotificationService.sendGroupCreationNotification(notificationInfoDTO);
 			   
@@ -109,16 +111,19 @@ public class GroupCreationService {
 	}
 	
 	@POST
-    @Path("/leftGroupByMember")
+    @Path("/removeOrExitGroup")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String removeGroupMember(String deleteData){
+		
+		System.out.println(""+deleteData.toString());
+		
 	  JSONObject responseJson = new JSONObject();
       JSONObject jsonObject = new JSONObject(deleteData);
       Connection conn = null;
 		PreparedStatement preparedStatement = null;	
 		try{
 			GroupBean groupBean = new GroupBean(jsonObject);
-			
+			System.out.println(""+groupBean.getGroupId()+"   "+groupBean.getUserId());
 				
 				String sql = "UPDATE tbl_FriendGroup SET IsActive=? WHERE  GroupID=? AND UserID=?";	
 				conn = DataSourceConnection.getDBConnection();
@@ -127,13 +132,13 @@ public class GroupCreationService {
 				preparedStatement.setInt(1, 1);
 				preparedStatement.setLong(2, groupBean.getGroupId());
 				preparedStatement.setLong(3, groupBean.getUserId());
-				
-				if(preparedStatement.executeUpdate() != 0){
+				int isUpdate= preparedStatement.executeUpdate();
+				if(isUpdate != 0){
 					responseJson.put("status", true);
-					responseJson.put("message","Member is removed from group "+groupBean.getGroupName());
+					responseJson.put("message","Member is removed from group ");
 				}else{
 					responseJson.put("status", false);
-					responseJson.put("message","Oops something went wrong");
+					responseJson.put("message","Not able to update");
 				}
 			return responseJson.toString();
 	} catch (Exception e) {
@@ -174,6 +179,22 @@ public class GroupCreationService {
 			while (rs.next()) {
 
 				if (addGroupMember(groupBean)) {
+					
+					
+					JSONObject userObject = ServiceUtility.getUserDetailByUserId(groupBean.getUserId());
+					String message = "You are added to "+groupBean.getGroupName()+"  by "+userObject.getString("fullName")+" on "+new SimpleDateFormat("yyyy-mm-dd hh:mm a").format(new Date());
+					
+				   NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
+				   notificationInfoDTO.setSenderUserId(groupBean.getUserId());
+				   notificationInfoDTO.setGroupId(groupBean.getGroupId());
+				   notificationInfoDTO.setUserId(groupBean.getFriendId());
+				   notificationInfoDTO.setMessage(message);
+				   notificationInfoDTO.setNotificationType(NotificationsEnum.ADDED_TO_GROUP.toString());
+				   
+				   NotificationService.sendNewMemeberAddingNotification(notificationInfoDTO);
+					
+					
+					
 					responseJson.put("status", true);
 					responseJson.put("message", "New memeber is added in group " + rs.getString("GroupName"));
 				} else {
@@ -197,34 +218,36 @@ public class GroupCreationService {
 
 	
 	@POST
-    @Path("/updateGroupAdmin")
+    @Path("/updateOrDeleteGroupByAdmin")
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String removeGroup(String groupData){
 		
 		JSONObject responseJson = new JSONObject();
-		JSONObject jsonObject = new JSONObject(groupData);
-		GroupBean groupBean = new GroupBean(jsonObject);
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		try{
+			JSONObject jsonObject = new JSONObject(groupData);
+			GroupBean groupBean = new GroupBean(jsonObject);
+			
 			conn = DataSourceConnection.getDBConnection();
-			String updateStorPro = "{call usp_updateGroupAdmin(?,?,?,?)}";
+			String updateStorPro = "{call usp_updateGroupAdmin(?,?,?,?,?)}";
 			
 			callableStatement = conn.prepareCall(updateStorPro);
 			
 			callableStatement.setLong(1, groupBean.getUserId());
 			callableStatement.setLong(2, groupBean.getGroupId());
-			callableStatement.setTimestamp(3, new Timestamp(new Date().getTime()));
-			callableStatement.registerOutParameter(4, Types.INTEGER);
+			callableStatement.setBoolean(3, groupBean.getIsGroupDeletion());
+			callableStatement.setTimestamp(4, new Timestamp(new Date().getTime()));
+			callableStatement.registerOutParameter(5, Types.INTEGER);
 			
 			int value = callableStatement.executeUpdate();
-			int isError = callableStatement.getInt(4);
+			int isError = callableStatement.getInt(5);
 			
 	        System.out.println("value  :  "+value+"  isError : "+isError);
 			
 			if(value != 0){
 				responseJson.put("status", true);
-				responseJson.put("message","Left the group");
+				responseJson.put("message",groupBean.getIsGroupDeletion() ? "Group is Deleted" : "Left the group");
 			}else{
 				responseJson.put("status", true);
 				responseJson.put("message","You are not a admin so you don't have access to remove the group");
@@ -261,7 +284,7 @@ public class GroupCreationService {
 				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 				for (GroupInfoBean groupInfoBean : groupInfoBeanList) {
 
-					System.out.println("groupInfoBean: " + groupInfoBean.getProfileImageId());
+					System.out.println("groupInfoBean: getProfileImageId " + groupInfoBean.getProfileImageId());
 
 					JSONArray receiptionistArray = new JSONArray();
 					JSONObject outerJson = new JSONObject();
@@ -287,7 +310,7 @@ public class GroupCreationService {
 						JSONObject jsonObject = new JSONObject();
 						jsonObject.put("fullName", rs.getString("FirstName") + " " + rs.getString("LastName"));
 						if (Utility.checkValidString(rs.getString("ProfileImageID"))) {
-								jsonObject.put("profileImage", rs.getString("U.ProfileImageID").trim());
+								jsonObject.put("profileImage", mongoDBJDBC.getUriImage(rs.getString("ProfileImageID").trim()));
 						}
 						jsonObject.put("userId", rs.getString("UserID"));
 

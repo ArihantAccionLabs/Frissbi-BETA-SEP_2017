@@ -313,6 +313,8 @@ public class UserFriendList {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String friendsList(@PathParam("userId") Long userId) {
 	
+		
+		System.out.println("friendsList  userId   :    "+userId);
 		JSONArray jsonResultsArray = new JSONArray();
 		JSONObject finalJson =new JSONObject();
 		Connection conn = null;
@@ -939,8 +941,8 @@ public class UserFriendList {
 					jsonObject.put("emailId", rs.getString("EmailName"));
 					jsonObject.put("gender", rs.getString("Gender"));
 					jsonObject.put("dob", rs.getString("dob"));
-					if (Utility.checkValidString(rs.getString("U.ProfileImageID"))) {
-						jsonObject.put("profileImage", mongoDBJDBC.getUriImage(rs.getString("U.ProfileImageID").trim()));
+					if (Utility.checkValidString(rs.getString("ProfileImageID"))) {
+						jsonObject.put("profileImage", mongoDBJDBC.getUriImage(rs.getString("ProfileImageID").trim()));
 				    }
 					Long senderId = 	rs.getLong("SenderUserID");
 					jsonObject.put("status", (senderId.longValue() == senderUserId.longValue()) ?FriendStatusEnum.WAITING: FriendStatusEnum.CONFIRM);

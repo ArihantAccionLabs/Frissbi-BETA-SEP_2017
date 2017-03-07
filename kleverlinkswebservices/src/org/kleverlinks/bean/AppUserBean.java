@@ -11,6 +11,7 @@ public class AppUserBean {
 		super();
 	}
 	private String username;
+	private Long userId;
 	private String password;
 	private String email;
 	private String contactno;
@@ -44,6 +45,12 @@ public class AppUserBean {
 	}
 	public void setEmail(String email) {
 		this.email = email;
+	}
+	public Long getUserId() {
+		return userId;
+	}
+	public void setUserId(Long userId) {
+		this.userId = userId;
 	}
 	public String getContactno() {
 		return contactno;
