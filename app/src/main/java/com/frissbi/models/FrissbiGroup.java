@@ -13,6 +13,7 @@ public class FrissbiGroup extends SugarRecord implements Serializable {
     private Long groupId;
     private String name;
     private String image;
+    private Long adminId;
 
     public Long getGroupId() {
         return groupId;
@@ -38,12 +39,21 @@ public class FrissbiGroup extends SugarRecord implements Serializable {
         this.image = image;
     }
 
+    public Long getAdminId() {
+        return adminId;
+    }
+
+    public void setAdminId(Long adminId) {
+        this.adminId = adminId;
+    }
+
     @Override
     public String toString() {
         return "FrissbiGroup{" +
                 "groupId=" + groupId +
                 ", name='" + name + '\'' +
                 ", image='" + image + '\'' +
+                ", adminId=" + adminId +
                 '}';
     }
 }

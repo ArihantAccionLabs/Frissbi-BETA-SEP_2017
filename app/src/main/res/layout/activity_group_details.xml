@@ -48,6 +48,7 @@
             android:id="@+id/add_participant_button"
             android:minHeight="40dp"
             android:text="Add"
+            android:visibility="gone"
             android:textColor="@color/white"
             android:background="@color/bg_color"
             android:textAllCaps="false"

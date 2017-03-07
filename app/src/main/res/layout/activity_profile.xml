@@ -67,6 +67,7 @@
                 android:minHeight="40dp"
                 android:text="Add"
                 android:textAllCaps="false"
+                android:visibility="gone"
                 android:textColor="@color/white" />
 
         </RelativeLayout>

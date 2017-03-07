@@ -8,9 +8,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
 import com.frissbi.Utility.Utility;
+import com.frissbi.interfaces.GroupMemberDeleteListener;
 import com.frissbi.models.Participant;
 
 import java.util.List;
@@ -23,10 +23,12 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
 
     private Context mContext;
     private List<Participant> mParticipantList;
+    private GroupMemberDeleteListener mGroupMemberDeleteListener;
 
-    public ParticipantAdapter(Context context, List<Participant> participantList) {
+    public ParticipantAdapter(Context context, List<Participant> participantList, GroupMemberDeleteListener groupMemberDeleteListener) {
         mContext = context;
         mParticipantList = participantList;
+        mGroupMemberDeleteListener = groupMemberDeleteListener;
     }
 
     @Override
@@ -37,15 +39,23 @@ public class ParticipantAdapter extends RecyclerView.Adapter<ParticipantAdapter.
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        Participant participant = mParticipantList.get(position);
+        final Participant participant = mParticipantList.get(position);
         holder.participantUsernameTv.setText(participant.getFullName());
-        holder.participantProfileImage.setImageBitmap(Utility.getInstance().getBitmapFromString(participant.getImage()));
+        if (participant.getImage() != null) {
+            holder.participantProfileImage.setImageBitmap(Utility.getInstance().getBitmapFromString(participant.getImage()));
+        }
         if (participant.isAdmin()) {
             holder.adminTv.setVisibility(View.VISIBLE);
         } else {
             holder.adminTv.setVisibility(View.GONE);
         }
 
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mGroupMemberDeleteListener.viewDeleteGroupMember(participant);
+            }
+        });
     }
 
     @Override

@@ -25,6 +25,7 @@ import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.MeetingFriendsAdapter;
 import com.frissbi.models.Meeting;
@@ -41,8 +42,7 @@ import java.util.List;
 
 public class MeetingDetailsActivity extends AppCompatActivity implements View.OnClickListener {
     private Meeting mMeeting;
-    private SharedPreferences mSharedPreferences;
-    private String mUserId;
+    private Long mUserId;
     private TextView mMeetingDetailsStatusTextView;
     private Button mMeetingAcceptButton;
     private Button mMeetingIgnoreButton;
@@ -75,8 +75,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
 
         Bundle bundle = getIntent().getExtras();
 
-        mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
-        mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
+        mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
         mMeetingDetailsTitleTextView = (TextView) findViewById(R.id.meeting_details_title_tv);
         mMeetingDetailsDateTextView = (TextView) findViewById(R.id.meeting_details_date_tv);
         mMeetingDetailsTimeTextView = (TextView) findViewById(R.id.meeting_details_time_tv);
@@ -123,7 +122,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             mMeeting = new Meeting();
             mMeeting.setMeetingId(meetingJsonObject.getLong("meetingId"));
             mMeeting.setMeetingSenderId(meetingJsonObject.getLong("meetingSenderId"));
-            if (meetingJsonObject.getLong("meetingSenderId") != Long.parseLong(mUserId)) {
+            if (meetingJsonObject.getLong("meetingSenderId") != mUserId) {
                 mMeeting.setMeetingStatus(meetingJsonObject.getInt("meetingStatus"));
             } else {
                 mMeeting.setMeetingStatus(1);
@@ -175,13 +174,16 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
                 }
             }
             mMeeting.setMeetingFriendsList(meetingFriendsList);
-            if (meetingJsonObject.has("updateCount")) {
-                if (meetingJsonObject.getInt("updateCount") != 2) {
-                    mChangePlaceButton.setVisibility(View.VISIBLE);
-                } else {
-                    mChangePlaceButton.setVisibility(View.GONE);
+            if (!meetingJsonObject.getBoolean("isLocationSelected")) {
+                if (meetingJsonObject.has("updateCount")) {
+                    if (meetingJsonObject.getInt("updateCount") != 2) {
+                        mChangePlaceButton.setVisibility(View.VISIBLE);
+                    } else {
+                        mChangePlaceButton.setVisibility(View.GONE);
+                    }
                 }
             }
+
             setViewWithValues();
         } catch (Exception e) {
             e.printStackTrace();
@@ -207,7 +209,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             mMeetingDetailsAtTextView.setText("Any Place");
         }
 
-        if (mMeeting.getMeetingSenderId() != Long.parseLong(mUserId)) {
+        if (mMeeting.getMeetingSenderId().equals(mUserId)) {
             mMeetingStatusLayout.setVisibility(View.VISIBLE);
             mStatusView.setVisibility(View.VISIBLE);
             if (mMeeting.getMeetingStatus() == Utility.STATUS_PENDING) {

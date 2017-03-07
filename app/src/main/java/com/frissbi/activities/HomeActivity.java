@@ -483,7 +483,7 @@ public class HomeActivity extends AppCompatActivity
             startActivity(intent);
         } else if (id == R.id.nav_logout) {
             mSharedPreferences.clearUserDetails();
-            Intent intent = new Intent(getApplicationContext(), Login.class);
+            Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);

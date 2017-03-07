@@ -261,7 +261,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                         }
 
                     } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
-
+                        Toast.makeText(LoginActivity.this, response.message, Toast.LENGTH_SHORT).show();
                     }
                 }
                 mProgressDialog.dismiss();

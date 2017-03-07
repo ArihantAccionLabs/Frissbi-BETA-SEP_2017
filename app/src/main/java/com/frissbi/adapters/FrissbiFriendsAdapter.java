@@ -50,7 +50,7 @@ public class FrissbiFriendsAdapter extends RecyclerView.Adapter<FrissbiFriendsAd
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.friendUsernameTv.setText(mFriendList.get(position).getFullName());
         if (mFriendsSelectedIdList.size() > 0) {
-            if (mFriendsSelectedIdList.contains(mFriendList.get(position).getId())) {
+            if (mFriendsSelectedIdList.contains(mFriendList.get(position).getUserId())) {
                 holder.friendCheckbox.setChecked(true);
             } else {
                 holder.friendCheckbox.setChecked(false);
@@ -60,9 +60,9 @@ public class FrissbiFriendsAdapter extends RecyclerView.Adapter<FrissbiFriendsAd
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
                 if (checked) {
-                    mSelectedContacts.setFriendsSelectedId(mFriendList.get(position).getId());
+                    mSelectedContacts.setFriendsSelectedId(mFriendList.get(position).getUserId());
                 } else {
-                    mSelectedContacts.deleteFriendsSelectedId(mFriendList.get(position).getId());
+                    mSelectedContacts.deleteFriendsSelectedId(mFriendList.get(position).getUserId());
                 }
             }
         });

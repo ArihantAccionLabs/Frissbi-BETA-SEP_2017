@@ -39,7 +39,7 @@ public class TSNetworkHandler {
     }
 
     public interface ResponseHandler {
-        public void handleResponse(TSResponse response);
+        void handleResponse(TSResponse response);
     }
 
 

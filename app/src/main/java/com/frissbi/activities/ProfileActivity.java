@@ -1,5 +1,6 @@
 package com.frissbi.activities;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -16,7 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frissbi.R;
-import com.frissbi.Utility.FLog;
+import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FriendStatus;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
@@ -40,11 +41,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private Long mUserId;
     private TextView mDobTextView;
     private TextView mGenderTextView;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        mProgressDialog = new CustomProgressDialog(this);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
@@ -55,23 +58,25 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         mDobTextView = (TextView) findViewById(R.id.dob_tv);
         mGenderTextView = (TextView) findViewById(R.id.gender_tv);
         Bundle bundle = getIntent().getExtras();
-        if (bundle != null && bundle.containsKey("friend")) {
-            mFriend = (Friend) bundle.getSerializable("friend");
-            setValues();
+        if (bundle != null) {
+            mAddFriendButton.setVisibility(View.VISIBLE);
+            if (bundle.containsKey("friend")) {
+                mFriend = (Friend) bundle.getSerializable("friend");
+                setValues();
+            } else if (bundle.containsKey("friendUserId")) {
+                getProfileDetailsFromServer(bundle.getLong("friendUserId"));
+            }
+        } else {
+            mAddFriendButton.setVisibility(View.GONE);
+            getProfileDetails();
         }
-
-        if (bundle != null && bundle.containsKey("friendUserId")) {
-            getProfileDetailsFromServer(bundle.getLong("friendUserId"));
-        }
-
-        getProfileDetails();
-
         mAddFriendButton.setOnClickListener(this);
 
     }
 
     private void getProfileDetails() {
-        String url = Utility.REST_URI + "/FriendListService/viewProfile/" + mUserId;
+        mProgressDialog.show();
+        String url = Utility.REST_URI + Utility.VIEW_PROFILE + mUserId;
         TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {
@@ -81,7 +86,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                         try {
                             JSONObject responseJsonObject = new JSONObject(response.response);
                             Profile profile = new Profile();
-                            JSONObject profileJsonObject=responseJsonObject.getJSONObject("viewProfile");
+                            JSONObject profileJsonObject = responseJsonObject.getJSONObject("viewProfile");
                             profile.setUserName(profileJsonObject.getString("userName"));
                             profile.setFirstName(profileJsonObject.getString("firstName"));
                             profile.setLastName(profileJsonObject.getString("lastName"));
@@ -90,8 +95,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                                 profile.setContactNumber(profileJsonObject.getString("contactNumber"));
                             }
 
-                            if (profileJsonObject.has("image")) {
-                                String imageString = profileJsonObject.getString("image");
+                            if (profileJsonObject.has("profileImage")) {
+                                String imageString = profileJsonObject.getString("profileImage");
                                 byte[] decodedString = Base64.decode(imageString, Base64.DEFAULT);
                                 Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
                                 profile.setImageBitmap(bitmap);
@@ -113,7 +118,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                         Toast.makeText(ProfileActivity.this, response.message, Toast.LENGTH_SHORT).show();
                     }
                 }
-
+                mProgressDialog.dismiss();
             }
         });
     }
@@ -124,7 +129,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         if (profile.getDob() != null) {
             mDobTextView.setVisibility(View.VISIBLE);
             mDobTextView.setText("DOB : " + profile.getDob());
-        }else {
+        } else {
             mDobTextView.setVisibility(View.GONE);
         }
         if (profile.getGender() != null) {
@@ -161,11 +166,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void getProfileDetailsFromServer(long friendUserId) {
+        mProgressDialog.show();
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("userId", mUserId);
-            jsonObject.put("friendUserId", friendUserId);
-            String url = Utility.REST_URI + Utility.VIEW_PROFILE;
+            jsonObject.put("friendId", friendUserId);
+            String url = Utility.REST_URI + Utility.VIEW_OTHER_PROFILE;
             TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
                 @Override
                 public void handleResponse(TSNetworkHandler.TSResponse response) {
@@ -179,7 +185,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                                 mFriend.setFullName(profileJsonObject.getString("fullName"));
                                 mFriend.setEmailId(profileJsonObject.getString("emailId"));
                                 mFriend.setStatus(profileJsonObject.getString("status"));
-                                mFriend.setDob(profileJsonObject.getString("dob"));
+                                if (profileJsonObject.has("dob")) {
+                                    mFriend.setDob(profileJsonObject.getString("dob"));
+                                }
                                 if (profileJsonObject.has("gender")) {
                                     mFriend.setGender(profileJsonObject.getString("gender"));
                                 }
@@ -194,6 +202,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     } else {
                         Toast.makeText(ProfileActivity.this, "Something went wrong at server side", Toast.LENGTH_SHORT).show();
                     }
+                    mProgressDialog.dismiss();
                 }
             });
 
@@ -226,11 +235,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     public void sendFriendRequest() {
+        mProgressDialog.show();
         if (mFriend.getStatus().equalsIgnoreCase(FriendStatus.UNFRIEND.toString())) {
-            JSONObject jsonObject=new JSONObject();
+            JSONObject jsonObject = new JSONObject();
             try {
-                jsonObject.put("userId",mUserId);
-                jsonObject.put("friendId",mFriend.getUserId());
+                jsonObject.put("userId", mUserId);
+                jsonObject.put("friendId", mFriend.getUserId());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -254,10 +264,10 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 }
             });
         } else if (mFriend.getStatus().equalsIgnoreCase(FriendStatus.CONFIRM.toString())) {
-            JSONObject jsonObject=new JSONObject();
+            JSONObject jsonObject = new JSONObject();
             try {
-                jsonObject.put("userId",mUserId);
-                jsonObject.put("friendId",mFriend.getUserId());
+                jsonObject.put("userId", mUserId);
+                jsonObject.put("friendId", mFriend.getUserId());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -282,5 +292,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             });
 
         }
+        mProgressDialog.dismiss();
     }
 }

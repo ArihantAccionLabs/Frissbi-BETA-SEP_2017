@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.frissbi.CustomFontTextView
+        android:id="@+id/view_group_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="20dp"
+        android:text="View Group"
+        android:textColor="@color/black" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@+id/view_group_tv"
+        android:background="@color/gray" />
+
+    <com.frissbi.CustomFontTextView
+        android:id="@+id/exit_group_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view"
+        android:gravity="center"
+        android:padding="20dp"
+        android:text="Exit Group"
+        android:textColor="@color/black" />
+
+    <RelativeLayout
+        android:id="@+id/delete_group_rl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_below="@+id/exit_group_tv">
+
+        <View
+            android:id="@+id/view1"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+
+            android:background="@color/gray" />
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/delete_group_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/view1"
+            android:gravity="center"
+            android:padding="20dp"
+            android:text="Delete Group"
+            android:textColor="@color/black" />
+    </RelativeLayout>
+</RelativeLayout>

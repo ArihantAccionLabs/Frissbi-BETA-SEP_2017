@@ -15,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.frissbi.R;
+import com.frissbi.Utility.FLog;
 import com.frissbi.models.MeetingDate;
 
 import java.text.ParseException;
@@ -95,15 +96,17 @@ public class CalendarGridAdapter extends ArrayAdapter {
 
         if (mDateFormat.format(dateCal.getTime()).equalsIgnoreCase(mSelectedDay)) {
             calendarLayout.setBackgroundColor(ContextCompat.getColor(mContext, R.color.gray));
+            cellNumber.setTextColor(ContextCompat.getColor(mContext, R.color.white));
         }
 
         cellNumber.setText(String.valueOf(dayValue));
 
         for (MeetingDate meetingDate : mMeetingDateList) {
             try {
+                FLog.d("CalendarGridAdapter","datee"+meetingDate.getDate());
                 if (mDateFormat.parse(meetingDate.getDate()).after(mCurrentDate) || mDateFormat.parse(meetingDate.getDate()).equals(mCurrentDate)) {
                     if (meetingDate.getDate().equalsIgnoreCase(mDateFormat.format(dateCal.getTime()))) {
-                        cellNumber.setTextColor(ContextCompat.getColor(mContext, R.color.white));
+
                         if (meetingDate.getCount() <= 2) {
                             GradientDrawable shape = (GradientDrawable) ContextCompat.getDrawable(mContext, R.drawable.circle_shape);
                             shape.setColor(ContextCompat.getColor(mContext, R.color.light_orange));

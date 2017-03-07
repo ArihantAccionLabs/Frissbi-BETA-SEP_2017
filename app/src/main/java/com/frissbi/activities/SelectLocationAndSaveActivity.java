@@ -27,7 +27,9 @@ import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.MapLocations.PlaceJSONParser;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
+import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.TSLocationManager;
+import com.frissbi.Utility.Utility;
 import com.frissbi.models.MyPlaces;
 import com.frissbi.networkhandler.TSNetworkHandler;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -66,16 +68,12 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
     private List<HashMap<String, String>> placesHashMapList = null;
     private PlaceJSONParser mPlaceJSONParser;
     private AlertDialog mAlertDialog;
-    private SharedPreferences mSharedPreferences;
-    private String mUserId;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_select_location_and_save);
-        mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
-        mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
         int SDK_INT = android.os.Build.VERSION.SDK_INT;
         if (SDK_INT > 8) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
@@ -181,7 +179,7 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
     private void sendLocationDetailsToServer(final String locationName) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("userId", mUserId);
+            jsonObject.put("userId", SharedPreferenceHandler.getInstance(this).getUserId());
             jsonObject.put("latitude", mLatitude);
             jsonObject.put("longitude", mLongitude);
             jsonObject.put("locationName", locationName);
@@ -189,7 +187,7 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.LOCATION_INSERT;
+        String url = Utility.REST_URI + Utility.LOCATION_INSERT;
         TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {

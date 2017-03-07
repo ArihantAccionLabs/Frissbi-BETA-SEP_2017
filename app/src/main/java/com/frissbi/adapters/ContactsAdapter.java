@@ -51,6 +51,7 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
     public void onBindViewHolder(ViewHolder holder, final int position) {
         holder.contactNameTv.setText(mContactsList.get(position).getName());
         holder.phoneNumTv.setText(mContactsList.get(position).getPhoneNumber());
+
         if (mContactsSelectedIdsList.size() > 0) {
             if (mContactsSelectedIdsList.contains(mContactsList.get(position).getId())) {
                 holder.contactCheckBox.setChecked(true);

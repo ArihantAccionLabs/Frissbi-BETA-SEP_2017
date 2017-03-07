@@ -11,6 +11,7 @@ public class SelectedContacts {
     private List<Long> mFriendsSelectedIdList;
     private List<Long> mEmailsSelectedIdsList;
     private List<Long> mContactsSelectedIdsList;
+    private List<Long> mGroupSelectedIdsList;
 
     public static SelectedContacts getInstance() {
         if (ourInstance == null)
@@ -22,12 +23,14 @@ public class SelectedContacts {
         mContactsSelectedIdsList = new ArrayList<>();
         mEmailsSelectedIdsList = new ArrayList<>();
         mFriendsSelectedIdList = new ArrayList<>();
+        mGroupSelectedIdsList = new ArrayList<>();
     }
 
     public void clearContacts() {
         mContactsSelectedIdsList.clear();
         mEmailsSelectedIdsList.clear();
         mFriendsSelectedIdList.clear();
+        mGroupSelectedIdsList.clear();
     }
 
 
@@ -57,6 +60,17 @@ public class SelectedContacts {
         mContactsSelectedIdsList.remove(id);
     }
 
+    public List<Long> getGroupSelectedIdsList() {
+        return mGroupSelectedIdsList;
+    }
+
+    public void setGroupSelectedId(Long id) {
+        mGroupSelectedIdsList.add(id);
+    }
+
+    public void deleteGroupSelectedId(Long id) {
+        mGroupSelectedIdsList.remove(id);
+    }
 
     public List<Long> getFriendsSelectedIdList() {
         return mFriendsSelectedIdList;

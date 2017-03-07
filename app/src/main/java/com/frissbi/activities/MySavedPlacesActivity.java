@@ -19,6 +19,8 @@ import com.frissbi.R;
 import com.frissbi.SelectLocationListener;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.SharedPreferenceHandler;
+import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.MyPlacesAdapter;
 import com.frissbi.models.MyPlaces;
 import com.frissbi.networkhandler.TSNetworkHandler;
@@ -68,10 +70,7 @@ public class MySavedPlacesActivity extends AppCompatActivity implements SelectLo
 
     private void getMyPlacesFromServer() {
         mProgressDialog.show();
-        SharedPreferences preferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
-        String userId = preferences.getString("USERID_FROM", "editor");
-        Log.d("MySavedPlacesActivity", "UserId" + userId);
-        String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.ORZIN_DESTLIST + userId;
+        String url = Utility.REST_URI +Utility.SAVED_LOCATIONS + SharedPreferenceHandler.getInstance(this).getUserId();
         TSNetworkHandler.getInstance(this).getResponse(url, new JSONObject(), "GET", new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {

@@ -21,6 +21,7 @@ import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.NotificationType;
 import com.frissbi.Utility.TSLocationManager;
+import com.frissbi.activities.GroupDetailsActivity;
 import com.frissbi.activities.MeetingDetailsActivity;
 import com.frissbi.activities.ProfileActivity;
 import com.frissbi.activities.SuggestionsActivity;
@@ -44,6 +45,7 @@ public class GcmIntentService extends IntentService {
     private String locationSuggestionJsonString;
     private boolean isLocationUpdate;
     private Long friendUserId;
+    private Long groupId;
 
     //  Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
     public GcmIntentService() {
@@ -84,6 +86,10 @@ public class GcmIntentService extends IntentService {
 
         if (intent.getExtras().containsKey("friendUserId")) {
             friendUserId = Long.parseLong(intent.getExtras().getString("friendUserId"));
+        }
+
+        if (intent.getExtras().containsKey("groupId")) {
+            groupId = Long.parseLong(intent.getExtras().getString("groupId"));
         }
 
         GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
@@ -312,6 +318,26 @@ public class GcmIntentService extends IntentService {
                 intent.putExtra("meetingId", mMeetingId);
                 intent.putExtra("locationSuggestionJson", locationSuggestionJsonString.toString());
             }
+            PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
+                    .setSmallIcon(R.drawable.noti)
+                    .setContentTitle("FRISSBI")
+                    .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
+                    .setSound(soundUri)
+                    .addAction(R.drawable.noti, "View", contentIntent)
+                    .addAction(0, "Remind", contentIntent)
+                    .setContentIntent(contentIntent)
+                    .setContentText(msg);
+
+            mBuilder.setContentIntent(contentIntent);
+            mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+            mBuilder.setAutoCancel(true);
+        }else if (mNotificationName.equals(NotificationType.ADDED_TO_GROUP.toString())) {
+
+            Intent intent = new Intent(this, GroupDetailsActivity.class);
+            intent.putExtra("groupId", groupId);
+            intent.putExtra("callFrom", "notification");
+
             PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.noti)

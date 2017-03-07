@@ -28,6 +28,7 @@ import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.fragments.ContactsFragment;
 import com.frissbi.fragments.EmailFriendsFragment;
 import com.frissbi.fragments.FrissbiFriendsFragment;
+import com.frissbi.fragments.GroupsFragment;
 import com.frissbi.interfaces.ContactsSelectedListener;
 import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
@@ -50,12 +51,11 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
     private FrissbiFriendsFragment mFrissbiFriendsFragment;
     private SharedPreferences mSharedPreferences;
     private CustomProgressDialog mProgressDialog;
-    private String mUserId;
-    private String mUserName;
     private List<Friend> mFriendList;
     private List<Long> mFriendsSelectedIdList;
     private List<Long> mEmailsSelectedIdsList;
     private List<Long> mContactsSelectedIdsList;
+    private GroupsFragment mGroupsFragment;
 
 
     @Override
@@ -70,15 +70,14 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
         mEmailFriendsFragment = new EmailFriendsFragment();
         mContactsFragment = new ContactsFragment();
         mFrissbiFriendsFragment = new FrissbiFriendsFragment();
+        mGroupsFragment=new GroupsFragment();
         mFriendList = new ArrayList<>();
         mEmailContactsList = new ArrayList<>();
         mContactsList = new ArrayList<>();
         mFriendsSelectedIdList = new ArrayList<>();
         mEmailsSelectedIdsList = new ArrayList<>();
         mContactsSelectedIdsList = new ArrayList<>();
-        mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
-        mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
-        mUserName = mSharedPreferences.getString("USERNAME_FROM", "editor");
+
         mSharedPreferences = getSharedPreferences("GMAIL_REG", Context.MODE_PRIVATE);
         Log.d("AddFriendsToMeeting", "email" + mSharedPreferences.getString("mail", "editor"));
 
@@ -101,6 +100,7 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
         viewPagerAdapter.addFragment(mFrissbiFriendsFragment, "Friend");
         viewPagerAdapter.addFragment(mEmailFriendsFragment, "Emails");
         viewPagerAdapter.addFragment(mContactsFragment, "Contacts");
+        viewPagerAdapter.addFragment(mGroupsFragment, "Groups");
         viewPager.setAdapter(viewPagerAdapter);
     }
 
@@ -206,6 +206,8 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
             mEmailFriendsFragment.filterEmails(newText);
         } else if (mContactsFragment.isMenuVisible()) {
             mContactsFragment.filterContacts(newText);
+        }else if (mGroupsFragment.isMenuVisible()){
+            mGroupsFragment.filterGroups(newText);
         }
         return false;
     }

@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.frissbi.R;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
+import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.CalendarGridAdapter;
 import com.frissbi.adapters.MeetingLogAdapter;
@@ -52,8 +53,6 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
     private SimpleDateFormat mDateFormat;
     private CalendarGridAdapter mAdapter;
     private List<Date> mDayValueInCells;
-    private SharedPreferences mSharedPreferences;
-    private String mUserId;
     private List<Meeting> mMeetingList;
     private MeetingDetailsListener mMeetingDetailsListener;
     private RecyclerView mMeetingCalendarRecyclerView;
@@ -82,8 +81,6 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
         mMeetingList = new ArrayList<>();
         mMeetingDetailsListener = (MeetingDetailsListener) this;
         mProgressDialog = new CustomProgressDialog(this);
-        mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
-        mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
         mPreviousButton = (ImageView) findViewById(R.id.previous_month);
         mNextButton = (ImageView) findViewById(R.id.next_month);
         mCurrentDateTextView = (TextView) findViewById(R.id.display_current_date);
@@ -153,7 +150,7 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
                 mSelectedMonth = mCalendar.get(Calendar.MONTH);
                 FLog.d(TAG, "next_month" + mCalendar.get(Calendar.MONTH) + "year--" + mCalendar.get(Calendar.YEAR));
                 checkMeetingInLocalDB(mSelectedYear, mSelectedMonth + 1);
-              /*  if (mCalendar.get(Calendar.MONTH) == mCurrentMonth) {
+              /* if (mCalendar.get(Calendar.MONTH) == mCurrentMonth) {
                     setUpCalendarAdapter(mCurrentDay);
                 } else {
                     setUpCalendarAdapter(0);
@@ -166,7 +163,7 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
     private void getMeetingCountByMonth(final Integer year, final Integer month) {
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("userId", mUserId);
+            jsonObject.put("userId", SharedPreferenceHandler.getInstance(this).getUserId());
             jsonObject.put("date", year + "-" + month);
 
             String url = Utility.REST_URI + Utility.MEETING_COUNT_BY_MONTH;
@@ -179,6 +176,8 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
                             try {
                                 JSONObject responseJsonObject = new JSONObject(response.response);
                                 JSONArray meetingJsonArray = responseJsonObject.getJSONArray("meetingArray");
+                                Meeting.deleteAll(Meeting.class);
+                                FLog.d("MeetingCalendarActivity", "meetingList----" + Meeting.listAll(Meeting.class));
                                 for (int i = 0; i < meetingJsonArray.length(); i++) {
                                     JSONObject meetingJsonObject = meetingJsonArray.getJSONObject(i);
                                     Meeting meeting = new Meeting();
@@ -242,7 +241,8 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
                                 }
 
                                 JSONArray dateCountJsonArray = responseJsonObject.getJSONArray("dateCountArray");
-                                mMeetingDateList = new ArrayList<MeetingDate>();
+                                mMeetingDateList = new ArrayList<>();
+                                MeetingDate.deleteAll(MeetingDate.class);
                                 for (int j = 0; j < dateCountJsonArray.length(); j++) {
                                     MeetingDate meetingDate = new MeetingDate();
                                     JSONObject countJsonObject = dateCountJsonArray.getJSONObject(j);
@@ -276,7 +276,7 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
         mMeetingList.clear();
 
         try {
-            jsonObject.put("userId", mUserId);
+            jsonObject.put("userId", SharedPreferenceHandler.getInstance(this).getUserId());
             jsonObject.put("date", date);
             String url = Utility.REST_URI + Utility.MEETING_LOG_BY_DATE;
             TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
@@ -393,6 +393,7 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
             FLog.d(TAG, "meetingDateList" + meetingDateList);
             mMeetingDateList = meetingDateList;
             setUpCalendarAdapter(mCurrentDay, mSelectedDay, meetingDateList);
+            getMeetingCountByMonth(year, month);
         } else {
             getMeetingCountByMonth(year, month);
         }

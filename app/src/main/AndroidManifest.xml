@@ -198,7 +198,7 @@
             android:theme="@style/AppTheme.NoActionBar" />
         <activity
             android:name=".activities.MeetingActivity"
-            android:theme="@style/CustomActivityTheme" />
+            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".MyPlacesActivity" />
         <activity
             android:name=".activities.SelectLocationAndSaveActivity"

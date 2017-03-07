@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.UserMeetingStatus;
 import com.frissbi.Utility.Utility;
 import com.frissbi.activities.MeetingDetailsActivity;
@@ -44,7 +45,6 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
 
 
     private RecyclerView mMeetingLogRecyclerView;
-    private SharedPreferences mSharedPreferences;
     private String mUserId;
     private List<Meeting> mMeetingList;
     private ProgressDialog mProgressDialog;
@@ -65,9 +65,6 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
         mMeetingDetailsListener = (MeetingDetailsListener) this;
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mMeetingLogRecyclerView.setLayoutManager(layoutManager);
-
-        mSharedPreferences = getActivity().getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
-        mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
 
 
         mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -92,7 +89,7 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
         if (mMeetingLogAdapter != null) {
             mMeetingLogAdapter.notifyDataSetChanged();
         }
-        String url = Utility.REST_URI + Utility.MEETING_PENDINGLIST + mUserId;
+        String url = Utility.REST_URI + Utility.MEETING_PENDINGLIST + SharedPreferenceHandler.getInstance(getActivity()).getUserId();
         TSNetworkHandler.getInstance(getActivity()).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {
@@ -109,7 +106,7 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
                                 JSONObject meetingJsonObject = meetingJsonArray.getJSONObject(i);
                                 meeting.setMeetingId(meetingJsonObject.getLong("meetingId"));
                                 meeting.setMeetingSenderId(meetingJsonObject.getLong("meetingSenderId"));
-                                if (meetingJsonObject.getLong("meetingSenderId") != Long.parseLong(mUserId)) {
+                                if (meetingJsonObject.getLong("meetingSenderId") != SharedPreferenceHandler.getInstance(getActivity()).getUserId()) {
                                     meeting.setMeetingStatus(meetingJsonObject.getInt("status"));
                                     meeting.setUserStatus(UserMeetingStatus.MEETING_RECEIVE.toString());
                                 } else {

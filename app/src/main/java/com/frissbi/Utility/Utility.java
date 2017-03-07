@@ -20,7 +20,7 @@ public class Utility {
     public static final int STATUS_REJECT = 2;
     public static final int STATUS_COMPLETED = 3;
     //public static final String REST_URI ="http://13.76.99.32/kleverlinkswebservices";
-    public static final String REST_URI = "http://192.168.2.94:9090/kleverlinkswebservices/rest";//Sunil
+    public static final String REST_URI = "http://192.168.2.130:9090/kleverlinkswebservices/rest";//Sunil
     public static final String USER_FRIENDSLIST = "/FriendListService/friendsList/";
     public static final String MEETING_INSERT = "/MeetingDetailsService/insertMeetingDetails/";
     public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getUserDetailsByMeetingID/";
@@ -31,7 +31,7 @@ public class Utility {
     public static final String PEOPLE_SEARCH = "/FriendListService/search/";
     public static final String ADD_FRIEND = "/FriendListService/sendFriendRequest/";
     public static final String APPROVE_FRIEND = "/FriendListService/approveFriendRequest/";
-    public static final String VIEW_PROFILE = "/FriendListService/seeOtherProfile/";
+    public static final String VIEW_OTHER_PROFILE = "/FriendListService/seeOtherProfile/";
     public static final String MEETING_LOG_BY_DATE = "/MeetingDetailsService/getMeetingDetailsByUserID";
     public static final String MEETING_COUNT_BY_MONTH = "/CalendarService/getMeetingMonthWise";
     public static final String USER_REGISTRATION = "/UserRegistrationService/registerUser";
@@ -39,6 +39,11 @@ public class Utility {
     public static final String GROUPS = "/GroupCreationService/getGroupInfo/";
     public static final String  ADD_PARTICIPANT= "/GroupCreationService/addMember";
     public static final String  GET_GROUP_DETAILS= "/GroupCreationService/getGroupInfoByGroupId/";
+    public static final String  EXIT_GROUP= "/GroupCreationService/removeOrExitGroup";
+    public static final String  UPDATE_OR_DELETE_BY_GROUP= "/GroupCreationService/updateOrDeleteGroupByAdmin";
+    public static final String  VIEW_PROFILE= "/FriendListService/viewProfile/";
+    public static final String SAVED_LOCATIONS = "/UserSettingsService/getUserPreferredLocations/";
+    public static final String LOCATION_INSERT = "/UserSettingsService/insertUserPreferredLocations/";
     private static Utility ourInstance = new Utility();
 
     public static Utility getInstance() {

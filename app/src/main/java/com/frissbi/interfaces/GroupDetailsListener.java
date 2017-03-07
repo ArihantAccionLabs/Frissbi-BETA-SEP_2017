@@ -8,4 +8,5 @@ import com.frissbi.models.FrissbiGroup;
 
 public interface GroupDetailsListener {
     void showGroupDetails(FrissbiGroup group);
+    void viewOrExitGroup(FrissbiGroup group);
 }
