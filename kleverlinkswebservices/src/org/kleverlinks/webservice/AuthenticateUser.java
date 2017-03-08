@@ -10,6 +10,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Calendar;
 
 import javax.ws.rs.GET;
@@ -32,8 +36,25 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
 		System.out.println("hellooo    :  ");
-	
 		
+		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		Calendar calendar = Calendar.getInstance();
+		
+		LocalDateTime localDateTime = LocalDateTime.now();
+		java.util.Date out = java.util.Date.from(localDateTime.plusHours(1).atZone(ZoneId.systemDefault()).toInstant());
+		
+		Calendar tomorrow = Calendar.getInstance();
+		tomorrow.set(Calendar.HOUR, 1);
+		tomorrow.set(Calendar.MINUTE, 57);
+		tomorrow.set(Calendar.SECOND, 00);
+		
+		System.out.println("calendar  :  "+sdf.format(calendar.getTime())+"  tomorrow :  "+sdf.format(out.getTime()));
+		
+		long secs = (calendar.getTime().getTime() - out.getTime()) / 1000;
+		int hours = (int)secs / 3600;
+		secs = secs % 3600;
+		int mins = (int)secs / 60;
+		System.out.println("hours  :  "+hours+"  mins :  "+mins);
 	return "ok";	
 	}
 
@@ -172,16 +193,16 @@ public class AuthenticateUser {
 	@GET  
     @Path("/getUserDetailsByUserID/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String getUserDetailsByUserID(@PathParam("userId") int userId ) {
+	public String getUserDetailsByUserID(@PathParam("userId") Long userId ) {
 
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertStoreProc = "{call usp_GetUserDetails_ByUserID(?)}";
+			String insertStoreProc = "{callusp_GetUserDetailsByUserID(?)(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId);
+			callableStatement.setLong(1, userId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
@@ -306,7 +327,7 @@ public class AuthenticateUser {
 		JSONObject jsonObject = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertStoreProc = "{call usp_GetUserGCMCode(?)}";
+			String insertStoreProc = "{call usp_GetDeviceRegistrationId(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setLong(1, userId);
 			callableStatement.execute();

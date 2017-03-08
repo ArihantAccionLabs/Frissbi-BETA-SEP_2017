@@ -16,7 +16,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -40,7 +39,6 @@ import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
-import org.kleverlinks.webservice.EmailService;
 import org.service.dto.UserDTO;
 import org.util.Utility;
 
@@ -174,10 +172,9 @@ public class ServiceUtility {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		UserDTO userDTO = null;
-		String sql = "";
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			sql = "SELECT SenderFromDateTime,SenderToDateTime FROM tbl_MeetingDetails WHERE MeetingID=?";
+			String sql = "SELECT SenderFromDateTime,SenderToDateTime FROM tbl_MeetingDetails WHERE MeetingID=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setLong(1, meetingId);
 			rs = pstmt.executeQuery();
@@ -187,6 +184,7 @@ public class ServiceUtility {
 				LocalDateTime toTime =   convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
 				userDTO.setStartTime(Float.parseFloat(fromTime.getHour() + "." + fromTime.getMinute()));
 				userDTO.setEndTime(Float.parseFloat(toTime.getHour() + "." + toTime.getMinute()));
+				
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -609,7 +607,6 @@ public class ServiceUtility {
 		MeetingLogBean meetingLogBean = new MeetingLogBean();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			//usp_GetMeetingDetails_ByMeetingID
 			String meetingDetailsStoreProc = "{call usp_GetMeetingDetails_ByMeetingID(?)}";
 			callableStatement = conn.prepareCall(meetingDetailsStoreProc);
 			callableStatement.setLong(1, meetingId);
@@ -647,7 +644,6 @@ public class ServiceUtility {
 		JSONArray jsonArray = new JSONArray();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			//usp_GetMeetingDetails_ByMeetingID
 			String meetingDetailsStoreProc = "{call usp_GetRecipientDetails_ByMeetingID(?)}";
 			callableStatement = conn.prepareCall(meetingDetailsStoreProc);
 			callableStatement.setLong(1, meetingId);
@@ -678,7 +674,6 @@ public class ServiceUtility {
    		UserDTO userDto = new UserDTO();
    		try {
    			conn = DataSourceConnection.getDBConnection();
-   			//usp_GetMeetingDetails_ByMeetingID
    			String userDetail= "{call usp_GetUserDetailsByMeetingId(?)}";
    			callableStatement = conn.prepareCall(userDetail);
    			callableStatement.setLong(1, meetingId);

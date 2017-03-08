@@ -552,48 +552,6 @@ public class UserFriendList {
 	}
 
 	@GET
-	@Path("/searchResults/{userId}/{search_criteria}/{resultsPage}/{pageNo}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String searchResults(@PathParam("userId") Long userId, @PathParam("search_criteria") String search_criteria,
-			@PathParam("resultsPage") int resultsPage, @PathParam("pageNo") int pageNo) {
-		Connection conn = null;
-		Statement stmt = null;
-		JSONArray jsonResultsArray = new JSONArray();
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			CallableStatement callableStatement = null;
-			String insertStoreProc = "{call usp_GetSearchBoxResults(?,?,?,?)}";
-			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setLong(1, userId);
-			callableStatement.setString(2, search_criteria);
-			callableStatement.setLong(3, resultsPage);
-			callableStatement.setLong(4, pageNo);
-			callableStatement.execute();
-			ResultSet rs = callableStatement.getResultSet();
-
-			while (rs.next()) {
-				JSONObject jsonObject = new JSONObject();
-				jsonObject.put("UserId", rs.getString("UserId"));
-				jsonObject.put("UserName", rs.getString("UserName"));
-				jsonObject.put("FirstName", rs.getString("FirstName"));
-				jsonObject.put("LastName", rs.getString("LastName"));
-				
-				jsonResultsArray.put(jsonObject);
-			}
-		} catch (SQLException se) {
-			se.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-		finally{
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(stmt);
-		}
-		return jsonResultsArray.toString();
-	}
-
-	@GET
 	@Path("/searchFriends/{userName}/{search_criteria}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String searchFriends(@PathParam("userName") String userName,

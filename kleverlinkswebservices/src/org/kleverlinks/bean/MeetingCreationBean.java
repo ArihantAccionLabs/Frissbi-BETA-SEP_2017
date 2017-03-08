@@ -74,10 +74,15 @@ public class MeetingCreationBean {
 		this.isLocationSelected = jsonObject.getBoolean("isLocationSelected");
 		
 		 if(jsonObject.has("meetingIdsJsonArray")){
-			 
-			for (int i = 0; i < jsonObject.getJSONArray("meetingIdsJsonArray").length(); i++) {
-				this.meetingIdList.add(jsonObject.getJSONArray("meetingIdsJsonArray").getLong(i));
-			} 
+			 if(jsonObject.getJSONArray("meetingIdsJsonArray").length() == 1){
+				 
+					 this.meetingIdList.add(jsonObject.getJSONArray("meetingIdsJsonArray").getJSONObject(0).getLong("meetingId"));
+			 }else{
+				 for (int i = 0; i < jsonObject.getJSONArray("meetingIdsJsonArray").length(); i++) {
+					 this.meetingIdList.add(jsonObject.getJSONArray("meetingIdsJsonArray").getLong(i));
+				 }  
+				 
+			 }
 		 }
 		 if(jsonObject.has("friendsIdJsonArray")){
 			 

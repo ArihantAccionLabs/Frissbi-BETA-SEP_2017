@@ -610,7 +610,7 @@ public class NotificationService {
 		String deviceRegistrationID = "";
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertStoreProc = "{call usp_GetUserGCMCode(?)}";
+			String insertStoreProc = "{call usp_GetDeviceRegistrationId(?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setLong(1, userId);
 			callableStatement.execute();

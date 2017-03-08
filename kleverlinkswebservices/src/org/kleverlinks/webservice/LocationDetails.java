@@ -113,86 +113,6 @@ public class LocationDetails {
 
 		return jsonObject.toString();
 	}
-
-	@GET
-	@Path("/calculateMidpointForMeeting/{meetingId}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String calculateMidpointForMeeting(
-			@PathParam("meetingId") Long meetingId
-			) {
-		MeetingDetails meetingDetails = new MeetingDetails();
-		boolean isGeoMagic = true;
-		ArrayList<Point2D> Point2Ds = new ArrayList<Point2D>();
-		JSONArray jsonArray = new JSONArray( meetingDetails.getMeetingDetailsByMeetingID(meetingId));
-		JSONObject meetingDetailsByMeetingId = jsonArray.getJSONObject(0);
-		if (!meetingDetailsByMeetingId.get("DestinationType").equals("3")){
-			isGeoMagic = false;
-			return "false";
-		}
-		Double latitude = Double.parseDouble( meetingDetailsByMeetingId.get("olatitude").toString());
-		Double longitude =  Double.parseDouble( meetingDetailsByMeetingId.get("oLongitude").toString());
-		Point2D point = new Point2D(latitude, longitude);
-		Point2Ds.add( point);
-		String recipientDetailsByMeetingId = meetingDetails.getRecipientDetailsByMeetingID(meetingId);
-		JSONArray jsonResultsArray = new JSONArray(recipientDetailsByMeetingId);
-		for ( int i=0;i<jsonResultsArray.length();i++){
-			JSONObject jsonObject = (JSONObject)jsonResultsArray.get(i);
-			if (!jsonObject.get("DestinationType").equals("3")){
-				isGeoMagic = false;
-				return "false";
-			}
-			if(jsonObject.get("Status").equals("1") && jsonObject.get("DestinationType").equals("3") ){
-				double lat = Double.parseDouble((String)jsonObject.get("oLatitude"));
-				double lng = Double.parseDouble((String)jsonObject.get("oLongitude"));
-				point = new Point2D(lat, lng);
-				Point2Ds.add( point);
-			}
-		}
-		
-		QuickHull qh = new QuickHull();
-		ArrayList<Point2D> p = qh.quickHull(Point2Ds);
-		JSONObject jsonObject = new JSONObject();
-		Double midLatitude =0.0;
-		Double midLongitude=0.0;
-		String formattedAddress ="";
-		
-		Point2D centroid = qh.findCentroid(Point2Ds);
-		midLatitude = centroid.getX();
-		midLongitude = centroid.getY();
-
-		// Doing reverse geocoding
-		String url = "https://maps.googleapis.com/maps/api/geocode/json?latlng="
-				+ midLatitude
-				+ ","
-				+ midLongitude
-				+ "&key="+Constants.GCM_APIKEY;
-		ClientConfig config = new DefaultClientConfig();
-		Client client = Client.create(config);
-		WebResource service = client.resource(url);
-
-		try {
-			JSONObject json = new JSONObject(getOutputAsString(service));
-			JSONArray results = (JSONArray) json.get("results");
-			if( results.length()!=0 ){
-			JSONObject resultsObject = (JSONObject) results.get(0);
-			formattedAddress = (String) resultsObject
-					.get("formatted_address");
-			}
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		try {
-			jsonObject.put("latitude", midLatitude);
-			jsonObject.put("longitude", midLongitude);
-			jsonObject.put("formattedAddress", formattedAddress);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return jsonObject.toString();
-	}
 	
 	@GET  
     @Path("/insertMeetingLocationDetails/{latitude}/{longitude}/{destinationAddress}/{meetingId}")
@@ -232,8 +152,4 @@ public class LocationDetails {
 		return service.accept(MediaType.TEXT_PLAIN).get(String.class);
 	}
 	
-	public static void main(String args[]){
-		LocationDetails locationDetails = new LocationDetails();
-		locationDetails.calculateMidpointForMeeting(45l);
-	}
 }

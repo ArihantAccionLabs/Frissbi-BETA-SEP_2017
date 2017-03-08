@@ -56,39 +56,7 @@ public class UserNotifications {
 		   ServiceUtility.closeSatetment(stmt);
 			return notificationId;
 		}
-		
-		@GET  
-	    @Path("/updateUserNotifications/{notificationId}/{showStatus}")
-	    @Produces(MediaType.TEXT_PLAIN)
-		public String updateUserNotifications(@PathParam("notificationId") int notificationId,
-				@PathParam("showStatus") int showStatus ){
-			Connection conn = null;
-			Statement stmt = null;
-			String isError="";
-			try {
-				conn = DataSourceConnection.getDBConnection();
-				stmt = conn.createStatement();
-				CallableStatement callableStatement = null;
-				String insertStoreProc = "{call usp_UpdateUserNotification(?,?,?)}";
-				callableStatement = conn.prepareCall(insertStoreProc);
-				callableStatement.setLong(1, notificationId);
-				callableStatement.setLong(2, showStatus);
-				callableStatement.registerOutParameter(3, Types.INTEGER);
-				int value = callableStatement.executeUpdate();
-				isError = callableStatement.getInt(3)+"";
-
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} catch (Exception e) {
-				e.printStackTrace();
-			} 
-			finally{
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(stmt);
-		}
-			return isError;
-		}
-		
+	
 		@GET  
 	    @Path("/getUserNotifications/{userId}/{notificationId}")
 	    @Produces(MediaType.TEXT_PLAIN)
