@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.kleverlinks.webservice.DataSourceConnection;
+import org.kleverlinks.webservice.NotificationsEnum;
+import org.service.dto.NotificationInfoDTO;
 
 public class SmartReminderNotification {
 
@@ -55,9 +57,7 @@ public class SmartReminderNotification {
 				
 			   }
 			}
-			
-			NotificationService.sendSmartReminderNotification(senderId ,recipientIdList);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

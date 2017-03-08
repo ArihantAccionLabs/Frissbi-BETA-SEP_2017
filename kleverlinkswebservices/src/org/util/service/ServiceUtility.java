@@ -46,6 +46,7 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jndi.cosnaming.CNNameParser;
 
 public class ServiceUtility {
 
@@ -75,98 +76,6 @@ public class ServiceUtility {
 		return null;
 	}
 
-	public static UserDTO getUserDetailsByUserName(String userName) {
-		Connection conn = null;
-		Statement stmt = null;
-		ResultSet rs = null;
-		UserDTO userDTO = null;
-		String sql;
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			sql = "SELECT userId,emailName,FirstName,LastName FROM tbl_users WHERE userName ='" + userName + "'"
-					+ " limit 1";
-			rs = stmt.executeQuery(sql);
-			while (rs.next()) {
-				userDTO = new UserDTO();
-				userDTO.setEmailId(rs.getString("emailName"));
-				userDTO.setUserId(rs.getLong("userId"));
-				userDTO.setFullName(rs.getString("FirstName") + "" + rs.getString("LastName") + "");
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		// closing db resources
-		finally{		
-			ServiceUtility.closeConnection(conn);
-		    ServiceUtility.closeSatetment(stmt);
-		}
-		return userDTO;
-
-	}
-
-	public static AppUserBean getUserDetailsByUserNameAndEmail(String userName, String emailId , String contactNumber) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		String sql;
-		AppUserBean appUserBean = null;
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			sql = "SELECT ContactNumber,UserName,EmailName FROM tbl_users WHERE userName=? OR EmailName=? OR ContactNumber=? limit 1";
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, userName);
-			pstmt.setString(2, emailId);
-			pstmt.setString(3, contactNumber);
-			rs = pstmt.executeQuery();
-			while (rs.next()) {
-				appUserBean = new AppUserBean();
-				appUserBean.setUsername(rs.getString("UserName"));
-				appUserBean.setContactno(rs.getString("ContactNumber"));
-				appUserBean.setEmail(rs.getString("EmailName"));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		finally{
-			ServiceUtility.closeConnection(conn);
-		    ServiceUtility.closeSatetment(pstmt);
-		    }
-		return appUserBean;
-
-	}
-
-	public static UserDTO getUserDetailsByUserId(Long userId, Long meetingId) {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		UserDTO userDTO = null;
-		String sql = "";
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			sql = "SELECT tbl_users.UserName,tbl_users.FirstName,tbl_users.LastName,tbl_MeetingDetails.SenderFromDateTime,tbl_MeetingDetails.SenderToDateTime,tbl_MeetingDetails.MeetingDescription   FROM tbl_users INNER JOIN tbl_MeetingDetails ON tbl_users.UserID=tbl_MeetingDetails.SenderUserID WHERE MeetingID=? AND tbl_users.UserID=?";
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setLong(1, meetingId);
-			pstmt.setLong(2, userId);
-			rs = pstmt.executeQuery(sql);
-			while (rs.next()) {
-				userDTO = new UserDTO();
-				userDTO.setUserName(rs.getString("UserName"));
-				userDTO.setFullName(rs.getString("FirstName") + " " + rs.getString("LastName"));
-				userDTO.setMeetingFromTime(convertStringToLocalDateTime(rs.getString("SenderFromDateTime")));
-				userDTO.setMeetingToTime(convertStringToLocalDateTime(rs.getString("SenderToDateTime")));
-				userDTO.setDescription(rs.getString("MeetingDescription"));
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		// closing db resources
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(pstmt);
-		return userDTO;
-
-	}
-
 	public static UserDTO getMeetingDetailsById(Long meetingId) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
@@ -189,7 +98,6 @@ public class ServiceUtility {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{
-		// closing db resources
 		ServiceUtility.closeConnection(conn);
 		ServiceUtility.closeSatetment(pstmt);
 		}
@@ -237,6 +145,7 @@ public class ServiceUtility {
 	}
 
 	public static int calculateTimeBetweenLatLng(float lat1, float lng1, float lat2, float lng2) {
+		
 		final String url = "https://maps.googleapis.com/maps/api/distancematrix/json?origins=" + lat1 + "," + lng1
 				+ "&destinations=" + lat2 + "," + lng2 + "&mode=driving&key=" + Constants.GOOGLE_DISTANCE_MATRIX_APIKEY;
 		final HttpClient httpclient = org.apache.http.impl.client.HttpClientBuilder.create().build();
@@ -273,7 +182,7 @@ public class ServiceUtility {
 		return timeToBeTaken;
 	}
 
-	public static int insertingAndSendingMails(MeetingCreationBean meetingBean, Long meetingId)
+	public static int insertingMails(MeetingCreationBean meetingBean, Long meetingId)
 			throws Exception {
 		try {
 			Connection connection = null;
@@ -300,7 +209,7 @@ public class ServiceUtility {
 		return 0;
 	}
 
-	public static int insertMeetingContactNumbers(MeetingCreationBean meetingBean, Long meetingId) {
+	public static int insertContactNumbers(MeetingCreationBean meetingBean, Long meetingId) {
 		Connection connection = null;
 		int[] insertedRow;
 		PreparedStatement ps = null;
@@ -329,48 +238,35 @@ public class ServiceUtility {
 		}
 		return 0;
 	}
-
-	public static void deleteUserFromMeeting(List<Long> meetingIdList , Long senderUserId)throws IOException, SQLException, PropertyVetoException {
+	
+	public static void deleteUserFromMeeting(List<Long> meetingIdList, Long userId) {
 
 		Connection connection = null;
-		PreparedStatement preparedStatement = null;
-		String sql = "";
-		try{
-		connection = DataSourceConnection.getDBConnection();
-		
-	/*	List<Long> meetingList = new ArrayList<>();
-			if (meetingArray.length() > 1) {
-				for (int i = 0; i < meetingArray.length(); i++) {
-					meetingList.add(meetingArray.getLong(i));
-				}
-			} else
-				meetingList.add(meetingArray.getJSONObject(0).getLong("meetingId"));
-		*/
-		for (Long meetingId : meetingIdList) {
-			preparedStatement = null;
-			if(! isMeetingCreatorRemoved(meetingId , senderUserId)){
-				sql = "UPDATE  tbl_MeetingDetails SET MeetingStatus=? WHERE MeetingID=? AND SenderUserId=?";
-				preparedStatement = connection.prepareStatement(sql);
-				preparedStatement.setString(1, MeetingStatus.CANCELLED.toString());
-				preparedStatement.setLong(2, meetingId);
-				preparedStatement.setLong(3, senderUserId);
-			}else{
-				sql = "UPDATE tbl_RecipientsDetails SET Status=2,ResponseDateTime=? WHERE MeetingID=? AND UserID=?";
-				preparedStatement = connection.prepareStatement(sql);
-				preparedStatement.setString(1, new SimpleDateFormat("yyyy-dd-mm HH:mm:ss").format(new Date()));
-				preparedStatement.setLong(2, meetingId);
-				preparedStatement.setLong(3, senderUserId);
+		CallableStatement callableStatement = null;
+		try {
+			connection = DataSourceConnection.getDBConnection();
+			String deleteUserStoreProc = "{call usp_deleteUserFromMeeting(?,?,?,?)}";
+			callableStatement = connection.prepareCall(deleteUserStoreProc);
+			for (Long meetingId : meetingIdList) {
+				System.out.println("<<<<<<<<<>>>>>>>>>>>>>    "+!isMeetingCreator(meetingId, userId));
+
+				callableStatement.setLong(1, meetingId);
+				callableStatement.setLong(2, userId);
+				callableStatement.setBoolean(3, isMeetingCreator(meetingId, userId));
+				callableStatement.setTimestamp(4, new Timestamp(new Date().getTime()));
+
+				callableStatement.addBatch();
 			}
-			preparedStatement.executeUpdate();
-		}
-		}catch (Exception e) {
+			int[] isUpdate = 	callableStatement.executeBatch();
+			System.out.println("isUpdate   :    "+isUpdate.length);
+		} catch (Exception e) {
 			e.printStackTrace();
-		}finally{
+		} finally {
 			ServiceUtility.closeConnection(connection);
-			ServiceUtility.closeSatetment(preparedStatement);
+			ServiceUtility.closeCallableSatetment(callableStatement);
 		}
 	}
-
+	
 
 	public static List<UserDTO> checkingMeetingConfliction(MeetingCreationBean meetingBean) throws ParseException {
 		Map<String , Date> map = Utility.getOneDayDate(meetingBean.getMeetingDateTime());
@@ -477,8 +373,7 @@ public class ServiceUtility {
 		 int status = 0;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			//"SELECT Status FROM tbl_RecipientsDetails WHERE tbl_RecipientsDetails.MeetingID="+meetingId+" AND tbl_RecipientsDetails.UserID="+userId;
-			String sql ="SELECT Status FROM tbl_RecipientsDetails WHERE tbl_RecipientsDetails.MeetingID=? AND tbl_RecipientsDetails.UserID=?";
+			String sql ="SELECT Status FROM tbl_RecipientsDetails WHERE MeetingID=? AND UserID=?";
 			statement = conn.prepareStatement(sql);
 			statement.setLong(1, meetingId);
 			statement.setLong(2, userId);
@@ -508,8 +403,7 @@ public class ServiceUtility {
 		 Boolean status = false;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			//"SELECT Status FROM tbl_RecipientsDetails WHERE tbl_RecipientsDetails.MeetingID="+meetingId+" AND tbl_RecipientsDetails.UserID="+userId;
-			String sql ="SELECT MeetingStatus FROM tbl_MeetingDetails WHERE tbl_MeetingDetails.MeetingID=? AND tbl_MeetingDetails.SenderUserID=?";
+			String sql ="SELECT MeetingStatus FROM tbl_MeetingDetails WHERE MeetingID=? AND SenderUserID=?";
 			statement = conn.prepareStatement(sql);
 			statement.setLong(1, meetingId);
 			statement.setLong(2, userId);
@@ -517,8 +411,32 @@ public class ServiceUtility {
 			while(rs.next()){
 				meetingStatus = rs.getString("MeetingStatus");
 			}
-			if(meetingStatus != null && meetingStatus.equals(MeetingStatus.CANCELLED.toString())){
+			if(Utility.checkValidString(meetingStatus) && meetingStatus.equals(MeetingStatus.CANCELLED.toString())){
 				status = true;
+			}
+		} catch(Exception  e){
+			e.printStackTrace();
+		}finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeSatetment(statement);
+		}
+		return status;
+	}
+	
+	public static Boolean isMeetingCreator(Long meetingId , Long userId){
+		
+		 Connection conn = null;
+		 PreparedStatement statement = null;
+		 Boolean status = false;
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String sql ="SELECT MeetingStatus FROM tbl_MeetingDetails WHERE MeetingID=? AND SenderUserID=? limit 1";
+			statement = conn.prepareStatement(sql);
+			statement.setLong(1, meetingId);
+			statement.setLong(2, userId);
+			ResultSet rs = statement.executeQuery();
+			while(rs.next()){
+					status = true;
 			}
 		} catch(Exception  e){
 			e.printStackTrace();

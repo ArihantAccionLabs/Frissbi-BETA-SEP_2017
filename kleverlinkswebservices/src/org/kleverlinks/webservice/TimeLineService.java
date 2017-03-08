@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
@@ -19,6 +20,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kleverlinks.bean.FreeTimePostBean;
 import org.kleverlinks.bean.UserFreeTimeBean;
@@ -218,5 +220,75 @@ public class TimeLineService {
 		return finalJson.toString();
 	}
 	
+	
+	@GET  
+    @Path("/updateUserFreeTimes/{userFreetimeId}/{userId}/{fromTime}/{toTime}/{description}")
+    @Produces(MediaType.TEXT_PLAIN)
+	public String updateUserFreeTimes(@PathParam("userFreetimeId") int userFreetimeId,@PathParam("userId") int userId,
+			@PathParam("fromTime") Timestamp fromTime, @PathParam("toTime") Timestamp toTime,
+			@PathParam("description") String description ){
+		Connection conn = null;
+		Statement stmt = null;
+		String isError="";
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			stmt = conn.createStatement();
+			CallableStatement callableStatement = null;
+			String insertStoreProc = "{call usp_UpdateUserFreeTimes(?,?,?,?,?,?)}";
+			callableStatement = conn.prepareCall(insertStoreProc);
+			callableStatement.setInt(1, userFreetimeId);
+			callableStatement.setInt(2, userId);
+			callableStatement.setTimestamp(3, fromTime);
+			callableStatement.setTimestamp(4, toTime);
+			callableStatement.setString(5, description);
+			callableStatement.registerOutParameter(6, Types.INTEGER);
+			int value = callableStatement.executeUpdate();
+			isError = callableStatement.getInt(6)+"";
+
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		ServiceUtility.closeConnection(conn);
+	ServiceUtility.closeSatetment(stmt);
+		return isError;
+	}
+	
+	@GET  
+    @Path("/getUserFreeTimeByUserID/{userId}")
+    @Produces(MediaType.TEXT_PLAIN)
+	public String getUserFreeTimeByUserID(@PathParam("userId") int userId
+			){
+		Connection conn = null;
+		Statement stmt = null;
+		JSONArray jsonResultsArray = new JSONArray();
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			stmt = conn.createStatement();
+			CallableStatement callableStatement = null;
+			String insertStoreProc = "{call usp_GetUserFreeTime_ByUserID(?)}";
+			callableStatement = conn.prepareCall(insertStoreProc);
+			callableStatement.setInt(1, userId);
+			callableStatement.execute();
+			ResultSet rs = callableStatement.getResultSet();
+
+			while(rs.next()){
+				JSONObject jsonObject = new JSONObject();
+				jsonObject.put("UserFreeTimeID", rs.getString("UserFreeTimeID"));
+				jsonObject.put("FromDateTime", rs.getString("FromDateTime"));
+				jsonObject.put("ToDateTime", rs.getString("ToDateTime"));
+				jsonObject.put("Description", rs.getString("Description"));
+				jsonResultsArray.put(jsonObject);
+			}
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+		ServiceUtility.closeConnection(conn);
+	ServiceUtility.closeSatetment(stmt);
+		return jsonResultsArray.toString();
+	}
 }
 

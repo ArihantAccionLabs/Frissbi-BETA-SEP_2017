@@ -10,14 +10,10 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Calendar;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -36,25 +32,7 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
 		System.out.println("hellooo    :  ");
-		
-		DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-		Calendar calendar = Calendar.getInstance();
-		
-		LocalDateTime localDateTime = LocalDateTime.now();
-		java.util.Date out = java.util.Date.from(localDateTime.plusHours(1).atZone(ZoneId.systemDefault()).toInstant());
-		
-		Calendar tomorrow = Calendar.getInstance();
-		tomorrow.set(Calendar.HOUR, 1);
-		tomorrow.set(Calendar.MINUTE, 57);
-		tomorrow.set(Calendar.SECOND, 00);
-		
-		System.out.println("calendar  :  "+sdf.format(calendar.getTime())+"  tomorrow :  "+sdf.format(out.getTime()));
-		
-		long secs = (calendar.getTime().getTime() - out.getTime()) / 1000;
-		int hours = (int)secs / 3600;
-		secs = secs % 3600;
-		int mins = (int)secs / 60;
-		System.out.println("hours  :  "+hours+"  mins :  "+mins);
+	
 	return "ok";	
 	}
 

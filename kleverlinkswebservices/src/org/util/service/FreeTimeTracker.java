@@ -25,6 +25,8 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
 import org.kleverlinks.bean.UserFreeTimeBean;
 import org.kleverlinks.webservice.DataSourceConnection;
+import org.kleverlinks.webservice.NotificationsEnum;
+import org.service.dto.NotificationInfoDTO;
 
 /*
  * @Author -> Sunil Verma
@@ -303,8 +305,13 @@ public class FreeTimeTracker {
 			   }
 		   }
 		   message += " and " + (indexList.size()-counter) +" others are free . You want to meet him";
-		   NotificationService.sendMeetingSuggestionNotification(beanList.get(indexList.get(i)).getUserId() ,message);//sending notification
-		   message = ""; 
+		   
+		   NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
+		   notificationInfoDTO.setUserId(beanList.get(indexList.get(i)).getUserId());
+		   notificationInfoDTO.setMessage(message);
+		   notificationInfoDTO.setNotificationType(NotificationsEnum.MEETING_SUGGESTION.toString());
+		   
+		   NotificationService.sendMeetingSuggestionNotification(notificationInfoDTO);//sending notification
 	  }
 	   
 	}

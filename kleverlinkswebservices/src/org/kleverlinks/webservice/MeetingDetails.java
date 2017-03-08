@@ -61,10 +61,8 @@ public class MeetingDetails {
 
 			if (!meetingCreationBean.getMeetingIdList().isEmpty()) {
 
-				ServiceUtility.deleteUserFromMeeting(meetingCreationBean.getMeetingIdList(),
-						meetingCreationBean.getSenderUserId());
-				NotificationService.sendNotification(meetingCreationBean.getMeetingIdList(),
-						meetingCreationBean.getSenderUserId(), NotificationsEnum.MEETING_REJECTED.ordinal());
+				ServiceUtility.deleteUserFromMeeting(meetingCreationBean.getMeetingIdList(),meetingCreationBean.getSenderUserId());
+				NotificationService.sendNotification(meetingCreationBean.getMeetingIdList(),meetingCreationBean.getSenderUserId(), NotificationsEnum.MEETING_REJECTED.ordinal());
 
 			} else {
 
@@ -159,13 +157,13 @@ public class MeetingDetails {
 					MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
 					JSONObject userDetail = ServiceUtility.getUserDetailByUserId(meetingCreationBean.getSenderUserId());
 					if (!meetingCreationBean.getEmailIdList().isEmpty()) {
-						int insertedEmails = ServiceUtility.insertingAndSendingMails(meetingCreationBean, meetingId);
+						int insertedEmails = ServiceUtility.insertingMails(meetingCreationBean, meetingId);
 						if (insertedEmails != 0) {
 							sendingEmail(meetingCreationBean.getEmailIdList(), userDetail, meetingLogBean);
 						}
 					}
 					if (!meetingCreationBean.getContactList().isEmpty()) {
-						int insertedContact = ServiceUtility.insertMeetingContactNumbers(meetingCreationBean,
+						int insertedContact = ServiceUtility.insertContactNumbers(meetingCreationBean,
 								meetingId);
 						if (insertedContact != 0) {
 							sendMeetingSms(meetingCreationBean.getContactList(), userDetail, meetingLogBean);
@@ -632,10 +630,8 @@ public class MeetingDetails {
 		Long userId = meetingUserDetail.getLong("userId");
 		Long meetingId = meetingUserDetail.getLong("meetingId");
 		 Connection conn = null;
-		 PreparedStatement pstmt = null;
 		 CallableStatement callableStatement = null;
 		 int updatedRow = 0;
-	     String sql = "" ;
 	     MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
 	     try{
 		  	conn = DataSourceConnection.getDBConnection();
@@ -666,20 +662,13 @@ public class MeetingDetails {
 			ServiceUtility.closeCallableSatetment(callableStatement);
 		 }
 	    try{
-
-	     sql =	" SELECT M.MeetingID,M.Latitude,M.Longitude FROM tbl_MeetingDetails  AS M "
-	     		+ " WHERE  M.MeetingID=? AND M.Latitude IS NOT NULL "
-	     		+ " UNION ALL "
-	     		+ " SELECT  R.MeetingID ,R.Latitude,R.Longitude "
-	     		+ "FROM tbl_RecipientsDetails AS R "
-	     		+ " WHERE  R.MeetingID=? AND R.Latitude IS NOT NULL";	
-	     
+	     String countAddrStoreProc  = "{call usp_countMeetingAddress}"; 
 	     conn = DataSourceConnection.getDBConnection();
-	     pstmt = conn.prepareStatement(sql);
-		 pstmt.setLong(1, meetingId);
-		 pstmt.setLong(2, meetingId);
-		 
-		 ResultSet rs = pstmt.executeQuery();
+         callableStatement = conn.prepareCall(countAddrStoreProc);
+         callableStatement.setLong(1, meetingId);
+	     
+         ResultSet rs = callableStatement.executeQuery();
+        
 		 
 		 List<UserDTO> userAddressList = new ArrayList<UserDTO>();
 		 UserDTO userDTO = null;
@@ -742,16 +731,16 @@ public class MeetingDetails {
 			  }
 		  }
 		  
-		 }else{
+		 }
 			 finalJson.put("status", true);
 			 finalJson.put("message", "Address updated successfully");
 			 return finalJson.toString(); 
-		 }
+		 
 	     } catch(Exception e){
 	    	 e.printStackTrace();
 	     }finally{
 	    	 ServiceUtility.closeConnection(conn);
-	    	 ServiceUtility.closeSatetment(pstmt);
+	    	 ServiceUtility.closeCallableSatetment(callableStatement);
 	     }
 		return finalJson.toString();
 	}
