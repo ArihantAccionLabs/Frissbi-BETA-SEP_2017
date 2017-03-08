@@ -16,11 +16,13 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ExpandableListView;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -51,7 +53,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MeetingActivity extends AppCompatActivity implements View.OnClickListener, MeetingTitleSelectionListener {
     private static final int DATE_DIALOG_ID = 100;
@@ -84,11 +88,13 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
     private MyPlaces mMeetingPlace;
     private AlertDialog mAlertDialog;
     private AlertDialog mConflictAlertDialog;
+    private TextView mAddAttendeeTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meeting);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mSelectedContacts = SelectedContacts.getInstance();
         mSelectedContacts.clearContacts();
         mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
@@ -101,15 +107,17 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         mMeetingTimeTextView = (TextView) findViewById(R.id.meeting_time_tv);
         mMeetingPlaceTextView = (TextView) findViewById(R.id.meeting_place_tv);
         mMeetingDurationTextView = (TextView) findViewById(R.id.meeting_duration_tv);
-        CardView dateCardView = (CardView) findViewById(R.id.date_cardView);
-        CardView timeCardView = (CardView) findViewById(R.id.time_cardView);
-        CardView durationCardView = (CardView) findViewById(R.id.duration_cardView);
-        CardView placeCardView = (CardView) findViewById(R.id.place_cardView);
-        Button addFriendsButton = (Button) findViewById(R.id.addFriends);
-        RelativeLayout meetingTitleRlayout = (RelativeLayout) findViewById(R.id.meeting_title_rl);
-        mSelectedContactsExpandableListView = (ExpandableListView) findViewById(R.id.selected_contacts_expandableListView);
+        mAddAttendeeTextView = (TextView) findViewById(R.id.add_attendee_tv);
+        RelativeLayout dateLayout = (RelativeLayout) findViewById(R.id.date_rl);
+        RelativeLayout timeLayout = (RelativeLayout) findViewById(R.id.time_rl);
+        RelativeLayout durationLayout = (RelativeLayout) findViewById(R.id.duration_rl);
+        RelativeLayout locationLayout = (RelativeLayout) findViewById(R.id.location_rl);
+        RelativeLayout descriptionLayout = (RelativeLayout) findViewById(R.id.description_rl);
+
+        // mSelectedContactsExpandableListView = (ExpandableListView) findViewById(R.id.selected_contacts_expandableListView);
         mMeetingTitleTextView = (TextView) findViewById(R.id.meeting_title_tv);
-        Button conformMeetingButton = (Button) findViewById(R.id.conform_meeting);
+        ImageView confirmMeetingImageView = (ImageView) findViewById(R.id.confirm_meeting);
+        Button addAttendeeButton = (Button) findViewById(R.id.add_attendee_button);
         if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("groupId")) {
             /*List<Participant> participantList = Participant.findWithQuery(Participant.class, "select * from participant where group_id=?", String.valueOf(getIntent().getExtras().getLong("groupId")));
             FLog.d("MeetingActivity", "participantList" + participantList);
@@ -131,13 +139,13 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         showDate(year, month + 1, day);
         mMeetingTimeTextView.setText(updateTime(hour, min));
 
-        dateCardView.setOnClickListener(this);
-        timeCardView.setOnClickListener(this);
-        durationCardView.setOnClickListener(this);
-        placeCardView.setOnClickListener(this);
-        addFriendsButton.setOnClickListener(this);
-        meetingTitleRlayout.setOnClickListener(this);
-        conformMeetingButton.setOnClickListener(this);
+        dateLayout.setOnClickListener(this);
+        timeLayout.setOnClickListener(this);
+        durationLayout.setOnClickListener(this);
+        locationLayout.setOnClickListener(this);
+        descriptionLayout.setOnClickListener(this);
+        confirmMeetingImageView.setOnClickListener(this);
+        addAttendeeButton.setOnClickListener(this);
     }
 
     private AlertDialog mConfirmAlertDialog;
@@ -330,12 +338,36 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         mEmailContactsList.clear();
         mContactsList.clear();
         mFrissbiGroupList.clear();
-        int friendsCount = mSelectedContacts.getFriendsSelectedIdList().size();
+
         int emailCount = mSelectedContacts.getEmailsSelectedIdsList().size();
         int contactsCount = mSelectedContacts.getContactsSelectedIdsList().size();
         int groupsCount = mSelectedContacts.getGroupSelectedIdsList().size();
-        for (int i = 0; i < friendsCount; i++) {
-            List<Friend> friendList = Friend.findWithQuery(Friend.class, "select * from friend where user_id=?", String.valueOf(mSelectedContacts.getFriendsSelectedIdList().get(i)));
+
+        for (int i = 0; i < groupsCount; i++) {
+            List<FrissbiGroup> frissbiGroupList = FrissbiGroup.findWithQuery(FrissbiGroup.class, "select * from participant where group_id=?", mSelectedContacts.getGroupSelectedIdsList().get(i).toString());
+            List<Participant> participantList = Participant.findWithQuery(Participant.class, "select * from participant where group_id=?", frissbiGroupList.get(0).getGroupId().toString());
+            FLog.d("MeetingActivity", "participantList" + participantList);
+            for (int j = 0; j < participantList.size(); j++) {
+                Participant participant = participantList.get(j);
+                if (!participant.getParticipantId().equals(SharedPreferenceHandler.getInstance(this).getUserId())) {
+                    FLog.d("MeetingActivity", "participantId" + participant.getParticipantId());
+                    mSelectedContacts.setFriendsSelectedId(participant.getParticipantId());
+                   /* List<Friend> friendList = Friend.findWithQuery(Friend.class, "select * from friend where user_id=?", participant.getParticipantId().toString());
+                    mFriendList.add(friendList.get(0));*/
+                }
+            }
+        }
+
+        //   int friendsCount = mSelectedContacts.getFriendsSelectedIdList().size();
+        Set<Long> selectedFriendIdSet = new HashSet<>();
+        FLog.d("MeetingActivity", "mSelectedContacts======" + mSelectedContacts.getFriendsSelectedIdList());
+        selectedFriendIdSet.addAll(mSelectedContacts.getFriendsSelectedIdList());
+        FLog.d("MeetingActivity", "selectedFriendIdSet-----" + selectedFriendIdSet);
+        List<Long> selectedFriendIdList = new ArrayList<>();
+        selectedFriendIdList.addAll(selectedFriendIdSet);
+        FLog.d("MeetingActivity", "selectedFriendIdList++++++" + selectedFriendIdList);
+        for (int i = 0; i < selectedFriendIdList.size(); i++) {
+            List<Friend> friendList = Friend.findWithQuery(Friend.class, "select * from friend where user_id=?", String.valueOf(selectedFriendIdList.get(i)));
             mFriendList.add(friendList.get(0));
         }
         for (int i = 0; i < emailCount; i++) {
@@ -348,20 +380,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
             Contacts contacts = Contacts.findById(Contacts.class, mSelectedContacts.getContactsSelectedIdsList().get(i));
             mContactsList.add(contacts);
         }
-        for (int i = 0; i < groupsCount; i++) {
-            List<FrissbiGroup> frissbiGroupList = FrissbiGroup.findWithQuery(FrissbiGroup.class, "select * from participant where group_id=?", mSelectedContacts.getGroupSelectedIdsList().get(i).toString());
-            List<Participant> participantList = Participant.findWithQuery(Participant.class, "select * from participant where group_id=?", frissbiGroupList.get(0).getGroupId().toString());
-            FLog.d("MeetingActivity", "participantList" + participantList);
-            for (int j = 0; j < participantList.size(); j++) {
-                Participant participant = participantList.get(j);
-                if (!participant.getParticipantId().equals(SharedPreferenceHandler.getInstance(this).getUserId())) {
-                    FLog.d("MeetingActivity", "participantId" + participant.getParticipantId());
-                    mSelectedContacts.setFriendsSelectedId(participant.getParticipantId());
-                    List<Friend> friendList = Friend.findWithQuery(Friend.class, "select * from friend where user_id=?", participant.getParticipantId().toString());
-                    mFriendList.add(friendList.get(0));
-                }
-            }
-        }
+
 
         SelectedContactsExpandableAdapter selectedContactsExpandableAdapter = new SelectedContactsExpandableAdapter(MeetingActivity.this, mFriendList, mEmailContactsList, mContactsList);
         mSelectedContactsExpandableListView.setAdapter(selectedContactsExpandableAdapter);
@@ -371,26 +390,26 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
     public void onClick(View view) {
 
         switch (view.getId()) {
-            case R.id.meeting_title_rl:
+            case R.id.description_rl:
                 showMeetingTitlesDialog();
                 break;
-            case R.id.date_cardView:
+            case R.id.date_rl:
                 onCreateDialog(DATE_DIALOG_ID).show();
                 break;
-            case R.id.time_cardView:
+            case R.id.time_rl:
                 onCreateDialog(TIME_DIALOG_ID).show();
                 break;
-            case R.id.duration_cardView:
+            case R.id.duration_rl:
                 showDurationDialog();
                 break;
-            case R.id.place_cardView:
+            case R.id.location_rl:
                 showSelectLocationDialog();
                 break;
-            case R.id.addFriends:
+            case R.id.add_attendee_button:
                 Intent intent = new Intent(MeetingActivity.this, AddFriendsToMeetingActivity.class);
                 startActivityForResult(intent, FRIENDS_REQ_CODE);
                 break;
-            case R.id.conform_meeting:
+            case R.id.confirm_meeting:
                 if (checkFieldsValidation()) {
                     if (ConnectionDetector.getInstance(this).isConnectedToInternet()) {
                         sendMeetingDetailsToServer(new JSONArray());
@@ -605,5 +624,18 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         mAlertDialog.dismiss();
     }
 
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
+    }
 
 }

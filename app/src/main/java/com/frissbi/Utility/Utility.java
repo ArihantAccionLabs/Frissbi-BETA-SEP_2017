@@ -44,6 +44,7 @@ public class Utility {
     public static final String  VIEW_PROFILE= "/FriendListService/viewProfile/";
     public static final String SAVED_LOCATIONS = "/UserSettingsService/getUserPreferredLocations/";
     public static final String LOCATION_INSERT = "/UserSettingsService/insertUserPreferredLocations/";
+    public static final String UPCOMING_MEETINGS = "/TimeLineService/getOneWeekMeetingInfo/";
     private static Utility ourInstance = new Utility();
 
     public static Utility getInstance() {

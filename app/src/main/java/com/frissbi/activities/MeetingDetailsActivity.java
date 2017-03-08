@@ -1,10 +1,8 @@
 package com.frissbi.activities;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -21,10 +19,10 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.MeetingFriendsAdapter;
@@ -176,7 +174,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             mMeeting.setMeetingFriendsList(meetingFriendsList);
             if (!meetingJsonObject.getBoolean("isLocationSelected")) {
                 if (meetingJsonObject.has("updateCount")) {
-                    if (meetingJsonObject.getInt("updateCount") != 2) {
+                    if (meetingJsonObject.getInt("updateCount") != 0 && meetingJsonObject.getInt("updateCount") != 2) {
                         mChangePlaceButton.setVisibility(View.VISIBLE);
                     } else {
                         mChangePlaceButton.setVisibility(View.GONE);
@@ -192,6 +190,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
     }
 
     private void setViewWithValues() {
+        FLog.d("MeetingDetailsActivity", "meeting" + mMeeting);
         mMeetingFriendsList = mMeeting.getMeetingFriendsList();
         if (mMeetingFriendsList.size() > 1) {
             mMeetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
@@ -209,7 +208,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             mMeetingDetailsAtTextView.setText("Any Place");
         }
 
-        if (mMeeting.getMeetingSenderId().equals(mUserId)) {
+        if (!mMeeting.getMeetingSenderId().equals(mUserId)) {
             mMeetingStatusLayout.setVisibility(View.VISIBLE);
             mStatusView.setVisibility(View.VISIBLE);
             if (mMeeting.getMeetingStatus() == Utility.STATUS_PENDING) {

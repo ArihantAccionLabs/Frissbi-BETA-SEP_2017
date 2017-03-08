@@ -196,9 +196,8 @@
             android:name=".TabActivity"
             android:label="@string/title_activity_tab"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activities.MeetingActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".activities.MeetingActivity"
+            android:label="LET'S MEET"/>
         <activity android:name=".MyPlacesActivity" />
         <activity
             android:name=".activities.SelectLocationAndSaveActivity"

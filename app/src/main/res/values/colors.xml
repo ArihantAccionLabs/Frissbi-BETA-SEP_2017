@@ -56,6 +56,7 @@
     <color name="light_orange">#FFA07A</color>
     <color name="red">#FF0000</color>
     <color name="green">#008000</color>
-
+    <color name="brown">#7F5158</color>
+    <color name="light_red">#F5A9A9</color>
 
 </resources>

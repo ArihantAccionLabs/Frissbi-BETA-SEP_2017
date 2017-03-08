@@ -246,27 +246,27 @@ public class HomeActivity extends AppCompatActivity
         // repeat many times:
         ImageView itemIcon1 = new ImageView(this);
 
-        itemIcon1.setImageResource(R.drawable.ic_action_location);
+        itemIcon1.setImageResource(R.drawable.icon_location);
 
         ImageView itemIcon2 = new ImageView(this);
-        itemIcon2.setImageResource(R.drawable.ic_action_add_red);
+        itemIcon2.setImageResource(R.drawable.icon_alert);
 
         ImageView itemIcon3 = new ImageView(this);
-        itemIcon3.setImageResource(R.drawable.ic_action_camera);
+        itemIcon3.setImageResource(R.drawable.icon_calendar);
 
         ImageView itemIcon4 = new ImageView(this);
-        itemIcon4.setImageResource(R.drawable.ic_action_clock);
+        itemIcon4.setImageResource(R.drawable.icon_friends);
 
         ImageView itemIcon5 = new ImageView(this);
-        itemIcon5.setImageResource(R.drawable.ic_action_user);
+        itemIcon5.setImageResource(R.drawable.icon_chat);
 
         SubActionButton locationButton = itemBuilder.setContentView(itemIcon1).build();
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(100, 100);
         locationButton.setLayoutParams(layoutParams);
-        SubActionButton addMeetingIcon = itemBuilder.setContentView(itemIcon2).build();
+        SubActionButton addAlertIcon = itemBuilder.setContentView(itemIcon2).build();
+        addAlertIcon.setLayoutParams(layoutParams);
+        SubActionButton addMeetingIcon = itemBuilder.setContentView(itemIcon3).build();
         addMeetingIcon.setLayoutParams(layoutParams);
-        SubActionButton addPhotoButton = itemBuilder.setContentView(itemIcon3).build();
-        addPhotoButton.setLayoutParams(layoutParams);
         SubActionButton button4 = itemBuilder.setContentView(itemIcon4).build();
         button4.setLayoutParams(layoutParams);
         SubActionButton button5 = itemBuilder.setContentView(itemIcon5).build();
@@ -293,8 +293,8 @@ public class HomeActivity extends AppCompatActivity
         //attach the sub buttons to the main button
         mFloatingActionMenu = new FloatingActionMenu.Builder(this).setStartAngle(180).setEndAngle(360)
                 .addSubActionView(locationButton)
+                .addSubActionView(addAlertIcon)
                 .addSubActionView(addMeetingIcon)
-                .addSubActionView(addPhotoButton)
                 .addSubActionView(button4)
                 .addSubActionView(button5)
                 .attachTo(fab)
