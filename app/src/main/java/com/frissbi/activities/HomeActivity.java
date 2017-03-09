@@ -2,14 +2,12 @@ package com.frissbi.activities;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.os.AsyncTask;
@@ -28,9 +26,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -40,22 +36,17 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frissbi.Frissbi_Friends.FriendSerching;
-import com.frissbi.Frissbi_Friends.Friend_Serching_adapter;
-import com.frissbi.Frissbi_Friends.Friend_list_Adapter;
-import com.frissbi.Frissbi_Meetings.Meets;
-import com.frissbi.Frissbi_Pojo.Friend_list_Pojo;
 import com.frissbi.Frissbi_profilePic.Profile_Pic;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.TSLocationManager;
 import com.frissbi.Utility.Utility;
@@ -63,11 +54,10 @@ import com.frissbi.fragments.FriendRequestFragment;
 import com.frissbi.fragments.MeetingAlertFragment;
 import com.frissbi.fragments.MeetingLogFragment;
 import com.frissbi.fragments.TimeLineFragment;
-import com.frissbi.frissbi.Login;
-import com.frissbi.frissbi.Update_profile;
 import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
 import com.frissbi.models.Friend;
+import com.frissbi.models.FrissbiContact;
 import com.frissbi.networkhandler.TSNetworkHandler;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -96,41 +86,20 @@ public class HomeActivity extends AppCompatActivity
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1000;
     private static final int REQUEST_CHECK_SETTINGS = 2000;
     private static final String TAG = "HomeActivity";
-    private ConnectionDetector mConnectionDetector;
-    private boolean mIsInternetPresent;
-    private SharedPreferenceHandler mSharedPreferences;
-    private SharedPreferences.Editor mEditor;
     private TextView mUserNameTextView;
-    android.support.design.widget.FloatingActionButton fab;
-    String value;
-    List<Friend_list_Pojo> list = new ArrayList<Friend_list_Pojo>();
-    List<Friend_list_Pojo> list1 = new ArrayList<Friend_list_Pojo>();
-    Dialog dialogp;
+    private android.support.design.widget.FloatingActionButton fab;
 
-    EditText serchtext = null;
-    Button SerchButton, menu, invite;
-    private Friend_Serching_adapter adp;
-    JSONArray aJson = null;
-    String jsonStr, jsonStr1;
-    int selectItem;
-    private ListView serch;
-    Friend_list_Adapter adp1;
-    private ProgressDialog progressDialog;
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
-    private List<EmailContacts> emailContactsList;
     private Button mAddMeetingButton;
     private Long mUserId;
     private String mUserName;
-    private CustomProgressDialog mProgressDialog;
-    private SharedPreferences mEmailSharedPreferences;
+    private ProgressDialog mProgressDialog;
     private LinearLayout mDimBackgroundLayout;
     private FloatingActionMenu mFloatingActionMenu;
     private Animation rotate_forward;
     private Animation rotate_backward;
-    private AlertDialog locationAlertDialog;
     private EmailIdsAsync mEmailIdsAsync;
-    private RecyclerView mNavRecyclerView;
 
 
     @Override
@@ -141,11 +110,10 @@ public class HomeActivity extends AppCompatActivity
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
         mProgressDialog = new CustomProgressDialog(this);
-        emailContactsList = new ArrayList<>();
-        mEmailSharedPreferences = getSharedPreferences("GMAIL_REG", Context.MODE_PRIVATE);
         mEmailIdsAsync = new EmailIdsAsync();
-        mSharedPreferences = SharedPreferenceHandler.getInstance(this);
 
+        mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
+        mUserName = SharedPreferenceHandler.getInstance(this).getUserName();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
@@ -186,23 +154,17 @@ public class HomeActivity extends AppCompatActivity
             }
         } else {
 
-            if (EmailContacts.listAll(EmailContacts.class).size() == 0) {
+          /*  if (EmailContacts.listAll(EmailContacts.class).size() == 0) {
                 //getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
                 mEmailIdsAsync.execute();
+            }*/
 
+            if (FrissbiContact.listAll(FrissbiContact.class).size() == 0) {
+                saveAllContactsInLocal();
             }
-            if (Contacts.listAll(Contacts.class).size() == 0) {
-                // readContacts();
-            }
-
-
             //  getContactIdByEmail(mSharedPreferences.getString("mail", "editor"));
 
         }
-
-        mUserId = mSharedPreferences.getUserId();
-        mUserName = mSharedPreferences.getUserName();
-
 
         mTabLayout = (TabLayout) toolbar.findViewById(R.id.tabLayout);
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
@@ -213,9 +175,6 @@ public class HomeActivity extends AppCompatActivity
         mTabLayout.getTabAt(2).setIcon(R.drawable.group);
         mTabLayout.getTabAt(3).setIcon(R.drawable.notification);
         mDimBackgroundLayout = (LinearLayout) findViewById(R.id.dim_background);
-        mConnectionDetector = new ConnectionDetector(getApplicationContext());
-        mIsInternetPresent = mConnectionDetector.isConnectedToInternet();
-        progressDialog = new CustomProgressDialog(HomeActivity.this);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
         View navHeaderView = navigationView.getHeaderView(0);
@@ -343,11 +302,6 @@ public class HomeActivity extends AppCompatActivity
         //mViewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
 
 
-        if (mIsInternetPresent) {
-            getFriendsFromServer();
-        } else {
-            Toast.makeText(getApplicationContext(), "You don't have an internet connection", Toast.LENGTH_SHORT).show();
-        }
         mAddMeetingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -364,6 +318,14 @@ public class HomeActivity extends AppCompatActivity
         });
 
 
+    }
+
+    private void saveAllContactsInLocal() {
+        if (ConnectionDetector.getInstance(this).isConnectedToInternet()) {
+            getFriendsFromServer();
+        } else {
+            Toast.makeText(getApplicationContext(), "You don't have an internet connection", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void getAllContacts() {
@@ -453,7 +415,7 @@ public class HomeActivity extends AppCompatActivity
 
 
             // check for Internet status
-            if (mIsInternetPresent) {
+            if (ConnectionDetector.getInstance(this).isConnectedToInternet()) {
                 Intent intent = new Intent(getApplication(), MeetingCalendarActivity.class);
                 startActivity(intent);
             } else {
@@ -482,7 +444,7 @@ public class HomeActivity extends AppCompatActivity
             Intent intent = new Intent(getApplication(), Profile_Pic.class);
             startActivity(intent);
         } else if (id == R.id.nav_logout) {
-            mSharedPreferences.clearUserDetails();
+            SharedPreferenceHandler.getInstance(this).clearUserDetails();
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -542,7 +504,6 @@ public class HomeActivity extends AppCompatActivity
 
 
     private void getFriendsFromServer() {
-        Friend.deleteAll(Friend.class);
         mProgressDialog.show();
         String url = Utility.REST_URI + Utility.USER_FRIENDSLIST + mUserId;
         TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
@@ -555,12 +516,27 @@ public class HomeActivity extends AppCompatActivity
                             JSONArray friendsListJsonArray = responseJsonObject.getJSONArray("friends_array");
                             for (int index = 0; index < friendsListJsonArray.length(); index++) {
                                 JSONObject friendJsonObject = friendsListJsonArray.getJSONObject(index);
-                                Friend friend = new Friend();
+                              /*  Friend friend = new Friend();
                                 friend.setUserId(friendJsonObject.getLong("userId"));
                                 friend.setFullName(friendJsonObject.getString("fullName"));
                                 friend.setEmailId(friendJsonObject.getString("email"));
-                                friend.save();
+                                friend.save();*/
+
+                                FrissbiContact frissbiContact = new FrissbiContact();
+                                frissbiContact.setUserId(friendJsonObject.getLong("userId"));
+                                frissbiContact.setName(friendJsonObject.getString("fullName"));
+                                frissbiContact.setEmailId(friendJsonObject.getString("email"));
+                                if (friendJsonObject.has("profileImage")) {
+                                    frissbiContact.setImage(friendJsonObject.getString("profileImage"));
+                                }
+                                if (friendJsonObject.has("phoneNumber")) {
+                                    frissbiContact.setPhoneNumber(friendJsonObject.getString("phoneNumber"));
+                                }
+                                frissbiContact.setType(1);
+                                frissbiContact.save();
                             }
+                            FLog.d("HomeActivity", "FrissbiContactList++++++++1------" + FrissbiContact.listAll(FrissbiContact.class));
+                            mEmailIdsAsync.execute();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -571,7 +547,6 @@ public class HomeActivity extends AppCompatActivity
                 } else {
                     Toast.makeText(HomeActivity.this, "Something went wrong at server end", Toast.LENGTH_SHORT).show();
                 }
-                mProgressDialog.dismiss();
             }
         });
     }
@@ -612,10 +587,19 @@ public class HomeActivity extends AppCompatActivity
                     // names comes in hand sometimes
                     String name = cur.getString(1);
                     String emailId = cur.getString(3);
-                    EmailContacts emailContacts = new EmailContacts();
+                    /*EmailContacts emailContacts = new EmailContacts();
                     emailContacts.setName(name);
                     emailContacts.setEmailId(emailId);
-                    emailContacts.save();
+                    emailContacts.save();*/
+
+
+                    if (FrissbiContact.findWithQuery(FrissbiContact.class, "select * from frissbi_contact where email_id=?", emailId).size() == 0) {
+                        FrissbiContact frissbiContact = new FrissbiContact();
+                        frissbiContact.setName(name);
+                        frissbiContact.setEmailId(emailId);
+                        frissbiContact.setType(2);
+                        frissbiContact.save();
+                    }
 
 
                     // keep unique only
@@ -633,7 +617,7 @@ public class HomeActivity extends AppCompatActivity
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
-
+            FLog.d("HomeActivity", "FrissbiContactList-----2========" + FrissbiContact.listAll(FrissbiContact.class));
             ContactsAsync contactsAsync = new ContactsAsync();
             contactsAsync.execute();
         }
@@ -706,8 +690,6 @@ public class HomeActivity extends AppCompatActivity
                     String name = cur.getString(cur.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
 
                     if (Integer.parseInt(cur.getString(cur.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER))) > 0) {
-                        Contacts contacts = new Contacts();
-                        contacts.setName(name);
 
                         String phone = "0";
                         // get the phone number
@@ -717,18 +699,31 @@ public class HomeActivity extends AppCompatActivity
                         while (pCur.moveToNext()) {
                             phone = pCur.getString(
                                     pCur.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                            System.out.println();
-                            System.out.println("name : " + name + "   phone" + phone);
                         }
+                       /* Contacts contacts = new Contacts();
+                        contacts.setName(name);
                         contacts.setPhoneNumber(phone);
-                        contacts.save();
+                        contacts.save();*/
+
+                        if (FrissbiContact.findWithQuery(FrissbiContact.class, "select * from frissbi_contact where phone_number=?", phone).size() == 0) {
+                            FrissbiContact frissbiContact = new FrissbiContact();
+                            frissbiContact.setName(name);
+                            frissbiContact.setPhoneNumber(phone);
+                            frissbiContact.setType(3);
+                            frissbiContact.save();
+                        }
                         pCur.close();
                     }
-
-
                 }
             }
             return "Contacts saved successfully";
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            mProgressDialog.dismiss();
+            FLog.d("HomeActivity", "FrissbiContactList----3" + FrissbiContact.listAll(FrissbiContact.class));
         }
     }
 

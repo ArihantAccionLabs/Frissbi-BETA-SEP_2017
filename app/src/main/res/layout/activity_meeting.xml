@@ -14,7 +14,7 @@
         <android.support.v7.widget.RecyclerView
             android:id="@+id/meeting_attendees_recyclerView"
             android:layout_width="match_parent"
-            android:layout_height="60dp"
+            android:layout_height="wrap_content"
             android:layout_toLeftOf="@+id/add_attendee_button" />
 
         <Button
@@ -31,7 +31,8 @@
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:text="Add Attendees"
-            android:textColor="@color/white" />
+            android:textColor="@color/white"
+            android:visibility="visible" />
 
     </RelativeLayout>
 

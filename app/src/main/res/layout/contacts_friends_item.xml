@@ -9,25 +9,24 @@
         android:layout_height="wrap_content"
         android:padding="10dp">
 
-        <CheckBox
-            android:id="@+id/contact_checkBox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:buttonTint="@color/bg_color" />
+        <ImageView
+            android:id="@+id/profile_imageView"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:src="@drawable/pic1" />
 
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
-            android:layout_toRightOf="@+id/contact_checkBox">
+            android:layout_toRightOf="@+id/profile_imageView">
 
             <com.frissbi.CustomFontTextView
                 android:id="@+id/contact_name_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Contact name"
+                android:text="Name"
                 android:textColor="@color/black"
                 android:textSize="16sp" />
 
@@ -37,9 +36,18 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/contact_name_tv"
                 android:layout_marginTop="6dp"
-                android:text="Phone number" />
-
+                android:text="Phone number"
+                android:visibility="gone" />
         </RelativeLayout>
     </RelativeLayout>
+
+    <ImageView
+        android:id="@+id/selected_icon_imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right|center_vertical"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/icon_tick"
+        android:visibility="gone" />
 
 </android.support.v7.widget.CardView>

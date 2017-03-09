@@ -1,5 +1,7 @@
 package com.frissbi;
 
+import com.frissbi.models.FrissbiContact;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,6 +13,7 @@ public class SelectedContacts {
     private List<Long> mFriendsSelectedIdList;
     private List<Long> mEmailsSelectedIdsList;
     private List<Long> mContactsSelectedIdsList;
+    private List<FrissbiContact> mFrissbiContactList;
     private List<Long> mGroupSelectedIdsList;
 
     public static SelectedContacts getInstance() {
@@ -24,6 +27,7 @@ public class SelectedContacts {
         mEmailsSelectedIdsList = new ArrayList<>();
         mFriendsSelectedIdList = new ArrayList<>();
         mGroupSelectedIdsList = new ArrayList<>();
+        mFrissbiContactList = new ArrayList<>();
     }
 
     public void clearContacts() {
@@ -31,6 +35,7 @@ public class SelectedContacts {
         mEmailsSelectedIdsList.clear();
         mFriendsSelectedIdList.clear();
         mGroupSelectedIdsList.clear();
+        mFrissbiContactList.clear();
     }
 
 
@@ -82,5 +87,17 @@ public class SelectedContacts {
 
     public List<Long> getContactsSelectedIdsList() {
         return mContactsSelectedIdsList;
+    }
+
+    public List<FrissbiContact> getFrissbiContactList() {
+        return mFrissbiContactList;
+    }
+
+    public void setFrissbiContact(FrissbiContact frissbiContact) {
+        mFrissbiContactList.add(frissbiContact);
+    }
+
+    public void deleteFrissbiContact(FrissbiContact frissbiContact) {
+        mFrissbiContactList.remove(frissbiContact);
     }
 }

@@ -51,12 +51,12 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
-        mProfileUserImageView = (ImageView) findViewById(R.id.profile_user_image);
+       /* mProfileUserImageView = (ImageView) findViewById(R.id.profile_user_image);
         mProfileUserNameTextView = (TextView) findViewById(R.id.profile_user_name);
         mAddFriendButton = (Button) findViewById(R.id.add_friend_button);
         mProfileUserEmail = (TextView) findViewById(R.id.profile_user_email);
         mDobTextView = (TextView) findViewById(R.id.dob_tv);
-        mGenderTextView = (TextView) findViewById(R.id.gender_tv);
+        mGenderTextView = (TextView) findViewById(R.id.gender_tv);*/
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             mAddFriendButton.setVisibility(View.VISIBLE);
@@ -214,9 +214,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.add_friend_button:
+           /* case R.id.add_friend_button:
                 sendFriendRequest();
-                break;
+                break;*/
         }
     }
 

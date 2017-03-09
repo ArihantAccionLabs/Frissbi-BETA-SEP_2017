@@ -1,76 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_profile"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:weightSum="5"
     tools:context="com.frissbi.activities.ProfileActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:background="@drawable/car_image">
 
-        <ImageView
-            android:id="@+id/profile_user_image"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_margin="10dp"
-            android:src="@drawable/pic1" />
-
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="16dp"
-            android:layout_toRightOf="@+id/profile_user_image">
+            android:layout_height="match_parent"
+            android:layout_marginBottom="50dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="30dp"
+            android:layout_marginTop="50dp"
+            android:weightSum="6">
 
-            <com.frissbi.CustomFontTextView
-                android:id="@+id/profile_user_name"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="User Name" />
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="2">
 
-            <com.frissbi.CustomFontTextView
-                android:id="@+id/profile_user_email"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/profile_user_name"
-                android:layout_marginTop="4dp"
-                android:text="Email Id" />
+                <Button
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/icon_edit_profile_pic_black" />
 
-            <com.frissbi.CustomFontTextView
-                android:visibility="gone"
-                android:id="@+id/dob_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/profile_user_email"
-                android:layout_marginTop="4dp"
-                android:text="DOB :" />
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/default_profile_image" />
 
-            <com.frissbi.CustomFontTextView
-                android:id="@+id/gender_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/dob_tv"
-                android:layout_marginTop="4dp"
-                android:text="Gender :"
-                android:visibility="gone" />
 
-            <Button
-                android:id="@+id/add_friend_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_below="@+id/profile_user_email"
-                android:layout_marginRight="10dp"
-                android:background="@color/bg_color"
-                android:minHeight="40dp"
-                android:text="Add"
-                android:textAllCaps="false"
-                android:visibility="gone"
-                android:textColor="@color/white" />
+            </RelativeLayout>
 
-        </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4"
+                android:background="#99ffffff">
+
+                <com.frissbi.CustomFontTextView
+                    android:id="@+id/profile_username_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="16dp"
+                    android:text="User Name"
+                    android:textColor="@color/black" />
+
+                <com.frissbi.CustomFontTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/profile_username_tv"
+                    android:layout_marginLeft="16dp"
+                    android:layout_marginTop="30dp"
+                    android:text="My Status Message"
+                    android:textColor="@color/black"
+                    android:textStyle="bold" />
+
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+        <Button
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="6dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginTop="6dp"
+            android:background="@drawable/icon_edit_profile_pic_white" />
     </RelativeLayout>
 
-</RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="3"
+        android:background="@color/bg_color">
+
+
+    </RelativeLayout>
+
+
+    <!-- <RelativeLayout
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content">
+
+         <ImageView
+             android:id="@+id/profile_user_image"
+             android:layout_width="100dp"
+             android:layout_height="100dp"
+             android:layout_margin="10dp"
+             android:src="@drawable/pic1" />
+
+         <RelativeLayout
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:layout_marginLeft="10dp"
+             android:layout_marginTop="16dp"
+             android:layout_toRightOf="@+id/profile_user_image">
+
+             <com.frissbi.CustomFontTextView
+                 android:id="@+id/profile_user_name"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:text="User Name" />
+
+             <com.frissbi.CustomFontTextView
+                 android:id="@+id/profile_user_email"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_below="@+id/profile_user_name"
+                 android:layout_marginTop="4dp"
+                 android:text="Email Id" />
+
+             <com.frissbi.CustomFontTextView
+                 android:visibility="gone"
+                 android:id="@+id/dob_tv"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_below="@+id/profile_user_email"
+                 android:layout_marginTop="4dp"
+                 android:text="DOB :" />
+
+             <com.frissbi.CustomFontTextView
+                 android:id="@+id/gender_tv"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_below="@+id/dob_tv"
+                 android:layout_marginTop="4dp"
+                 android:text="Gender :"
+                 android:visibility="gone" />
+
+             <Button
+                 android:id="@+id/add_friend_button"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_alignParentRight="true"
+                 android:layout_below="@+id/profile_user_email"
+                 android:layout_marginRight="10dp"
+                 android:background="@color/bg_color"
+                 android:minHeight="40dp"
+                 android:text="Add"
+                 android:textAllCaps="false"
+                 android:visibility="gone"
+                 android:textColor="@color/white" />
+
+         </RelativeLayout>
+     </RelativeLayout>-->
+
+</LinearLayout>

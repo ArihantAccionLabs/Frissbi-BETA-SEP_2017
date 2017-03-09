@@ -3,7 +3,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <com.frissbi.Utility.RoundedImageView
+    <ImageView
         android:id="@+id/participant_icon"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -12,10 +12,12 @@
 
     <com.frissbi.CustomFontTextView
         android:id="@+id/participant_name"
-        android:layout_centerHorizontal="true"
-        android:layout_width="wrap_content"
+        android:layout_width="80dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/participant_icon"
+        android:layout_centerHorizontal="true"
+        android:ellipsize="end"
+        android:gravity="center"
         android:maxLines="1"
         android:text="Name" />
 

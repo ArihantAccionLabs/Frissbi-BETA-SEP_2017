@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="bg_color">#DE5549</color>
+    <!--<color name="bg_color">#DE5549</color>-->
+    <color name="bg_color">#E76C5B</color>
     <!-- <color name="colorPrimary">#5F0200</color>-->
     <color name="colorPrimary">#DE5549</color>
     <color name="colorPrimaryDark">#5F0200</color>

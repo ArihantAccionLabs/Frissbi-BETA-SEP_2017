@@ -25,6 +25,7 @@ import android.view.View;
 
 import com.frissbi.R;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.FLog;
 import com.frissbi.fragments.ContactsFragment;
 import com.frissbi.fragments.EmailFriendsFragment;
 import com.frissbi.fragments.FrissbiFriendsFragment;
@@ -33,6 +34,7 @@ import com.frissbi.interfaces.ContactsSelectedListener;
 import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
 import com.frissbi.models.Friend;
+import com.frissbi.models.FrissbiContact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -70,7 +72,7 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
         mEmailFriendsFragment = new EmailFriendsFragment();
         mContactsFragment = new ContactsFragment();
         mFrissbiFriendsFragment = new FrissbiFriendsFragment();
-        mGroupsFragment=new GroupsFragment();
+        mGroupsFragment = new GroupsFragment();
         mFriendList = new ArrayList<>();
         mEmailContactsList = new ArrayList<>();
         mContactsList = new ArrayList<>();
@@ -81,6 +83,7 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
         mSharedPreferences = getSharedPreferences("GMAIL_REG", Context.MODE_PRIVATE);
         Log.d("AddFriendsToMeeting", "email" + mSharedPreferences.getString("mail", "editor"));
 
+        FLog.d("AddFriendsToMeeting", "FrissbiContactList" + FrissbiContact.listAll(FrissbiContact.class));
 
         setupViewPager(mFriendsViewPager);
         mAddFriendsTabLayout.setupWithViewPager(mFriendsViewPager);
@@ -97,8 +100,8 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
-        viewPagerAdapter.addFragment(mFrissbiFriendsFragment, "Friend");
-        viewPagerAdapter.addFragment(mEmailFriendsFragment, "Emails");
+      /*  viewPagerAdapter.addFragment(mFrissbiFriendsFragment, "Friend");
+        viewPagerAdapter.addFragment(mEmailFriendsFragment, "Emails");*/
         viewPagerAdapter.addFragment(mContactsFragment, "Contacts");
         viewPagerAdapter.addFragment(mGroupsFragment, "Groups");
         viewPager.setAdapter(viewPagerAdapter);
@@ -198,15 +201,16 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
     @Override
     public boolean onQueryTextChange(String newText) {
 
-        if (mFrissbiFriendsFragment.isMenuVisible()) {
+       /* if (mFrissbiFriendsFragment.isMenuVisible()) {
 
             mFrissbiFriendsFragment.filterFriends(newText);
         } else if (mEmailFriendsFragment.isMenuVisible()) {
 
             mEmailFriendsFragment.filterEmails(newText);
-        } else if (mContactsFragment.isMenuVisible()) {
+        } else */
+        if (mContactsFragment.isMenuVisible()) {
             mContactsFragment.filterContacts(newText);
-        }else if (mGroupsFragment.isMenuVisible()){
+        } else if (mGroupsFragment.isMenuVisible()) {
             mGroupsFragment.filterGroups(newText);
         }
         return false;

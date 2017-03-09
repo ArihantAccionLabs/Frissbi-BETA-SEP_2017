@@ -12,7 +12,8 @@ import android.view.ViewGroup;
 import com.frissbi.R;
 import com.frissbi.adapters.ContactsAdapter;
 import com.frissbi.interfaces.ContactsSelectedListener;
-import com.frissbi.models.Contacts;
+import com.frissbi.models.FrissbiContact;
+import com.orm.query.Select;
 
 import java.util.List;
 
@@ -22,7 +23,7 @@ import java.util.List;
 public class ContactsFragment extends Fragment {
 
     private RecyclerView mContactsRecyclerView;
-    List<Contacts> mContactsList;
+    List<FrissbiContact> mFrissbiContactList;
     private List<Long> mContactsSelectedIdsList;
     private ContactsSelectedListener mContactsSelectedListener;
     private ContactsAdapter mContactsAdapter;
@@ -35,9 +36,10 @@ public class ContactsFragment extends Fragment {
         mContactsRecyclerView = (RecyclerView) view.findViewById(R.id.contacts_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mContactsRecyclerView.setLayoutManager(layoutManager);
-        mContactsList = Contacts.listAll(Contacts.class);
+        mFrissbiContactList = Select.from(FrissbiContact.class).orderBy("type").list();
+        //mFrissbiContactList = FrissbiContact.listAll(FrissbiContact.class);
         mContactsSelectedListener = (ContactsSelectedListener) getActivity();
-        mContactsAdapter = new ContactsAdapter(getActivity(), mContactsList);
+        mContactsAdapter = new ContactsAdapter(getActivity(), mFrissbiContactList);
         mContactsRecyclerView.setAdapter(mContactsAdapter);
         return view;
     }

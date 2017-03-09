@@ -1,6 +1,7 @@
 package com.frissbi.adapters;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,6 +10,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frissbi.R;
@@ -16,6 +18,7 @@ import com.frissbi.SelectedContacts;
 import com.frissbi.interfaces.ContactsSelectedListener;
 import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
+import com.frissbi.models.FrissbiContact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,18 +30,24 @@ import java.util.List;
 public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHolder> implements Filterable {
 
     private Context mContext;
-    private List<Contacts> mContactsList;
-    private List<Contacts> mOriginalContactsList;
-    private List<Long> mContactsSelectedIdsList;
+    private List<FrissbiContact> mFrissbiContactList;
+    private List<FrissbiContact> mOriginalFrissbiContactList;
+    private List<FrissbiContact> mContactsFrissbiContactList;
     private SelectedContacts mSelectedContacts;
     private ContactsFilter mContactsFilter;
+    private List<Long> mSelectedIds;
 
-    public ContactsAdapter(Context context, List<Contacts> contactsList) {
+    public ContactsAdapter(Context context, List<FrissbiContact> contactsList) {
         mContext = context;
-        mContactsList = contactsList;
+        mFrissbiContactList = contactsList;
         mSelectedContacts = SelectedContacts.getInstance();
-        mContactsSelectedIdsList = mSelectedContacts.getContactsSelectedIdsList();
-        mOriginalContactsList = contactsList;
+        mContactsFrissbiContactList = mSelectedContacts.getFrissbiContactList();
+        mOriginalFrissbiContactList = contactsList;
+        mSelectedIds = new ArrayList<>();
+        for (FrissbiContact frissbiContact : mContactsFrissbiContactList) {
+            mSelectedIds.add(frissbiContact.getId());
+        }
+
     }
 
     @Override
@@ -48,47 +57,64 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, final int position) {
-        holder.contactNameTv.setText(mContactsList.get(position).getName());
-        holder.phoneNumTv.setText(mContactsList.get(position).getPhoneNumber());
+    public void onBindViewHolder(final ViewHolder holder, final int position) {
+        final FrissbiContact frissbiContact = mFrissbiContactList.get(position);
 
-        if (mContactsSelectedIdsList.size() > 0) {
-            if (mContactsSelectedIdsList.contains(mContactsList.get(position).getId())) {
-                holder.contactCheckBox.setChecked(true);
+        if (frissbiContact.getType() == 1) {
+            holder.contactNameTv.setText(frissbiContact.getName());
+            holder.phoneNumTv.setVisibility(View.GONE);
+            holder.profileImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.pic1));
+        } else if (frissbiContact.getType() == 2) {
+            holder.contactNameTv.setText(frissbiContact.getEmailId());
+            holder.phoneNumTv.setVisibility(View.GONE);
+            holder.profileImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.email_icon));
+        } else if (frissbiContact.getType() == 3) {
+            holder.contactNameTv.setText(frissbiContact.getName());
+            holder.phoneNumTv.setVisibility(View.VISIBLE);
+            holder.phoneNumTv.setText(frissbiContact.getPhoneNumber());
+            holder.profileImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.phone_icon));
+        }
+        if (mSelectedIds.size() > 0) {
+            if (mSelectedIds.contains(frissbiContact.getId())) {
+                holder.selectedIconImageView.setVisibility(View.VISIBLE);
             } else {
-                holder.contactCheckBox.setChecked(false);
+                holder.selectedIconImageView.setVisibility(View.GONE);
             }
         }
-        holder.contactCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean checked) {
-                if (checked) {
-                    mSelectedContacts.setContactsSelectedId(mContactsList.get(position).getId());
+            public void onClick(View v) {
+                if (holder.selectedIconImageView.getVisibility() == View.VISIBLE) {
+                    holder.selectedIconImageView.setVisibility(View.GONE);
+                    mSelectedContacts.deleteFrissbiContact(frissbiContact);
                 } else {
-                    mSelectedContacts.deleteContactsSelectedId(mContactsList.get(position).getId());
+                    holder.selectedIconImageView.setVisibility(View.VISIBLE);
+                    mSelectedContacts.setFrissbiContact(frissbiContact);
                 }
             }
         });
+
     }
 
     @Override
     public int getItemCount() {
-        return mContactsList.size();
+        return mFrissbiContactList.size();
     }
 
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+        private final ImageView profileImageView;
+        private final ImageView selectedIconImageView;
         private TextView phoneNumTv;
         private TextView contactNameTv;
-        private CheckBox contactCheckBox;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            contactCheckBox = (CheckBox) itemView.findViewById(R.id.contact_checkBox);
+            profileImageView = (ImageView) itemView.findViewById(R.id.profile_imageView);
             contactNameTv = (TextView) itemView.findViewById(R.id.contact_name_tv);
             phoneNumTv = (TextView) itemView.findViewById(R.id.phone_num_tv);
-
-
+            selectedIconImageView = (ImageView) itemView.findViewById(R.id.selected_icon_imageView);
         }
     }
 
@@ -106,25 +132,25 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults results = new FilterResults();
             if (constraint != null && constraint.length() > 0) {
-                List<Contacts> contactsList = new ArrayList<>();
-                for (int i = 0; i < mContactsList.size(); i++) {
-                    if ((mContactsList.get(i).getName().toUpperCase())
+                List<FrissbiContact> contactsList = new ArrayList<>();
+                for (int i = 0; i < mFrissbiContactList.size(); i++) {
+                    if ((mFrissbiContactList.get(i).getName().toUpperCase())
                             .startsWith(constraint.toString().toUpperCase())) {
-                        contactsList.add(mContactsList.get(i));
+                        contactsList.add(mFrissbiContactList.get(i));
                     }
                 }
                 results.count = contactsList.size();
                 results.values = contactsList;
             } else {
-                results.count = mOriginalContactsList.size();
-                results.values = mOriginalContactsList;
+                results.count = mOriginalFrissbiContactList.size();
+                results.values = mOriginalFrissbiContactList;
             }
             return results;
         }
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            mContactsList = (List<Contacts>) results.values;
+            mFrissbiContactList = (List<FrissbiContact>) results.values;
             notifyDataSetChanged();
         }
     }

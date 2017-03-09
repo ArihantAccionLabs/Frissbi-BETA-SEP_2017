@@ -64,22 +64,14 @@ public class TSNetworkHandler {
     }
 
     public void getResponse(String _url, JSONObject json, ResponseHandler handler) {
-
         Log.d("TAG", "sending json request " + json.toString());
-
-
         new JsonRequestAsyncTask(_url, json, handler).execute();
-
     }
 
 
     public void getResponse(String _url, JSONObject json, String type, ResponseHandler handler) {
-
         Log.d("TAG", "sending json request " + json.toString());
-
-
         new JsonRequestGetAsyncTask(_url, json, handler).execute();
-
     }
 
 

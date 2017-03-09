@@ -1,6 +1,7 @@
 package com.frissbi.adapters;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,9 +9,14 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
+import com.frissbi.Utility.FLog;
+import com.frissbi.Utility.Utility;
 import com.frissbi.activities.CreateGroupActivity;
+import com.frissbi.activities.MeetingActivity;
 import com.frissbi.models.Friend;
+import com.frissbi.models.FrissbiContact;
 
 import java.util.List;
 
@@ -22,10 +28,19 @@ public class GroupParticipantAdapter extends RecyclerView.Adapter<GroupParticipa
 
     private Context mContext;
     private List<Friend> mFriendList;
+    private boolean mIsFromMeetingCreation;
+    private List<FrissbiContact> mFrissbiContactList;
 
     public GroupParticipantAdapter(Context context, List<Friend> friendList) {
         mContext = context;
         mFriendList = friendList;
+    }
+
+    public GroupParticipantAdapter(Context context, List<FrissbiContact> frissbiContactList, boolean isFromMeetingCreation) {
+        mContext = context;
+        mFrissbiContactList = frissbiContactList;
+        FLog.d("GroupParticipantAdapter", "mFrissbiContactList" + mFrissbiContactList);
+        mIsFromMeetingCreation = isFromMeetingCreation;
     }
 
     @Override
@@ -36,14 +51,36 @@ public class GroupParticipantAdapter extends RecyclerView.Adapter<GroupParticipa
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-
-        holder.participantName.setText(mFriendList.get(position).getFullName());
-
+        if (mIsFromMeetingCreation) {
+            holder.participantName.setTextColor(ContextCompat.getColor(mContext, R.color.white));
+            FrissbiContact frissbiContact = mFrissbiContactList.get(position);
+            if (frissbiContact.getType() == 1) {
+                holder.participantName.setText(frissbiContact.getName());
+                //holder.participantIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.pic1));
+                if (frissbiContact.getImage() != null) {
+                    holder.participantIcon.setImageBitmap(Utility.getInstance().getBitmapFromString(frissbiContact.getImage()));
+                } else {
+                    holder.participantIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.pic1));
+                }
+            } else if (frissbiContact.getType() == 2) {
+                holder.participantName.setText(frissbiContact.getEmailId());
+                holder.participantIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.icon_email));
+            } else if (frissbiContact.getType() == 3) {
+                holder.participantName.setText(frissbiContact.getName());
+                holder.participantIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.icon_phone));
+            }
+        } else {
+            holder.participantName.setText(mFriendList.get(position).getFullName());
+        }
     }
 
     @Override
     public int getItemCount() {
-        return mFriendList.size();
+        if (mIsFromMeetingCreation) {
+            return mFrissbiContactList.size();
+        } else {
+            return mFriendList.size();
+        }
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

@@ -36,16 +36,20 @@ import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
+import com.frissbi.adapters.GroupParticipantAdapter;
 import com.frissbi.adapters.MeetingTitleAdapter;
 import com.frissbi.adapters.SelectedContactsExpandableAdapter;
 import com.frissbi.interfaces.MeetingTitleSelectionListener;
 import com.frissbi.models.Contacts;
 import com.frissbi.models.EmailContacts;
 import com.frissbi.models.Friend;
+import com.frissbi.models.FrissbiContact;
 import com.frissbi.models.FrissbiGroup;
+import com.frissbi.models.Meeting;
 import com.frissbi.models.MyPlaces;
 import com.frissbi.models.Participant;
 import com.frissbi.networkhandler.TSNetworkHandler;
+import com.orm.query.Select;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -78,9 +82,10 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
     String[] values = new String[]{"1:00", "1:30", "2:00", "2:30", "3:00", "3:30", "4:00", "4:30", "5:00", "5:30", "6:00"};
     private SelectedContacts mSelectedContacts;
     private ExpandableListView mSelectedContactsExpandableListView;
-    private List<Friend> mFriendList;
+    /*private List<Friend> mFriendList;
     private List<EmailContacts> mEmailContactsList;
-    private List<Contacts> mContactsList;
+    private List<Contacts> mContactsList;*/
+    private List<FrissbiContact> mFrissbiContactList;
     private List<FrissbiGroup> mFrissbiGroupList;
     private TextView mMeetingTitleTextView;
 
@@ -89,6 +94,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
     private AlertDialog mAlertDialog;
     private AlertDialog mConflictAlertDialog;
     private TextView mAddAttendeeTextView;
+    private RecyclerView mMeetingAttendeesRecyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,9 +105,10 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         mSelectedContacts.clearContacts();
         mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
         mProgressDialog = new CustomProgressDialog(this);
-        mFriendList = new ArrayList<>();
+       /* mFriendList = new ArrayList<>();
         mEmailContactsList = new ArrayList<>();
-        mContactsList = new ArrayList<>();
+        mContactsList = new ArrayList<>();*/
+        mFrissbiContactList = new ArrayList<>();
         mFrissbiGroupList = new ArrayList<>();
         mMeetingDateTextView = (TextView) findViewById(R.id.meeting_date_tv);
         mMeetingTimeTextView = (TextView) findViewById(R.id.meeting_time_tv);
@@ -113,20 +120,14 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         RelativeLayout durationLayout = (RelativeLayout) findViewById(R.id.duration_rl);
         RelativeLayout locationLayout = (RelativeLayout) findViewById(R.id.location_rl);
         RelativeLayout descriptionLayout = (RelativeLayout) findViewById(R.id.description_rl);
-
         // mSelectedContactsExpandableListView = (ExpandableListView) findViewById(R.id.selected_contacts_expandableListView);
         mMeetingTitleTextView = (TextView) findViewById(R.id.meeting_title_tv);
         ImageView confirmMeetingImageView = (ImageView) findViewById(R.id.confirm_meeting);
         Button addAttendeeButton = (Button) findViewById(R.id.add_attendee_button);
+        mMeetingAttendeesRecyclerView = (RecyclerView) findViewById(R.id.meeting_attendees_recyclerView);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mMeetingAttendeesRecyclerView.setLayoutManager(layoutManager);
         if (getIntent().getExtras() != null && getIntent().getExtras().containsKey("groupId")) {
-            /*List<Participant> participantList = Participant.findWithQuery(Participant.class, "select * from participant where group_id=?", String.valueOf(getIntent().getExtras().getLong("groupId")));
-            FLog.d("MeetingActivity", "participantList" + participantList);
-            for (int i = 0; i < participantList.size(); i++) {
-                Participant participant = participantList.get(i);
-                if (!participant.getParticipantId().equals(SharedPreferenceHandler.getInstance(this).getUserId())) {
-                    mSelectedContacts.setFriendsSelectedId(participant.getParticipantId());
-                }
-            }*/
             mSelectedContacts.setGroupSelectedId(getIntent().getExtras().getLong("groupId"));
             setUpFriendsAdapter();
         }
@@ -333,7 +334,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         }
     }
 
-    private void setUpFriendsAdapter() {
+   /* private void setUpFriendsAdapter() {
         mFriendList.clear();
         mEmailContactsList.clear();
         mContactsList.clear();
@@ -352,8 +353,8 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 if (!participant.getParticipantId().equals(SharedPreferenceHandler.getInstance(this).getUserId())) {
                     FLog.d("MeetingActivity", "participantId" + participant.getParticipantId());
                     mSelectedContacts.setFriendsSelectedId(participant.getParticipantId());
-                   /* List<Friend> friendList = Friend.findWithQuery(Friend.class, "select * from friend where user_id=?", participant.getParticipantId().toString());
-                    mFriendList.add(friendList.get(0));*/
+                   *//* List<Friend> friendList = Friend.findWithQuery(Friend.class, "select * from friend where user_id=?", participant.getParticipantId().toString());
+                    mFriendList.add(friendList.get(0));*//*
                 }
             }
         }
@@ -384,7 +385,41 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
 
         SelectedContactsExpandableAdapter selectedContactsExpandableAdapter = new SelectedContactsExpandableAdapter(MeetingActivity.this, mFriendList, mEmailContactsList, mContactsList);
         mSelectedContactsExpandableListView.setAdapter(selectedContactsExpandableAdapter);
+    }*/
+
+
+    private void setUpFriendsAdapter() {
+        mFrissbiContactList.clear();
+        // mFrissbiGroupList.clear();
+
+        //int emailCount = mSelectedContacts.getEmailsSelectedIdsList().size();
+
+        int groupsCount = mSelectedContacts.getGroupSelectedIdsList().size();
+
+        for (int i = 0; i < groupsCount; i++) {
+            List<FrissbiGroup> frissbiGroupList = FrissbiGroup.findWithQuery(FrissbiGroup.class, "select * from participant where group_id=?", mSelectedContacts.getGroupSelectedIdsList().get(i).toString());
+            List<Participant> participantList = Participant.findWithQuery(Participant.class, "select * from participant where group_id=?", frissbiGroupList.get(0).getGroupId().toString());
+            for (int j = 0; j < participantList.size(); j++) {
+                Participant participant = participantList.get(j);
+                if (!participant.getParticipantId().equals(SharedPreferenceHandler.getInstance(this).getUserId())) {
+                    String[] userIds = new String[1];
+                    userIds[0] = participant.getParticipantId().toString();
+                    FrissbiContact frissbiContact = Select.from(FrissbiContact.class).where("user_id", userIds).first();
+                    mSelectedContacts.setFrissbiContact(frissbiContact);
+                }
+            }
+        }
+        mFrissbiContactList.addAll(mSelectedContacts.getFrissbiContactList());
+        if (mFrissbiContactList.size()>0){
+            mAddAttendeeTextView.setVisibility(View.GONE);
+            GroupParticipantAdapter groupParticipantAdapter = new GroupParticipantAdapter(MeetingActivity.this, mFrissbiContactList, true);
+            mMeetingAttendeesRecyclerView.setAdapter(groupParticipantAdapter);
+        }else {
+            mAddAttendeeTextView.setVisibility(View.VISIBLE);
+        }
+
     }
+
 
     @Override
     public void onClick(View view) {
@@ -433,7 +468,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 Toast.makeText(this, "Please select a location", Toast.LENGTH_SHORT).show();
                 return false;
             } else {
-                if (mFriendList.size() == 0 && mEmailContactsList.size() == 0 && mContactsList.size() == 0) {
+                if (mFrissbiContactList.size() == 0) {
                     Toast.makeText(this, "Please select atleast one friend", Toast.LENGTH_SHORT).show();
                     return false;
                 } else {
@@ -474,7 +509,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         JSONArray friendsIdJsonArray = new JSONArray();
         JSONArray emailIdJsonArray = new JSONArray();
         JSONArray contactsJsonArray = new JSONArray();
-        if (mFriendList.size() > 0) {
+       /* if (mFriendList.size() > 0) {
             for (int i = 0; i < mFriendList.size(); i++) {
                 friendsIdJsonArray.put(mFriendList.get(i).getUserId());
             }
@@ -488,7 +523,20 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
             for (int i = 0; i < mContactsList.size(); i++) {
                 contactsJsonArray.put(mContactsList.get(i).getPhoneNumber());
             }
+        }*/
+
+        for (FrissbiContact frissbiContact:mFrissbiContactList){
+
+            if (frissbiContact.getType()==1){
+                friendsIdJsonArray.put(frissbiContact.getUserId());
+            }else if (frissbiContact.getType()==2){
+                emailIdJsonArray.put(frissbiContact.getEmailId());
+            }else if (frissbiContact.getType()==3){
+                contactsJsonArray.put(frissbiContact.getPhoneNumber());
+            }
+
         }
+
 
         JSONObject jsonObject = new JSONObject();
         try {
@@ -603,7 +651,6 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mConfirmAlertDialog.dismiss();
-
             }
         });
         builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {

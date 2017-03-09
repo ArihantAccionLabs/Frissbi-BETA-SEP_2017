@@ -213,7 +213,7 @@
             android:label="Friends" />
         <activity
             android:name=".activities.ProfileActivity"
-            android:label="Profile" />
+            android:label="My Profile" />
         <activity
             android:name=".activities.MeetingDetailsActivity"
             android:label="Info" />
@@ -240,7 +240,7 @@
             android:label="Group Details" />
         <activity
             android:name=".activities.AddParticipantActivity"
-            android:label="Add Participant" />
+            android:label="SELECT ATTENDEES" />
     </application>
 
 </manifest>
