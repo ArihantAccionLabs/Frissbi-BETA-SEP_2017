@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.kleverlinks.bean.MeetingCreationBean;
+import org.kleverlinks.bean.MeetingBean;
 import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
@@ -113,7 +113,7 @@ public class NotificationService {
 		}
 	}
 
-	public static void sendingMeetingCreationNotification(MeetingCreationBean meetingBean, Long meetingId) {
+	public static void sendingMeetingCreationNotification(MeetingBean meetingBean, Long meetingId) {
 
 		NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
 
@@ -137,7 +137,7 @@ public class NotificationService {
 	public static void sendNotification(List<Long> meetingIds, Long senderUserId, int notificationType) {
 
 		try {
-			
+			NotificationInfoDTO notificationInfoDTO = null;
 			for (Long meetingId : meetingIds) {
 
 				String message = "Meeting was cancelled by ";
@@ -168,7 +168,7 @@ public class NotificationService {
 					if (!userList.isEmpty()) {
 						message += fullName + " which was on " + meetingLogBean.getDate() + " from "
 								+ meetingLogBean.getStartTime() + " to " + meetingLogBean.getEndTime();
-						NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
+						notificationInfoDTO = new NotificationInfoDTO();
 						notificationInfoDTO.setMessage(message);
 						notificationInfoDTO.setUserList(userList.stream().collect(Collectors.toList()));
 						notificationInfoDTO.setNotificationType(NotificationsEnum.MEETING_REJECTED.toString());

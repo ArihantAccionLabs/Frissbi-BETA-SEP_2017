@@ -141,18 +141,8 @@ public class Geomagic {
 		
 		return finalJson;
 	}
-	
-	private static String getResponse(WebResource service) {
-		return service.accept(MediaType.TEXT_XML).get(ClientResponse.class)
-				.toString();
-	}
 
 	private static String getOutputAsString(WebResource service) {
 		return service.accept(MediaType.TEXT_PLAIN).get(String.class);
-	}
-
-	public static void main(String args[]) {
-		Geomagic geomagic = new Geomagic();
-		//geomagic.calculateMidPoint(11);
 	}
 }

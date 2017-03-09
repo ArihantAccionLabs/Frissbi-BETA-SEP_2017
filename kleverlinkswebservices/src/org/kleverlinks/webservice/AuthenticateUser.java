@@ -32,7 +32,9 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
 		System.out.println("hellooo    :  ");
-	
+		
+		GoogleSearchPlaces.getGoogleSearchPlaces(17.4220d,78.3389d, "coffee");
+		
 	return "ok";	
 	}
 

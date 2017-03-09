@@ -1,6 +1,5 @@
 package org.util.service;
 
-import java.beans.PropertyVetoException;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.sql.CallableStatement;
@@ -33,8 +32,7 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.kleverlinks.bean.AppUserBean;
-import org.kleverlinks.bean.MeetingCreationBean;
+import org.kleverlinks.bean.MeetingBean;
 import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.Constants;
@@ -46,7 +44,6 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jndi.cosnaming.CNNameParser;
 
 public class ServiceUtility {
 
@@ -64,7 +61,9 @@ public class ServiceUtility {
 			while (rs.next()) {
 				jsonObject.put("email" , rs.getString("emailName"));
 				jsonObject.put("fullName" , rs.getString("FirstName") + rs.getString("LastName"));
-				jsonObject.put("userId" , rs.getLong("UserID"));//DeviceRegistrationID
+				jsonObject.put("userId" , rs.getLong("UserID"));
+				jsonObject.put("phoneNumber" , rs.getString("ContactNumber"));
+				jsonObject.put("profileImageId" , rs.getString("ProfileImageID"));
 			}
 			return jsonObject;
 		} catch (Exception e) {
@@ -182,8 +181,7 @@ public class ServiceUtility {
 		return timeToBeTaken;
 	}
 
-	public static int insertingMails(MeetingCreationBean meetingBean, Long meetingId)
-			throws Exception {
+	public static int insertingMails(MeetingBean meetingBean, Long meetingId){
 		try {
 			Connection connection = null;
 			connection = DataSourceConnection.getDBConnection();
@@ -209,7 +207,7 @@ public class ServiceUtility {
 		return 0;
 	}
 
-	public static int insertContactNumbers(MeetingCreationBean meetingBean, Long meetingId) {
+	public static int insertContactNumbers(MeetingBean meetingBean, Long meetingId) {
 		Connection connection = null;
 		int[] insertedRow;
 		PreparedStatement ps = null;
@@ -268,9 +266,11 @@ public class ServiceUtility {
 	}
 	
 
-	public static List<UserDTO> checkingMeetingConfliction(MeetingCreationBean meetingBean) throws ParseException {
-		Map<String , Date> map = Utility.getOneDayDate(meetingBean.getMeetingDateTime());
+	public static List<UserDTO> checkingMeetingConfliction(MeetingBean meetingBean) {
+		List<UserDTO> conflictedMeetingList = new ArrayList<UserDTO>();
+		List<UserDTO> meetingList = new ArrayList<UserDTO>();
 		try {
+			Map<String , Date> map = Utility.getOneDayDate(meetingBean.getMeetingDateTime());
 			CallableStatement callableStatement = null;
 			Connection conn = null;
 			conn = DataSourceConnection.getDBConnection();
@@ -282,8 +282,6 @@ public class ServiceUtility {
 			callableStatement.setTimestamp(3, new Timestamp(map.get("tomorrow").getTime()));
 			
 			ResultSet rs = callableStatement.executeQuery();
-			List<UserDTO> meetingList = new ArrayList<UserDTO>();
-			List<UserDTO> conflictedMeetingList = new ArrayList<UserDTO>();
 			while (rs.next()) {
 				// System.out.println("MeetingID====="+rs.getInt("MeetingID")+"SenderFromDateTime=="+rs.getTimestamp("SenderFromDateTime")+"===="+rs.getTimestamp("SenderToDateTime"));
 				 UserDTO userDto = new UserDTO();
@@ -313,11 +311,10 @@ public class ServiceUtility {
 				}
 			}
 			 System.out.println("conflictedMeetingList====="+conflictedMeetingList.size());
-			return conflictedMeetingList;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return new ArrayList<UserDTO>();
+		return conflictedMeetingList;
 	}
 	
 	public static JSONArray getEmailIdByMeetingId(Long meetingId){

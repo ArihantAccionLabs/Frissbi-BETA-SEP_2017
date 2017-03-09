@@ -340,11 +340,17 @@ public class UserFriendList {
                 }
 			for (Long friendsId : userIds) {
 				JSONObject jsonObject = ServiceUtility.getUserDetailByUserId(friendsId);
+				
+				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
+				if(jsonObject.has("profileImageId")){
+					jsonObject.put("profileImage",mongoDBJDBC.getUriImage(jsonObject.getString("profileImageId")));
+				}
+				 jsonObject.remove("profileImageId");
 				if(jsonObject != null){
 					jsonResultsArray.put(jsonObject);
 				}
 			}
-
+           System.out.println("jsonResultsArray  >>>>    "+jsonResultsArray.toString());
 			finalJson.put("status", true);
 			finalJson.put("message", "Getting friendlist successfully");
 			finalJson.put("friends_array", jsonResultsArray);

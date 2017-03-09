@@ -652,7 +652,6 @@ public class UserRegistration {
 		callableStatement.setLong(1, userId);
 		callableStatement.setString(2, deviceRegId);
 		callableStatement.registerOutParameter(3, Types.INTEGER);
-		
 		int deviceRegIdUpdate = callableStatement.executeUpdate();
 		
 		System.out.println("deviceRegistrationId   ==  "+deviceRegIdUpdate);

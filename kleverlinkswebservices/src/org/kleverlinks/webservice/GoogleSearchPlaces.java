@@ -27,11 +27,11 @@ public class GoogleSearchPlaces {
 		int radious = 2000;//in meter
 		String keyword = type;
         String PLACES_SEARCH_URL =  "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="+latitude+","+longitude+"&radius="+radious+"&type="+type+"&keyword="+keyword+"&key=AIzaSyAgM-mwjfosilNEdn5aCe4FJ9aDOp_U7JM";
-		System.out.println("PLACES_SEARCH_URL======="+PLACES_SEARCH_URL);
+		//System.out.println("PLACES_SEARCH_URL======="+PLACES_SEARCH_URL);
         JSONObject json = readJsonFromUrl(PLACES_SEARCH_URL);
-		System.out.println(json.toString());
+		//System.out.println(json.toString());
 		
-		System.out.println("===="+json.getJSONArray("results"));
+		System.out.println(json.getJSONArray("results").toString());
 		return json.getJSONArray("results");
 		
 	}

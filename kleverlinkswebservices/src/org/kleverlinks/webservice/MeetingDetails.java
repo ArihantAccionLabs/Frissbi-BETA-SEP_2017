@@ -5,7 +5,6 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.text.DateFormat;
@@ -30,7 +29,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.kleverlinks.bean.MeetingCreationBean;
+import org.kleverlinks.bean.MeetingBean;
 import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
 import org.service.dto.NotificationInfoDTO;
@@ -57,7 +56,7 @@ public class MeetingDetails {
 		try {
 
 			JSONObject meetingInsertionObject = new JSONObject(meetingInsertion);
-			MeetingCreationBean meetingCreationBean = new MeetingCreationBean(meetingInsertionObject);
+			MeetingBean meetingCreationBean = new MeetingBean(meetingInsertionObject);
 
 			if (!meetingCreationBean.getMeetingIdList().isEmpty()) {
 
@@ -874,7 +873,7 @@ public class MeetingDetails {
 	public void sendMeetingSms(List<String> contactList, JSONObject userDetail, MeetingLogBean meetingLogBean) {
 
 		try {
-		String contactNumbers = contactList.stream().collect(Collectors.joining(", "));
+		String contactNumbers = contactList.stream().collect(Collectors.joining(","));
 
 		String message = "";
 		message = " You have a meeting " + meetingLogBean.getDescription() + " on " + meetingLogBean.getDate()
