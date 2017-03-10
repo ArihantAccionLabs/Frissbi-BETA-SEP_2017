@@ -10,8 +10,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
+import java.text.SimpleDateFormat;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -32,8 +31,9 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
 		System.out.println("hellooo    :  ");
+		Date date = new Date(1489150713414l * 1000);
+		System.out.println("date  :   "+new SimpleDateFormat("YYYY-MM-dd HH:mm:ss").format(date));
 		
-		GoogleSearchPlaces.getGoogleSearchPlaces(17.4220d,78.3389d, "coffee");
 		
 	return "ok";	
 	}

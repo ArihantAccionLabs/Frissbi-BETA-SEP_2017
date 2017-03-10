@@ -1,10 +1,16 @@
 package org.mongo.dao;
 
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Types;
 import java.util.Date;
 
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
+import org.kleverlinks.webservice.DataSourceConnection;
 import org.util.Utility;
+import org.util.service.ServiceUtility;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
@@ -117,5 +123,106 @@ public class MongoDBJDBC {
 			}
 		}
 		return null;
+	}
+	public String insertCoverImageToMongoDb(JSONObject imageJson) {
+
+		String mongoFileId = null;
+		try {
+			JSONObject profilejson = ServiceUtility.getUserImageId(imageJson.getLong("userId"));
+			System.out.println("profilejson  :   "+profilejson.toString());
+			
+			if (profilejson != null && profilejson.has("coverImageID")) {
+				mongoFileId = updateFile(imageJson.getString("file"),profilejson.getString("coverImageID"));
+			} else {
+				mongoFileId = insertFile(imageJson.getString("file"));
+			}
+			System.out.println("fileId  :  " + mongoFileId);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return mongoFileId;
+	}
+	
+	public String insertProfileImageToMongoDb(JSONObject imageJson) {
+
+		String mongoFileId = null;
+		try {
+			JSONObject profilejson = ServiceUtility.getUserImageId(imageJson.getLong("userId"));
+			if (profilejson != null && profilejson.has("profileImageId")) {
+				mongoFileId = updateFile(imageJson.getString("file"),profilejson.getString("profileImageId"));
+			} else {
+				mongoFileId = insertFile(imageJson.getString("file"));
+			}
+			System.out.println("fileId  :  " + mongoFileId);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return mongoFileId;
+	}
+	
+	public Boolean updateCoverImage(JSONObject imageJson){
+
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		Boolean isInserted = false;
+		try {
+			
+				conn = DataSourceConnection.getDBConnection();
+				String insertStoreProc = "{call usp_UpdateUserCoverProfile(?,?,?)}";
+				callableStatement = conn.prepareCall(insertStoreProc);
+				callableStatement.setLong(1, imageJson.getLong("userId"));
+				callableStatement.setString(2, imageJson.getString("mongoFileId"));
+				callableStatement.registerOutParameter(3, Types.INTEGER);
+				int value = callableStatement.executeUpdate();
+				
+				int isError = callableStatement.getInt(3);
+				System.out.println(isError+"  value  :" +value);
+				if(value != 0){
+					isInserted = true;
+				}
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		} 
+		return isInserted;
+	}
+	public Boolean updateProfileImage(JSONObject imageJson){
+
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		Boolean isInserted = false;
+		System.out.println("imageJson  :  "+imageJson.toString());
+		try {
+			
+				conn = DataSourceConnection.getDBConnection();
+				String insertStoreProc = "{call usp_UpdateUserProfile(?,?,?)}";
+				callableStatement = conn.prepareCall(insertStoreProc);
+				callableStatement.setLong(1, imageJson.getLong("userId"));
+				callableStatement.setString(2, imageJson.getString("mongoFileId"));
+				callableStatement.registerOutParameter(3, Types.INTEGER);
+				int value = callableStatement.executeUpdate();
+				
+				int isError = callableStatement.getInt(3);
+				System.out.println(isError+"  value  :" +value);
+				if(value != 0){
+					isInserted = true;
+				}
+		} catch (SQLException se) {
+			se.printStackTrace();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		} 
+		return isInserted;
 	}
 }

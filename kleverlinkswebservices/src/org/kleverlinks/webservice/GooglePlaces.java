@@ -1,15 +1,5 @@
 package org.kleverlinks.webservice;
 
-import java.io.IOException;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
-import java.util.HashMap;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -19,9 +9,6 @@ import javax.ws.rs.core.MediaType;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.kleverlinks.webservice.gcm.Message;
-import org.kleverlinks.webservice.gcm.Result;
-import org.kleverlinks.webservice.gcm.Sender;
 
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;

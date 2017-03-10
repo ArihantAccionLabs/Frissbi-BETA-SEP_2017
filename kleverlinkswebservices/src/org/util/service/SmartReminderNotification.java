@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.kleverlinks.webservice.DataSourceConnection;
-import org.kleverlinks.webservice.NotificationsEnum;
-import org.service.dto.NotificationInfoDTO;
 
 public class SmartReminderNotification {
 
@@ -27,10 +25,10 @@ public class SmartReminderNotification {
 		LocalDateTime toTime = fromTime.plusHours(2);
 	    System.out.println("fromTime=="+formatter.format(fromTime)+" toTime "+formatter.format(toTime));
 		String sql = "SELECT * FROM tbl_MeetingDetails WHERE SenderFromDateTime BETWEEN ? AND ?";
+		PreparedStatement pstmt = null;
 		Connection conn = null;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			PreparedStatement pstmt = null;
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, formatter.format(fromTime));
 			pstmt.setString(2, formatter.format(toTime));
@@ -60,6 +58,9 @@ public class SmartReminderNotification {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally{
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(pstmt);
 		}
 	}
 	

@@ -45,5 +45,4 @@ public class EmailService {
 		System.out.println("mail sent successfully");
 
 	}
-
 }

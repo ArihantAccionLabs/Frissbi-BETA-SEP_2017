@@ -10,8 +10,6 @@ import java.nio.charset.Charset;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
-import java.sql.Timestamp;
-import java.util.Date;
 
 import org.json.JSONArray;
 import org.json.JSONException;

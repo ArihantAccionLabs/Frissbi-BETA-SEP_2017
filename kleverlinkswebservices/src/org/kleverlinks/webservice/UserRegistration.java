@@ -87,16 +87,17 @@ public class UserRegistration {
 					System.out.println("userId     "+userId+"   "+(isError == 0 && value != 0 && userId != 0l) +"        "+(appUserBean.getImage() != null && !appUserBean.getImage().trim().isEmpty()));
 					if (value != 0 && userId != 0l) {
                         
-						if(appUserBean.getImage() != null && !appUserBean.getImage().trim().isEmpty()){
+						if(Utility.checkValidString(appUserBean.getImage())){
 							
 							JSONObject imageJson = new JSONObject();
 							imageJson.put("userId", userId);
 							imageJson.put("file", appUserBean.getImage());
-					    	String mongoFileId = insertFileToMongoDb(imageJson);
+							MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
+					    	String mongoFileId = mongoDBJDBC.insertCoverImageToMongoDb(imageJson);
 					    	if(mongoFileId != null){
 					    		imageJson.remove("file");
 					    		imageJson.put("mongoFileId", mongoFileId);
-					    		updateUserTransaction(imageJson);
+					    		mongoDBJDBC.updateProfileImage(imageJson);
 					    	}
 						}
 						
@@ -483,22 +484,21 @@ public class UserRegistration {
 	
 	
 	@POST
-	@Path("/insertImage")
+	@Path("/insertProfileImage")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.TEXT_PLAIN)
-	public String insertImage(String imageFile) {
+	public String insertProfileImage(String imageFile) {
 
-		System.out.println("imageFile  :  "+imageFile.toString());
 		JSONObject finalJson = new JSONObject();
 		JSONObject imageJson = new JSONObject(imageFile);
 		String mongoFileId = null;
 		try {
-			mongoFileId =  insertFileToMongoDb(imageJson);
-            System.out.println("mongoFileId :   "+mongoFileId);
+			MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
+			mongoFileId =  mongoDBJDBC.insertProfileImageToMongoDb(imageJson);
 			if (mongoFileId != null) {
 				imageJson.remove("file");
 				imageJson.put("mongoFileId", mongoFileId);
-				if (updateUserTransaction(imageJson)) {
+				if (mongoDBJDBC.updateProfileImage(imageJson)) {
 					finalJson.put("status", true);
 					finalJson.put("message", "image updated successfully");
 
@@ -513,61 +513,6 @@ public class UserRegistration {
 
 		return finalJson.toString();
 	}
-	
-	public String insertFileToMongoDb(JSONObject imageJson) {
-
-		String mongoFileId = null;
-		try {
-			JSONObject profilejson = ServiceUtility.getUserImageId(imageJson.getLong("userId"));
-			MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
-			if (profilejson != null) {
-				mongoFileId = mongoDBJDBC.updateFile(imageJson.getString("file"),profilejson.getString("profileImageId"));
-			} else {
-				mongoFileId = mongoDBJDBC.insertFile(imageJson.getString("file"));
-			}
-			System.out.println("fileId  :  " + mongoFileId);
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return mongoFileId;
-	}
-	
-	
-	
-	public Boolean updateUserTransaction(JSONObject imageJson){
-
-		Connection conn = null;
-		CallableStatement callableStatement = null;
-		Boolean isInserted = false;
-		System.out.println("imageJson  :  "+imageJson.toString());
-		try {
-			
-				conn = DataSourceConnection.getDBConnection();
-				String insertStoreProc = "{call usp_UpdateUserProfile(?,?,?)}";
-				callableStatement = conn.prepareCall(insertStoreProc);
-				callableStatement.setLong(1, imageJson.getLong("userId"));
-				callableStatement.setString(2, imageJson.getString("mongoFileId"));
-				callableStatement.registerOutParameter(3, Types.INTEGER);
-				int value = callableStatement.executeUpdate();
-				
-				int isError = callableStatement.getInt(3);
-				System.out.println(isError+"  value  :" +value);
-				if(value != 0){
-					isInserted = true;
-				}
-		} catch (SQLException se) {
-			se.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			ServiceUtility.closeConnection(conn);
-			ServiceUtility.closeCallableSatetment(callableStatement);
-		} 
-		return isInserted;
-	}
-	
 
 	@GET
 	@Path("/getUserImage/{userId}")

@@ -9,10 +9,7 @@ import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -283,8 +280,6 @@ public class GroupCreationService {
 				preparedStatement = conn.prepareStatement(participantSql);
 				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 				for (GroupInfoBean groupInfoBean : groupInfoBeanList) {
-
-					System.out.println("groupInfoBean: getProfileImageId " + groupInfoBean.getProfileImageId());
 
 					JSONArray receiptionistArray = new JSONArray();
 					JSONObject outerJson = new JSONObject();

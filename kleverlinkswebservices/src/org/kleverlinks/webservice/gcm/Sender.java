@@ -22,12 +22,6 @@ import static org.kleverlinks.webservice.gcm.Constants.TOKEN_CANONICAL_REG_ID;
 import static org.kleverlinks.webservice.gcm.Constants.TOKEN_ERROR;
 import static org.kleverlinks.webservice.gcm.Constants.TOKEN_MESSAGE_ID;
 
-import org.kleverlinks.webservice.gcm.Result.Builder;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
@@ -45,6 +39,12 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
+import org.kleverlinks.webservice.gcm.Result.Builder;
 
 /**
  * Helper class to send messages to the GCM service using an API Key.

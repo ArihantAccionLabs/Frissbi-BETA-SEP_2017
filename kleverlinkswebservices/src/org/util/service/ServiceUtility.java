@@ -10,7 +10,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -37,6 +36,7 @@ import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
+import org.mongo.dao.MongoDBJDBC;
 import org.service.dto.UserDTO;
 import org.util.Utility;
 
@@ -695,15 +695,20 @@ public class ServiceUtility {
 		JSONObject jsonObject = null;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			sql = "SELECT ProfileImageId FROM tbl_users WHERE UserID=?";
+			sql = "SELECT ProfileImageId,CoverImageID FROM tbl_users WHERE UserID=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setLong(1, userId);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				if(Utility.checkValidString(rs.getString("ProfileImageId"))){
 					jsonObject = new JSONObject();
-					jsonObject.put("profileImageId", rs.getString("ProfileImageId"));
-					//jsonObject.put("backGroundImageId", rs.getString("BackGroundImageId"));
+					
+					if(Utility.checkValidString(rs.getString("ProfileImageId"))){
+						jsonObject.put("profileImageId", rs.getString("ProfileImageId"));
+					}
+					if(Utility.checkValidString(rs.getString("CoverImageID"))){
+						jsonObject.put("coverImageId", rs.getString("CoverImageID"));
+					}
 				}
 			}
 		} catch (Exception e) {
