@@ -3,7 +3,8 @@ package org.kleverlinks.bean;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 import org.json.JSONObject;
 
@@ -11,9 +12,8 @@ public class UserFreeTimeBean {
 
 	private Long userId;
 	private Long userFreeTimeId;
-	private Date freeFromTime;
-	private Date freeToTime;
-	private String description;
+	private LocalDateTime freeFromTime;
+	private LocalDateTime freeToTime;
 	private String firstName;
 	private String lastName;
 	private LocalDate date;
@@ -46,24 +46,19 @@ public class UserFreeTimeBean {
 	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
-	public Date getFreeFromTime() {
+	public LocalDateTime getFreeFromTime() {
 		return freeFromTime;
 	}
-	public void setFreeFromTime(Date freeFromTime) {
+	public void setFreeFromTime(LocalDateTime freeFromTime) {
 		this.freeFromTime = freeFromTime;
 	}
-	public Date getFreeToTime() {
+	public LocalDateTime getFreeToTime() {
 		return freeToTime;
 	}
-	public void setFreeToTime(Date freeToTime) {
+	public void setFreeToTime(LocalDateTime freeToTime) {
 		this.freeToTime = freeToTime;
 	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
-	}
+	
 	public Float getStartTime() {
 		return startTime;
 	}
@@ -90,18 +85,25 @@ public class UserFreeTimeBean {
 	}
 	@Override
 	public String toString() {
-		return "UserFreeTimeBean [userId=" + userId + ", freeFromTime=" + freeFromTime + ", freeToTime=" + freeToTime
-				+ ", description=" + description + "]";
+		return "UserFreeTimeBean [userId=" + userId + ", freeFromTime=" + freeFromTime + ", freeToTime=" + freeToTime  +"]";
 	}
 	public UserFreeTimeBean() {
 	}
 	public UserFreeTimeBean(JSONObject jsonObject){
 		try{
-		DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
+		
+		DateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm a");
+		String freeDate = jsonObject.getString("freeDateTime");
+		String durationTime = jsonObject.getString("duration");
+		String[] timeArray = durationTime.split(":");
+		LocalDateTime senderFromDateTime = LocalDateTime.ofInstant(formatter.parse(freeDate).toInstant(),ZoneId.systemDefault());
+		LocalDateTime senderToDateTime = LocalDateTime.ofInstant(formatter.parse(freeDate).toInstant(), ZoneId.systemDefault()).plusHours(Integer.parseInt(timeArray[0])).plusMinutes(Integer.parseInt(timeArray[1]));
+		
+		System.out.println(senderToDateTime.toString()+"  ======   "+senderFromDateTime.toString());
+		
 		this.userId = jsonObject.getLong("userId");
-		this.freeFromTime = dateFormat.parse(jsonObject.getString("freeFromTime"));
-		this.freeToTime = dateFormat.parse(jsonObject.getString("freeToTime"));
-		this.description = jsonObject.getString("description");
+		this.freeFromTime = senderFromDateTime;
+		this.freeToTime = senderToDateTime;
 		this.isConflicted = jsonObject.getBoolean("isConflicted");
 		if(jsonObject.has("userFreeTimeId")){
 		this.userFreeTimeId = jsonObject.getLong("userFreeTimeId");

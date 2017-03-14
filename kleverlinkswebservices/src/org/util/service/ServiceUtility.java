@@ -695,12 +695,11 @@ public class ServiceUtility {
 		JSONObject jsonObject = null;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			sql = "SELECT ProfileImageId,CoverImageID FROM tbl_users WHERE UserID=?";
+			sql = "SELECT ProfileImageId,CoverImageID,RegistrationDateTime FROM tbl_users WHERE UserID=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setLong(1, userId);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
-				if(Utility.checkValidString(rs.getString("ProfileImageId"))){
 					jsonObject = new JSONObject();
 					
 					if(Utility.checkValidString(rs.getString("ProfileImageId"))){
@@ -709,8 +708,8 @@ public class ServiceUtility {
 					if(Utility.checkValidString(rs.getString("CoverImageID"))){
 						jsonObject.put("coverImageId", rs.getString("CoverImageID"));
 					}
+					jsonObject.put("registrationDateTime", rs.getString("RegistrationDateTime"));
 				}
-			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}finally{

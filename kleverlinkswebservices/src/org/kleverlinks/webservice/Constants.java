@@ -35,4 +35,10 @@ public class Constants {
 	public static final String SMS_SENDER =  "INFINI";
 	public static final String SMS_API_URL =  "http://alerts.solutionsinfini.com";
 	
+	
+	public static final String MONGO_DB_IP = "localhost"; 
+	public static final Integer MONGO_DB_PORT = 27017; 
+			
+	
+	
 }

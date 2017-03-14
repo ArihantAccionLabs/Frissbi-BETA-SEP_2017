@@ -8,6 +8,7 @@ import java.util.Date;
 
 import org.bson.types.ObjectId;
 import org.json.JSONObject;
+import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
 import org.util.Utility;
 import org.util.service.ServiceUtility;
@@ -23,7 +24,7 @@ public class MongoDBJDBC {
 	public DBCollection getMongoCollection() {
 		DBCollection collection = null;
 		try{
-		MongoClient mongoClient = new MongoClient("localhost", 27017);
+		MongoClient mongoClient = new MongoClient(Constants.MONGO_DB_IP, Constants.MONGO_DB_PORT);
 		DB db = mongoClient.getDB("FrissDB");
 		collection = db.getCollection("User_Images");
 		}catch (Exception e) {

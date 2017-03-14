@@ -45,7 +45,7 @@ public class FreeTimeTracker {
 
 		System.out.println("fromTime==="+ formatter.format(fromTime)+"  toTime  "+formatter.format(toTime));
 		
-		String sql = "SELECT * FROM tbl_UserFreeTimes where FromDateTime BETWEEN ? AND ?";
+		String sql = "SELECT * FROM tbl_UserActivity where FromDateTime BETWEEN ? AND ?";
 		 
 		Connection conn = null;
 		PreparedStatement pstmt = null;
@@ -64,9 +64,8 @@ public class FreeTimeTracker {
 			while (rs.next()) {
 				UserFreeTimeBean userFreeTimeBean = new UserFreeTimeBean();
 				userFreeTimeBean.setUserId(rs.getLong("UserID"));
-				userFreeTimeBean.setFreeFromTime(rs.getTimestamp("FromDateTime"));
-				userFreeTimeBean.setFreeToTime(rs.getTimestamp("ToDateTime"));
-				userFreeTimeBean.setDescription(rs.getString("Description"));
+				//userFreeTimeBean.setFreeFromTime(rs.getTimestamp("FromDateTime"));
+				//userFreeTimeBean.setFreeToTime(rs.getTimestamp("ToDateTime"));
 
 				userIdList.add(userFreeTimeBean);
 			}
@@ -130,18 +129,16 @@ public class FreeTimeTracker {
 			while (rs.next()) {
 				UserFreeTimeBean userFreeTimeBean = new UserFreeTimeBean();
 				userFreeTimeBean.setUserId(rs.getLong("UserID"));
-				userFreeTimeBean.setFreeFromTime(rs.getTimestamp("FromDateTime"));
-				userFreeTimeBean.setFreeToTime(rs.getTimestamp("ToDateTime"));
+				//userFreeTimeBean.setFreeFromTime(rs.getTimestamp("FromDateTime"));
+				//userFreeTimeBean.setFreeToTime(rs.getTimestamp("ToDateTime"));
 				userFreeTimeBean.setFirstName(rs.getString("FirstName"));
 				userFreeTimeBean.setLastName(rs.getString("LastName"));
 				// userFreeTimeBean.setStartTime();
 
-				LocalDateTime fromTime = LocalDateTime.ofInstant(userFreeTimeBean.getFreeFromTime().toInstant(),
-						ZoneId.systemDefault());
-				LocalDateTime toTime = LocalDateTime.ofInstant(userFreeTimeBean.getFreeToTime().toInstant(),
-						ZoneId.systemDefault());
-				userFreeTimeBean.setStartTime(Float.parseFloat(fromTime.getHour()+"."+fromTime.getMinute()));
-				userFreeTimeBean.setEndTime(Float.parseFloat(toTime.getHour()+"."+toTime.getMinute()));
+				//LocalDateTime fromTime = LocalDateTime.ofInstant(userFreeTimeBean.getFreeFromTime().toInstant(),ZoneId.systemDefault());
+				//LocalDateTime toTime = LocalDateTime.ofInstant(userFreeTimeBean.getFreeToTime().toInstant(),	ZoneId.systemDefault());
+				//userFreeTimeBean.setStartTime(Float.parseFloat(fromTime.getHour()+"."+fromTime.getMinute()));
+				//userFreeTimeBean.setEndTime(Float.parseFloat(toTime.getHour()+"."+toTime.getMinute()));
 
 				timePostedFriendList.add(userFreeTimeBean);
 			}
@@ -159,8 +156,7 @@ public class FreeTimeTracker {
 			LocalDate currentDate = LocalDateTime.now().toLocalDate();
 			LocalDate tomorrowDate = LocalDateTime.now().toLocalDate().plusDays(1);
 			LocalDate afterTomorrowDate = LocalDateTime.now().toLocalDate().plusDays(2);
-			LocalDate selectedDate = userFreeTimeBean.getFreeFromTime().toInstant().atZone(ZoneId.systemDefault())
-					.toLocalDate();
+			LocalDate selectedDate = userFreeTimeBean.getFreeFromTime().toLocalDate();
 
 			if (currentDate.equals(selectedDate)) {
 				todayPostedDateMatchingFriendList.add(userFreeTimeBean);

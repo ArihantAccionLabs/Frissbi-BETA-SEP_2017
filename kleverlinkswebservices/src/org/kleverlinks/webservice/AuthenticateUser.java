@@ -31,8 +31,7 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
 		System.out.println("hellooo    :  ");
-		Date date = new Date(1489150713414l * 1000);
-		System.out.println("date  :   "+new SimpleDateFormat("YYYY-MM-dd HH:mm:ss").format(date));
+		System.out.println("date  :   "+new SimpleDateFormat("HH:mm").format(new java.util.Date()));
 		
 		
 	return "ok";	

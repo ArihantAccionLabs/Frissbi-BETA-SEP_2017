@@ -55,7 +55,7 @@ public class TimeLineService {
 					isIserted = insertFreeTime(userFreeTimeBean);
 				} else {
 					finalJson.put("userFreeTimeId", conflictedTimeBean.getUserFreeTimeId());
-					finalJson.put("message","Time is conflicting for " + conflictedTimeBean.getDescription().toUpperCase() + " on "
+					finalJson.put("message","Time is conflicting  on "
 							+ conflictedTimeBean.getDate() + " from " + conflictedTimeBean.getStartTime() + " to "
 							+ conflictedTimeBean.getEndTime());
 					finalJson.put("status", true);
@@ -88,15 +88,13 @@ public class TimeLineService {
 		
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertStoreProc = "{call usp_InsertUserFreeTimes(?,?,?,?,?)}";
+			String insertStoreProc = "{call usp_InsertUserFreeTimes(?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
 			callableStatement.setLong(1, userFreeTimeBean.getUserId());
-			callableStatement.setTimestamp(2, new Timestamp(userFreeTimeBean.getFreeFromTime().getTime()));
-			callableStatement.setTimestamp(3, new Timestamp(userFreeTimeBean.getFreeToTime().getTime()));
-			callableStatement.setString(4, userFreeTimeBean.getDescription());
-			callableStatement.registerOutParameter(5, Types.INTEGER);
+			callableStatement.setTimestamp(2, Timestamp.valueOf(userFreeTimeBean.getFreeFromTime()));
+			callableStatement.setTimestamp(3,Timestamp.valueOf(userFreeTimeBean.getFreeToTime()));
+			callableStatement.setTimestamp(4, new Timestamp(new java.util.Date().getTime()));
 			 isIserted = callableStatement.executeUpdate();
-			int isError = callableStatement.getInt(5);
 			
 		} catch (SQLException se) {
 			se.printStackTrace();
@@ -110,17 +108,17 @@ public class TimeLineService {
 		return isIserted;
 	}
 	
- private int deleteFreeTime(Long userId , Long userFreeTimeId){
+ private int deleteFreeTime(Long userId , Long userActivityId){
 		
 		int isDeleted = 0;
 		Connection connection = null;
 		PreparedStatement preparedStatement = null;
 		try{
-		String sql = "DELETE FROM tbl_UserFreeTimes WHERE UserID=? AND UserFreeTimeId=?";
+		String sql = "DELETE FROM tbl_UserActivity WHERE UserID=? AND UserActivityID=?";
 		connection  =  DataSourceConnection.getDBConnection();
 		preparedStatement = connection.prepareStatement(sql);
 		preparedStatement.setLong(1, userId);
-		preparedStatement.setLong(2, userFreeTimeId);
+		preparedStatement.setLong(2, userActivityId);
 		
 		isDeleted = preparedStatement.executeUpdate();
 	} catch (Exception e) {
@@ -138,18 +136,16 @@ public class TimeLineService {
 		PreparedStatement preparedStatement = null;
 		FreeTimePostBean conflictedFreeTime = null;
 		
-		LocalDateTime localFromTime = LocalDateTime.ofInstant(userFreeTimeBean.getFreeFromTime().toInstant(), ZoneId.systemDefault());
-		LocalDateTime localToTime = LocalDateTime.ofInstant(userFreeTimeBean.getFreeToTime().toInstant(), ZoneId.systemDefault());
 		try {
-			String sql = "SELECT UserFreeTimeID,UserID,FromDateTime,ToDateTime,Description FROM  tbl_UserFreeTimes WHERE userID = ? "
+			String sql = "SELECT UserActivityID,UserID,FromDateTime,ToDateTime FROM  tbl_UserActivity WHERE userID = ? "
 					+ "AND ((FromDateTime BETWEEN ? AND ?) OR (ToDateTime BETWEEN ? AND ?))";
 			connection  =  DataSourceConnection.getDBConnection();
 			preparedStatement = connection.prepareStatement(sql);
 			preparedStatement.setLong(1, userFreeTimeBean.getUserId());
-			preparedStatement.setTimestamp(2, Timestamp.valueOf(localFromTime));
-			preparedStatement.setTimestamp(3, Timestamp.valueOf(localToTime.minusMinutes(1l)));
-			preparedStatement.setTimestamp(4, Timestamp.valueOf(localFromTime.plusMinutes(1l)));
-			preparedStatement.setTimestamp(5, Timestamp.valueOf(localToTime));
+			preparedStatement.setTimestamp(2, Timestamp.valueOf(userFreeTimeBean.getFreeFromTime()));
+			preparedStatement.setTimestamp(3, Timestamp.valueOf(userFreeTimeBean.getFreeToTime().minusMinutes(1l)));
+			preparedStatement.setTimestamp(4, Timestamp.valueOf(userFreeTimeBean.getFreeFromTime().plusMinutes(1l)));
+			preparedStatement.setTimestamp(5, Timestamp.valueOf(userFreeTimeBean.getFreeToTime()));
 			
 		   ResultSet rs = 	preparedStatement.executeQuery();
 			
@@ -165,8 +161,7 @@ public class TimeLineService {
 				 conflictedFreeTime.setStartTime(ServiceUtility.updateTime(fromTime.getHour(), fromTime.getMinute()));
 				 conflictedFreeTime.setEndTime(ServiceUtility.updateTime(toTime.getHour(), toTime.getMinute()));
 				 conflictedFreeTime.setUserId(rs.getLong("UserID"));
-				 conflictedFreeTime.setUserFreeTimeId(rs.getLong("UserFreeTimeID"));
-				 conflictedFreeTime.setDescription(rs.getString("Description"));
+				 conflictedFreeTime.setUserFreeTimeId(rs.getLong("UserActivityID"));
 			 }
 		 }
 		 
@@ -278,7 +273,6 @@ public class TimeLineService {
 				jsonObject.put("UserFreeTimeID", rs.getString("UserFreeTimeID"));
 				jsonObject.put("FromDateTime", rs.getString("FromDateTime"));
 				jsonObject.put("ToDateTime", rs.getString("ToDateTime"));
-				jsonObject.put("Description", rs.getString("Description"));
 				jsonResultsArray.put(jsonObject);
 			}
 		} catch (SQLException se) {

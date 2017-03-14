@@ -5,7 +5,6 @@ import java.time.LocalDate;
 public class FreeTimePostBean {
 	private Long userId;
 	private Long userFreeTimeId;
-	private String description;
 	private LocalDate date;
 	private String startTime;
 	private String endTime;
@@ -21,12 +20,6 @@ public class FreeTimePostBean {
 	}
 	public void setUserFreeTimeId(Long userFreeTimeId) {
 		this.userFreeTimeId = userFreeTimeId;
-	}
-	public String getDescription() {
-		return description;
-	}
-	public void setDescription(String description) {
-		this.description = description;
 	}
 	public LocalDate getDate() {
 		return date;
