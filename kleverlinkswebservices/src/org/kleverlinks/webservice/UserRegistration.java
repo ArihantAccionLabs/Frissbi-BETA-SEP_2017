@@ -489,19 +489,23 @@ public class UserRegistration {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String insertProfileImage(String imageFile) {
 
+		System.out.println("imageFile  :  "+imageFile);
 		JSONObject finalJson = new JSONObject();
-		JSONObject imageJson = new JSONObject(imageFile);
 		String mongoFileId = null;
 		try {
+			JSONObject imageJson = new JSONObject(imageFile);
 			MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
-			mongoFileId =  mongoDBJDBC.insertProfileImageToMongoDb(imageJson);
+			mongoFileId =  mongoDBJDBC.insertImageToMongoDb(imageJson);
 			if (mongoFileId != null) {
 				imageJson.remove("file");
 				imageJson.put("mongoFileId", mongoFileId);
+				
+				System.out.println("mongoFileId  :  "+mongoFileId);
+				
 				if (mongoDBJDBC.updateProfileImage(imageJson)) {
 					finalJson.put("status", true);
 					finalJson.put("message", "image updated successfully");
-
+					
 					return finalJson.toString();
 				}
 			}

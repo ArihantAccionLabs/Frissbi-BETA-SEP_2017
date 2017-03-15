@@ -3,9 +3,21 @@ package org.util;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+
+import org.json.JSONObject;
+import org.kleverlinks.bean.ActivityBean;
+import org.mongo.dao.MongoDBJDBC;
 
 public class Utility {
 
@@ -41,4 +53,13 @@ public static Map<String , Date> getOneDayDate(String date){
 		}
 		return map;
 	}
+
+
+	public static void  sortList(List<ActivityBean> userActivityBeanList) {
+		try{
+	     Collections.sort(userActivityBeanList, (p1, p2) -> p2.getDate().compareTo(p1.getDate()));
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+	    }
 }

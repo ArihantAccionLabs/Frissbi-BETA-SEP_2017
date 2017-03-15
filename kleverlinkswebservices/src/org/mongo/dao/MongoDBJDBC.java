@@ -53,13 +53,14 @@ public class MongoDBJDBC {
 		return null;
 	}
 	
-	public String updateFile(String documentBytes , String id){
+	public void deleteFile(String documentBytes , String id){
 		DBCollection collection = null;
 		try {
-			System.out.println("id  :  "+id+" :  "+documentBytes);
+			//System.out.println("id  :  "+id+" :  "+documentBytes);
 	    DBObject dbObj = getFile(id);
 	    collection  = getMongoCollection();
-		 if(dbObj != null){
+	    collection.remove(dbObj);
+		 /*if(dbObj != null){
 			
 			
 			DBObject document = new BasicDBObject();
@@ -70,18 +71,16 @@ public class MongoDBJDBC {
 			updateObj.put("$set", document);
 			collection.update(dbObj , updateObj);
 			updateObj.getObjectId("_id");
-			System.out.println((collection.getCount() == 1)+"  collection.update(document, updateObj)"+ collection.getCount());
+			//System.out.println((collection.getCount() == 1)+"  collection.update(document, updateObj)"+ collection.getCount());
 			if(collection.getCount() == 1){
 				
 			}
-			return id;
-		}
+		}*/
 		}catch (Exception e) {
 		 e.printStackTrace();
 		}finally {
 			collection.getDB().getMongo().close();
 		}
-		return null;
 }
 	
 	public DBObject getFile(String id){
@@ -133,10 +132,10 @@ public class MongoDBJDBC {
 			System.out.println("profilejson  :   "+profilejson.toString());
 			
 			if (profilejson != null && profilejson.has("coverImageID")) {
-				mongoFileId = updateFile(imageJson.getString("file"),profilejson.getString("coverImageID"));
-			} else {
-				mongoFileId = insertFile(imageJson.getString("file"));
+				deleteFile(imageJson.getString("file"),profilejson.getString("coverImageID"));
 			}
+				mongoFileId = insertFile(imageJson.getString("file"));
+			
 			System.out.println("fileId  :  " + mongoFileId);
 
 		} catch (Exception e) {
@@ -146,17 +145,17 @@ public class MongoDBJDBC {
 		return mongoFileId;
 	}
 	
-	public String insertProfileImageToMongoDb(JSONObject imageJson) {
+	public String insertImageToMongoDb(JSONObject imageJson) {
 
 		String mongoFileId = null;
 		try {
 			JSONObject profilejson = ServiceUtility.getUserImageId(imageJson.getLong("userId"));
 			if (profilejson != null && profilejson.has("profileImageId")) {
-				mongoFileId = updateFile(imageJson.getString("file"),profilejson.getString("profileImageId"));
-			} else {
+				 deleteFile(imageJson.getString("file"),profilejson.getString("profileImageId"));
+			} 
 				mongoFileId = insertFile(imageJson.getString("file"));
-			}
-			System.out.println("fileId  :  " + mongoFileId);
+			
+			//System.out.println("fileId  :  " + mongoFileId);
 
 		} catch (Exception e) {
 			e.printStackTrace();

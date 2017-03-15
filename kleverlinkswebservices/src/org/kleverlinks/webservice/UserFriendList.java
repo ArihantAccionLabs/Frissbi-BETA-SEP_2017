@@ -836,7 +836,7 @@ public class UserFriendList {
 		JSONObject finalJson = new JSONObject();
 		try {
 				conn = DataSourceConnection.getDBConnection();
-				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ContactNumber,U.ProfileImageID FROM tbl_users  U WHERE U.UserID=?";
+				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ContactNumber,U.ProfileImageID,U.CoverImageID FROM tbl_users  U WHERE U.UserID=?";
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setLong(1, friendUserId);
 				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
@@ -852,10 +852,11 @@ public class UserFriendList {
 						jsonObject.put("contactNumber", rs.getString("ContactNumber"));
 						jsonObject.put("dob", rs.getString("dob"));
 					    jsonObject.put("status", FriendStatusEnum.UNFRIEND);
-					    
-					    if (Utility.checkValidString(rs.getString("U.ProfileImageID"))) {
-							jsonObject.put("profileImage", mongoDBJDBC.getUriImage(rs.getString("U.ProfileImageID").trim()));
-					    }
+					    jsonObject.put("profileImageId", rs.getString("ProfileImageID"));
+					    jsonObject.put("coverImageId", rs.getString("CoverImageID"));
+					  /* if (Utility.checkValidString(rs.getString("U.ProfileImageID"))) {
+							jsonObject.put("profileImage", mongoDBJDBC.getUriImage(rs.getString("ProfileImageID").trim()));
+					   }*/
 					    
 					    finalJson.put("viewProfile", jsonObject);
 				}

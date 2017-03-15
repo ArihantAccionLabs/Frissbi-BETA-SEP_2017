@@ -695,7 +695,7 @@ public class ServiceUtility {
 		JSONObject jsonObject = null;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			sql = "SELECT ProfileImageId,CoverImageID,RegistrationDateTime FROM tbl_users WHERE UserID=?";
+			sql = "SELECT UserID,ProfileImageId,CoverImageID,RegistrationDateTime FROM tbl_users WHERE UserID=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setLong(1, userId);
 			rs = pstmt.executeQuery();
@@ -709,6 +709,7 @@ public class ServiceUtility {
 						jsonObject.put("coverImageId", rs.getString("CoverImageID"));
 					}
 					jsonObject.put("registrationDateTime", rs.getString("RegistrationDateTime"));
+					jsonObject.put("userId", rs.getLong("UserID"));
 				}
 		} catch (Exception e) {
 			e.printStackTrace();

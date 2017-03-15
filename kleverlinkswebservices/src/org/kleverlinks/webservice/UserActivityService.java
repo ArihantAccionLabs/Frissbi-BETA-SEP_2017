@@ -8,8 +8,6 @@ import java.sql.Types;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,7 +44,7 @@ public class UserActivityService {
 		try {
 			MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 			mongoFileId = mongoDBJDBC.insertCoverImageToMongoDb(coverJson);
-			System.out.println("mongoFileId :   " + mongoFileId);
+			//System.out.println("mongoFileId :   " + mongoFileId);
 			if (mongoFileId != null) {
 				coverJson.remove("file");
 				coverJson.put("mongoFileId", mongoFileId);
@@ -78,7 +76,6 @@ public class UserActivityService {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		try {
-
 			conn = DataSourceConnection.getDBConnection();
 			String insertStoreProc = "{call usp_insertUserStatus(?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
@@ -89,10 +86,10 @@ public class UserActivityService {
 			int value = callableStatement.executeUpdate();
 
 			int isError = callableStatement.getInt(4);
-			System.out.println(isError + "  value  :" + value);
+		//	System.out.println(isError + "  value  :" + value);
 			if (value != 0) {
 				finalJson.put("status", true);
-				finalJson.put("message", "Cover image updated successfully");
+				finalJson.put("message", "Status updated successfully");
 			}
 			return finalJson.toString();
 		} catch (Exception e) {
@@ -114,8 +111,6 @@ public class UserActivityService {
 		
 		JSONObject finalJson = new JSONObject();
 		List<ActivityBean> userActivityBeanList = new ArrayList<ActivityBean>();
-		JSONArray jsonArray = new JSONArray();
-		JSONObject json = null;
 		try {
 			JSONObject jsonObject = ServiceUtility.getUserImageId(userId);
 			
@@ -123,17 +118,24 @@ public class UserActivityService {
 			userActivityBeanList.addAll(getUserMeetingActivity(userId));
 			userActivityBeanList.addAll(getUserPostedActivity(userId));
 			
+			Utility.sortList(userActivityBeanList);
+			
+			System.out.println("size  :   "+userActivityBeanList.size());
+			
 			if(userActivityBeanList.size() > 10){
-				int isInserted = insertUserActivityToTempTable(userActivityBeanList);
-				if(isInserted != 0){
-					setUserActivity(userActivityBeanList);
+				int isInserted = insertUserActivityToTempTable(userActivityBeanList , userId);
+				if(isInserted == 0){
+					finalJson.put("status", false);
+					finalJson.put("message", "Record is not inserted in temp table");
+					
+					return finalJson.toString();
 				}
-			}else{
-				setUserActivity(userActivityBeanList);
 			}
 			
+			finalJson.put("isNextActivityExist", userActivityBeanList.size() > 10 ? true:false);
 			finalJson.put("status", true);
 			finalJson.put("message", "User activity fetched successfully");
+			finalJson.put("userActivityArray", setUserActivity(userActivityBeanList));
 			return finalJson.toString();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -142,49 +144,162 @@ public class UserActivityService {
 		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
 	}
+	
 
-	public 	JSONArray setUserActivity(List<ActivityBean> userActivityBeanList){
+		public JSONArray setUserActivity(List<ActivityBean> userActivityBeanList){
 		
 		JSONArray jsonArray = new JSONArray();
 		JSONObject json = null;
-				
+			int count = 1;
+			DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			DateFormat timeFormat = new SimpleDateFormat("HH:mm");
+			
+			try{
+			
 			for (ActivityBean activityBean : userActivityBeanList) {
-				
+
 				json = new JSONObject();
-				json.put("date", activityBean.getDate());
-				json.put("activityId", activityBean.getActivityId());
-				json.put("userId", activityBean.getUserId());
-				if(activityBean.getMeetingId() != null){
+				json.put("date", dateTimeFormat.format(activityBean.getDate()));
+
+				if (activityBean.getMeetingId() != null) {
 					json.put("type", ActivityType.MEETING_TYPE.toString());
 					json.put("meetingId", activityBean.getMeetingId());
 					json.put("meetingMessage", activityBean.getMeetingMessage());
 				}
-				else if(Utility.checkValidString(activityBean.getStatus())){
-				  json.put("status", activityBean.getStatus());
-				  json.put("type", ActivityType.STATUS_TYPE.toString());
-			  }
-				else if(Utility.checkValidString(activityBean.getImageDescription())){
-				  json.put("imageDescription", activityBean.getImageDescription());
-				  json.put("image", activityBean.getImage());
-				  json.put("type", ActivityType.UPLOAD_TYPE.toString());
-			  }
-				else if(Utility.checkValidString(activityBean.getAddress())){
-				  json.put("address", activityBean.getAddress()); 
-				  json.put("type", ActivityType.LOCATION_TYPE.toString());
-			  }
-				else if(Utility.checkValidString(activityBean.getFromDate())){
-				  json.put("fromDate", activityBean.getFromDate()); 
-				  json.put("toDate", activityBean.getToDate()); 
-				  json.put("type", ActivityType.FREE_TIME_TYPE.toString());
-			  }
+				if (Utility.checkValidString(activityBean.getStatus())) {
+					json.put("status", activityBean.getStatus());
+					json.put("type", ActivityType.STATUS_TYPE.toString());
+				}
+				if (Utility.checkValidString(activityBean.getImageDescription())) {
+					json.put("imageDescription", activityBean.getImageDescription());
+					json.put("imageId", activityBean.getImage());
+					json.put("type", ActivityType.UPLOAD_TYPE.toString());
+				}
+				if (Utility.checkValidString(activityBean.getAddress())) {
+					json.put("address", activityBean.getAddress());
+					json.put("type", ActivityType.LOCATION_TYPE.toString());
+				}
+				if (Utility.checkValidString(activityBean.getFromDate())) {
+
+					java.util.Date fromTime = dateTimeFormat.parse(activityBean.getFromDate());
+					json.put("freeDate", dateFormat.format(fromTime));
+					json.put("freeFromTime", timeFormat.format(fromTime));
+					json.put("freeToTime", timeFormat.format(dateFormat.parse(activityBean.getToDate())));
+
+					json.put("type", ActivityType.FREE_TIME_TYPE.toString());
+				}
+				if (Utility.checkValidString(activityBean.getProfileImage())) {
+					json.put("profileImageId", activityBean.getProfileImage());
+					json.put("type", ActivityType.PROFILE_TYPE.toString());
+				}
+				if (Utility.checkValidString(activityBean.getCoverImage())) {
+					json.put("coverImageId", activityBean.getCoverImage());
+					json.put("type", ActivityType.COVER_TYPE.toString());
+				}
+				if (Utility.checkValidString(activityBean.getRegistrationDate())) {
+					json.put("registrationDate", activityBean.getCoverImage());
+					json.put("type", ActivityType.JOIN_DATE_TYPE.toString());
+				}
 				
 				jsonArray.put(json);
-				
+			 if(count == 10){
+				 break;
+			 }
+				count++;
+			}
+			}catch(Exception e){
+				e.printStackTrace();
 			}
 			return jsonArray;
 	}
+	
+	
+	
+    @GET	
+	@Path("/getUserActivity/{userId}/{offSetValue}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String setUserActivity(@PathParam("userId") Long userId , @PathParam("offSetValue") int offSetValue){
+	
+	JSONArray jsonArray = new JSONArray();
 		
-		
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		JSONObject finalJson = new JSONObject();
+		JSONObject json = null;
+		try {
+			//System.out.println("userId:   "+userId+"  offSetValue  :  "+offSetValue);
+			conn = DataSourceConnection.getDBConnection();
+			String insertFrissbiLocationStoreProc = "{call usp_getUserActivity(?,?)}";
+			callableStatement = conn.prepareCall(insertFrissbiLocationStoreProc);
+			callableStatement.setLong(1, userId);
+			callableStatement.setInt(2, offSetValue*10);
+			
+			ResultSet rs = callableStatement.executeQuery();
+			
+			DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			DateFormat timeFormat = new SimpleDateFormat("HH:mm");
+			
+			while(rs.next()){
+				
+				json = new JSONObject();
+			
+				json.put("date", rs.getString("CreatedDateTime"));
+				json.put("userId", rs.getLong("UserID"));
+				//json.put("activityId", rs.getLong("UserActivityID"));
+				Long meetingId = rs.getLong("MeetingID"); 
+				if(meetingId != null && meetingId != 0l){
+					json.put("type", ActivityType.MEETING_TYPE.toString());
+					json.put("meetingId", meetingId);
+					json.put("meetingMessage", rs.getString("MeetingMessage"));
+				} if(Utility.checkValidString(rs.getString("StatusDescription"))){
+				  json.put("status", rs.getString("StatusDescription"));
+				  json.put("type", ActivityType.STATUS_TYPE.toString());
+			  } if(Utility.checkValidString(rs.getString("ImageDescription"))){
+				  json.put("imageDescription", rs.getString("ImageDescription"));
+				  json.put("imageId",rs.getString("ImageID"));
+				  json.put("type", ActivityType.UPLOAD_TYPE.toString());
+			  } if(Utility.checkValidString(rs.getString("Address"))){
+				  json.put("address", rs.getString("Address")); 
+				  json.put("type", ActivityType.LOCATION_TYPE.toString());
+			  } if(Utility.checkValidString(rs.getString("FromDateTime"))){
+				  java.util.Date fromTime = dateTimeFormat.parse(rs.getString("FromDateTime"));
+				  json.put("freeDate", dateFormat.format(fromTime)); 
+				  json.put("freeFromTime",timeFormat.format(fromTime)); 
+				  json.put("freeToTime",timeFormat.format(dateFormat.parse(rs.getString("ToDateTime")))); 
+				  json.put("type", ActivityType.FREE_TIME_TYPE.toString());
+			  }if(Utility.checkValidString(rs.getString("RegistrationDateTime"))){
+				  json.put("registrationDate", rs.getString("RegistrationDateTime")); 
+				  json.put("type", ActivityType.JOIN_DATE_TYPE.toString());
+			  } if(Utility.checkValidString(rs.getString("ProfileImageID"))){
+				  json.put("profileImageId", rs.getString("ProfileImageID")); 
+				  json.put("type", ActivityType.PROFILE_TYPE.toString());
+			  }if(Utility.checkValidString(rs.getString("CoverImageID"))){
+				  json.put("coverImageId", rs.getString("CoverImageID")); 
+				  json.put("type", ActivityType.COVER_TYPE.toString());
+			  }	  
+					  
+				jsonArray.put(json);
+			}
+			finalJson.put("userActivityArray", jsonArray);
+			finalJson.put("isNextActivityExist", jsonArray.length() >= 10 ? true:false);
+			finalJson.put("status", true);
+			finalJson.put("message", "User activity fetched successfully");		
+			
+			return finalJson.toString();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		return jsonArray.toString();
+	} 
+	
 	public List<ActivityBean> getUserMeetingActivity(Long userId) {
 
 		Connection conn = null;
@@ -203,6 +318,7 @@ public class UserActivityService {
 				userActivityBean = new ActivityBean();
 				java.util.Date senderFromDateTime = df.parse(rs.getString("SenderFromDateTime"));
 				java.util.Date senderToDateTime = df.parse(rs.getString("SenderToDateTime"));
+				userActivityBean.setUserId(userId);
 				userActivityBean.setMeetingId(rs.getLong("MeetingID"));
 				userActivityBean.setDate(senderFromDateTime);
 				userActivityBean.setMeetingMessage("You have a meeting " + rs.getString("MeetingDescription") +" form "+new SimpleDateFormat("HH:mm").format(senderFromDateTime)+" to "+new SimpleDateFormat("HH:mm").format(senderToDateTime)+" at "+senderFromDateTime);
@@ -232,12 +348,14 @@ public class UserActivityService {
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
 			while (rs.next()) {
 				userActivityBean = new ActivityBean();
+				userActivityBean.setUserId(userId);
 				userActivityBean.setActivityId(rs.getLong("UserActivityID"));
 				userActivityBean.setStatus(rs.getString("StatusDescription"));
 				userActivityBean.setImageDescription(rs.getString("ImageDescription"));
-				userActivityBean.setImage(rs.getString("Image"));
+				userActivityBean.setImage(rs.getString("ImageID"));
 				userActivityBean.setFromDate(rs.getString("FromDateTime"));
-				userActivityBean.setFromDate(rs.getString("Address"));
+				userActivityBean.setToDate(rs.getString("ToDateTime"));
+				userActivityBean.setAddress(rs.getString("Address"));
 				userActivityBean.setIsPrivate(rs.getInt("IsPrivate"));
 				userActivityBean.setDate(df.parse(rs.getString("CreatedDateTime")));
 				
@@ -257,14 +375,15 @@ public class UserActivityService {
 		ActivityBean userActivityBean = null;
 		List<ActivityBean> userActivityBeanList = new ArrayList<>();
 		
+		MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 		if (jsonObject.has("profileImageId")) {
-			MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 			DBObject profileDbObj = mongoDBJDBC.getFile(jsonObject.getString("profileImageId"));
 			if (profileDbObj != null) {
 				
 				userActivityBean = new ActivityBean();
+				userActivityBean.setUserId(jsonObject.getLong("userId"));
 				JSONObject mongoJson = new JSONObject(profileDbObj.toString());
-				userActivityBean.setProfileImage(mongoJson.getString("documentBytes"));
+				userActivityBean.setProfileImage(jsonObject.getString("profileImageId"));
 				try {
 					userActivityBean.setDate(java.util.Date.from(Instant.parse(mongoJson.getJSONObject("createdDate").getString("$date"))));
 				} catch (Exception e) {
@@ -272,11 +391,13 @@ public class UserActivityService {
 				}
 				userActivityBeanList.add(userActivityBean);
 			}
+		}	if (jsonObject.has("coverImageId")) {
 			DBObject coverDbObj = mongoDBJDBC.getFile(jsonObject.getString("coverImageId"));
 			if (coverDbObj != null) {
 				JSONObject mongoJson = new JSONObject(coverDbObj.toString());
 				userActivityBean = new ActivityBean();
-				userActivityBean.setCoverImage(mongoJson.getString("documentBytes"));
+				userActivityBean.setUserId(jsonObject.getLong("userId"));
+				userActivityBean.setCoverImage(jsonObject.getString("coverImageId"));
 				try {
 					userActivityBean.setDate(java.util.Date.from(Instant.parse(mongoJson.getJSONObject("createdDate").getString("$date"))));
 				} catch (Exception e) {
@@ -286,36 +407,64 @@ public class UserActivityService {
 				userActivityBeanList.add(userActivityBean);
 			}
 		}
+		
+		if (jsonObject.has("RegistrationDateTime")) {
+			userActivityBean = new ActivityBean();
+			userActivityBean.setUserId(jsonObject.getLong("userId"));
+			userActivityBean.setRegistrationDate(jsonObject.getString("RegistrationDateTime"));
+		}
+		
+		
 		return userActivityBeanList;
 	}
 	
-	public int insertUserActivityToTempTable(List<ActivityBean> activityBeanList) {
+	public int insertUserActivityToTempTable(List<ActivityBean> activityBeanList , Long userId) {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		
 		try {
+			deleteTemUserActivity(userId);
+			
 			conn = DataSourceConnection.getDBConnection();
-			String selectStoreProcedue = "{call usp_insertUserActivityToTempTable(?,?,?,?,?,?,?,?,?,?)}";
+			String selectStoreProcedue = "{call usp_insertUserActivityToTempTable(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(selectStoreProcedue);
 			
 			for (ActivityBean activityBean : activityBeanList) {
-				
-				callableStatement.setLong(1, activityBean.getActivityId());
-				callableStatement.setLong(2, activityBean.getUserId());
-				callableStatement.setLong(3, activityBean.getMeetingId());
-				callableStatement.setTimestamp(4, Timestamp.valueOf(activityBean.getFromDate()));
-				callableStatement.setTimestamp(5, Timestamp.valueOf(activityBean.getToDate()));
-				callableStatement.setString(6, activityBean.getStatus());
-				callableStatement.setString(7, activityBean.getImageDescription());
-				callableStatement.setString(8, activityBean.getImage());
-				callableStatement.setInt(9, activityBean.getIsPrivate());
-				callableStatement.setString(10, activityBean.getAddress());
-				callableStatement.setTimestamp(11, new Timestamp(activityBean.getDate().getTime()));
+
+				callableStatement.setLong(1, activityBean.getUserId());
+				if (activityBean.getMeetingId() != null)
+					callableStatement.setLong(2, activityBean.getMeetingId());
+				else
+					callableStatement.setLong(2, 0l);
+				callableStatement.setString(3, activityBean.getMeetingMessage());
+				if (Utility.checkValidString(activityBean.getFromDate()))
+					callableStatement.setTimestamp(4, Timestamp.valueOf(activityBean.getFromDate()));
+				else
+					callableStatement.setTimestamp(4, null);
+				if (Utility.checkValidString(activityBean.getToDate()))
+					callableStatement.setTimestamp(5, Timestamp.valueOf(activityBean.getToDate()));
+				else
+					callableStatement.setTimestamp(5, null);
+				if (Utility.checkValidString(activityBean.getRegistrationDate()))
+					callableStatement.setTimestamp(6, Timestamp.valueOf(activityBean.getRegistrationDate()));
+				else
+					callableStatement.setTimestamp(6, null);
+				callableStatement.setString(7, activityBean.getProfileImage());
+				callableStatement.setString(8, activityBean.getCoverImage());
+				callableStatement.setString(9, activityBean.getStatus());
+				callableStatement.setString(10, activityBean.getImageDescription());
+				callableStatement.setString(11, activityBean.getImage());
+				callableStatement.setInt(12, activityBean.getIsPrivate());
+				callableStatement.setString(13, activityBean.getAddress());
+				callableStatement.setTimestamp(14, new Timestamp(activityBean.getDate().getTime()));
 			
 				callableStatement.addBatch();
 			}
 			
 			int[] isInserted = callableStatement.executeBatch();
+			
+			System.out.println("isInserted  ::::::::::   "+isInserted.length);
+			
 			return isInserted.length;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -325,4 +474,96 @@ public class UserActivityService {
 		}
 		return 0;
 	}
+	
+	@POST
+	@Path("/insertUserPhotos")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String insertUserPhotos(String userPhotos) {
+
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		JSONObject finalJson = new JSONObject();
+
+		try {
+			JSONObject jsonObject = new JSONObject(userPhotos);
+			MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
+			conn = DataSourceConnection.getDBConnection();
+			String selectStoreProcedue = "{call usp_insertUserPhotos(?,?,?,?)}";
+			callableStatement = conn.prepareCall(selectStoreProcedue);
+
+			callableStatement.setLong(1, jsonObject.getLong("userId"));
+			callableStatement.setString(2, mongoDBJDBC.insertImageToMongoDb(jsonObject));
+			callableStatement.setString(3, jsonObject.getString("description"));
+			callableStatement.setTimestamp(4, new Timestamp(new java.util.Date().getTime()));
+
+			int isInserted = callableStatement.executeUpdate();
+			if (isInserted != 0) {
+				finalJson.put("status", true);
+				finalJson.put("message", "User photos inserted successfully");
+				return finalJson.toString();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		return finalJson.toString();
+	}
+	
+	@GET
+	@Path("/getImage/{imageId}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getImage(@PathParam("imageId") String imageId) {
+
+		JSONObject finalJson = new JSONObject();
+		try {
+			MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
+		    mongoDBJDBC.getUriImage(imageId);
+		    
+		    finalJson.put("uriImage",  mongoDBJDBC.getUriImage(imageId));
+		    finalJson.put("status", true);
+			finalJson.put("message", "User photos inserted successfully");
+			return finalJson.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		return finalJson.toString();
+	}
+	
+
+	public Boolean deleteTemUserActivity(Long userId) {
+
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		JSONObject finalJson = new JSONObject();
+
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String selectStoreProcedue = "{call usp_deleteTempUserActivity(?)}";
+			callableStatement = conn.prepareCall(selectStoreProcedue);
+
+			callableStatement.setLong(1, userId);
+
+			int isDeleted = callableStatement.executeUpdate();
+			if (isDeleted != 0) {
+				finalJson.put("status", true);
+				finalJson.put("message", "User photos inserted successfully");
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		return false;
+	}
+	
 }

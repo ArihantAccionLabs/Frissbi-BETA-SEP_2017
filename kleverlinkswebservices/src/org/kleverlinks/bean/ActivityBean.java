@@ -4,8 +4,8 @@ import java.util.Date;
 
 public class ActivityBean {
 
-	private Long activityId;
 	private Long userId;
+	private Long activityId;
 	private java.util.Date date;
 	private String profileImage;
 	private String coverImage;
@@ -18,13 +18,8 @@ public class ActivityBean {
 	private String image;
 	private String fromDate;
 	private String toDate;
-	
-	public Long getActivityId() {
-		return activityId;
-	}
-	public void setActivityId(Long activityId) {
-		this.activityId = activityId;
-	}
+	private String registrationDate;
+
 	public Date getDate() {
 		return date;
 	}
@@ -52,6 +47,12 @@ public class ActivityBean {
 	}
 	public void setUserId(Long userId) {
 		this.userId = userId;
+	}
+	public Long getActivityId() {
+		return activityId;
+	}
+	public void setActivityId(Long activityId) {
+		this.activityId = activityId;
 	}
 	public void setMeetingId(Long meetingId) {
 		this.meetingId = meetingId;
@@ -95,6 +96,12 @@ public class ActivityBean {
 		this.toDate = toDate;
 	}
 	
+	public String getRegistrationDate() {
+		return registrationDate;
+	}
+	public void setRegistrationDate(String registrationDate) {
+		this.registrationDate = registrationDate;
+	}
 	public String getImageDescription() {
 		return imageDescription;
 	}
