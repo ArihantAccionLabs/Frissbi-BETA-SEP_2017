@@ -30,7 +30,9 @@ public class CustomFontTextView extends TextView {
 
     private void init(AttributeSet attrs) {
         if (attrs != null) {
-            TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CustomFontTextView);
+            Typeface myTypeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/HelveticaNeue-Light.ttf");
+            setTypeface(myTypeface);
+            /*TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.CustomFontTextView);
 
             String fontName = a.getString(R.styleable.CustomFontTextView_font);
 
@@ -43,7 +45,7 @@ public class CustomFontTextView extends TextView {
                 e.printStackTrace();
             }
 
-            a.recycle();
+            a.recycle();*/
         }
     }
 

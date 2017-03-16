@@ -1,167 +1,199 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_profile"
+    android:id="@+id/profile_swipeRefreshLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="5"
     tools:context="com.frissbi.activities.ProfileActivity">
 
-    <RelativeLayout
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/profile_nestedScrollView"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="2"
-        android:background="@drawable/car_image">
+        android:layout_height="match_parent">
 
-        <LinearLayout
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="50dp"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="30dp"
-            android:layout_marginTop="50dp"
-            android:weightSum="6">
+            android:layout_height="wrap_content">
 
             <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2">
+                android:id="@+id/cover_photo_rl"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:background="@drawable/car_image">
 
-                <Button
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginLeft="6dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/icon_edit_profile_pic_black" />
-
-                <ImageView
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/default_profile_image" />
+                    android:layout_margin="70dp"
+                    android:weightSum="10">
 
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="4">
 
+                        <Button
+                            android:id="@+id/edit_profile_image_button"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_marginLeft="6dp"
+                            android:layout_marginTop="6dp"
+                            android:background="@drawable/icon_edit_profile_pic_black" />
+
+                        <ImageView
+                            android:id="@+id/profile_user_image"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:scaleType="fitXY"
+                            android:src="@drawable/default_profile_image" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:layout_weight="6"
+                        android:background="#eeffffff"
+                        android:gravity="center_vertical">
+
+                        <com.frissbi.CustomFontTextView
+                            android:id="@+id/profile_username_tv"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="16dp"
+                            android:text="User Name"
+                            android:textColor="@color/black" />
+
+                        <!--<com.frissbi.CustomFontTextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_below="@+id/profile_username_tv"
+                            android:layout_marginLeft="16dp"
+                            android:layout_marginTop="30dp"
+                            android:text="My Status Message"
+                            android:textColor="@color/black"
+                            android:textStyle="bold" />
+    -->
+
+                    </RelativeLayout>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/edit_cover_photo_button"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="6dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/icon_edit_profile_pic_white" />
             </RelativeLayout>
 
             <RelativeLayout
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="4"
-                android:background="#99ffffff">
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/cover_photo_rl"
+                android:background="@color/bg_color"
+                android:padding="10dp">
 
-                <com.frissbi.CustomFontTextView
-                    android:id="@+id/profile_username_tv"
+                <RelativeLayout
+                    android:id="@+id/status_rl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <android.support.design.widget.TextInputLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_toLeftOf="@+id/submit_status_imageView">
+
+                        <EditText
+                            android:id="@+id/status_message_et"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="What's on your mind?"
+                            android:textColorHint="@color/white" />
+
+                    </android.support.design.widget.TextInputLayout>
+
+                    <ImageView
+                        android:id="@+id/submit_status_imageView"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/icon_tick"
+                        android:visibility="gone" />
+                </RelativeLayout>
+
+                <Button
+                    android:id="@+id/post_free_time_button"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginTop="16dp"
-                    android:text="User Name"
-                    android:textColor="@color/black" />
+                    android:layout_below="@+id/status_rl"
+                    android:layout_marginLeft="60dp"
+                    android:layout_marginRight="60dp"
+                    android:background="#ccffffff"
+                    android:minHeight="40dp"
+                    android:text="Post Free time" />
 
-                <com.frissbi.CustomFontTextView
+                <RelativeLayout
+                    android:id="@+id/activities_rl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/profile_username_tv"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginTop="30dp"
-                    android:text="My Status Message"
-                    android:textColor="@color/black"
-                    android:textStyle="bold" />
+                    android:layout_below="@+id/post_free_time_button"
+                    android:layout_marginTop="20dp">
 
+                    <ImageView
+                        android:id="@+id/disclosure_imageView"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/icon_disclosure" />
+
+                    <com.frissbi.CustomFontTextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="16dp"
+                        android:layout_toRightOf="@+id/disclosure_imageView"
+                        android:text="Recent Activities"
+                        android:textAllCaps="true"
+                        android:textColor="@color/white" />
+
+                </RelativeLayout>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/activities_recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@+id/activities_rl"
+                    android:layout_marginTop="20dp" />
+
+                <Button
+                    android:id="@+id/view_more_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/activities_recyclerView"
+                    android:layout_marginLeft="60dp"
+                    android:layout_marginRight="60dp"
+                    android:layout_marginTop="10dp"
+                    android:text="View more"
+                    android:visibility="gone" />
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/scroll_top_floating_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginBottom="20dp"
+                    android:src="@drawable/ic_action_arrow_top"
+                    android:visibility="visible"
+                    app:backgroundTint="@color/white" />
 
             </RelativeLayout>
-
-
-        </LinearLayout>
-
-        <Button
-            android:layout_width="20dp"
-            android:layout_height="20dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="6dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginTop="6dp"
-            android:background="@drawable/icon_edit_profile_pic_white" />
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="3"
-        android:background="@color/bg_color">
-
-
-    </RelativeLayout>
-
-
-    <!-- <RelativeLayout
-         android:layout_width="match_parent"
-         android:layout_height="wrap_content">
-
-         <ImageView
-             android:id="@+id/profile_user_image"
-             android:layout_width="100dp"
-             android:layout_height="100dp"
-             android:layout_margin="10dp"
-             android:src="@drawable/pic1" />
-
-         <RelativeLayout
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content"
-             android:layout_marginLeft="10dp"
-             android:layout_marginTop="16dp"
-             android:layout_toRightOf="@+id/profile_user_image">
-
-             <com.frissbi.CustomFontTextView
-                 android:id="@+id/profile_user_name"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:text="User Name" />
-
-             <com.frissbi.CustomFontTextView
-                 android:id="@+id/profile_user_email"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_below="@+id/profile_user_name"
-                 android:layout_marginTop="4dp"
-                 android:text="Email Id" />
-
-             <com.frissbi.CustomFontTextView
-                 android:visibility="gone"
-                 android:id="@+id/dob_tv"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_below="@+id/profile_user_email"
-                 android:layout_marginTop="4dp"
-                 android:text="DOB :" />
-
-             <com.frissbi.CustomFontTextView
-                 android:id="@+id/gender_tv"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_below="@+id/dob_tv"
-                 android:layout_marginTop="4dp"
-                 android:text="Gender :"
-                 android:visibility="gone" />
-
-             <Button
-                 android:id="@+id/add_friend_button"
-                 android:layout_width="wrap_content"
-                 android:layout_height="wrap_content"
-                 android:layout_alignParentRight="true"
-                 android:layout_below="@+id/profile_user_email"
-                 android:layout_marginRight="10dp"
-                 android:background="@color/bg_color"
-                 android:minHeight="40dp"
-                 android:text="Add"
-                 android:textAllCaps="false"
-                 android:visibility="gone"
-                 android:textColor="@color/white" />
-
-         </RelativeLayout>
-     </RelativeLayout>-->
-
-</LinearLayout>
+        </RelativeLayout>
+    </android.support.v4.widget.NestedScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

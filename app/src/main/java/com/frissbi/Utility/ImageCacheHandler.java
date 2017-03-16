@@ -5,11 +5,18 @@ import android.content.ContextWrapper;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 
+import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
+import com.frissbi.networkhandler.TSNetworkHandler;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.HashMap;
 
 public class ImageCacheHandler {
 
@@ -44,8 +52,8 @@ public class ImageCacheHandler {
 
     }
 
-    public void setImage(final ImageView imageView, String userId, String imageURL) {
-        final String fileName = userId;
+    public void setImage(final ImageView imageView, String imageId) {
+        final String fileName = imageId;
         bitmap = findImageFromMemory(fileName);
         imageView.setImageResource(R.drawable.frissbi_logo_home);
         if (bitmap != null) {
@@ -54,7 +62,7 @@ public class ImageCacheHandler {
             }*/
             imageView.setImageBitmap(bitmap);
         } else {
-            new DownloadImageAsync(fileName, new DownloadCallback() {
+            /*new DownloadImageAsync(fileName, new DownloadCallback() {
                 @Override
                 public void downloadFinished(boolean status) {
                     if (status) {
@@ -67,8 +75,32 @@ public class ImageCacheHandler {
 
                     }
                 }
-            }).execute(imageURL);
-
+            }).execute(imageURL);*/
+            String imageURL = Utility.REST_URI + Utility.GET_IMAGE + imageId;
+            TSNetworkHandler.getInstance(mContext).getResponse(imageURL, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
+                @Override
+                public void handleResponse(TSNetworkHandler.TSResponse response) {
+                    if (response != null) {
+                        if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
+                            try {
+                                JSONObject jsonObject = new JSONObject(response.response);
+                                byte[] decodedString = Base64.decode(jsonObject.getString("uriImage"), Base64.DEFAULT);
+                                Bitmap bitmap = BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
+                                saveImageToMemory(fileName, bitmap);
+                                imageView.setImageBitmap(bitmap);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
+                            Toast.makeText(mContext, response.message, Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(mContext, mContext.getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
 
     }
@@ -101,8 +133,6 @@ public class ImageCacheHandler {
 
 
     public Bitmap findImageFromMemory(String userId) {
-
-
         FLog.d("ImageID", userId);
         try {
             File file = new File(directory, userId + ".jpeg");
@@ -122,7 +152,7 @@ public class ImageCacheHandler {
      * Callback interface which need to be implemented by the calling method
      */
     private interface DownloadCallback {
-        public void downloadFinished(boolean status);
+        void downloadFinished(boolean status);
     }
 
     /**
@@ -142,17 +172,17 @@ public class ImageCacheHandler {
         @Override
         protected Boolean doInBackground(String... params) {
             try {
+
                 InputStream is = new URL(params[0]).openStream();
                 Bitmap bitmap = BitmapFactory.decodeStream(is);
                 saveImageToMemory(fileName, bitmap);
-
                 return true;
-
             } catch (Exception e) {
                 e.printStackTrace();
                 return false;
             }
         }
+
         @Override
         protected void onPostExecute(Boolean result) {
             downloadCallback.downloadFinished(result);

@@ -101,6 +101,15 @@ public class HomeActivity extends AppCompatActivity
     private Animation rotate_backward;
     private EmailIdsAsync mEmailIdsAsync;
 
+    String[] permissions = new String[]{
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.READ_CONTACTS
+
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,7 +120,7 @@ public class HomeActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         mProgressDialog = new CustomProgressDialog(this);
         mEmailIdsAsync = new EmailIdsAsync();
-
+        checkPermissions();
         mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
         mUserName = SharedPreferenceHandler.getInstance(this).getUserName();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -409,11 +418,10 @@ public class HomeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         if (id == R.id.nav_home) {
-            Intent intent = new Intent(getApplication(), FriendSerching.class);
+            Intent intent = new Intent(getApplication(), HomeActivity.class);
             startActivity(intent);
+            finish();
         } else if (id == R.id.nav_meeting) {
-
-
             // check for Internet status
             if (ConnectionDetector.getInstance(this).isConnectedToInternet()) {
                 Intent intent = new Intent(getApplication(), MeetingCalendarActivity.class);
@@ -422,24 +430,15 @@ public class HomeActivity extends AppCompatActivity
                 Toast.makeText(getApplicationContext(), "You don't have an internet connection", Toast.LENGTH_SHORT).show();
 
             }
-
-
         } else if (id == R.id.nav_friends) {
-
             Intent intent = new Intent(getApplication(), FriendsListActivity.class);
             startActivity(intent);
-
         } else if (id == R.id.nav_groups) {
-
             Intent intent = new Intent(getApplication(), GroupsActivity.class);
             startActivity(intent);
-
         } else if (id == R.id.nav_profile) {
-
             Intent intent = new Intent(getApplication(), ProfileActivity.class);
             startActivity(intent);
-
-
         } else if (id == R.id.nav_setting) {
             Intent intent = new Intent(getApplication(), Profile_Pic.class);
             startActivity(intent);
@@ -887,5 +886,21 @@ public class HomeActivity extends AppCompatActivity
                 break;
         }
 
+    }
+
+    private boolean checkPermissions() {
+        int result;
+        List<String> listPermissionsNeeded = new ArrayList<>();
+        for (String p : permissions) {
+            result = ContextCompat.checkSelfPermission(this, p);
+            if (result != PackageManager.PERMISSION_GRANTED) {
+                listPermissionsNeeded.add(p);
+            }
+        }
+        if (!listPermissionsNeeded.isEmpty()) {
+            ActivityCompat.requestPermissions(this, listPermissionsNeeded.toArray(new String[listPermissionsNeeded.size()]), 10);
+            return false;
+        }
+        return true;
     }
 }

@@ -1,7 +1,11 @@
 package com.frissbi.Utility;
 
+import android.app.Activity;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.util.Base64;
 
 import java.io.File;
@@ -15,12 +19,16 @@ import java.util.Date;
  * Created by thrymr on 24/1/17.
  */
 public class Utility {
+    public static final int PROFILE_IMAGE = 0;
+    public static final int COVER_IMAGE = 1;
     public static final int STATUS_PENDING = 0;
     public static final int STATUS_ACCEPT = 1;
     public static final int STATUS_REJECT = 2;
     public static final int STATUS_COMPLETED = 3;
+    public static final int CAMERA_REQUEST=100;
+    public static final int SELECT_FILE=200;
     //public static final String REST_URI ="http://13.76.99.32/kleverlinkswebservices";
-    public static final String REST_URI = "http://192.168.2.130:9090/kleverlinkswebservices/rest";//Sunil
+    public static final String REST_URI = "http://192.168.2.16:9090/kleverlinkswebservices/rest";//Sunil
     public static final String USER_FRIENDSLIST = "/FriendListService/friendsList/";
     public static final String MEETING_INSERT = "/MeetingDetailsService/insertMeetingDetails/";
     public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getUserDetailsByMeetingID/";
@@ -45,6 +53,13 @@ public class Utility {
     public static final String SAVED_LOCATIONS = "/UserSettingsService/getUserPreferredLocations/";
     public static final String LOCATION_INSERT = "/UserSettingsService/insertUserPreferredLocations/";
     public static final String UPCOMING_MEETINGS = "/TimeLineService/getOneWeekMeetingInfo/";
+    public static final String POST_FREE_TIME = "/TimeLineService/postTime";
+    public static final String INSERT_PROFILE_IMAGE = "/UserRegistrationService/insertProfileImage";
+    public static final String INSERT_COVER_IMAGE = "/UserActivityService/insertCoverImage";
+    public static final String GET_IMAGE = "/UserActivityService/getImage/";
+    public static final String STATUS_MESSAGE = "/UserActivityService/insertUserStatus";
+    public static final String USER_ACTIVITIES = "/UserActivityService/getUserActivity/";
+    private static final int MY_PERMISSIONS_REQUEST_LOCATION = 100;
     private static Utility ourInstance = new Utility();
 
     public static Utility getInstance() {
@@ -100,4 +115,36 @@ public class Utility {
         byte[] decodedString = Base64.decode(imageString, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedString, 0, decodedString.length);
     }
+
+    public static boolean checkPermission(Activity context, String actionName) {
+        if (ContextCompat.checkSelfPermission(context,
+                actionName)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(context,
+                    actionName)) {
+
+                // Show an expanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+
+                //Prompt the user once explanation has been shown
+                ActivityCompat.requestPermissions(context,
+                        new String[]{actionName},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(context,
+                        new String[]{actionName},
+                        MY_PERMISSIONS_REQUEST_LOCATION);
+            }
+            return false;
+        } else {
+            return true;
+        }
+    }
+
 }

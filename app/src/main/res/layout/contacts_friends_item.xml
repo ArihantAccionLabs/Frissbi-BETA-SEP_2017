@@ -43,8 +43,8 @@
 
     <ImageView
         android:id="@+id/selected_icon_imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
         android:layout_gravity="right|center_vertical"
         android:layout_marginRight="10dp"
         android:src="@drawable/icon_tick"

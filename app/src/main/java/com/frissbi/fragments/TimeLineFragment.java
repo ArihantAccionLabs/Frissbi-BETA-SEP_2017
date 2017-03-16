@@ -161,10 +161,9 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
 
 
     @Override
-    public void showMeetingDetails(Meeting meeting) {
+    public void showMeetingDetails(Long meetingId) {
         Intent intent = new Intent(getActivity(), MeetingDetailsActivity.class);
-        intent.putExtra("callFrom", "meetingLog");
-        intent.putExtra("meeting", meeting);
+        intent.putExtra("meetingId", meetingId);
         startActivity(intent);
     }
 }

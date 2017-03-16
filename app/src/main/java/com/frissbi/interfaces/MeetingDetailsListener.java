@@ -7,5 +7,5 @@ import com.frissbi.models.Meeting;
  */
 
 public interface MeetingDetailsListener {
-    void showMeetingDetails(Meeting meeting);
+    void showMeetingDetails(Long meetingId);
 }

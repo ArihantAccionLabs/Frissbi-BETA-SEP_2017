@@ -22,7 +22,16 @@
         android:layout_height="match_parent"
         android:layout_below="@+id/add_friends_tabLayout" />
 
-    <android.support.design.widget.FloatingActionButton
+    <ImageView
+        android:id="@+id/add_friends_imageView"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_below="@+id/attendee_rl"
+        android:src="@drawable/btn_arrow" />
+    <!--<android.support.design.widget.FloatingActionButton
         android:id="@+id/add_friends_floating_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -30,8 +39,8 @@
         android:layout_alignParentRight="true"
         android:layout_marginBottom="20dp"
         android:layout_marginRight="20dp"
-        android:src="@android:drawable/ic_menu_add"
-        app:backgroundTint="@color/bg_color" />
+        android:src="@drawable/btn_arrow"
+        app:backgroundTint="@color/bg_color" />-->
 
 
 </RelativeLayout>

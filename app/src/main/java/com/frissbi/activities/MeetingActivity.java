@@ -481,7 +481,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
 
     private void showMeetingTitlesDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(MeetingActivity.this);
-        builder.setTitle("Meeting For..");
+        builder.setTitle("Purpose..");
         View view = LayoutInflater.from(MeetingActivity.this).inflate(R.layout.alert_meeting_tiltes, null);
         RecyclerView meetingTitleRecyclerView = (RecyclerView) view.findViewById(R.id.meeting_title_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(MeetingActivity.this);
@@ -491,11 +491,11 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         meetingTitleRecyclerView.addItemDecoration(dividerItemDecoration);
         builder.setView(view);
         List<String> titleList = new ArrayList<>();
-        titleList.add("Breakfast");
-        titleList.add("Lunch");
-        titleList.add("Coffee");
-        titleList.add("Dinner");
-        titleList.add("Drinks");
+        titleList.add("BREAKFAST");
+        titleList.add("LUNCH");
+        titleList.add("COFFEE");
+        titleList.add("DINNER");
+        titleList.add("DRINKS");
         titleList.add("MEETING");
         MeetingTitleSelectionListener meetingTitleSelectionListener = (MeetingTitleSelectionListener) this;
         mAlertDialog = builder.create();

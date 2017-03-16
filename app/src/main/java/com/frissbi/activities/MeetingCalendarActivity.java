@@ -1,9 +1,7 @@
 package com.frissbi.activities;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -413,10 +411,9 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
     }
 
     @Override
-    public void showMeetingDetails(Meeting meeting) {
+    public void showMeetingDetails(Long meetingId) {
         Intent intent = new Intent(MeetingCalendarActivity.this, MeetingDetailsActivity.class);
-        intent.putExtra("callFrom", "meetingLog");
-        intent.putExtra("meeting", meeting);
+        intent.putExtra("meetingId", meetingId);
         startActivity(intent);
     }
 }

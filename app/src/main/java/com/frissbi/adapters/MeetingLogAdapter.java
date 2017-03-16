@@ -1,11 +1,9 @@
 package com.frissbi.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +11,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frissbi.R;
-import com.frissbi.Utility.UserMeetingStatus;
+import com.frissbi.enums.UserMeetingStatus;
 import com.frissbi.Utility.Utility;
-import com.frissbi.activities.MeetingDetailsActivity;
 import com.frissbi.interfaces.MeetingDetailsListener;
 import com.frissbi.models.Meeting;
 import com.frissbi.models.MeetingFriends;
@@ -77,7 +74,7 @@ public class MeetingLogAdapter extends RecyclerView.Adapter<MeetingLogAdapter.Vi
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mMeetingDetailsListener.showMeetingDetails(mMeetingsList.get(position));
+                mMeetingDetailsListener.showMeetingDetails(mMeetingsList.get(position).getMeetingId());
             }
         });
 

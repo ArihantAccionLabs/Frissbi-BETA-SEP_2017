@@ -9,8 +9,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.CursorLoader;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
@@ -20,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frissbi.R;
@@ -29,6 +28,7 @@ import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.activities.CreateGroupActivity;
 import com.frissbi.adapters.GroupParticipantAdapter;
+import com.frissbi.interfaces.UploadPhotoListener;
 import com.frissbi.models.Friend;
 import com.frissbi.networkhandler.TSNetworkHandler;
 
@@ -41,13 +41,11 @@ import java.io.File;
 import java.util.List;
 
 import static android.app.Activity.RESULT_OK;
+import static com.frissbi.Utility.Utility.CAMERA_REQUEST;
+import static com.frissbi.Utility.Utility.SELECT_FILE;
 
 
-public class ConfirmGroupFragment extends Fragment {
-
-
-    private static final int CAMERA_REQUEST = 100;
-    private static final int SELECT_FILE = 200;
+public class ConfirmGroupFragment extends Fragment implements UploadPhotoListener {
     private OnFragmentInteractionListener mListener;
     private List<Friend> mSelectedFriendList;
     private RecyclerView mSelectedParticipantRecyclerView;
@@ -56,6 +54,7 @@ public class ConfirmGroupFragment extends Fragment {
     private GroupParticipantAdapter mGroupParticipantAdapter;
     private byte[] mImageByteArray;
     private String mPictureImagePath;
+    private UploadPhotoListener mUploadPhotoListener;
 
     public ConfirmGroupFragment() {
         // Required empty public constructor
@@ -76,6 +75,7 @@ public class ConfirmGroupFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_confirm_group, container, false);
+        mUploadPhotoListener=(UploadPhotoListener)this;
         setUpViews(view);
         return view;
     }
@@ -102,7 +102,11 @@ public class ConfirmGroupFragment extends Fragment {
         mGroupIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showDialogForAttachment();
+                //showDialogForAttachment();
+                UploadPhotoDialogFragment uploadPhotoDialogFragment = new UploadPhotoDialogFragment();
+                uploadPhotoDialogFragment.setUploadPhotoListener(mUploadPhotoListener, Utility.PROFILE_IMAGE);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                uploadPhotoDialogFragment.show(fragmentManager,"UploadPhotoDialogFragment");
             }
         });
     }
@@ -189,49 +193,11 @@ public class ConfirmGroupFragment extends Fragment {
     private void setUpSelectedParticipantsList() {
         mGroupParticipantAdapter = new GroupParticipantAdapter(getActivity(), mSelectedFriendList);
         mSelectedParticipantRecyclerView.setAdapter(mGroupParticipantAdapter);
-
     }
 
 
-    private void showDialogForAttachment() {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        View view = LayoutInflater.from(getActivity()).inflate(R.layout.attach_image_dialog, null);
-        builder.setView(view);
-
-        TextView takePhotoTextView = (TextView) view.findViewById(R.id.take_photo_tv);
-        TextView chooseFileTextView = (TextView) view.findViewById(R.id.choose_file_tv);
-
-        final AlertDialog alertDialog = builder.create();
-        alertDialog.show();
-
-        takePhotoTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.cancel();
-                captureImage();
-
-            }
-        });
-
-        chooseFileTextView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                alertDialog.cancel();
-                FLog.d("ConfirmGroupFragment", "SELECT_FILE" + SELECT_FILE);
-                Intent intent = new Intent(
-                        Intent.ACTION_PICK,
-                        MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                intent.setType("image/*");
-                startActivityForResult(
-                        Intent.createChooser(intent, "Select File"), SELECT_FILE);
-
-            }
-        });
-
-    }
-
-
-    public void captureImage() {
+    @Override
+    public void captureImage(int typeOfImage) {
         String imageFileName = System.currentTimeMillis() / 1000 + ".jpg";
         File storageDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
@@ -242,6 +208,16 @@ public class ConfirmGroupFragment extends Fragment {
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
         FLog.d("ConfirmGroupFragment", "CAMERA_REQUEST" + CAMERA_REQUEST);
         startActivityForResult(cameraIntent, CAMERA_REQUEST);
+    }
+
+    @Override
+    public void chooseAFile(int typeOfImage) {
+        Intent intent = new Intent(
+                Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+        intent.setType("image/*");
+        startActivityForResult(
+                Intent.createChooser(intent, "Select File"), SELECT_FILE);
     }
 
     @Override

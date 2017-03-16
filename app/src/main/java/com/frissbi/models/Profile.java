@@ -12,10 +12,11 @@ public class Profile {
     private String firstName;
     private String lastName;
     private String email;
-    private Bitmap imageBitmap;
+    private String  imageId;
     private String dob;
     private String contactNumber;
     private String gender;
+    private String coverImageId;
 
     public String getUserName() {
         return userName;
@@ -49,12 +50,12 @@ public class Profile {
         this.email = email;
     }
 
-    public Bitmap getImageBitmap() {
-        return imageBitmap;
+    public String  getImageId() {
+        return imageId;
     }
 
-    public void setImageBitmap(Bitmap imageBitmap) {
-        this.imageBitmap = imageBitmap;
+    public void setImageId(String  imageId) {
+        this.imageId = imageId;
     }
 
     public String getDob() {
@@ -81,6 +82,14 @@ public class Profile {
         this.gender = gender;
     }
 
+    public String getCoverImageId() {
+        return coverImageId;
+    }
+
+    public void setCoverImageId(String coverImageId) {
+        this.coverImageId = coverImageId;
+    }
+
     @Override
     public String toString() {
         return "Profile{" +
@@ -88,10 +97,11 @@ public class Profile {
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
-                ", imageBitmap=" + imageBitmap +
+                ", imageId='" + imageId + '\'' +
                 ", dob='" + dob + '\'' +
                 ", contactNumber='" + contactNumber + '\'' +
                 ", gender='" + gender + '\'' +
+                ", coverImageId='" + coverImageId + '\'' +
                 '}';
     }
 }

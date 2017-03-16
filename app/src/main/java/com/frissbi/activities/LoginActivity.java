@@ -33,6 +33,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
 
 import com.google.firebase.iid.FirebaseInstanceId;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -66,6 +67,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private SharedPreferences preferences;
     private SharedPreferences.Editor editor;
     private SharedPreferenceHandler mSharedPreferenceHandler;
+    private byte[] imageByteArray;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,15 +147,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             if (acct.getPhotoUrl() != null) {
                 try {
                     mBitmap = getBitmapFromURL(new URL(acct.getPhotoUrl().toString()).toString());
-                    profile.setImageBitmap(mBitmap);
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 }
-                FLog.d("LoginActivity", "Bitmap" + mBitmap.getByteCount());
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                byte[] imageByteArray = baos.toByteArray();
-                FLog.d("LoginActivity", "imageByteArray" + imageByteArray.length);
+                imageByteArray = baos.toByteArray();
             }
 
             shareLoginDetailsWithServer(profile);
@@ -224,7 +223,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("deviceRegistrationId",FirebaseInstanceId.getInstance().getToken());
+            jsonObject.put("deviceRegistrationId", FirebaseInstanceId.getInstance().getToken());
             jsonObject.put("userName", profile.getUserName());
             jsonObject.put("password", "");
             jsonObject.put("email", profile.getEmail());
@@ -233,13 +232,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             jsonObject.put("lastName", profile.getLastName());
             jsonObject.put("isGmailLogin", true);
             jsonObject.put("dob", "");
-            FLog.d("LoginActivity","jsonObject"+jsonObject);
-            if (profile.getImageBitmap() != null) {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                profile.getImageBitmap().compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                byte[] imageByteArray = baos.toByteArray();
+            FLog.d("LoginActivity", "jsonObject" + jsonObject);
+            if (imageByteArray != null) {
                 jsonObject.put("image", Base64.encodeToString(imageByteArray, Base64.DEFAULT));
             }
+
+            FLog.d("LoginActivity", "jsonObject" + jsonObject);
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -22,6 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.frissbi.R;
 import com.frissbi.Utility.CustomProgressDialog;
@@ -49,7 +49,7 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
     private EmailFriendsFragment mEmailFriendsFragment;
     private List<Contacts> mContactsList;
     private ContactsFragment mContactsFragment;
-    private FloatingActionButton mAddFriendsFloatingButton;
+    private ImageView mAddFriendsImageView;
     private FrissbiFriendsFragment mFrissbiFriendsFragment;
     private SharedPreferences mSharedPreferences;
     private CustomProgressDialog mProgressDialog;
@@ -67,7 +67,7 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         mAddFriendsTabLayout = (TabLayout) findViewById(R.id.add_friends_tabLayout);
         mFriendsViewPager = (ViewPager) findViewById(R.id.add_friends_viewPager);
-        mAddFriendsFloatingButton = (FloatingActionButton) findViewById(R.id.add_friends_floating_button);
+        mAddFriendsImageView = (ImageView) findViewById(R.id.add_friends_imageView);
         mProgressDialog = new CustomProgressDialog(this);
         mEmailFriendsFragment = new EmailFriendsFragment();
         mContactsFragment = new ContactsFragment();
@@ -87,7 +87,7 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
 
         setupViewPager(mFriendsViewPager);
         mAddFriendsTabLayout.setupWithViewPager(mFriendsViewPager);
-        mAddFriendsFloatingButton.setOnClickListener(new View.OnClickListener() {
+        mAddFriendsImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();

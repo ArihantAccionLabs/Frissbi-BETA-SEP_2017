@@ -140,7 +140,7 @@ public class UpcomingMeetingAdapter extends RecyclerView.Adapter<UpcomingMeeting
                 holder.itemView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mMeetingDetailsListener.showMeetingDetails(meeting);
+                        mMeetingDetailsListener.showMeetingDetails(meeting.getMeetingId());
                     }
                 });
             }

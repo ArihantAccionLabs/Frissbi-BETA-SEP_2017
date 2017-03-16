@@ -1,12 +1,8 @@
 package com.frissbi.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.orm.SugarRecord;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**

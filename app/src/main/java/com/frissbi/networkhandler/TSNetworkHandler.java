@@ -446,12 +446,9 @@ public class TSNetworkHandler {
                 conn.setRequestMethod("GET");
                 conn.setRequestProperty("Content-Type",
                         "application/json");
-
-
                 /*PrintWriter pw = new PrintWriter(conn.getOutputStream());
                 pw.print(paramsJson.toString());
                 pw.close();*/
-
                 conn.connect();
 
                 // Response

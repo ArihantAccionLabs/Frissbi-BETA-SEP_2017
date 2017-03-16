@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:padding="10dp"
+    android:layout_height="match_parent">
+
+    <com.frissbi.CustomFontTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/bg_color"
+        android:textStyle="bold"
+        android:text="UPLOAD PHOTO"/>
+
+    <TextView
+        android:layout_marginTop="10dp"
+        android:id="@+id/take_photo_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:padding="20dp"
+        android:textColor="@color/black"
+        android:text="Take Photo" />
+
+    <View
+        android:id="@+id/view"
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:layout_below="@+id/take_photo_tv"
+        android:background="@color/gray" />
+
+    <TextView
+        android:id="@+id/choose_file_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view"
+        android:gravity="center"
+        android:padding="20dp"
+        android:textColor="@color/black"
+        android:text="Choose a file" />
+
+
+</RelativeLayout>

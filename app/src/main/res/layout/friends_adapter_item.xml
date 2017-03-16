@@ -1,33 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="6dp">
+    android:layout_margin="4dp">
 
-    <ImageView
-        android:id="@+id/friend_profile_image"
-        android:layout_width="50dp"
-        android:layout_height="50dp" />
-
-    <com.frissbi.CustomFontTextView
-        android:id="@+id/friend_username_tv"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="10dp"
-        android:layout_toRightOf="@+id/friend_profile_image"
-        android:text="Username"
-        android:textColor="@color/black"
-        android:textSize="16sp" />
+        android:layout_height="match_parent"
+        android:padding="10dp">
 
-    <ImageView
-        android:id="@+id/selected_icon"
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:layout_marginRight="20dp"
-        android:layout_centerVertical="true"
-        android:layout_alignParentRight="true"
-        android:visibility="gone"
-        android:src="@drawable/right_mark"/>
+        <ImageView
+            android:id="@+id/friend_profile_image"
+            android:layout_width="50dp"
+            android:layout_height="50dp" />
 
-</RelativeLayout>
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/friend_username_tv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/friend_profile_image"
+            android:text="Username"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/selected_icon"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/icon_tick"
+            android:visibility="gone" />
+    </RelativeLayout>
+</android.support.v7.widget.CardView>

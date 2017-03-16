@@ -2,9 +2,7 @@ package com.frissbi.fragments;
 
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -20,7 +18,7 @@ import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.SharedPreferenceHandler;
-import com.frissbi.Utility.UserMeetingStatus;
+import com.frissbi.enums.UserMeetingStatus;
 import com.frissbi.Utility.Utility;
 import com.frissbi.activities.MeetingDetailsActivity;
 import com.frissbi.adapters.MeetingLogAdapter;
@@ -204,11 +202,10 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
     }
 
     @Override
-    public void showMeetingDetails(Meeting meeting) {
+    public void showMeetingDetails(Long meetingId) {
         if (!mSwipeRefreshLayout.isRefreshing()) {
             Intent intent = new Intent(getActivity(), MeetingDetailsActivity.class);
-            intent.putExtra("callFrom", "meetingLog");
-            intent.putExtra("meeting", meeting);
+            intent.putExtra("meetingId", meetingId);
             startActivity(intent);
         }
     }

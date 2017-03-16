@@ -89,20 +89,12 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
         mChangePlaceButton = (Button) findViewById(R.id.change_place_button);
 
 
-        if (bundle.getString("callFrom").equalsIgnoreCase("meetingLog")) {
-            if (bundle.getSerializable("meeting") != null) {
-                mMeeting = (Meeting) bundle.getSerializable("meeting");
-                mMeetingId = mMeeting.getMeetingId();
+        if (bundle.containsKey("meetingId")) {
+            mMeetingId = bundle.getLong("meetingId");
+            if (ConnectionDetector.getInstance(this).isConnectedToInternet()) {
                 getMeetingDetailsFromServer();
-            }
-        } else if (bundle.getString("callFrom").equalsIgnoreCase("notification")) {
-            if (bundle.getString("meetingId") != null) {
-                mMeetingId = Long.parseLong(bundle.getString("meetingId"));
-                if (ConnectionDetector.getInstance(this).isConnectedToInternet()) {
-                    getMeetingDetailsFromServer();
-                } else {
-                    Toast.makeText(this, getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
-                }
+            } else {
+                Toast.makeText(this, getString(R.string.check_connection), Toast.LENGTH_SHORT).show();
             }
         }
 

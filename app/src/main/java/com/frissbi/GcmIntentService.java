@@ -14,12 +14,10 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_Friends.FriendSerching;
-import com.frissbi.Frissbi_Friends.Friend_PendingList;
 import com.frissbi.Frissbi_Meetings.Meeting_StatusPage;
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.Utility.FLog;
-import com.frissbi.Utility.NotificationType;
+import com.frissbi.enums.NotificationType;
 import com.frissbi.Utility.TSLocationManager;
 import com.frissbi.activities.GroupDetailsActivity;
 import com.frissbi.activities.MeetingDetailsActivity;
@@ -37,7 +35,8 @@ public class GcmIntentService extends IntentService {
     public static int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
     NotificationCompat.Builder builder;
-    String mNotificationName, msg2, mMeetingId, msg4;
+    String mNotificationName, msg2, msg4;
+    Long mMeetingId;
     public static final String TAG = "GcmIntentService";
     private boolean isLocationSelected;
     private SharedPreferences mSharedPreferences;
@@ -65,7 +64,7 @@ public class GcmIntentService extends IntentService {
         mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
         mNotificationName = intent.getStringExtra("NotificationName");
         msg2 = intent.getStringExtra("userName");
-        mMeetingId = intent.getStringExtra("meetingId");
+        mMeetingId = Long.parseLong(intent.getStringExtra("meetingId"));
         msg4 = intent.getStringExtra("userId");
 
         if (intent.getExtras().containsKey("locationSuggestionJson")) {
@@ -151,21 +150,18 @@ public class GcmIntentService extends IntentService {
         } else if (mNotificationName.equalsIgnoreCase(NotificationType.MEETING_PENDING_REQUESTS.toString())) {
             Intent intent = new Intent(this, MeetingDetailsActivity.class);
             intent.putExtra("meetingId", mMeetingId);
-            intent.putExtra("callFrom", "notification");
             showNotification(intent, msg);
 
 
         } else if (mNotificationName.equals(NotificationType.MEETING_REQUEST_ACCEPTANCE.toString())) {
             Intent intent = new Intent(this, MeetingDetailsActivity.class);
             intent.putExtra("meetingId", mMeetingId);
-            intent.putExtra("callFrom", "notification");
             showNotification(intent, msg);
 
         } else if (mNotificationName.equals("Meeeting Voting Request")) {
             Intent myintent = new Intent(this, NearByPlacess.class);
             myintent.putExtra("message", msg);
             myintent.putExtra("meetingId", mMeetingId);
-            Friss_Pojo.MeetingID = mMeetingId;
             myintent.putExtra("userId ", msg4);
             myintent.putExtra("NotificationName", mNotificationName);
             showNotification(myintent, msg);
@@ -175,7 +171,6 @@ public class GcmIntentService extends IntentService {
             Intent myintent = new Intent(this, Meeting_StatusPage.class);
             myintent.putExtra("message", msg);
             myintent.putExtra("meetingId", mMeetingId);
-            Friss_Pojo.MeetingID = mMeetingId;
             myintent.putExtra("userId ", msg4);
             myintent.putExtra("NotificationName", mNotificationName);
 
@@ -190,14 +185,12 @@ public class GcmIntentService extends IntentService {
 
                 Intent intent = new Intent(this, MeetingDetailsActivity.class);
                 intent.putExtra("meetingId", mMeetingId);
-                intent.putExtra("callFrom", "notification");
 
                 showNotification(intent, msg);
             }
         } else if (mNotificationName.equals(NotificationType.MEETING_REJECTED.toString())) {
             Intent intent = new Intent(this, MeetingDetailsActivity.class);
             intent.putExtra("meetingId", mMeetingId);
-            intent.putExtra("callFrom", "notification");
             showNotification(intent, msg);
 
         } else if (mNotificationName.equals(NotificationType.MEETING_LOCATION_SUGGESTION.toString())) {
@@ -207,7 +200,6 @@ public class GcmIntentService extends IntentService {
             if (isLocationUpdate) {
                 intent = new Intent(this, MeetingDetailsActivity.class);
                 intent.putExtra("meetingId", mMeetingId);
-                intent.putExtra("callFrom", "notification");
             } else {
                 intent = new Intent(this, SuggestionsActivity.class);
                 intent.putExtra("meetingId", mMeetingId);
