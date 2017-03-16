@@ -12,6 +12,13 @@ public class ActivityBean {
 	private Long meetingId;
 	private String status;
 	private String meetingMessage;
+	private String meetingUserImageId;
+	public String getMeetingUserImageId() {
+		return meetingUserImageId;
+	}
+	public void setMeetingUserImageId(String meetingUserImageId) {
+		this.meetingUserImageId = meetingUserImageId;
+	}
 	private String address;
 	private int isPrivate;
 	private String imageDescription;
@@ -113,5 +120,13 @@ public class ActivityBean {
 	}
 	public void setImage(String image) {
 		this.image = image;
+	}
+	@Override
+	public String toString() {
+		return "ActivityBean [userId=" + userId + ", activityId=" + activityId + ", date=" + date + ", profileImage="
+				+ profileImage + ", coverImage=" + coverImage + ", meetingId=" + meetingId + ", status=" + status
+				+ ", meetingMessage=" + meetingMessage + ", address=" + address + ", isPrivate=" + isPrivate
+				+ ", imageDescription=" + imageDescription + ", image=" + image + ", fromDate=" + fromDate + ", toDate="
+				+ toDate + ", registrationDate=" + registrationDate + "]";
 	}
 }

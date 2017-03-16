@@ -681,6 +681,7 @@ public class UserFriendList {
 		
 		Set<Long> waitingUserIds = new HashSet<Long>();
 		Set<Long> acceptedUserIds = new HashSet<Long>();
+		List<String> statusList = null;
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			String sql;
@@ -692,7 +693,7 @@ public class UserFriendList {
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
 				
-				List<String> statusList = new ArrayList<>();
+				statusList = new ArrayList<>();
 				statusList.add(FriendStatusEnum.BLOCKED.toString());
 				statusList.add(FriendStatusEnum.REJECTED.toString());
 				statusList.add(FriendStatusEnum.ACCEPTED.toString());

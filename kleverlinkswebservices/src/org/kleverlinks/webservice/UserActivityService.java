@@ -9,7 +9,9 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -113,8 +115,7 @@ public class UserActivityService {
 		List<ActivityBean> userActivityBeanList = new ArrayList<ActivityBean>();
 		try {
 			JSONObject jsonObject = ServiceUtility.getUserImageId(userId);
-			
-			userActivityBeanList.addAll(getImageDocument(jsonObject));			
+			userActivityBeanList.addAll(getUserDetails(jsonObject));			
 			userActivityBeanList.addAll(getUserMeetingActivity(userId));
 			userActivityBeanList.addAll(getUserPostedActivity(userId));
 			
@@ -151,7 +152,7 @@ public class UserActivityService {
 		JSONArray jsonArray = new JSONArray();
 		JSONObject json = null;
 			int count = 1;
-			DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+			DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 			DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 			DateFormat timeFormat = new SimpleDateFormat("HH:mm");
 			
@@ -198,7 +199,7 @@ public class UserActivityService {
 					json.put("type", ActivityType.COVER_TYPE.toString());
 				}
 				if (Utility.checkValidString(activityBean.getRegistrationDate())) {
-					json.put("registrationDate", activityBean.getCoverImage());
+					json.put("registrationDate", dateTimeFormat.format(activityBean.getDate()));
 					json.put("type", ActivityType.JOIN_DATE_TYPE.toString());
 				}
 				
@@ -270,7 +271,7 @@ public class UserActivityService {
 				  json.put("freeToTime",timeFormat.format(dateFormat.parse(rs.getString("ToDateTime")))); 
 				  json.put("type", ActivityType.FREE_TIME_TYPE.toString());
 			  }if(Utility.checkValidString(rs.getString("RegistrationDateTime"))){
-				  json.put("registrationDate", rs.getString("RegistrationDateTime")); 
+				  json.put("registrationDate", rs.getString("CreatedDateTime")); 
 				  json.put("type", ActivityType.JOIN_DATE_TYPE.toString());
 			  } if(Utility.checkValidString(rs.getString("ProfileImageID"))){
 				  json.put("profileImageId", rs.getString("ProfileImageID")); 
@@ -313,16 +314,28 @@ public class UserActivityService {
 			callableStatement.setLong(1, userId);
 			ResultSet rs = callableStatement.executeQuery();
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); 
-            
+            DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd"); 
+            String fullName = "";
+            String others = "";
 			while (rs.next()) {
 				userActivityBean = new ActivityBean();
 				java.util.Date senderFromDateTime = df.parse(rs.getString("SenderFromDateTime"));
 				java.util.Date senderToDateTime = df.parse(rs.getString("SenderToDateTime"));
 				userActivityBean.setUserId(userId);
 				userActivityBean.setMeetingId(rs.getLong("MeetingID"));
-				userActivityBean.setDate(senderFromDateTime);
-				userActivityBean.setMeetingMessage("You have a meeting " + rs.getString("MeetingDescription") +" form "+new SimpleDateFormat("HH:mm").format(senderFromDateTime)+" to "+new SimpleDateFormat("HH:mm").format(senderToDateTime)+" at "+senderFromDateTime);
+				userActivityBean.setDate(df.parse(rs.getString("RequestDateTime")));
 			
+				JSONArray usersArray = ServiceUtility.getReceptionistDetailsByMeetingId(userActivityBean.getMeetingId());
+				Set<Long> usersSet = new HashSet<Long>();
+				for (int i = 0; i < usersArray.length(); i++) {
+					usersSet.add(usersArray.getJSONObject(i).getLong("userId"));
+					fullName = usersArray.getJSONObject(i).getString("fullName");
+				}
+				if(usersSet.size() > 1){
+					 others = " and "+ (usersSet.size()-1)+" others ";
+				}
+				
+				userActivityBean.setMeetingMessage("You have a meeting " + rs.getString("MeetingDescription") +" with "+fullName +others+" from "+new SimpleDateFormat("HH:mm").format(senderFromDateTime)+" to "+new SimpleDateFormat("HH:mm").format(senderToDateTime)+" on "+dateFormat.format(senderFromDateTime));
 				userActivityBeanList.add(userActivityBean);
 			}
 		} catch (Exception e) {
@@ -370,10 +383,11 @@ public class UserActivityService {
 		return userActivityBeanList;
 	}
 	
-	public List<ActivityBean> getImageDocument(JSONObject jsonObject){
+	public List<ActivityBean> getUserDetails(JSONObject jsonObject){
 		
 		ActivityBean userActivityBean = null;
 		List<ActivityBean> userActivityBeanList = new ArrayList<>();
+		DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		
 		MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 		if (jsonObject.has("profileImageId")) {
@@ -408,20 +422,25 @@ public class UserActivityService {
 			}
 		}
 		
-		if (jsonObject.has("RegistrationDateTime")) {
+		if (jsonObject.has("registrationDateTime")) {
 			userActivityBean = new ActivityBean();
 			userActivityBean.setUserId(jsonObject.getLong("userId"));
-			userActivityBean.setRegistrationDate(jsonObject.getString("RegistrationDateTime"));
+			try {
+				userActivityBean.setDate(dateTimeFormat.parse(jsonObject.getString("registrationDateTime")));
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			userActivityBean.setRegistrationDate(jsonObject.getString("registrationDateTime"));
+			
+			userActivityBeanList.add(userActivityBean);
 		}
-		
-		
 		return userActivityBeanList;
 	}
 	
 	public int insertUserActivityToTempTable(List<ActivityBean> activityBeanList , Long userId) {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
-		
+		DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		try {
 			deleteTemUserActivity(userId);
 			
@@ -456,7 +475,7 @@ public class UserActivityService {
 				callableStatement.setString(11, activityBean.getImage());
 				callableStatement.setInt(12, activityBean.getIsPrivate());
 				callableStatement.setString(13, activityBean.getAddress());
-				callableStatement.setTimestamp(14, new Timestamp(activityBean.getDate().getTime()));
+				callableStatement.setString(14, dateTimeFormat.format(activityBean.getDate()));
 			
 				callableStatement.addBatch();
 			}

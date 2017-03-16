@@ -31,12 +31,14 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.kleverlinks.bean.ActivityBean;
+import org.kleverlinks.bean.AppUserFriendBean;
 import org.kleverlinks.bean.MeetingBean;
 import org.kleverlinks.bean.MeetingLogBean;
+import org.kleverlinks.enums.ActivityType;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
-import org.mongo.dao.MongoDBJDBC;
 import org.service.dto.UserDTO;
 import org.util.Utility;
 
@@ -783,4 +785,6 @@ public class ServiceUtility {
 		}
 		return meetingArray;
 	}
+
+	
 }

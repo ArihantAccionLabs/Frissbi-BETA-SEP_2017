@@ -30,9 +30,16 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
-		System.out.println("hellooo    :  ");
-		System.out.println("date  :   "+new SimpleDateFormat("HH:mm").format(new java.util.Date()));
 		
+		String string = "Sunil";
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("Sunil");
+		
+		string = "Kumar";
+		stringBuilder.append("Kumar");
+		
+		System.out.println(string+"   "+stringBuilder);
+		System.out.println("hellooo    :  ");
 		
 	return "ok";	
 	}
