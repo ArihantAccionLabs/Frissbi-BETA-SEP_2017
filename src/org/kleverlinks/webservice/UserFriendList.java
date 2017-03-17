@@ -797,6 +797,7 @@ public class UserFriendList {
 	@GET
 	@Path("/viewProfile/{userId}")
 	public String viewProfile(@PathParam("userId") Long userId) {
+		System.out.println("userId  :  "+userId);
 		JSONObject finalJson = new JSONObject();
 		try {
 			finalJson = seeProfile(userId);
