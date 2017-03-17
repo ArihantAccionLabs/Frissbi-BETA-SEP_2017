@@ -830,7 +830,6 @@ public class UserFriendList {
 				String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ContactNumber,U.ProfileImageID,U.CoverImageID FROM tbl_users  U WHERE U.UserID=?";
 				pstmt = conn.prepareStatement(sql);
 				pstmt.setLong(1, friendUserId);
-				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 				ResultSet rs = pstmt.executeQuery();
 				while(rs.next()){
 					    JSONObject jsonObject = new JSONObject();
@@ -843,8 +842,15 @@ public class UserFriendList {
 						jsonObject.put("contactNumber", rs.getString("ContactNumber"));
 						jsonObject.put("dob", rs.getString("dob"));
 					    jsonObject.put("status", FriendStatusEnum.UNFRIEND);
-					    jsonObject.put("profileImageId", rs.getString("ProfileImageID"));
-					    jsonObject.put("coverImageId", rs.getString("CoverImageID"));
+					    
+					    if(Utility.checkValidString(rs.getString("ProfileImageID"))){
+					    	
+					    	jsonObject.put("profileImageId", rs.getString("ProfileImageID"));
+					    }
+					    if(Utility.checkValidString(rs.getString("CoverImageID"))){
+					    
+					    	jsonObject.put("coverImageId", rs.getString("CoverImageID"));
+					    }
 					  /* if (Utility.checkValidString(rs.getString("U.ProfileImageID"))) {
 							jsonObject.put("profileImage", mongoDBJDBC.getUriImage(rs.getString("ProfileImageID").trim()));
 					   }*/
