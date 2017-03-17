@@ -23,13 +23,13 @@
         android:background="@color/white"
         android:layout_weight="8"
         android:layout_width="0dp"
+        android:padding="10dp"
         android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/activity_profile_imageView"
             android:layout_width="50dp"
             android:src="@drawable/default_profile_image"
-            android:layout_marginLeft="10dp"
             android:layout_centerVertical="true"
             android:layout_height="50dp" />
         
@@ -45,12 +45,10 @@
 
         <com.frissbi.CustomFontTextView
             android:textSize="10sp"
-            android:layout_marginTop="10dp"
             android:id="@+id/profile_time_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:layout_marginRight="10dp"
             android:textColor="@color/gray"
             android:text="Time"/>
 

@@ -1,27 +1,24 @@
 package com.frissbi.activities;
 
-import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.FileProvider;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -39,6 +36,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
@@ -73,7 +71,7 @@ import java.util.List;
 import static com.frissbi.Utility.Utility.CAMERA_REQUEST;
 import static com.frissbi.Utility.Utility.SELECT_FILE;
 
-public class ProfileActivity extends AppCompatActivity implements View.OnClickListener, UploadPhotoListener, PostFreeTimeListener, MeetingDetailsListener, ViewImageListener, SwipeRefreshLayout.OnRefreshListener {
+public class ProfileActivity extends AppCompatActivity implements View.OnClickListener, UploadPhotoListener, PostFreeTimeListener, MeetingDetailsListener, ViewImageListener, SwipeRefreshLayout.OnRefreshListener, TextWatcher {
 
     private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1000;
     private ImageView mProfileUserImageView;
@@ -106,40 +104,21 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private MeetingDetailsListener mMeetingDetailsListener;
     private ViewImageListener mViewImageListener;
     private SwipeRefreshLayout mSwipeRefreshLayout;
+    private ActionBar mActionBar;
+    private Bundle mBundle;
+    private RelativeLayout mStatusLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        mActionBar = getSupportActionBar();
+        mActionBar.setDisplayHomeAsUpEnabled(true);
+        mBundle = getIntent().getExtras();
+        setUpViews();
+    }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-            }
-
-
-            if (ContextCompat.checkSelfPermission(ProfileActivity.this
-                    , android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
-
-                // Should we show an explanation?
-                if (ActivityCompat.shouldShowRequestPermissionRationale(ProfileActivity.this,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-
-                } else {
-                    ActivityCompat.requestPermissions(ProfileActivity.this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            REQUEST_WRITE_EXTERNAL_STORAGE);
-                }
-            }
-        } else {
-
-        }
-
-        mProgressDialog = new CustomProgressDialog(this);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        mActivitiesList = new ArrayList<>();
-        mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
+    private void setUpViews() {
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.profile_swipeRefreshLayout);
         mNestedScrollView = (NestedScrollView) findViewById(R.id.profile_nestedScrollView);
         mProfileUserImageView = (ImageView) findViewById(R.id.profile_user_image);
@@ -152,6 +131,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         mEditCoverPhotoButton = (Button) findViewById(R.id.edit_cover_photo_button);
         mViewMoreButton = (Button) findViewById(R.id.view_more_button);
         mScrollTopFloatingButton = (FloatingActionButton) findViewById(R.id.scroll_top_floating_button);
+        mStatusLayout = (RelativeLayout) findViewById(R.id.status_rl);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this); /*{
             @Override
             public boolean canScrollVertically() {
@@ -160,56 +140,25 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         };*/
         mActivitiesRecyclerView.setLayoutManager(layoutManager);
         mActivitiesRecyclerView.setNestedScrollingEnabled(false);
+
+        mProgressDialog = new CustomProgressDialog(this);
+        mActivitiesList = new ArrayList<>();
+        mFragmentManager = getSupportFragmentManager();
+        mUploadPhotoDialogFragment = new UploadPhotoDialogFragment();
+
         mUploadPhotoListener = (UploadPhotoListener) this;
         mPostFreeTimeListener = (PostFreeTimeListener) this;
         mMeetingDetailsListener = (MeetingDetailsListener) this;
         mViewImageListener = (ViewImageListener) this;
-        mFragmentManager = getSupportFragmentManager();
-        mUploadPhotoDialogFragment = new UploadPhotoDialogFragment();
 
-        Bundle bundle = getIntent().getExtras();
-        /*if (bundle != null) {
-            mAddFriendButton.setVisibility(View.VISIBLE);
-            if (bundle.containsKey("friend")) {
-                mFriend = (Friend) bundle.getSerializable("friend");
-                setValues();
-            } else if (bundle.containsKey("friendUserId")) {
-                getProfileDetailsFromServer(bundle.getLong("friendUserId"));
-            }
-        } else {
-            mAddFriendButton.setVisibility(View.GONE);
-            getProfileDetails();
-        }
-        mAddFriendButton.setOnClickListener(this);*/
-
-        mProfileUserNameTextView.setText(SharedPreferenceHandler.getInstance(this).getUserName());
-        //  mProfileUserImageView.setOnClickListener(this);
         mSubmitStatusImageView.setOnClickListener(this);
         mEditCoverPhotoButton.setOnClickListener(this);
         mEditProfileImageButton.setOnClickListener(this);
-        findViewById(R.id.post_free_time_button).setOnClickListener(this);
+        findViewById(R.id.post_free_time_tv).setOnClickListener(this);
         mViewMoreButton.setOnClickListener(this);
         mScrollTopFloatingButton.setOnClickListener(this);
-        mStatusMessageEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (s.toString().trim().length() > 0) {
-                    mSubmitStatusImageView.setVisibility(View.VISIBLE);
-                } else {
-                    mSubmitStatusImageView.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
+        mStatusMessageEditText.addTextChangedListener(this);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         mNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
@@ -223,10 +172,25 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             }
         });
 
-        mSwipeRefreshLayout.setOnRefreshListener(this);
+        if (mBundle != null) {
+            mUserId = mBundle.getLong("friendUserId");
+            mStatusLayout.setVisibility(View.GONE);
+            mEditCoverPhotoButton.setVisibility(View.GONE);
+            mEditProfileImageButton.setVisibility(View.GONE);
+        } else {
+            mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
+            mStatusLayout.setVisibility(View.VISIBLE);
+            mEditCoverPhotoButton.setVisibility(View.VISIBLE);
+            mEditProfileImageButton.setVisibility(View.VISIBLE);
+        }
+
+        if (mUserId.equals(SharedPreferenceHandler.getInstance(this).getUserId())) {
+            mSwipeRefreshLayout.setEnabled(true);
+        } else {
+            mSwipeRefreshLayout.setEnabled(false);
+        }
 
         getProfileDetails();
-        getUserActivities();
     }
 
 
@@ -246,6 +210,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 break;
             case R.id.submit_status_imageView:
                 if (mStatusMessageEditText.getText().toString().trim().length() > 0) {
+                    Utility.hideKeyboard(v, ProfileActivity.this);
                     submitStatusMessage();
                 } else {
                     Toast.makeText(this, getString(R.string.enter_status), Toast.LENGTH_SHORT).show();
@@ -259,7 +224,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     sendCoverImageToServer();
                 }
                 break;
-            case R.id.post_free_time_button:
+            case R.id.post_free_time_tv:
                 PostFreeTimeDialogFragment postFreeTimeDialogFragment = new PostFreeTimeDialogFragment();
                 postFreeTimeDialogFragment.setFreeTimeListener(mPostFreeTimeListener);
                 postFreeTimeDialogFragment.show(mFragmentManager, "PostFreeTimeDialogFragment");
@@ -332,7 +297,10 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     Profile and Cover Images setting.
      */
     private void setProfileDetails(Profile profile) {
-        mProfileUserNameTextView.setText(profile.getUserName());
+        mProfileUserNameTextView.setText(Utility.getInstance().capitalize(profile.getUserName()));
+        if (!mUserId.equals(SharedPreferenceHandler.getInstance(this).getUserId())) {
+            mActionBar.setTitle(Utility.getInstance().capitalize(profile.getFirstName()) + "'s" + " Profile");
+        }
         if (profile.getImageId() != null) {
             ImageCacheHandler.getInstance(this).setImage(mProfileUserImageView, profile.getImageId());
         }
@@ -345,6 +313,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 getCoverPhotoFromServer(Utility.REST_URI + Utility.GET_IMAGE + profile.getCoverImageId());
             }
         }
+        getUserActivities();
     }
 
     /*
@@ -448,7 +417,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     Submit status message to server
      */
     private void submitStatusMessage() {
-
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("userId", mUserId);
@@ -461,6 +429,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 public void handleResponse(TSNetworkHandler.TSResponse response) {
                     if (response != null) {
                         if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
+                            mSubmitStatusImageView.setVisibility(View.GONE);
+                            mStatusMessageEditText.getText().clear();
+                            getUserActivities();
                             Toast.makeText(ProfileActivity.this, response.message, Toast.LENGTH_SHORT).show();
                         } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
                             Toast.makeText(ProfileActivity.this, response.message, Toast.LENGTH_SHORT).show();
@@ -719,6 +690,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                     if (response != null) {
                         if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
                             Toast.makeText(ProfileActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                            getUserActivities();
                         } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
                             Toast.makeText(ProfileActivity.this, response.message, Toast.LENGTH_SHORT).show();
                         }
@@ -735,13 +707,16 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     }
 
     private void getUserActivities() {
-
         TSNetworkHandler.getInstance(this).getResponse(Utility.REST_URI + Utility.USER_ACTIVITIES + mUserId, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {
                 if (response != null) {
                     if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
                         try {
+                            mActivitiesList.clear();
+                            if (mUserActivitiesAdapter != null) {
+                                mUserActivitiesAdapter.notifyDataSetChanged();
+                            }
                             JSONObject resposeJsonObject = new JSONObject(response.response);
                             FLog.d("ProfileActivity", "jsonObject" + resposeJsonObject);
                             JSONArray userActivityJsonArray = resposeJsonObject.getJSONArray("userActivityArray");
@@ -809,6 +784,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 } else {
                     Toast.makeText(ProfileActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
                 }
+                mProgressDialog.dismiss();
             }
         });
     }
@@ -890,9 +866,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
     @Override
     public void showMeetingDetails(Long meetingId) {
-        Intent intent = new Intent(ProfileActivity.this, MeetingDetailsActivity.class);
-        intent.putExtra("meetingId", meetingId);
-        startActivity(intent);
+        if (mUserId.equals(SharedPreferenceHandler.getInstance(this).getUserId())) {
+            Intent intent = new Intent(ProfileActivity.this, MeetingDetailsActivity.class);
+            intent.putExtra("meetingId", meetingId);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -911,8 +889,27 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
             case REQUEST_WRITE_EXTERNAL_STORAGE: {
+
             }
         }
     }
 
+    @Override
+    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+    }
+
+    @Override
+    public void onTextChanged(CharSequence s, int start, int before, int count) {
+        if (s.toString().trim().length() > 0) {
+            mSubmitStatusImageView.setVisibility(View.VISIBLE);
+        } else {
+            mSubmitStatusImageView.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void afterTextChanged(Editable s) {
+
+    }
 }

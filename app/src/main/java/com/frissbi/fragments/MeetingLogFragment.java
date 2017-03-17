@@ -83,10 +83,7 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
         if (!mSwipeRefreshLayout.isRefreshing()) {
             mProgressDialog.show();
         }
-        mMeetingList.clear();
-        if (mMeetingLogAdapter != null) {
-            mMeetingLogAdapter.notifyDataSetChanged();
-        }
+
         String url = Utility.REST_URI + Utility.MEETING_PENDINGLIST + SharedPreferenceHandler.getInstance(getActivity()).getUserId();
         TSNetworkHandler.getInstance(getActivity()).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
@@ -94,6 +91,10 @@ public class MeetingLogFragment extends Fragment implements MeetingDetailsListen
                 if (response != null) {
                     if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
                         try {
+                            mMeetingList.clear();
+                            if (mMeetingLogAdapter != null) {
+                                mMeetingLogAdapter.notifyDataSetChanged();
+                            }
                             JSONObject responseJsonObject = new JSONObject(response.response);
                             Log.d("MeetingLogFragment", "responseJsonObject" + responseJsonObject);
                             JSONArray meetingJsonArray = responseJsonObject.getJSONArray("meeting_array");

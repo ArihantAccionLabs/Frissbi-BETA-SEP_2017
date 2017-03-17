@@ -10,7 +10,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,18 +37,12 @@ import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.GroupParticipantAdapter;
 import com.frissbi.adapters.MeetingTitleAdapter;
-import com.frissbi.adapters.SelectedContactsExpandableAdapter;
 import com.frissbi.interfaces.MeetingTitleSelectionListener;
-import com.frissbi.models.Contacts;
-import com.frissbi.models.EmailContacts;
-import com.frissbi.models.Friend;
 import com.frissbi.models.FrissbiContact;
 import com.frissbi.models.FrissbiGroup;
-import com.frissbi.models.Meeting;
 import com.frissbi.models.MyPlaces;
 import com.frissbi.models.Participant;
 import com.frissbi.networkhandler.TSNetworkHandler;
-import com.orm.query.Select;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -57,9 +50,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class MeetingActivity extends AppCompatActivity implements View.OnClickListener, MeetingTitleSelectionListener {
     private static final int DATE_DIALOG_ID = 100;
@@ -399,22 +390,29 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         for (int i = 0; i < groupsCount; i++) {
             List<FrissbiGroup> frissbiGroupList = FrissbiGroup.findWithQuery(FrissbiGroup.class, "select * from participant where group_id=?", mSelectedContacts.getGroupSelectedIdsList().get(i).toString());
             List<Participant> participantList = Participant.findWithQuery(Participant.class, "select * from participant where group_id=?", frissbiGroupList.get(0).getGroupId().toString());
+
             for (int j = 0; j < participantList.size(); j++) {
                 Participant participant = participantList.get(j);
+                FLog.d("MeetingActivity", "participant" + participant);
                 if (!participant.getParticipantId().equals(SharedPreferenceHandler.getInstance(this).getUserId())) {
                     String[] userIds = new String[1];
                     userIds[0] = participant.getParticipantId().toString();
-                    FrissbiContact frissbiContact = Select.from(FrissbiContact.class).where("user_id", userIds).first();
+                    FLog.d("MeetingActivity", "frissbiContactList" + FrissbiContact.listAll(FrissbiContact.class));
+                    //FrissbiContact frissbiContact = Select.from(FrissbiContact.class).where("user_id", userIds).first();
+                    FrissbiContact frissbiContact = FrissbiContact.findWithQuery(FrissbiContact.class, "select * from frissbi_contact where user_id=?", participant.getParticipantId().toString()).get(0);
+
                     mSelectedContacts.setFrissbiContact(frissbiContact);
                 }
             }
         }
+
         mFrissbiContactList.addAll(mSelectedContacts.getFrissbiContactList());
-        if (mFrissbiContactList.size()>0){
+
+        if (mFrissbiContactList.size() > 0) {
             mAddAttendeeTextView.setVisibility(View.GONE);
             GroupParticipantAdapter groupParticipantAdapter = new GroupParticipantAdapter(MeetingActivity.this, mFrissbiContactList, true);
             mMeetingAttendeesRecyclerView.setAdapter(groupParticipantAdapter);
-        }else {
+        } else {
             mAddAttendeeTextView.setVisibility(View.VISIBLE);
         }
 
@@ -525,13 +523,13 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
             }
         }*/
 
-        for (FrissbiContact frissbiContact:mFrissbiContactList){
+        for (FrissbiContact frissbiContact : mFrissbiContactList) {
 
-            if (frissbiContact.getType()==1){
+            if (frissbiContact.getType() == 1) {
                 friendsIdJsonArray.put(frissbiContact.getUserId());
-            }else if (frissbiContact.getType()==2){
+            } else if (frissbiContact.getType() == 2) {
                 emailIdJsonArray.put(frissbiContact.getEmailId());
-            }else if (frissbiContact.getType()==3){
+            } else if (frissbiContact.getType() == 3) {
                 contactsJsonArray.put(frissbiContact.getPhoneNumber());
             }
 

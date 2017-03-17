@@ -19,13 +19,16 @@
             <RelativeLayout
                 android:id="@+id/cover_photo_rl"
                 android:layout_width="match_parent"
-                android:layout_height="250dp"
+                android:layout_height="200dp"
                 android:background="@drawable/car_image">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_margin="70dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="50dp"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="30dp"
+                    android:layout_marginTop="50dp"
                     android:weightSum="10">
 
                     <RelativeLayout
@@ -121,30 +124,31 @@
 
                     <ImageView
                         android:id="@+id/submit_status_imageView"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_centerVertical="true"
+                        android:layout_toLeftOf="@+id/post_free_time_tv"
+                        android:src="@drawable/icon_tick"
+                        android:layout_marginRight="10dp"
+                        android:visibility="gone" />
+
+                    <com.frissbi.CustomFontTextView
+                        android:id="@+id/post_free_time_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
-                        android:src="@drawable/icon_tick"
-                        android:visibility="gone" />
-                </RelativeLayout>
+                        android:text="Free?"
+                        android:textColor="@color/white"
+                        android:textStyle="bold" />
 
-                <Button
-                    android:id="@+id/post_free_time_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/status_rl"
-                    android:layout_marginLeft="60dp"
-                    android:layout_marginRight="60dp"
-                    android:background="#ccffffff"
-                    android:minHeight="40dp"
-                    android:text="Post Free time" />
+                </RelativeLayout>
 
                 <RelativeLayout
                     android:id="@+id/activities_rl"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@+id/post_free_time_button"
+                    android:layout_below="@+id/status_rl"
                     android:layout_marginTop="20dp">
 
                     <ImageView

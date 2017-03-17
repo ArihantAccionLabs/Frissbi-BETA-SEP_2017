@@ -41,7 +41,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_Friends.FriendSerching;
 import com.frissbi.Frissbi_profilePic.Profile_Pic;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
@@ -54,9 +53,6 @@ import com.frissbi.fragments.FriendRequestFragment;
 import com.frissbi.fragments.MeetingAlertFragment;
 import com.frissbi.fragments.MeetingLogFragment;
 import com.frissbi.fragments.TimeLineFragment;
-import com.frissbi.models.Contacts;
-import com.frissbi.models.EmailContacts;
-import com.frissbi.models.Friend;
 import com.frissbi.models.FrissbiContact;
 import com.frissbi.networkhandler.TSNetworkHandler;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -119,6 +115,8 @@ public class HomeActivity extends AppCompatActivity
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
         mProgressDialog = new CustomProgressDialog(this);
+        mProgressDialog.setCanceledOnTouchOutside(false);
+        mProgressDialog.setCancelable(false);
         mEmailIdsAsync = new EmailIdsAsync();
         checkPermissions();
         mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
@@ -126,13 +124,13 @@ public class HomeActivity extends AppCompatActivity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
-                if (EmailContacts.listAll(EmailContacts.class).size() == 0) {
+                /*if (EmailContacts.listAll(EmailContacts.class).size() == 0) {
                     //   getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
                     mEmailIdsAsync.execute();
                 }
                 if (Contacts.listAll(Contacts.class).size() == 0) {
                     // readContacts();
-                }
+                }*/
             }
 
 
@@ -179,10 +177,10 @@ public class HomeActivity extends AppCompatActivity
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
         setupViewPager(mViewPager);
         mTabLayout.setupWithViewPager(mViewPager);
-        mTabLayout.getTabAt(0).setIcon(R.drawable.clock);
-        mTabLayout.getTabAt(1).setIcon(R.drawable.calendar);
-        mTabLayout.getTabAt(2).setIcon(R.drawable.group);
-        mTabLayout.getTabAt(3).setIcon(R.drawable.notification);
+        mTabLayout.getTabAt(0).setIcon(R.drawable.icon_chat);
+        mTabLayout.getTabAt(1).setIcon(R.drawable.icon_calendar);
+        mTabLayout.getTabAt(2).setIcon(R.drawable.icon_friends);
+        mTabLayout.getTabAt(3).setIcon(R.drawable.icon_alert);
         mDimBackgroundLayout = (LinearLayout) findViewById(R.id.dim_background);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
@@ -526,12 +524,12 @@ public class HomeActivity extends AppCompatActivity
                                 frissbiContact.setName(friendJsonObject.getString("fullName"));
                                 frissbiContact.setEmailId(friendJsonObject.getString("email"));
                                 if (friendJsonObject.has("profileImage")) {
-                                    frissbiContact.setImage(friendJsonObject.getString("profileImage"));
+                                    frissbiContact.setImageId(friendJsonObject.getString("profileImage"));
                                 }
                                 if (friendJsonObject.has("phoneNumber")) {
                                     frissbiContact.setPhoneNumber(friendJsonObject.getString("phoneNumber"));
                                 }
-                                frissbiContact.setType(1);
+                                frissbiContact.setType(Utility.FRIEND_TYPE);
                                 frissbiContact.save();
                             }
                             FLog.d("HomeActivity", "FrissbiContactList++++++++1------" + FrissbiContact.listAll(FrissbiContact.class));
@@ -555,7 +553,6 @@ public class HomeActivity extends AppCompatActivity
 
         @Override
         protected String doInBackground(Void... params) {
-            EmailContacts.deleteAll(EmailContacts.class);
             ArrayList<String> emlRecs = new ArrayList<String>();
             HashSet<String> emlRecsHS = new HashSet<String>();
             Context context = HomeActivity.this;
@@ -596,7 +593,7 @@ public class HomeActivity extends AppCompatActivity
                         FrissbiContact frissbiContact = new FrissbiContact();
                         frissbiContact.setName(name);
                         frissbiContact.setEmailId(emailId);
-                        frissbiContact.setType(2);
+                        frissbiContact.setType(Utility.EMAIL_TYPE);
                         frissbiContact.save();
                     }
 
@@ -708,7 +705,7 @@ public class HomeActivity extends AppCompatActivity
                             FrissbiContact frissbiContact = new FrissbiContact();
                             frissbiContact.setName(name);
                             frissbiContact.setPhoneNumber(phone);
-                            frissbiContact.setType(3);
+                            frissbiContact.setType(Utility.CONTACT_TYPE);
                             frissbiContact.save();
                         }
                         pCur.close();
@@ -771,13 +768,13 @@ public class HomeActivity extends AppCompatActivity
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    if (EmailContacts.listAll(EmailContacts.class).size() == 0) {
+                    /*if (EmailContacts.listAll(EmailContacts.class).size() == 0) {
                         // getNameEmailDetails(mEmailSharedPreferences.getString("mail", "editor"));
                         mEmailIdsAsync.execute();
                     }
                     if (Contacts.listAll(Contacts.class).size() == 0) {
                         // readContacts();
-                    }
+                    }*/
 
                 } else {
 

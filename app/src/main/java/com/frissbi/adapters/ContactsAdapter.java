@@ -6,8 +6,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
@@ -15,9 +13,6 @@ import android.widget.TextView;
 
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
-import com.frissbi.interfaces.ContactsSelectedListener;
-import com.frissbi.models.Contacts;
-import com.frissbi.models.EmailContacts;
 import com.frissbi.models.FrissbiContact;
 
 import java.util.ArrayList;
@@ -80,6 +75,8 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
             } else {
                 holder.selectedIconImageView.setVisibility(View.GONE);
             }
+        } else {
+            holder.selectedIconImageView.setVisibility(View.GONE);
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {

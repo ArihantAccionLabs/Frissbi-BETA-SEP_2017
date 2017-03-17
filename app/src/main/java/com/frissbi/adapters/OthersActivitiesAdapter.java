@@ -25,10 +25,10 @@ import java.util.List;
 import java.util.Locale;
 
 /**
- * Created by thrymr on 15/3/17.
+ * Created by thrymr on 17/3/17.
  */
 
-public class UserActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     private final SimpleDateFormat mDateFormat;
     private final SimpleDateFormat mDateTimeFormat;
@@ -41,7 +41,7 @@ public class UserActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private MeetingDetailsListener mMeetingDetailsListener;
     private ViewImageListener mViewImageListener;
 
-    public UserActivitiesAdapter(Context context, List<Activities> activitiesList, MeetingDetailsListener meetingDetailsListener, ViewImageListener viewImageListener) {
+    public OthersActivitiesAdapter(Context context, List<Activities> activitiesList, MeetingDetailsListener meetingDetailsListener, ViewImageListener viewImageListener) {
         mContext = context;
         mActivitiesList = activitiesList;
         mDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
@@ -58,14 +58,14 @@ public class UserActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         RecyclerView.ViewHolder viewHolder = null;
         if (viewType == ActivityType.valueOf(ActivityType.STATUS_TYPE.toString()).ordinal() || viewType == ActivityType.valueOf(ActivityType.JOIN_DATE_TYPE.toString()).ordinal()) {
-            View view = LayoutInflater.from(mContext).inflate(R.layout.status_message_join_activity_item, parent, false);
+            View view = LayoutInflater.from(mContext).inflate(R.layout.status_timeline_activitiy_item, parent, false);
             viewHolder = new StatusJoinViewHolder(view);
         } else if (viewType == ActivityType.valueOf(ActivityType.MEETING_TYPE.toString()).ordinal()) {
-            View view = LayoutInflater.from(mContext).inflate(R.layout.meeting_activity_item, parent, false);
+            View view = LayoutInflater.from(mContext).inflate(R.layout.meeting_timeline_activity_item, parent, false);
             viewHolder = new MeetingViewHolder(view);
         } else if (viewType == ActivityType.valueOf(ActivityType.PROFILE_TYPE.toString()).ordinal() || viewType == ActivityType.valueOf(ActivityType.UPLOAD_TYPE.toString()).ordinal()
                 || viewType == ActivityType.valueOf(ActivityType.COVER_TYPE.toString()).ordinal()) {
-            View view = LayoutInflater.from(mContext).inflate(R.layout.profile_cover_upload_image_activity_item, parent, false);
+            View view = LayoutInflater.from(mContext).inflate(R.layout.profile_cover_upload_timeline_item, parent, false);
             viewHolder = new ProfileCoverUploadViewHolder(view);
         } else if (viewType == ActivityType.valueOf(ActivityType.FREE_TIME_TYPE.toString()).ordinal()) {
             View view = LayoutInflater.from(mContext).inflate(R.layout.free_time_activity_item, parent, false);
@@ -79,7 +79,7 @@ public class UserActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
 
     @Override
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
-        FLog.d("UserActivitiesAdapter", "position" + position);
+        FLog.d("OthersActivitiesAdapter", "position" + position);
         final Activities activities = mActivitiesList.get(position);
         String postedDate = null;
         try {
@@ -254,6 +254,4 @@ public class UserActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         mActivitiesList.addAll(activitiesList);
         notifyDataSetChanged();
     }
-
-
 }

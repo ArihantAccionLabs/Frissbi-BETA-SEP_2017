@@ -94,7 +94,9 @@ public class SelectedContacts {
     }
 
     public void setFrissbiContact(FrissbiContact frissbiContact) {
-        mFrissbiContactList.add(frissbiContact);
+        if (!mFrissbiContactList.contains(frissbiContact)) {
+            mFrissbiContactList.add(frissbiContact);
+        }
     }
 
     public void deleteFrissbiContact(FrissbiContact frissbiContact) {

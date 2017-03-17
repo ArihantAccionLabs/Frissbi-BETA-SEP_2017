@@ -30,6 +30,7 @@ import com.frissbi.activities.CreateGroupActivity;
 import com.frissbi.adapters.GroupParticipantAdapter;
 import com.frissbi.interfaces.UploadPhotoListener;
 import com.frissbi.models.Friend;
+import com.frissbi.models.FrissbiContact;
 import com.frissbi.networkhandler.TSNetworkHandler;
 
 import org.json.JSONArray;
@@ -47,7 +48,7 @@ import static com.frissbi.Utility.Utility.SELECT_FILE;
 
 public class ConfirmGroupFragment extends Fragment implements UploadPhotoListener {
     private OnFragmentInteractionListener mListener;
-    private List<Friend> mSelectedFriendList;
+    private List<FrissbiContact> mSelectedFriendList;
     private RecyclerView mSelectedParticipantRecyclerView;
     private EditText mGroupNameEditText;
     private ImageView mGroupIcon;
@@ -60,7 +61,7 @@ public class ConfirmGroupFragment extends Fragment implements UploadPhotoListene
         // Required empty public constructor
     }
 
-    public void setSelectedFriendList(List<Friend> groupSelectedFriendList) {
+    public void setSelectedFriendList(List<FrissbiContact> groupSelectedFriendList) {
         mSelectedFriendList = groupSelectedFriendList;
     }
 

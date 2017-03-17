@@ -1,5 +1,7 @@
 package com.frissbi.models;
 
+import android.support.annotation.NonNull;
+
 import com.orm.SugarRecord;
 
 import java.io.Serializable;
@@ -101,7 +103,7 @@ public class Friend extends SugarRecord implements Serializable, Comparable<Frie
     }
 
     @Override
-    public int compareTo(Friend friend) {
+    public int compareTo(@NonNull Friend friend) {
         return this.getFullName().compareTo(friend.getFullName());
     }
 }

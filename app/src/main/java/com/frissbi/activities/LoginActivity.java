@@ -170,8 +170,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     Log.d(TAG, "CurrentLocation " + person.getCurrentLocation());
                     Log.d(TAG, "AboutMe " + person.getAboutMe());
                     Log.d(TAG, "Birthday " + person.getBirthday());
-                    Log.d(TAG, "Image " + person.getImage().getUrl());
-                    mBitmap = getBitmapFromURL(person.getImage().getUrl());
+                    Log.d(TAG, "Image " + person.getImageId().getUrl());
+                    mBitmap = getBitmapFromURL(person.getImageId().getUrl());
                     FLog.d("LoginActivity", "Bitmap" + mBitmap.getByteCount());
                     ByteArrayOutputStream baos = new ByteArrayOutputStream();
                     mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -284,7 +284,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             Log.d(TAG, "CurrentLocation " + person.getCurrentLocation());
             Log.d(TAG, "AboutMe " + person.getAboutMe());
             Log.d(TAG, "Birthday " + person.getBirthday());
-            Log.d(TAG, "Image " + person.getImage());
+            Log.d(TAG, "Image " + person.getImageId());
         }*/
     }
 

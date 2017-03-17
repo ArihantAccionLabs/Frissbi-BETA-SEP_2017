@@ -1,13 +1,11 @@
 package com.frissbi.activities;
 
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,13 +13,13 @@ import android.widget.RelativeLayout;
 import android.widget.SearchView;
 
 import com.frissbi.R;
-import com.frissbi.Utility.FLog;
 import com.frissbi.adapters.FriendsAdapter;
 import com.frissbi.adapters.GroupParticipantAdapter;
 import com.frissbi.fragments.ConfirmGroupFragment;
 import com.frissbi.fragments.NewGroupFragment;
 import com.frissbi.interfaces.GroupParticipantListener;
 import com.frissbi.models.Friend;
+import com.frissbi.models.FrissbiContact;
 
 import java.util.List;
 
@@ -86,7 +84,7 @@ public class CreateGroupActivity extends AppCompatActivity implements NewGroupFr
     }
 
     @Override
-    public void onFragmentInteraction(List<Friend> groupSelectedFriendList) {
+    public void onFragmentInteraction(List<FrissbiContact> groupSelectedFriendList) {
          mConfirmGroupFragment = new ConfirmGroupFragment();
         mConfirmGroupFragment.setSelectedFriendList(groupSelectedFriendList);
         startConformationFragment(mConfirmGroupFragment, "confirmGroup");

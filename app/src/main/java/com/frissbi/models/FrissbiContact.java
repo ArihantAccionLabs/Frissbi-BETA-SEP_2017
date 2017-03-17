@@ -1,18 +1,22 @@
 package com.frissbi.models;
 
+import android.support.annotation.NonNull;
+
+import com.frissbi.Utility.FLog;
 import com.orm.SugarRecord;
 
 /**
  * Created by thrymr on 8/3/17.
  */
 
-public class FrissbiContact extends SugarRecord {
+public class FrissbiContact extends SugarRecord implements Comparable<FrissbiContact> {
     private Long userId;
     private String name;
     private String emailId;
     private String phoneNumber;
-    private String image;
+    private String imageId;
     private int type;
+    private boolean isSelected;
 
 
     public Long getUserId() {
@@ -55,12 +59,20 @@ public class FrissbiContact extends SugarRecord {
         this.type = type;
     }
 
-    public String getImage() {
-        return image;
+    public String getImageId() {
+        return imageId;
     }
 
-    public void setImage(String image) {
-        this.image = image;
+    public void setImageId(String imageId) {
+        this.imageId = imageId;
+    }
+
+    public boolean isSelected() {
+        return isSelected;
+    }
+
+    public void setSelected(boolean selected) {
+        isSelected = selected;
     }
 
     @Override
@@ -70,7 +82,32 @@ public class FrissbiContact extends SugarRecord {
                 ", name='" + name + '\'' +
                 ", emailId='" + emailId + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
+                ", imageId='" + imageId + '\'' +
                 ", type=" + type +
+                ", isSelected=" + isSelected +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object obj) {
+
+        if ((obj == null) || (obj.getClass() != this.getClass()) || !(obj instanceof FrissbiContact) || this.userId == null) {
+            return false;
+        }
+
+        FrissbiContact frissbiContact = (FrissbiContact) obj;
+        FLog.d(frissbiContact.userId + "  FrissbiContact", "this.userId" + this.userId);
+        if (frissbiContact.getUserId() != null) {
+            return frissbiContact.getUserId().equals(this.userId);
+        }else {
+            return false;
+        }
+    }
+
+
+    @Override
+    public int compareTo(@NonNull FrissbiContact frissbiContact) {
+        return this.getName().compareTo(frissbiContact.getName());
+    }
 }
+

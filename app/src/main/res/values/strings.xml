@@ -38,7 +38,7 @@
 
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
-    <string name="saving_image">Saving image</string>
+    <string name="saving_image">Saving imageId</string>
     <string name="preparing_card">Preparing card</string>
     <string name="no_storage_card">No storage card</string>
     <string name="not_enough_space">Not enough space</string>

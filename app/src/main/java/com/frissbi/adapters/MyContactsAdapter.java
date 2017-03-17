@@ -11,7 +11,10 @@ import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
 
+import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
+import com.frissbi.Utility.Utility;
+import com.frissbi.models.FrissbiContact;
 import com.frissbi.models.MyContacts;
 
 import java.util.ArrayList;
@@ -24,14 +27,14 @@ import java.util.List;
 public class MyContactsAdapter extends RecyclerView.Adapter<MyContactsAdapter.ViewHolder> implements Filterable {
 
     private Context mContext;
-    private List<MyContacts> mMyContactsList;
-    private List<MyContacts> mOriginalMyContactsList;
+    private List<FrissbiContact> mFrissbiContactList;
+    private List<FrissbiContact> mOriginalFrissbiContactList;
     private MyContactsFilter mMyContactsFilter;
 
-    public MyContactsAdapter(Context context, List<MyContacts> myContactsList) {
+    public MyContactsAdapter(Context context, List<FrissbiContact> frissbiContactList) {
         mContext = context;
-        mMyContactsList = myContactsList;
-        mOriginalMyContactsList = myContactsList;
+        mFrissbiContactList = frissbiContactList;
+        mOriginalFrissbiContactList = frissbiContactList;
     }
 
     @Override
@@ -43,18 +46,21 @@ public class MyContactsAdapter extends RecyclerView.Adapter<MyContactsAdapter.Vi
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        holder.myContactsNameTv.setText(mMyContactsList.get(position).getName());
-        if (mMyContactsList.get(position).getNumber() == null) {
+        FrissbiContact frissbiContact = mFrissbiContactList.get(position);
+
+        if (frissbiContact.getType() == Utility.EMAIL_TYPE) {
+            holder.myContactsNameTv.setText(frissbiContact.getEmailId());
             holder.myContactsNumTv.setVisibility(View.GONE);
-        } else {
+        } else if (frissbiContact.getType() == Utility.CONTACT_TYPE) {
+            holder.myContactsNameTv.setText(frissbiContact.getName());
             holder.myContactsNumTv.setVisibility(View.VISIBLE);
-            holder.myContactsNumTv.setText(mMyContactsList.get(position).getNumber());
+            holder.myContactsNumTv.setText(frissbiContact.getPhoneNumber());
         }
     }
 
     @Override
     public int getItemCount() {
-        return mMyContactsList.size();
+        return mFrissbiContactList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -85,28 +91,26 @@ public class MyContactsAdapter extends RecyclerView.Adapter<MyContactsAdapter.Vi
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults results = new FilterResults();
             if (constraint != null && constraint.length() > 0) {
-                List<MyContacts> myContactsArrayList = new ArrayList<MyContacts>();
-                for (int i = 0; i < mMyContactsList.size(); i++) {
-                    if ((mMyContactsList.get(i).getName().toUpperCase())
+                List<FrissbiContact> frissbiContactList = new ArrayList<FrissbiContact>();
+                for (int i = 0; i < mFrissbiContactList.size(); i++) {
+                    if ((mFrissbiContactList.get(i).getName().toUpperCase())
                             .startsWith(constraint.toString().toUpperCase())) {
-                        myContactsArrayList.add(mMyContactsList.get(i));
+                        frissbiContactList.add(mFrissbiContactList.get(i));
                     }
                 }
-                results.count = myContactsArrayList.size();
-                results.values = myContactsArrayList;
+                results.count = frissbiContactList.size();
+                results.values = frissbiContactList;
             } else {
-                results.count = mOriginalMyContactsList.size();
-                results.values = mOriginalMyContactsList;
+                results.count = mOriginalFrissbiContactList.size();
+                results.values = mOriginalFrissbiContactList;
             }
             return results;
         }
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            mMyContactsList = (List<MyContacts>) results.values;
+            mFrissbiContactList = (List<FrissbiContact>) results.values;
             notifyDataSetChanged();
         }
     }
-
-
 }

@@ -14,16 +14,14 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.frissbi.R;
-import com.frissbi.Utility.FLog;
+import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.FriendsAdapter;
 import com.frissbi.adapters.GroupParticipantAdapter;
 import com.frissbi.interfaces.GroupParticipantListener;
-import com.frissbi.models.Friend;
+import com.frissbi.models.FrissbiContact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,13 +33,13 @@ public class NewGroupFragment extends Fragment implements GroupParticipantListen
     private RelativeLayout mParticipantRLayout;
     private RecyclerView mParticipantRecyclerView;
     private RecyclerView mSelectParticipantRecyclerView;
-    private List<Friend> mFriendList;
     private GroupParticipantListener mGroupParticipantListener;
-    private List<Friend> mGroupSelectedFriendList;
+    private List<FrissbiContact> mGroupSelectedFriendList;
     private GroupParticipantAdapter mGroupParticipantAdapter;
     private FriendsAdapter mFriendsAdapter;
     private OnFragmentInteractionListener mListener;
     private Button mCreateGroupButton;
+    private List<FrissbiContact> mFrissbiContactList;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -71,8 +69,7 @@ public class NewGroupFragment extends Fragment implements GroupParticipantListen
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mSelectParticipantRecyclerView.getContext(),
                 DividerItemDecoration.VERTICAL);
         mSelectParticipantRecyclerView.addItemDecoration(dividerItemDecoration);
-        mFriendList = Friend.listAll(Friend.class);
-        FLog.d("CreateGroupActivity", "mFriendList" + mFriendList);
+        mFrissbiContactList = FrissbiContact.findWithQuery(FrissbiContact.class, "select * from frissbi_contact where type=?", Utility.FRIEND_TYPE + "");
         setUpFriendsList();
         mCreateGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -82,17 +79,17 @@ public class NewGroupFragment extends Fragment implements GroupParticipantListen
         });
     }
     private void setUpFriendsList() {
-        mFriendsAdapter = new FriendsAdapter(getActivity(), mFriendList, mGroupParticipantListener);
+        mFriendsAdapter = new FriendsAdapter(getActivity(), mFrissbiContactList, mGroupParticipantListener);
         mSelectParticipantRecyclerView.setAdapter(mFriendsAdapter);
     }
 
     @Override
-    public void selectedGroupParticipant(Friend friend) {
+    public void selectedGroupParticipant(FrissbiContact frissbiContact) {
         mParticipantRLayout.setVisibility(View.VISIBLE);
-        if (friend.isSelected()) {
-            mGroupSelectedFriendList.add(friend);
+        if (frissbiContact.isSelected()) {
+            mGroupSelectedFriendList.add(frissbiContact);
         } else {
-            mGroupSelectedFriendList.remove(friend);
+            mGroupSelectedFriendList.remove(frissbiContact);
         }
         if (mGroupSelectedFriendList.size() == 0) {
             mParticipantRLayout.setVisibility(View.GONE);
@@ -158,7 +155,7 @@ public class NewGroupFragment extends Fragment implements GroupParticipantListen
      */
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(List<Friend> groupSelectedFriendList);
+        void onFragmentInteraction(List<FrissbiContact> groupSelectedFriendList);
     }
 
 

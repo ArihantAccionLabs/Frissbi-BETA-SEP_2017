@@ -28,6 +28,7 @@ public class Activities {
 
     private String date;
     private int  type;
+    private String userProfileImageId;
 
 
     public String getStatusMessage() {
@@ -143,10 +144,18 @@ public class Activities {
         this.date = date;
     }
 
+    public String getUserProfileImageId() {
+        return userProfileImageId;
+    }
+
+    public void setUserProfileImageId(String userProfileImageId) {
+        this.userProfileImageId = userProfileImageId;
+    }
+
     @Override
     public String toString() {
         return "Activities{" +
-                ", statusMessage='" + statusMessage + '\'' +
+                "statusMessage='" + statusMessage + '\'' +
                 ", profileImageId='" + profileImageId + '\'' +
                 ", coverImageId='" + coverImageId + '\'' +
                 ", meetingId=" + meetingId +
@@ -159,7 +168,8 @@ public class Activities {
                 ", imageCaption='" + imageCaption + '\'' +
                 ", joinedDate='" + joinedDate + '\'' +
                 ", date='" + date + '\'' +
-                ", type='" + type + '\'' +
+                ", type=" + type +
+                ", userProfileImageId='" + userProfileImageId + '\'' +
                 '}';
     }
 }

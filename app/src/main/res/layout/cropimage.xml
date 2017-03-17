@@ -22,7 +22,7 @@
 
     <view
         class="com.frissbi.Frissbi_img_crop.CropImageView"
-        android:id="@+id/image"
+        android:id="@+id/imageId"
 
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"

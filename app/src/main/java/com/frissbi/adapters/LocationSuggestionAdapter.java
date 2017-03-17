@@ -47,7 +47,7 @@ public class LocationSuggestionAdapter extends RecyclerView.Adapter<LocationSugg
         holder.locNameTv.setText(mLocationSuggestionList.get(position).getName());
         holder.locAddressTv.setText(mLocationSuggestionList.get(position).getAddress());
         if (mLocationSuggestionList.get(position).getImageUrl() != null) {
-            //ImageCacheHandler.getInstance(mContext).setImage(holder.locImageView, mLocationSuggestionList.get(position).getLocationId() + "", mLocationSuggestionList.get(position).getImageUrl());
+            //ImageCacheHandler.getInstance(mContext).setImageId(holder.locImageView, mLocationSuggestionList.get(position).getLocationId() + "", mLocationSuggestionList.get(position).getImageUrl());
         }
         if (mSelectedPosition == position) {
             holder.locCheckbox.setChecked(true);

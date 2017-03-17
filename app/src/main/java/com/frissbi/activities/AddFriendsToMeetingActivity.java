@@ -24,16 +24,10 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.frissbi.R;
-import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
 import com.frissbi.fragments.ContactsFragment;
-import com.frissbi.fragments.EmailFriendsFragment;
-import com.frissbi.fragments.FrissbiFriendsFragment;
 import com.frissbi.fragments.GroupsFragment;
 import com.frissbi.interfaces.ContactsSelectedListener;
-import com.frissbi.models.Contacts;
-import com.frissbi.models.EmailContacts;
-import com.frissbi.models.Friend;
 import com.frissbi.models.FrissbiContact;
 
 import java.util.ArrayList;
@@ -45,18 +39,11 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
     private static final int CONTACT_PICKER_RESULT = 999;
     private TabLayout mAddFriendsTabLayout;
     private ViewPager mFriendsViewPager;
-    private List<EmailContacts> mEmailContactsList;
-    private EmailFriendsFragment mEmailFriendsFragment;
-    private List<Contacts> mContactsList;
     private ContactsFragment mContactsFragment;
     private ImageView mAddFriendsImageView;
-    private FrissbiFriendsFragment mFrissbiFriendsFragment;
     private SharedPreferences mSharedPreferences;
-    private CustomProgressDialog mProgressDialog;
-    private List<Friend> mFriendList;
     private List<Long> mFriendsSelectedIdList;
     private List<Long> mEmailsSelectedIdsList;
-    private List<Long> mContactsSelectedIdsList;
     private GroupsFragment mGroupsFragment;
 
 
@@ -68,17 +55,10 @@ public class AddFriendsToMeetingActivity extends AppCompatActivity implements Co
         mAddFriendsTabLayout = (TabLayout) findViewById(R.id.add_friends_tabLayout);
         mFriendsViewPager = (ViewPager) findViewById(R.id.add_friends_viewPager);
         mAddFriendsImageView = (ImageView) findViewById(R.id.add_friends_imageView);
-        mProgressDialog = new CustomProgressDialog(this);
-        mEmailFriendsFragment = new EmailFriendsFragment();
         mContactsFragment = new ContactsFragment();
-        mFrissbiFriendsFragment = new FrissbiFriendsFragment();
         mGroupsFragment = new GroupsFragment();
-        mFriendList = new ArrayList<>();
-        mEmailContactsList = new ArrayList<>();
-        mContactsList = new ArrayList<>();
         mFriendsSelectedIdList = new ArrayList<>();
         mEmailsSelectedIdsList = new ArrayList<>();
-        mContactsSelectedIdsList = new ArrayList<>();
 
         mSharedPreferences = getSharedPreferences("GMAIL_REG", Context.MODE_PRIVATE);
         Log.d("AddFriendsToMeeting", "email" + mSharedPreferences.getString("mail", "editor"));

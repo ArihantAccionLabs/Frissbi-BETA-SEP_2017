@@ -1,12 +1,15 @@
 package com.frissbi.Utility;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Base64;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,8 +28,11 @@ public class Utility {
     public static final int STATUS_ACCEPT = 1;
     public static final int STATUS_REJECT = 2;
     public static final int STATUS_COMPLETED = 3;
-    public static final int CAMERA_REQUEST=100;
-    public static final int SELECT_FILE=200;
+    public static final int CAMERA_REQUEST = 100;
+    public static final int SELECT_FILE = 200;
+    public static final int FRIEND_TYPE = 1;
+    public static final int EMAIL_TYPE = 2;
+    public static final int CONTACT_TYPE = 3;
     //public static final String REST_URI ="http://13.76.99.32/kleverlinkswebservices";
     public static final String REST_URI = "http://192.168.2.16:9090/kleverlinkswebservices/rest";//Sunil
     public static final String USER_FRIENDSLIST = "/FriendListService/friendsList/";
@@ -45,11 +51,11 @@ public class Utility {
     public static final String USER_REGISTRATION = "/UserRegistrationService/registerUser";
     public static final String CREATE_GROUP = "/GroupCreationService/create";
     public static final String GROUPS = "/GroupCreationService/getGroupInfo/";
-    public static final String  ADD_PARTICIPANT= "/GroupCreationService/addMember";
-    public static final String  GET_GROUP_DETAILS= "/GroupCreationService/getGroupInfoByGroupId/";
-    public static final String  EXIT_GROUP= "/GroupCreationService/removeOrExitGroup";
-    public static final String  UPDATE_OR_DELETE_BY_GROUP= "/GroupCreationService/updateOrDeleteGroupByAdmin";
-    public static final String  VIEW_PROFILE= "/FriendListService/viewProfile/";
+    public static final String ADD_PARTICIPANT = "/GroupCreationService/addMember";
+    public static final String GET_GROUP_DETAILS = "/GroupCreationService/getGroupInfoByGroupId/";
+    public static final String EXIT_GROUP = "/GroupCreationService/removeOrExitGroup";
+    public static final String UPDATE_OR_DELETE_BY_GROUP = "/GroupCreationService/updateOrDeleteGroupByAdmin";
+    public static final String VIEW_PROFILE = "/FriendListService/viewProfile/";
     public static final String SAVED_LOCATIONS = "/UserSettingsService/getUserPreferredLocations/";
     public static final String LOCATION_INSERT = "/UserSettingsService/insertUserPreferredLocations/";
     public static final String UPCOMING_MEETINGS = "/TimeLineService/getOneWeekMeetingInfo/";
@@ -59,6 +65,7 @@ public class Utility {
     public static final String GET_IMAGE = "/UserActivityService/getImage/";
     public static final String STATUS_MESSAGE = "/UserActivityService/insertUserStatus";
     public static final String USER_ACTIVITIES = "/UserActivityService/getUserActivity/";
+    public static final String FRIENDS_ACTIVITIES = "/FriendActivityService/getFriendActivity/";
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 100;
     private static Utility ourInstance = new Utility();
 
@@ -145,6 +152,15 @@ public class Utility {
         } else {
             return true;
         }
+    }
+
+    public static void hideKeyboard(View view, Context context) {
+        InputMethodManager inputMethodManager = (InputMethodManager) context.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    public String capitalize(final String line) {
+        return Character.toUpperCase(line.charAt(0)) + line.substring(1);
     }
 
 }

@@ -1,25 +1,48 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.frissbi.fragments.TimeLineFragment">
 
-    <com.frissbi.CustomFontTextView
-        android:id="@+id/upcoming_meeting_text"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:gravity="center"
-        android:text="UPCOMING MEETINGS"
-        android:textColor="@color/black"
-        android:textStyle="bold" />
+        android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/upcoming_meeting_recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/upcoming_meeting_text"
-        android:layout_marginTop="10dp"
-        android:padding="6dp" />
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/upcoming_meeting_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:gravity="center"
+            android:text="UPCOMING MEETINGS"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
 
-</RelativeLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/upcoming_meeting_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/upcoming_meeting_text"
+            android:layout_marginTop="10dp"
+            android:padding="6dp" />
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/others_doing_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/upcoming_meeting_recyclerView"
+            android:gravity="center"
+            android:text="What others doing?"
+            android:textColor="@color/black"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/others_activities_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/others_doing_text"
+            android:padding="6dp" />
+    </RelativeLayout>
+</android.support.v4.widget.NestedScrollView>

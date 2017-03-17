@@ -55,7 +55,7 @@ public class ImageCacheHandler {
     public void setImage(final ImageView imageView, String imageId) {
         final String fileName = imageId;
         bitmap = findImageFromMemory(fileName);
-        imageView.setImageResource(R.drawable.frissbi_logo_home);
+        imageView.setImageResource(R.drawable.default_profile_image);
         if (bitmap != null) {
           /*  if (CommonUtility.progressBar != null) {
                 CommonUtility.progressBar.setVisibility(View.INVISIBLE);

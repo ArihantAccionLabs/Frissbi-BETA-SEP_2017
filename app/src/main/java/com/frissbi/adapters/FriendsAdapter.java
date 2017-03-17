@@ -11,9 +11,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frissbi.R;
-import com.frissbi.activities.AddParticipantActivity;
+import com.frissbi.Utility.ImageCacheHandler;
+import com.frissbi.interfaces.FriendProfileListener;
 import com.frissbi.interfaces.GroupParticipantListener;
-import com.frissbi.models.Friend;
+import com.frissbi.models.FrissbiContact;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,34 +26,37 @@ import java.util.List;
 public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHolder> implements Filterable {
 
     private Context mContext;
-    private List<Friend> mFriendList;
-    private List<Friend> mOriginalFriendList;
+    private List<FrissbiContact> mFrissbiContactList;
+    private List<FrissbiContact> mOriginalFrissbiContactList;
     private FriendsFilter mFriendsFilter;
     private GroupParticipantListener mGroupParticipantListener;
-    private boolean isGroupSelection;
-    private boolean mIsAddParticipant;
+    private FriendProfileListener mFriendProfileListener;
+    private boolean mIsGroupList;
+    private boolean mIsAddParticipantList;
+    private boolean mIsFriendList;
 
-    public FriendsAdapter(Context context, List<Friend> friendList) {
+    public FriendsAdapter(Context context, List<FrissbiContact> frissbiContactList, FriendProfileListener friendProfileListener) {
         mContext = context;
-        mFriendList = friendList;
-        mOriginalFriendList = friendList;
-        isGroupSelection = false;
+        mFrissbiContactList = frissbiContactList;
+        mOriginalFrissbiContactList = frissbiContactList;
+        mFriendProfileListener = friendProfileListener;
+        mIsFriendList = true;
     }
 
-    public FriendsAdapter(Context context, List<Friend> friendList, GroupParticipantListener groupParticipantListener) {
+    public FriendsAdapter(Context context, List<FrissbiContact> frissbiContactList, GroupParticipantListener groupParticipantListener) {
         mContext = context;
-        mFriendList = friendList;
-        mOriginalFriendList = friendList;
+        mFrissbiContactList = frissbiContactList;
+        mOriginalFrissbiContactList = frissbiContactList;
         mGroupParticipantListener = groupParticipantListener;
-        isGroupSelection = true;
+        mIsGroupList = true;
     }
 
-    public FriendsAdapter(Context context, List<Friend> friendList, boolean isAddParticipant, GroupParticipantListener groupParticipantListener) {
+    public FriendsAdapter(Context context, List<FrissbiContact> frissbiContactList, boolean isAddParticipant, GroupParticipantListener groupParticipantListener) {
         mContext = context;
-        mFriendList = friendList;
-        mOriginalFriendList = friendList;
+        mFrissbiContactList = frissbiContactList;
+        mOriginalFrissbiContactList = frissbiContactList;
         mGroupParticipantListener = groupParticipantListener;
-        mIsAddParticipant = isAddParticipant;
+        mIsAddParticipantList = isAddParticipant;
     }
 
 
@@ -65,12 +69,14 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        Friend friend = mFriendList.get(position);
+        final FrissbiContact frissbiContact = mFrissbiContactList.get(position);
 
-        holder.friendUsernameTv.setText(friend.getFullName());
-        holder.friendProfileImage.setImageResource(R.drawable.pic1);
+        holder.friendUsernameTv.setText(frissbiContact.getName());
+        if (frissbiContact.getImageId() != null) {
+            ImageCacheHandler.getInstance(mContext).setImage(holder.friendProfileImage, frissbiContact.getImageId());
+        }
 
-        if (friend.isSelected()) {
+        if (frissbiContact.isSelected()) {
             holder.selectedIcon.setVisibility(View.VISIBLE);
         } else {
             holder.selectedIcon.setVisibility(View.GONE);
@@ -79,19 +85,23 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (isGroupSelection) {
-                    if (mFriendList.get(position).isSelected()) {
-                        mFriendList.get(position).setSelected(false);
+                if (mIsGroupList) {
+                    if (frissbiContact.isSelected()) {
+                        frissbiContact.setSelected(false);
                         holder.selectedIcon.setVisibility(View.GONE);
                     } else {
                         holder.selectedIcon.setVisibility(View.VISIBLE);
-                        mFriendList.get(position).setSelected(true);
+                        frissbiContact.setSelected(true);
                     }
-                    mGroupParticipantListener.selectedGroupParticipant(mFriendList.get(position));
+                    mGroupParticipantListener.selectedGroupParticipant(frissbiContact);
                 }
 
-                if (mIsAddParticipant){
-                    mGroupParticipantListener.selectedGroupParticipant(mFriendList.get(position));
+                if (mIsAddParticipantList) {
+                    mGroupParticipantListener.selectedGroupParticipant(frissbiContact);
+                }
+
+                if (mIsFriendList) {
+                    mFriendProfileListener.viewFriendProfile(frissbiContact.getUserId());
                 }
 
             }
@@ -101,7 +111,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
 
     @Override
     public int getItemCount() {
-        return mFriendList.size();
+        return mFrissbiContactList.size();
     }
 
     @Override
@@ -131,25 +141,25 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
         protected FilterResults performFiltering(CharSequence constraint) {
             FilterResults results = new FilterResults();
             if (constraint != null && constraint.length() > 0) {
-                ArrayList<Friend> friendArrayList = new ArrayList<Friend>();
-                for (int i = 0; i < mFriendList.size(); i++) {
-                    if ((mFriendList.get(i).getFullName().toUpperCase())
+                List<FrissbiContact> frissbiContactList = new ArrayList<>();
+                for (int i = 0; i < mFrissbiContactList.size(); i++) {
+                    if ((mFrissbiContactList.get(i).getName().toUpperCase())
                             .startsWith(constraint.toString().toUpperCase())) {
-                        friendArrayList.add(mFriendList.get(i));
+                        frissbiContactList.add(mFrissbiContactList.get(i));
                     }
                 }
-                results.count = friendArrayList.size();
-                results.values = friendArrayList;
+                results.count = frissbiContactList.size();
+                results.values = frissbiContactList;
             } else {
-                results.count = mOriginalFriendList.size();
-                results.values = mOriginalFriendList;
+                results.count = mOriginalFrissbiContactList.size();
+                results.values = mOriginalFrissbiContactList;
             }
             return results;
         }
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            mFriendList = (List<Friend>) results.values;
+            mFrissbiContactList = (List<FrissbiContact>) results.values;
             notifyDataSetChanged();
         }
     }
