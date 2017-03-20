@@ -31,16 +31,6 @@ public class AuthenticateUser {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
 		
-		String string = "Sunil";
-		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.append("Sunil");
-		
-		string = "Kumar";
-		stringBuilder.append("Kumar");
-		
-		System.out.println(string+"   "+stringBuilder);
-		System.out.println("hellooo    :  ");
-		
 	return "ok";	
 	}
 

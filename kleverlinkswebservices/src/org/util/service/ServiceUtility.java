@@ -31,11 +31,8 @@ import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.kleverlinks.bean.ActivityBean;
-import org.kleverlinks.bean.AppUserFriendBean;
 import org.kleverlinks.bean.MeetingBean;
 import org.kleverlinks.bean.MeetingLogBean;
-import org.kleverlinks.enums.ActivityType;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
@@ -61,11 +58,15 @@ public class ServiceUtility {
 			ResultSet rs = callableStatement.executeQuery();;
 	
 			while (rs.next()) {
-				jsonObject.put("email" , rs.getString("emailName"));
-				jsonObject.put("fullName" , rs.getString("FirstName") + rs.getString("LastName"));
+				jsonObject.put("emailId" , rs.getString("emailName"));
+				jsonObject.put("fullName" , rs.getString("FirstName") +" "+ rs.getString("LastName"));
 				jsonObject.put("userId" , rs.getLong("UserID"));
-				jsonObject.put("phoneNumber" , rs.getString("ContactNumber"));
-				jsonObject.put("profileImageId" , rs.getString("ProfileImageID"));
+				if (Utility.checkValidString(rs.getString("ProfileImageID"))) {
+				    jsonObject.put("profileImageId", rs.getString("ProfileImageID"));
+				 }
+				if(Utility.checkValidString(rs.getString("ContactNumber"))){
+					jsonObject.put("phoneNumber", rs.getString("ContactNumber"));
+				}
 			}
 			return jsonObject;
 		} catch (Exception e) {
@@ -533,6 +534,7 @@ public class ServiceUtility {
 					meetingLogBean.setSenderUserId(rs.getLong("SenderUserID"));
 					meetingLogBean.setMeetingId(rs.getLong("MeetingID"));
 					meetingLogBean.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
+					meetingLogBean.setProfileImageId(rs.getString("ProfileImageID"));
 					LocalDateTime fromTime = convertStringToLocalDateTime(rs.getString("SenderFromDateTime"));
 					LocalDateTime toTime =   convertStringToLocalDateTime(rs.getString("SenderToDateTime"));
 					meetingLogBean.setDate(fromTime.toLocalDate());
@@ -570,7 +572,8 @@ public class ServiceUtility {
 			  if(rs.getLong("Status") == 1){
 				  JSONObject jsonObject = new JSONObject();
 				  jsonObject.put("userId" , rs.getLong("UserID"));
-				  jsonObject.put("fullName" , rs.getString("firstName") + rs.getString("lastName"));
+				  jsonObject.put("fullName" , rs.getString("firstName") +" "+ rs.getString("lastName"));
+				  jsonObject.put("profileImageId" , rs.getString("ProfileImageID"));
 				  jsonObject.put("status" , rs.getLong("Status"));
 				  jsonArray.put(jsonObject);
 			  }

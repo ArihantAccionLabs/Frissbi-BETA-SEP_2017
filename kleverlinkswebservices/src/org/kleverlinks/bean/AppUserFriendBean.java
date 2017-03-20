@@ -2,10 +2,17 @@ package org.kleverlinks.bean;
 
 public class AppUserFriendBean {
 	
+	public String getFullName() {
+		return fullName;
+	}
+	public void setFullName(String fullName) {
+		this.fullName = fullName;
+	}
 	private Long userId;
 	private String coverImageId;
 	private String profileImageId;
 	private String registrationDate;
+	private String fullName;
 	
 	public Long getUserId() {
 		return userId;

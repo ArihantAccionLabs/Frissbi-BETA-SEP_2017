@@ -14,12 +14,14 @@ import java.util.stream.Collectors;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.kleverlinks.bean.MeetingAcceptedUserBean;
 import org.kleverlinks.bean.MeetingBean;
 import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.webservice.Constants;
 import org.kleverlinks.webservice.DataSourceConnection;
 import org.kleverlinks.webservice.NotificationsEnum;
 import org.kleverlinks.webservice.gcm.Message;
+import org.kleverlinks.webservice.gcm.Message.Builder;
 import org.kleverlinks.webservice.gcm.Result;
 import org.kleverlinks.webservice.gcm.Sender;
 import org.service.dto.NotificationInfoDTO;
@@ -216,6 +218,58 @@ public class NotificationService {
 		}
 	}
 
+	public static void sendMeetingLocationConfirmation(NotificationInfoDTO notificationInfoDTO) {
+
+		try {
+			int value = insertBatchNotification(notificationInfoDTO);
+			System.out.println("value===============" + value);
+			if (value != 0) {
+
+				Builder message = null;
+				Sender sender = new Sender(Constants.GCM_APIKEY);
+					message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
+							.addData("meetingId", notificationInfoDTO.getMeetingId() + "")
+							.addData("message", notificationInfoDTO.getMessage())
+							.addData("NotificationName", notificationInfoDTO.getNotificationType())
+							.addData("locationSuggestionJson", notificationInfoDTO.getJsonObject().toString());
+							
+					for (MeetingAcceptedUserBean meetingAcceptedUserBean : notificationInfoDTO.getMeetingAcceptedUserBeanList()) {
+
+					String deviceRegistrationId = getDeviceRegistrationId(meetingAcceptedUserBean.getUserId());
+					if (Utility.checkValidString(deviceRegistrationId)) {
+						
+						message.addData("userId", meetingAcceptedUserBean.getUserId()+"");
+						message.addData("profileImageId", meetingAcceptedUserBean.getProfileImageId());
+						message.addData("meessage", getFriends(notificationInfoDTO.getMeetingAcceptedUserBeanList() , meetingAcceptedUserBean.getUserId()));
+						
+						Result result = sender.send(message.build(), deviceRegistrationId, 1);
+						System.out.println(result);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	
+	private static String getFriends(List<MeetingAcceptedUserBean> meetingAcceptedUserBeans , Long userId){
+		String names = "";
+		int count = 1;
+		for (MeetingAcceptedUserBean meetingAcceptedUserBean : meetingAcceptedUserBeans) {
+			
+			if(!(meetingAcceptedUserBean.getUserId().longValue() == userId.longValue())){
+				
+				if(count == meetingAcceptedUserBeans.size()){
+					names += meetingAcceptedUserBean.getFullName();
+				}else{
+					names += meetingAcceptedUserBean.getFullName()+", ";
+				}
+			}
+		}
+		return names;
+	}
+	
 	public static void sendMeetingNotification(NotificationInfoDTO notificationInfoDTO) {
 
 		try {
@@ -379,7 +433,7 @@ public class NotificationService {
 		
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?)}";
+			String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertNotificationStoreProc);
 			for (Long userId : notificationInfoDTO.getUserList()) {
 				callableStatement.setLong(1, userId);
@@ -388,14 +442,24 @@ public class NotificationService {
 				}else{
 					callableStatement.setLong(2, 0);
 				}
-				if(notificationInfoDTO.getMeetingId() != null){
-					callableStatement.setLong(3, notificationInfoDTO.getMeetingId());
+				if(notificationInfoDTO.getGroupId() != null){
+					callableStatement.setLong(3, notificationInfoDTO.getGroupId());
 				}else{
 					callableStatement.setLong(3, 0);
 				}
-				callableStatement.setString(4, notificationInfoDTO.getNotificationType());
-				callableStatement.setString(5, notificationInfoDTO.getMessage());
-				callableStatement.setTimestamp(6, new Timestamp(new Date().getTime()));
+				if(notificationInfoDTO.getUserFriendListId() != null){
+					callableStatement.setLong(4, notificationInfoDTO.getUserFriendListId());
+				}else{
+					callableStatement.setLong(4, 0);
+				}
+				if(notificationInfoDTO.getMeetingId() != null){
+					callableStatement.setLong(5, notificationInfoDTO.getMeetingId());
+				}else{
+					callableStatement.setLong(5, 0);
+				}
+				callableStatement.setString(6, notificationInfoDTO.getNotificationType());
+				callableStatement.setString(7, notificationInfoDTO.getMessage());
+				callableStatement.setTimestamp(8, new Timestamp(new Date().getTime()));
 
 				callableStatement.addBatch();
 			}
@@ -418,18 +482,30 @@ public class NotificationService {
 		int value = 0;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?)}";
+			String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertNotificationStoreProc);
 			callableStatement.setLong(1, notificationInfoDTO.getUserId());
 			callableStatement.setLong(2, notificationInfoDTO.getSenderUserId());
-			if(notificationInfoDTO.getMeetingId() != null){
-				callableStatement.setLong(3, notificationInfoDTO.getMeetingId());
+			
+			if(notificationInfoDTO.getGroupId() != null){
+				callableStatement.setLong(3, notificationInfoDTO.getGroupId());
 			}else{
 				callableStatement.setLong(3, 0);
 			}
-			callableStatement.setString(4, notificationInfoDTO.getNotificationType());
-			callableStatement.setString(5, notificationInfoDTO.getMessage());
-			callableStatement.setTimestamp(6, new Timestamp(new Date().getTime()));
+			if(notificationInfoDTO.getUserFriendListId() != null){
+				callableStatement.setLong(4, notificationInfoDTO.getUserFriendListId());
+			}else{
+				callableStatement.setLong(4, 0);
+			}
+			
+			if(notificationInfoDTO.getMeetingId() != null){
+				callableStatement.setLong(5, notificationInfoDTO.getMeetingId());
+			}else{
+				callableStatement.setLong(5, 0);
+			}
+			callableStatement.setString(6, notificationInfoDTO.getNotificationType());
+			callableStatement.setString(7, notificationInfoDTO.getMessage());
+			callableStatement.setTimestamp(8, new Timestamp(new Date().getTime()));
 			value = callableStatement.executeUpdate();
 			  return value;
 

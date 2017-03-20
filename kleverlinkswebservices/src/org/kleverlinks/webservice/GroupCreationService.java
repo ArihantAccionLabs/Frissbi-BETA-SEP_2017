@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -75,7 +74,7 @@ public class GroupCreationService {
 			
 			if(friendInserted){
 				JSONObject userObject = ServiceUtility.getUserDetailByUserId(groupBean.getUserId());
-				String message = userObject.getString("fullName")+" Created "+groupBean.getGroupName();
+				String message = userObject.getString("fullName")+" added you to "+groupBean.getGroupName();
 				
 			   NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
 			   notificationInfoDTO.setSenderUserId(groupBean.getUserId());

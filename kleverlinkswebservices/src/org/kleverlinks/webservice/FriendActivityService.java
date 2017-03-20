@@ -44,7 +44,10 @@ public class FriendActivityService {
 		JSONObject finalJson = new JSONObject();
 		List<ActivityBean> userActivityBeanList = new ArrayList<ActivityBean>();
 		try {
-			String friendUserIds = Utility.getFriendList(userId).stream().collect(Collectors.joining(", "));
+			String friendUserIds = Utility.getFriendUserIdInString(userId).stream().collect(Collectors.joining(", "));
+			
+			if(friendUserIds.length() != 0){
+			
 			userActivityBeanList.addAll(getUserDetails(getUsersProfiles(friendUserIds)));			
 			userActivityBeanList.addAll(getFriendsMeetingActivity(friendUserIds , userId));
 			userActivityBeanList.addAll(getFriendsPostedActivity(friendUserIds));
@@ -67,6 +70,11 @@ public class FriendActivityService {
 			finalJson.put("message", "User activity fetched successfully");
 			finalJson.put("userActivityArray", setUserActivity(userActivityBeanList));
 			return finalJson.toString();
+			
+			}else{
+				finalJson.put("status", true);
+				finalJson.put("message", "User don't have friends");	
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -90,7 +98,7 @@ public class FriendActivityService {
 			String others = "";
 			conn = DataSourceConnection.getDBConnection();
 			String sql = "SELECT  MeetingID,SenderUserID,RequestDateTime,SenderFromDateTime,SenderToDateTime,MeetingDescription	"
-					+ "	FROM tbl_MeetingDetails    WHERE SenderUserID IN ("+friendUserIds+") AND MeetingStatus='ACTIVE' "
+					+ "	FROM tbl_MeetingDetails WHERE SenderUserID IN ("+friendUserIds+") AND MeetingStatus='ACTIVE' "
 					+ "UNION "
 					+ "SELECT R.MeetingID  ,M.SenderUserID,M.RequestDateTime,M.SenderFromDateTime,M.SenderToDateTime,M.MeetingDescription	"
 					+ "FROM tbl_RecipientsDetails AS R " + "INNER JOIN tbl_MeetingDetails AS M "
@@ -124,8 +132,11 @@ public class FriendActivityService {
 				
 				if(friendJson != null){
 					fullName = friendJson.getString("fullName");
-					userActivityBean.setMeetingUserImageId(friendJson.getString("profileImageId"));
+					if(friendJson.has("profileImageId")){
+						userActivityBean.setMeetingUserImageId(friendJson.getString("profileImageId"));
+					}
 				}
+				userActivityBean.setUserFullName(fullName);
 				userActivityBean.setMeetingMessage("You have a meeting " + rs.getString("MeetingDescription") +" with "+fullName +others+" from "+new SimpleDateFormat("HH:mm").format(senderFromDateTime)+" to "+new SimpleDateFormat("HH:mm").format(senderToDateTime)+" on "+dateFormat.format(senderFromDateTime));
 
 				userActivityBeanList.add(userActivityBean);
@@ -156,6 +167,8 @@ public class FriendActivityService {
 				if (profileDbObj != null) {
 
 					userActivityBean = new ActivityBean();
+					
+					userActivityBean.setUserFullName(appUserFriendBean.getFullName());
 					userActivityBean.setUserId(appUserFriendBean.getUserId());
 					JSONObject mongoJson = new JSONObject(profileDbObj.toString());
 					userActivityBean.setProfileImage(appUserFriendBean.getProfileImageId());
@@ -173,6 +186,8 @@ public class FriendActivityService {
 				if (coverDbObj != null) {
 					JSONObject mongoJson = new JSONObject(coverDbObj.toString());
 					userActivityBean = new ActivityBean();
+					userActivityBean.setUserFullName(appUserFriendBean.getFullName());
+					userActivityBean.setUserProfileImageId(appUserFriendBean.getProfileImageId());
 					userActivityBean.setUserId(appUserFriendBean.getUserId());
 					userActivityBean.setCoverImage(appUserFriendBean.getCoverImageId());
 					try {
@@ -187,6 +202,8 @@ public class FriendActivityService {
 			}
 			if (Utility.checkValidString(appUserFriendBean.getRegistrationDate())) {
 				userActivityBean = new ActivityBean();
+				userActivityBean.setUserFullName(appUserFriendBean.getFullName());
+				userActivityBean.setUserProfileImageId(appUserFriendBean.getProfileImageId());
 				userActivityBean.setUserId(appUserFriendBean.getUserId());
 				try {
 					userActivityBean.setDate(dateTimeFormat.parse(appUserFriendBean.getRegistrationDate()));
@@ -209,7 +226,7 @@ public class FriendActivityService {
 		try {
 			conn = DataSourceConnection.getDBConnection();
 	    
-			String sql = "SELECT U.ProfileImageID,UA.UserActivityID,UA.UserID,UA.StatusDescription,UA.ImageDescription,UA.ImageID,UA.FromDateTime,UA.ToDateTime,UA.IsPrivate,Address,UA.CreatedDateTime"
+			String sql = "SELECT U.FirstName,U.LastName,U.ProfileImageID,UA.UserActivityID,UA.UserID,UA.StatusDescription,UA.ImageDescription,UA.ImageID,UA.FromDateTime,UA.ToDateTime,UA.IsPrivate,Address,UA.CreatedDateTime"
 					+ " FROM tbl_UserActivity AS UA INNER JOIN tbl_users AS U ON U.UserID=UA.UserID WHERE UA.UserID IN ("+friendUserIds+")";
 			statement = conn.createStatement();
 			ResultSet rs = statement.executeQuery(sql);
@@ -227,7 +244,7 @@ public class FriendActivityService {
 				userActivityBean.setIsPrivate(rs.getInt("IsPrivate"));
 				userActivityBean.setDate(df.parse(rs.getString("CreatedDateTime")));
 				userActivityBean.setUserProfileImageId(rs.getString("ProfileImageID"));
-				
+				userActivityBean.setUserFullName(rs.getString("FirstName") + rs.getString("LastName"));
 				userActivityBeanList.add(userActivityBean);
 			}
 		} catch (Exception e) {
@@ -248,7 +265,7 @@ public class FriendActivityService {
 		System.out.println(""+friendUserIds.toString());
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			sql = "SELECT UserID,ProfileImageId,CoverImageID,RegistrationDateTime FROM tbl_users WHERE UserID IN ("+friendUserIds+")";
+			sql = "SELECT UserID,FirstName,LastName,ProfileImageId,CoverImageID,RegistrationDateTime FROM tbl_users WHERE UserID IN ("+friendUserIds+")";
 			pstmt = conn.createStatement();
 			rs = pstmt.executeQuery(sql);
 			while (rs.next()) {
@@ -262,6 +279,7 @@ public class FriendActivityService {
 					}
 					appUserFriendBean.setRegistrationDate(rs.getString("RegistrationDateTime"));
 					appUserFriendBean.setUserId(rs.getLong("UserID"));
+					appUserFriendBean.setFullName(rs.getString("FirstName") + rs.getString("LastName"));
 					
 					appUserFriendBeanList.add(appUserFriendBean);
 				}
@@ -279,7 +297,7 @@ public class FriendActivityService {
 		DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertStoreProced = "{call usp_insertFriendActivityToTempTable(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+			String insertStoreProced = "{call usp_insertFriendActivityToTempTable(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProced);
 			deleteTemUserActivity(friendUserIds);
 			
@@ -305,7 +323,7 @@ public class FriendActivityService {
 				if (Utility.checkValidString(activityBean.getRegistrationDate()))
 					callableStatement.setTimestamp(8, Timestamp.valueOf(activityBean.getRegistrationDate()));
 				else
-					callableStatement.setTimestamp(8, null);
+				callableStatement.setTimestamp(8, null);
 				callableStatement.setString(9, activityBean.getProfileImage());
 				callableStatement.setString(10, activityBean.getCoverImage());
 				callableStatement.setString(11, activityBean.getStatus());
@@ -314,7 +332,8 @@ public class FriendActivityService {
 				callableStatement.setInt(14, activityBean.getIsPrivate());
 				callableStatement.setString(15, activityBean.getAddress());
 				callableStatement.setString(16, activityBean.getUserProfileImageId());
-				callableStatement.setString(17, dateTimeFormat.format(activityBean.getDate()));
+				callableStatement.setString(17, activityBean.getUserFullName());
+				callableStatement.setString(18, dateTimeFormat.format(activityBean.getDate()));
 			
 				callableStatement.addBatch();
 			}
@@ -375,8 +394,10 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 				json.put("date", dateTimeFormat.format(activityBean.getDate()));
 				json.put("userId", activityBean.getUserId());
 				if(Utility.checkValidString(activityBean.getUserProfileImageId())){
-					
 					json.put("userProfileImageId", activityBean.getUserProfileImageId());
+				}
+				if(Utility.checkValidString(activityBean.getUserFullName())){
+					json.put("userFullName", activityBean.getUserFullName());
 				}
 				if (activityBean.getMeetingId() != null) {
 					json.put("type", ActivityType.MEETING_TYPE.toString());
@@ -457,6 +478,14 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 				json.put("date", rs.getString("CreatedDateTime"));
 				json.put("userId", rs.getLong("UserID"));
 				json.put("userProfileImageId", rs.getString("UserProfileImageID"));
+				
+				if(Utility.checkValidString(rs.getString("UserProfileImageID"))){
+					json.put("userProfileImageId", rs.getString("UserProfileImageID"));
+				}
+				if(Utility.checkValidString(rs.getString("UserFullName"))){
+					json.put("userFullName", rs.getString("UserFullName"));
+				}
+				
 				// json.put("activityId", rs.getLong("UserActivityID"));
 				Long meetingId = rs.getLong("MeetingID");
 				if (meetingId != null && meetingId != 0l) {
@@ -509,5 +538,89 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 		finalJson.put("status", false);
 		finalJson.put("message", "Oops something went wrong");
 		return jsonArray.toString();
+	}
+	@GET
+	@Path("/getPeopleYouMayKnow/{userId}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String findFriendOfFriends(@PathParam("userId") Long userId){
+		JSONObject finalJson = new JSONObject();
+		try{
+		Set<Long> friendIdList = Utility.getFriendUserIdInLong(userId);
+		Set<Long> userYouMayKnowList = new HashSet<Long>();
+		JSONObject jsonObject = null;
+		JSONArray jsonArray = new JSONArray();
+		for (Long friendId : friendIdList) {
+			
+			Set<Long> friendOfFriendList = Utility.getFriendUserIdInLong(friendId);//getting friend's friend user id and removing friend's user id
+			friendOfFriendList.remove(userId);//removing current userId
+			
+			for (Long friendOfFriendId : friendOfFriendList) {
+				
+				if(!friendIdList.contains(friendOfFriendId)){
+					//friendUserIdList.remove(friendId);
+					if(isMutualFriend(friendIdList, friendOfFriendId)){
+						userYouMayKnowList.add(friendOfFriendId);
+					}
+				}
+			}
+		}
+		for (Long friendOfFriendId : userYouMayKnowList) {
+			jsonObject = new JSONObject();
+			jsonObject = ServiceUtility.getUserDetailByUserId(friendOfFriendId);
+			if(jsonObject != null){
+				jsonObject.put("status", getStatus(friendOfFriendId , userId));
+				jsonArray.put(jsonObject);
+			}
+		}
+		finalJson.put("status", true);
+		String message = jsonArray.length() == 0 ? "There is no list of people you may know" : "People you may know list fetched successfully";
+		finalJson.put("message", message);
+		finalJson.put("userJsonArray", jsonArray);
+		return finalJson.toString();
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		finalJson.put("status", false);
+		finalJson.put("message", "oops somehing went wrong");
+		
+	return finalJson.toString();	
+	}
+	
+	public Boolean isMutualFriend(Set<Long> friendIdList, Long freindOfFriendId) {
+
+		for (Long friendUserId : friendIdList) {
+
+			Set<Long> friendOfFriendIdList = Utility.getFriendUserIdInLong(friendUserId);
+
+			if (friendOfFriendIdList.contains(freindOfFriendId)) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public String getStatus(Long userId , Long friendOfFriendId){
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String storeProc = "{call usp_checkRelationShip(?,?)}";
+			callableStatement = conn.prepareCall(storeProc);
+			callableStatement.setLong(1, userId);
+			callableStatement.setLong(2, friendOfFriendId);
+			ResultSet rs  = callableStatement.executeQuery();
+			
+			while(rs.next()){
+				
+				 return rs.getString("RequestStatus");
+			}
+			return FriendStatusEnum.UNFRIEND.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		return "";
 	}
 }

@@ -182,11 +182,10 @@ public class UserActivityService {
 					json.put("type", ActivityType.LOCATION_TYPE.toString());
 				}
 				if (Utility.checkValidString(activityBean.getFromDate())) {
-
 					java.util.Date fromTime = dateTimeFormat.parse(activityBean.getFromDate());
 					json.put("freeDate", dateFormat.format(fromTime));
 					json.put("freeFromTime", timeFormat.format(fromTime));
-					json.put("freeToTime", timeFormat.format(dateFormat.parse(activityBean.getToDate())));
+					json.put("freeToTime", timeFormat.format(dateTimeFormat.parse(activityBean.getToDate())));
 
 					json.put("type", ActivityType.FREE_TIME_TYPE.toString());
 				}
@@ -268,7 +267,7 @@ public class UserActivityService {
 				  java.util.Date fromTime = dateTimeFormat.parse(rs.getString("FromDateTime"));
 				  json.put("freeDate", dateFormat.format(fromTime)); 
 				  json.put("freeFromTime",timeFormat.format(fromTime)); 
-				  json.put("freeToTime",timeFormat.format(dateFormat.parse(rs.getString("ToDateTime")))); 
+				  json.put("freeToTime",timeFormat.format(dateTimeFormat.parse(rs.getString("ToDateTime")))); 
 				  json.put("type", ActivityType.FREE_TIME_TYPE.toString());
 			  }if(Utility.checkValidString(rs.getString("RegistrationDateTime"))){
 				  json.put("registrationDate", rs.getString("CreatedDateTime")); 
@@ -546,7 +545,7 @@ public class UserActivityService {
 		    
 		    finalJson.put("uriImage",  mongoDBJDBC.getUriImage(imageId));
 		    finalJson.put("status", true);
-			finalJson.put("message", "User photos inserted successfully");
+			finalJson.put("message", "User photos fetched successfully");
 			return finalJson.toString();
 		} catch (Exception e) {
 			e.printStackTrace();

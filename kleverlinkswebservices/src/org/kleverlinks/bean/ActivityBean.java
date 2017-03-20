@@ -14,6 +14,7 @@ public class ActivityBean {
 	private String meetingMessage;
 	private String meetingUserImageId;
 	private String userProfileImageId;
+	private String userFullName;
 	public String getMeetingUserImageId() {
 		return meetingUserImageId;
 	}
@@ -127,6 +128,12 @@ public class ActivityBean {
 	}
 	public void setImage(String image) {
 		this.image = image;
+	}
+	public String getUserFullName() {
+		return userFullName;
+	}
+	public void setUserFullName(String userFullName) {
+		this.userFullName = userFullName;
 	}
 	@Override
 	public String toString() {

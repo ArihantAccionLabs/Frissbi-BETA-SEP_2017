@@ -18,7 +18,7 @@ public class MeetingLogBean {
 	private String address;
 	private String latitude;
 	private String longitude;
-	
+	private String profileImageId;
 
 	private int meetingStatus;
 
@@ -110,5 +110,11 @@ public class MeetingLogBean {
 
 	public void setMeetingStatus(int meetingStatus) {
 		this.meetingStatus = meetingStatus;
+	}
+	public String getProfileImageId() {
+		return profileImageId;
+	}
+	public void setProfileImageId(String profileImageId) {
+		this.profileImageId = profileImageId;
 	}
 }

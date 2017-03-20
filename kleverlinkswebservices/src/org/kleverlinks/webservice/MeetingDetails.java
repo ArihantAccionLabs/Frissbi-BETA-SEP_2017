@@ -29,6 +29,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.kleverlinks.bean.MeetingAcceptedUserBean;
 import org.kleverlinks.bean.MeetingBean;
 import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
@@ -699,14 +700,28 @@ public class MeetingDetails {
 			  
 			  System.out.println("frissbiLocationArray==================="+frissbiLocationArray.length());
 			  JSONArray friendsIdArray  = ServiceUtility.getReceptionistDetailsByMeetingId(meetingId);
-			  
+			  List<MeetingAcceptedUserBean> meetingAcceptedUserBeanList = new ArrayList<>();
 			  if(friendsIdArray.length() != 0){
-				  
+				  org.kleverlinks.bean.MeetingAcceptedUserBean   meetingAcceptedUserBean = null; 
 				 for (int i = 0; i < friendsIdArray.length(); i++) {
-					 if(friendsIdArray.getJSONObject(i).getInt("status") == 0){
+					 if(friendsIdArray.getJSONObject(i).getInt("status") == 1){
 						 userIdSet.add(friendsIdArray.getJSONObject(i).getLong("userId"));
+						 meetingAcceptedUserBean = new MeetingAcceptedUserBean();
+						 meetingAcceptedUserBean.setUserId(friendsIdArray.getJSONObject(i).getLong("userId"));
+						 meetingAcceptedUserBean.setProfileImageId(friendsIdArray.getJSONObject(i).getString("profileImageId"));
+						 meetingAcceptedUserBean.setFullName(friendsIdArray.getJSONObject(i).getString("fullName"));
+						
+						 meetingAcceptedUserBeanList.add(meetingAcceptedUserBean);
 					 }
 				 }
+				 
+				 meetingAcceptedUserBean = new MeetingAcceptedUserBean();
+				 meetingAcceptedUserBean.setUserId(meetingLogBean.getSenderUserId());
+				 meetingAcceptedUserBean.setProfileImageId(meetingLogBean.getProfileImageId());
+				 meetingAcceptedUserBean.setFullName(meetingLogBean.getFullName());
+				
+				 meetingAcceptedUserBeanList.add(meetingAcceptedUserBean);
+				 
 				 userIdSet.add(meetingLogBean.getSenderUserId());
 				 
 				 String message = "Please share you location for the meeting "+meetingLogBean.getDescription()+" on "+meetingLogBean.getDate()+" from "+meetingLogBean.getStartTime()+" to "+meetingLogBean.getEndTime();
@@ -716,6 +731,7 @@ public class MeetingDetails {
 				 notificationInfoDTO.setNotificationType(NotificationsEnum.MEETING_LOCATION_SUGGESTION.toString());
 				 notificationInfoDTO.setMeetingId(meetingId);
 				 notificationInfoDTO.setMessage(message);
+				 notificationInfoDTO.setMeetingAcceptedUserBeanList(meetingAcceptedUserBeanList);
 				JSONObject jsonObject2 = new JSONObject();
 				jsonObject2.put("frissbiLocationArray", frissbiLocationArray);
 				 if(frissbiLocationArray.length() <= 5){
@@ -724,12 +740,15 @@ public class MeetingDetails {
 						jsonObject2.put("isNextLocationExist", true);
 					}
 				 jsonObject2.put("isLocationUpdate", false);
+				 jsonObject2.put("title", meetingLogBean.getDescription());
+				 jsonObject2.put("date", meetingLogBean.getDate());
+				 jsonObject2.put("from", meetingLogBean.getStartTime());
+				 jsonObject2.put("to", meetingLogBean.getEndTime());
 				 notificationInfoDTO.setJsonObject(jsonObject2);
 				 
 				 NotificationService.sendMeetingNotification(notificationInfoDTO);
 			  }
 		  }
-		  
 		 }
 			 finalJson.put("status", true);
 			 finalJson.put("message", "Address updated successfully");

@@ -12,6 +12,7 @@ import javax.mail.internet.MimeMessage;
 
 public class EmailService {
 
+	@SuppressWarnings("static-access")
 	public static void SendMail(String emailTo , String subject , String htmlMessage) throws Exception {
 		Properties properties = new Properties();
 		properties.put("mail.transport.protocol", Constants.MAIL_TRANSPORT_PROTOCOL);
