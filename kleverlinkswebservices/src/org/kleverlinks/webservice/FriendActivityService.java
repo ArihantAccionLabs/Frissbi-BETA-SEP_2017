@@ -69,12 +69,12 @@ public class FriendActivityService {
 			finalJson.put("status", true);
 			finalJson.put("message", "User activity fetched successfully");
 			finalJson.put("userActivityArray", setUserActivity(userActivityBeanList));
-			return finalJson.toString();
 			
 			}else{
 				finalJson.put("status", true);
 				finalJson.put("message", "User don't have friends");	
 			}
+			return finalJson.toString();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

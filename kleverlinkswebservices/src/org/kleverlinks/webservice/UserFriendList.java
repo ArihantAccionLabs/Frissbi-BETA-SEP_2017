@@ -322,7 +322,8 @@ public class UserFriendList {
 				conn = DataSourceConnection.getDBConnection();
 				
 				String friendUserIds = Utility.getFriendUserIdInString(userId).stream().collect(Collectors.joining(", "));  
-				System.out.println(""+friendUserIds);
+				System.out.println(friendUserIds.length()+"  "+(friendUserIds.length() != 0));
+				if(friendUserIds.length() != 0){
 				String sql = "SELECT UserID,EmailName,FirstName,LastName,ProfileImageId,ContactNumber FROM tbl_users WHERE UserID IN ("+friendUserIds+")";
 				pstmt = conn.createStatement();
 				ResultSet rs = pstmt.executeQuery(sql);
@@ -340,7 +341,11 @@ public class UserFriendList {
 			finalJson.put("status", true);
 			finalJson.put("message", "Getting friendlist successfully");
 			finalJson.put("friends_array", jsonResultsArray);
-			return finalJson.toString();
+			}else{
+				finalJson.put("status", true);
+				finalJson.put("message", "No friends found");
+			}
+				return finalJson.toString();
 	    } catch (Exception e) {
 			e.printStackTrace();
 		} finally {
