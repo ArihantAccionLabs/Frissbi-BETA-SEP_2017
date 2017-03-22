@@ -1,48 +1,113 @@
-<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/timeline_swipeRefreshLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     tools:context="com.frissbi.fragments.TimeLineFragment">
 
-    <RelativeLayout
+    <android.support.v4.widget.NestedScrollView
+        android:id="@+id/timeline_nestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <com.frissbi.CustomFontTextView
-            android:id="@+id/upcoming_meeting_text"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:text="UPCOMING MEETINGS"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/upcoming_meeting_recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/upcoming_meeting_text"
-            android:layout_marginTop="10dp"
-            android:padding="6dp" />
+            <com.frissbi.CustomFontTextView
+                android:id="@+id/upcoming_meeting_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:gravity="center"
+                android:text="UPCOMING MEETINGS"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
-        <com.frissbi.CustomFontTextView
-            android:id="@+id/others_doing_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/upcoming_meeting_recyclerView"
-            android:gravity="center"
-            android:text="What others doing?"
-            android:textColor="@color/black"
-            android:textSize="16sp"
-            android:textStyle="bold" />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/upcoming_meeting_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/upcoming_meeting_text"
+                android:layout_marginTop="10dp"
+                android:padding="6dp" />
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/others_activities_recyclerView"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@+id/others_doing_text"
-            android:padding="6dp" />
-    </RelativeLayout>
-</android.support.v4.widget.NestedScrollView>
+            <com.frissbi.CustomFontTextView
+                android:id="@+id/others_doing_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/upcoming_meeting_recyclerView"
+                android:gravity="center"
+                android:text="What others are doing"
+                android:textAllCaps="true"
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/others_activities_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/others_doing_text"
+                android:padding="6dp" />
+
+            <RelativeLayout
+                android:id="@+id/no_friends_rl"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/others_doing_text"
+                android:layout_marginTop="50dp"
+                android:gravity="center"
+                android:visibility="visible">
+
+                <com.frissbi.CustomFontTextView
+                    android:id="@+id/no_friends_tv"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="Lets go make some friends to know what they're doing.."
+                    android:textSize="14sp" />
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/no_friends_tv"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="10dp"
+                    android:background="@color/bg_color"
+                    android:minHeight="40dp"
+                    android:padding="6dp"
+                    android:text="Make Friend's"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white" />
+
+            </RelativeLayout>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/timeline_scroll_top_floating_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/others_activities_recyclerView"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/ic_action_arrow_top"
+                android:visibility="gone"
+                app:backgroundTint="@color/white" />
+
+            <Button
+                android:id="@+id/view_more_activities_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/others_activities_recyclerView"
+                android:layout_marginLeft="50dp"
+                android:layout_marginRight="70dp"
+                android:layout_marginTop="10dp"
+                android:text="View more"
+                android:visibility="gone" />
+        </RelativeLayout>
+    </android.support.v4.widget.NestedScrollView>
+</android.support.v4.widget.SwipeRefreshLayout>

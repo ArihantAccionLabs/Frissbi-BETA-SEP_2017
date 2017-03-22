@@ -59,12 +59,12 @@ public class MeetingLogAdapter extends RecyclerView.Adapter<MeetingLogAdapter.Vi
         if (mMeetingsList.get(position).getUserStatus() != null) {
             holder.statusIconImageView.setVisibility(View.VISIBLE);
             if (mMeetingsList.get(position).getUserStatus().equalsIgnoreCase(UserMeetingStatus.MEETING_SENT.toString())) {
-                holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_sent));
+                holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.icon_sent));
             } else if (mMeetingsList.get(position).getUserStatus().equalsIgnoreCase(UserMeetingStatus.MEETING_RECEIVE.toString())) {
                 if (mMeetingsList.get(position).getMeetingStatus() == Utility.STATUS_REJECT) {
-                    holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_reject));
+                    holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.icon_rejected));
                 } else {
-                    holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.meet_recieve));
+                    holder.statusIconImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.icon_received));
                 }
             }
         } else {

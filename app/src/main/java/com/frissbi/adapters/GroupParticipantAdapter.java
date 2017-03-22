@@ -11,8 +11,8 @@ import android.widget.TextView;
 
 import com.frissbi.R;
 import com.frissbi.Utility.FLog;
+import com.frissbi.Utility.ImageCacheHandler;
 import com.frissbi.Utility.Utility;
-import com.frissbi.models.Friend;
 import com.frissbi.models.FrissbiContact;
 
 import java.util.List;
@@ -52,11 +52,10 @@ public class GroupParticipantAdapter extends RecyclerView.Adapter<GroupParticipa
             holder.participantName.setTextColor(ContextCompat.getColor(mContext, R.color.white));
             if (frissbiContact.getType() == 1) {
                 holder.participantName.setText(frissbiContact.getName());
-                //holder.participantIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.pic1));
                 if (frissbiContact.getImageId() != null) {
-                    holder.participantIcon.setImageBitmap(Utility.getInstance().getBitmapFromString(frissbiContact.getImageId()));
+                    ImageCacheHandler.getInstance(mContext).setImage(holder.participantIcon, frissbiContact.getImageId());
                 } else {
-                    holder.participantIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.pic1));
+                    holder.participantIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.default_profile_image));
                 }
             } else if (frissbiContact.getType() == 2) {
                 holder.participantName.setText(frissbiContact.getEmailId());
@@ -68,9 +67,9 @@ public class GroupParticipantAdapter extends RecyclerView.Adapter<GroupParticipa
         } else {
             holder.participantName.setText(mFrissbiContactList.get(position).getName());
             if (frissbiContact.getImageId() != null) {
-                holder.participantIcon.setImageBitmap(Utility.getInstance().getBitmapFromString(frissbiContact.getImageId()));
+                ImageCacheHandler.getInstance(mContext).setImage(holder.participantIcon, frissbiContact.getImageId());
             } else {
-                holder.participantIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.pic1));
+                holder.participantIcon.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.default_profile_image));
             }
         }
     }

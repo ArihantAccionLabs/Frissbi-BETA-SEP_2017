@@ -28,6 +28,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
 import com.frissbi.Utility.ConnectionDetector;
@@ -129,7 +130,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         min = calendar.get(Calendar.MINUTE);
         showDate(year, month + 1, day);
-        mMeetingTimeTextView.setText(updateTime(hour, min));
+        mMeetingTimeTextView.setText(Utility.getInstance().updateTime(hour, min));
 
         dateLayout.setOnClickListener(this);
         timeLayout.setOnClickListener(this);
@@ -262,7 +263,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             hour = hourOfDay;
             min = minute;
-            mMeetingTimeTextView.setText(updateTime(hourOfDay, minute));
+            mMeetingTimeTextView.setText(Utility.getInstance().updateTime(hourOfDay, minute));
         }
     };
 
@@ -272,40 +273,6 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         picMonth = month;
         picDay = day;
         mMeetingDateTextView.setText(new StringBuilder().append(year).append("-").append(month).append("-").append(day));
-    }
-
-
-    public static String updateTime(int hours, int mins) {
-
-        String timeSet = "";
-        if (hours > 12) {
-            hours -= 12;
-            timeSet = "PM";
-        } else if (hours == 0) {
-            hours += 12;
-            timeSet = "AM";
-        } else if (hours == 12)
-            timeSet = "PM";
-        else
-            timeSet = "AM";
-        String minutes = "";
-        String _hours = "";
-
-        if (hours < 10) {
-            _hours = "0" + hours;
-        } else {
-            _hours = String.valueOf(hours);
-        }
-
-        if (mins < 10)
-            minutes = "0" + mins;
-        else
-            minutes = String.valueOf(mins);
-
-        // Append in a StringBuilder
-        String aTime = new StringBuilder().append(_hours).append(':').append(minutes).append(" ").append(timeSet).toString();
-        return aTime;
-
     }
 
 
@@ -573,7 +540,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                             final JSONObject responseJsonObject = new JSONObject(response.response);
                             if (responseJsonObject.getBoolean("isInserted")) {
                                 Toast.makeText(MeetingActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-                                /*MeetingAlarmManager.getInstance(MeetingActivity.this).setMeetingAlarm(responseJsonObject.getLong("meetingId"), responseJsonObject.getBoolean("isLocationSelected"),
+                                /*ReminderAlarmManager.getInstance(MeetingActivity.this).setMeetingAlarm(responseJsonObject.getLong("meetingId"), responseJsonObject.getBoolean("isLocationSelected"),
                                         mMeetingDateTextView.getText().toString() + "  " + mMeetingTimeTextView.getText().toString());*/
                               /*  Intent intent = new Intent(MeetingActivity.this, HomeActivity.class);
                                 startActivity(intent);*/

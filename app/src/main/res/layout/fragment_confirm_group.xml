@@ -14,7 +14,8 @@
             android:id="@+id/group_icon"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@drawable/ic_menu_camera" />
+            android:padding="6dp"
+            android:src="@drawable/default_profile_image" />
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -32,10 +33,10 @@
     </RelativeLayout>
 
     <RelativeLayout
-        android:layout_below="@+id/group_rl"
         android:id="@+id/participant_rl"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/group_rl">
 
         <com.frissbi.CustomFontTextView
             android:id="@+id/participant_text"
@@ -55,13 +56,12 @@
 
     <Button
         android:id="@+id/confirm_group_button"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="50dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/done" />
+        android:background="@drawable/btn_arrow" />
 
 
 </RelativeLayout>

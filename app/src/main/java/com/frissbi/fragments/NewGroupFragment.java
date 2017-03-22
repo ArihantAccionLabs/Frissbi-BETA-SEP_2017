@@ -1,16 +1,12 @@
 package com.frissbi.fragments;
 
-import android.app.SearchManager;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -18,17 +14,17 @@ import android.widget.RelativeLayout;
 
 import com.frissbi.R;
 import com.frissbi.Utility.Utility;
+import com.frissbi.activities.CreateGroupActivity;
 import com.frissbi.adapters.FriendsAdapter;
 import com.frissbi.adapters.GroupParticipantAdapter;
+import com.frissbi.interfaces.CurrentGroupFragmentListener;
 import com.frissbi.interfaces.GroupParticipantListener;
 import com.frissbi.models.FrissbiContact;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static android.content.Context.SEARCH_SERVICE;
-
-public class NewGroupFragment extends Fragment implements GroupParticipantListener, android.support.v7.widget.SearchView.OnQueryTextListener{
+public class NewGroupFragment extends Fragment implements GroupParticipantListener {
 
     private RelativeLayout mParticipantRLayout;
     private RecyclerView mParticipantRecyclerView;
@@ -40,17 +36,14 @@ public class NewGroupFragment extends Fragment implements GroupParticipantListen
     private OnFragmentInteractionListener mListener;
     private Button mCreateGroupButton;
     private List<FrissbiContact> mFrissbiContactList;
+    private CurrentGroupFragmentListener mCurrentGroupFragmentListener;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setHasOptionsMenu(true);
-    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view= inflater.inflate(R.layout.fragment_new_group, container, false);
+        View view = inflater.inflate(R.layout.fragment_new_group, container, false);
         setUpViews(view);
         return view;
     }
@@ -66,9 +59,6 @@ public class NewGroupFragment extends Fragment implements GroupParticipantListen
         mSelectParticipantRecyclerView = (RecyclerView) view.findViewById(R.id.select_participant_recyclerView);
         RecyclerView.LayoutManager selectLayoutManager = new LinearLayoutManager(getActivity());
         mSelectParticipantRecyclerView.setLayoutManager(selectLayoutManager);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mSelectParticipantRecyclerView.getContext(),
-                DividerItemDecoration.VERTICAL);
-        mSelectParticipantRecyclerView.addItemDecoration(dividerItemDecoration);
         mFrissbiContactList = FrissbiContact.findWithQuery(FrissbiContact.class, "select * from frissbi_contact where type=?", Utility.FRIEND_TYPE + "");
         setUpFriendsList();
         mCreateGroupButton.setOnClickListener(new View.OnClickListener() {
@@ -78,6 +68,7 @@ public class NewGroupFragment extends Fragment implements GroupParticipantListen
             }
         });
     }
+
     private void setUpFriendsList() {
         mFriendsAdapter = new FriendsAdapter(getActivity(), mFrissbiContactList, mGroupParticipantListener);
         mSelectParticipantRecyclerView.setAdapter(mFriendsAdapter);
@@ -94,7 +85,7 @@ public class NewGroupFragment extends Fragment implements GroupParticipantListen
         if (mGroupSelectedFriendList.size() == 0) {
             mParticipantRLayout.setVisibility(View.GONE);
             mCreateGroupButton.setVisibility(View.GONE);
-        }else {
+        } else {
             mCreateGroupButton.setVisibility(View.VISIBLE);
         }
         setUpParticipantsList();
@@ -105,30 +96,12 @@ public class NewGroupFragment extends Fragment implements GroupParticipantListen
         mParticipantRecyclerView.setAdapter(mGroupParticipantAdapter);
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
-        inflater.inflate(R.menu.menu_group, menu);
-        final android.support.v7.widget.SearchView searchView = (android.support.v7.widget.SearchView) MenuItemCompat.getActionView(menu.findItem(R.id.group_friends_search));
-        SearchManager searchManager = (SearchManager) getActivity().getSystemService(SEARCH_SERVICE);
-        searchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-        searchView.setOnQueryTextListener(this);
-    }
-
-    @Override
-    public boolean onQueryTextSubmit(String query) {
-        return false;
-    }
-
-    @Override
-    public boolean onQueryTextChange(String newText) {
-        mFriendsAdapter.getFilter().filter(newText);
-        return false;
-    }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mCurrentGroupFragmentListener = (CurrentGroupFragmentListener) context;
+        mCurrentGroupFragmentListener.setCurrentFragment(CreateGroupActivity.NEW_GROUP);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
@@ -141,6 +114,10 @@ public class NewGroupFragment extends Fragment implements GroupParticipantListen
     public void onDetach() {
         super.onDetach();
         mListener = null;
+    }
+
+    public void setFilterText(String text) {
+        mFriendsAdapter.getFilter().filter(text);
     }
 
     /**
@@ -159,4 +136,9 @@ public class NewGroupFragment extends Fragment implements GroupParticipantListen
     }
 
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
 }

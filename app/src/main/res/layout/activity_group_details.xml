@@ -16,7 +16,7 @@
             android:id="@+id/group_details_icon"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@drawable/ic_menu_camera" />
+            android:src="@drawable/default_profile_image" />
 
         <com.frissbi.CustomFontTextView
             android:id="@+id/group_details_tv"

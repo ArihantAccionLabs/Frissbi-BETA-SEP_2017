@@ -25,7 +25,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Base64;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -36,11 +35,10 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
-import com.frissbi.Utility.FriendStatus;
+import com.frissbi.enums.FriendStatus;
 import com.frissbi.Utility.ImageCacheHandler;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
@@ -107,6 +105,14 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private ActionBar mActionBar;
     private Bundle mBundle;
     private RelativeLayout mStatusLayout;
+    private RelativeLayout mStatusActivitiesLayout;
+    private boolean mIsFriend;
+    private boolean mIsMyProfile;
+    private Button mAddFriendButton;
+    private String mFriendStatus;
+    private Button mAcceptFriendButton;
+    private Profile profile;
+    private ViewImageDialogFragment viewImageDialogFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,6 +138,9 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         mViewMoreButton = (Button) findViewById(R.id.view_more_button);
         mScrollTopFloatingButton = (FloatingActionButton) findViewById(R.id.scroll_top_floating_button);
         mStatusLayout = (RelativeLayout) findViewById(R.id.status_rl);
+        mStatusActivitiesLayout = (RelativeLayout) findViewById(R.id.status_activities_rl);
+        mAddFriendButton = (Button) findViewById(R.id.add_friend_button);
+        mAcceptFriendButton = (Button) findViewById(R.id.accept_friend_button);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this); /*{
             @Override
             public boolean canScrollVertically() {
@@ -145,7 +154,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         mActivitiesList = new ArrayList<>();
         mFragmentManager = getSupportFragmentManager();
         mUploadPhotoDialogFragment = new UploadPhotoDialogFragment();
-
+        viewImageDialogFragment = new ViewImageDialogFragment();
         mUploadPhotoListener = (UploadPhotoListener) this;
         mPostFreeTimeListener = (PostFreeTimeListener) this;
         mMeetingDetailsListener = (MeetingDetailsListener) this;
@@ -159,7 +168,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         mScrollTopFloatingButton.setOnClickListener(this);
         mStatusMessageEditText.addTextChangedListener(this);
         mSwipeRefreshLayout.setOnRefreshListener(this);
-
+        mProfileUserImageView.setOnClickListener(this);
         mNestedScrollView.setOnScrollChangeListener(new NestedScrollView.OnScrollChangeListener() {
             @Override
             public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
@@ -174,22 +183,26 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
 
         if (mBundle != null) {
             mUserId = mBundle.getLong("friendUserId");
+            mIsFriend = mBundle.getBoolean("isFriend");
+            FLog.d("ProfileActivity", "isFriend" + mBundle.getBoolean("isFriend") + "status" + mBundle.getString("status"));
+            if (!mIsFriend) {
+                mStatusActivitiesLayout.setVisibility(View.GONE);
+                mFriendStatus = mBundle.getString("status");
+            }
             mStatusLayout.setVisibility(View.GONE);
             mEditCoverPhotoButton.setVisibility(View.GONE);
             mEditProfileImageButton.setVisibility(View.GONE);
+            mAddFriendButton.setVisibility(View.VISIBLE);
         } else {
             mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
             mStatusLayout.setVisibility(View.VISIBLE);
             mEditCoverPhotoButton.setVisibility(View.VISIBLE);
             mEditProfileImageButton.setVisibility(View.VISIBLE);
+            mAddFriendButton.setVisibility(View.GONE);
+            mAcceptFriendButton.setVisibility(View.GONE);
         }
 
-        if (mUserId.equals(SharedPreferenceHandler.getInstance(this).getUserId())) {
-            mSwipeRefreshLayout.setEnabled(true);
-        } else {
-            mSwipeRefreshLayout.setEnabled(false);
-        }
-
+        mIsMyProfile = mUserId.equals(SharedPreferenceHandler.getInstance(this).getUserId());
         getProfileDetails();
     }
 
@@ -235,6 +248,15 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             case R.id.scroll_top_floating_button:
                 mNestedScrollView.fullScroll(ScrollView.FOCUS_UP);
                 break;
+            case R.id.profile_user_image:
+                viewImageDialogFragment.setImageId(profile.getImageId());
+                viewImageDialogFragment.show(mFragmentManager, "viewImageDialogFragment");
+                break;
+            case R.id.cover_photo_rl:
+                viewImageDialogFragment.setImageId(profile.getCoverImageId());
+                viewImageDialogFragment.show(mFragmentManager, "viewImageDialogFragment");
+                break;
+
 
         }
     }
@@ -254,7 +276,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                         try {
                             JSONObject responseJsonObject = new JSONObject(response.response);
                             FLog.d("ProfileActivity", "responseJsonObject" + responseJsonObject);
-                            Profile profile = new Profile();
+                            profile = new Profile();
                             JSONObject profileJsonObject = responseJsonObject.getJSONObject("viewProfile");
                             profile.setUserName(profileJsonObject.getString("userName"));
                             profile.setFirstName(profileJsonObject.getString("firstName"));
@@ -298,9 +320,31 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
      */
     private void setProfileDetails(Profile profile) {
         mProfileUserNameTextView.setText(Utility.getInstance().capitalize(profile.getUserName()));
-        if (!mUserId.equals(SharedPreferenceHandler.getInstance(this).getUserId())) {
+        if (mIsMyProfile) {
+            getUserActivities();
+            mSwipeRefreshLayout.setEnabled(true);
+        } else {
             mActionBar.setTitle(Utility.getInstance().capitalize(profile.getFirstName()) + "'s" + " Profile");
+            mSwipeRefreshLayout.setEnabled(false);
+            if (mIsFriend) {
+                getUserActivities();
+                mAddFriendButton.setText("UnFriend");
+            } else {
+                if (mFriendStatus.equalsIgnoreCase(FriendStatus.UNFRIEND.toString())) {
+                    mAddFriendButton.setText("Add Friend");
+                } else if (mFriendStatus.equalsIgnoreCase(FriendStatus.WAITING.toString())) {
+                    mAddFriendButton.setText("Req Sent");
+                } else if (mFriendStatus.equalsIgnoreCase(FriendStatus.CONFIRM.toString())) {
+                    mAcceptFriendButton.setVisibility(View.VISIBLE);
+                    mAcceptFriendButton.setText("Accept");
+                    mAddFriendButton.setText("Reject");
+                } else if (mFriendStatus.equalsIgnoreCase(FriendStatus.ACCEPTED.toString())) {
+                    mAddFriendButton.setText("UnFriend");
+                }
+            }
         }
+
+
         if (profile.getImageId() != null) {
             ImageCacheHandler.getInstance(this).setImage(mProfileUserImageView, profile.getImageId());
         }
@@ -313,7 +357,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 getCoverPhotoFromServer(Utility.REST_URI + Utility.GET_IMAGE + profile.getCoverImageId());
             }
         }
-        getUserActivities();
+
     }
 
     /*
@@ -365,52 +409,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             mAddFriendButton.setText("Friends");
         }
     }*/
-
-    private void getProfileDetailsFromServer(long friendUserId) {
-        mProgressDialog.show();
-        JSONObject jsonObject = new JSONObject();
-        try {
-            jsonObject.put("userId", mUserId);
-            jsonObject.put("friendId", friendUserId);
-            String url = Utility.REST_URI + Utility.VIEW_OTHER_PROFILE;
-            TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
-                @Override
-                public void handleResponse(TSNetworkHandler.TSResponse response) {
-                    if (response != null) {
-                        if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
-                            try {
-                                JSONObject responseJsonObject = new JSONObject(response.response);
-                                JSONObject profileJsonObject = responseJsonObject.getJSONObject("viewProfile");
-                                mFriend = new Friend();
-                                mFriend.setUserId(profileJsonObject.getLong("userId"));
-                                mFriend.setFullName(profileJsonObject.getString("fullName"));
-                                mFriend.setEmailId(profileJsonObject.getString("emailId"));
-                                mFriend.setStatus(profileJsonObject.getString("status"));
-                                if (profileJsonObject.has("dob")) {
-                                    mFriend.setDob(profileJsonObject.getString("dob"));
-                                }
-                                if (profileJsonObject.has("gender")) {
-                                    mFriend.setGender(profileJsonObject.getString("gender"));
-                                }
-                                Log.d("ProfileActivity", "mFriend" + mFriend);
-                                // setValues();
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
-                            Toast.makeText(ProfileActivity.this, response.message, Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(ProfileActivity.this, "Something went wrong at server side", Toast.LENGTH_SHORT).show();
-                    }
-                    mProgressDialog.dismiss();
-                }
-            });
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     /*
@@ -623,9 +621,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             File imgFile = new File(mPictureImagePath);
-            Bitmap bitmap = Utility.getInstance().decodeFile(imgFile);
+            Bitmap bitmap1 = Utility.getInstance().decodeFile(imgFile);
+            Bitmap bitmap = Utility.getInstance().rotateImage(bitmap1, mPictureImagePath);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             if (mTypeOfImage == Utility.PROFILE_IMAGE) {
+
                 mProfileUserImageView.setImageBitmap(bitmap);
                 isProfileImageEdited = true;
                 mEditProfileImageButton.setBackground(ContextCompat.getDrawable(this, R.drawable.icon_tick));

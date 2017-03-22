@@ -30,6 +30,7 @@ public class ViewImageDialogFragment extends DialogFragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_view_image_dialog, container, false);
         getDialog().getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        getDialog().getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         getDialog().getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
         ImageCacheHandler.getInstance(getActivity()).setImage((ImageView) view.findViewById(R.id.preview_imageView), mImageId);
         return view;

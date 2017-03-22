@@ -1,4 +1,4 @@
-package com.frissbi.Utility;
+package com.frissbi.enums;
 
 /**
  * Created by thrymr on 10/2/17.

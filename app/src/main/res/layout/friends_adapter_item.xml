@@ -12,7 +12,8 @@
         <ImageView
             android:id="@+id/friend_profile_image"
             android:layout_width="50dp"
-            android:layout_height="50dp" />
+            android:layout_height="50dp"
+            android:src="@drawable/default_profile_image" />
 
         <com.frissbi.CustomFontTextView
             android:id="@+id/friend_username_tv"

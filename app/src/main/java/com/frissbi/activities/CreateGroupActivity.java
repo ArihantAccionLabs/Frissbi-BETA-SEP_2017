@@ -1,49 +1,41 @@
 package com.frissbi.activities;
 
+import android.app.SearchManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.SearchView;
 
 import com.frissbi.R;
-import com.frissbi.adapters.FriendsAdapter;
-import com.frissbi.adapters.GroupParticipantAdapter;
+import com.frissbi.Utility.FLog;
 import com.frissbi.fragments.ConfirmGroupFragment;
 import com.frissbi.fragments.NewGroupFragment;
-import com.frissbi.interfaces.GroupParticipantListener;
-import com.frissbi.models.Friend;
+import com.frissbi.interfaces.CurrentGroupFragmentListener;
 import com.frissbi.models.FrissbiContact;
 
 import java.util.List;
 
-public class CreateGroupActivity extends AppCompatActivity implements NewGroupFragment.OnFragmentInteractionListener, ConfirmGroupFragment.OnFragmentInteractionListener {
-
-    private ImageView mGroupIcon;
-    private EditText mGroupNameEditText;
-    private RelativeLayout mParticipantRLayout;
-    private RecyclerView mParticipantRecyclerView;
-    private RecyclerView mSelectParticipantRecyclerView;
-    private List<Friend> mFriendList;
-    private GroupParticipantListener mGroupParticipantListener;
-    private SearchView mSearchFriends;
-    private List<Friend> mGroupSelectedFriendList;
-    private GroupParticipantAdapter mGroupParticipantAdapter;
-    private FriendsAdapter mFriendsAdapter;
+public class CreateGroupActivity extends AppCompatActivity implements NewGroupFragment.OnFragmentInteractionListener, ConfirmGroupFragment.OnFragmentInteractionListener, android.support.v7.widget.SearchView.OnQueryTextListener, CurrentGroupFragmentListener {
+    public static final String NEW_GROUP = "newGroup";
+    public static final String CONFIRM_GROUP = "confirmGroup";
     private ConfirmGroupFragment mConfirmGroupFragment;
+    private NewGroupFragment mNewGroupFragment;
+    private String mCurrentFragment;
+    private ActionBar mActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_group);
-        startFragment(new NewGroupFragment(), "newGroup");
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mNewGroupFragment = new NewGroupFragment();
+        startFragment(mNewGroupFragment, "newGroup");
+        mActionBar = getSupportActionBar();
+        mActionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override
@@ -53,6 +45,7 @@ public class CreateGroupActivity extends AppCompatActivity implements NewGroupFr
             case android.R.id.home:
                 if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
                     getSupportFragmentManager().popBackStack();
+                    onSupportNavigateUp();
                 } else {
                     onBackPressed();
                 }
@@ -64,6 +57,7 @@ public class CreateGroupActivity extends AppCompatActivity implements NewGroupFr
     }
 
     private void startFragment(Fragment fragment, String tag) {
+        mCurrentFragment = NEW_GROUP;
         final FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (this.getSupportFragmentManager().findFragmentById(R.id.activity_create_group) != null) {
             fragmentTransaction.replace(R.id.activity_create_group, fragment, tag);
@@ -85,7 +79,7 @@ public class CreateGroupActivity extends AppCompatActivity implements NewGroupFr
 
     @Override
     public void onFragmentInteraction(List<FrissbiContact> groupSelectedFriendList) {
-         mConfirmGroupFragment = new ConfirmGroupFragment();
+        mConfirmGroupFragment = new ConfirmGroupFragment();
         mConfirmGroupFragment.setSelectedFriendList(groupSelectedFriendList);
         startConformationFragment(mConfirmGroupFragment, "confirmGroup");
     }
@@ -94,4 +88,68 @@ public class CreateGroupActivity extends AppCompatActivity implements NewGroupFr
     public void onFragmentInteraction(Uri uri) {
 
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        FLog.d("CreateGroupActivity", "MENU---mCurrentFragment" + mCurrentFragment);
+        getMenuInflater().inflate(R.menu.menu_group, menu);
+        MenuItem searchItem = menu.findItem(R.id.group_friends_search);
+        final android.support.v7.widget.SearchView searchView = (android.support.v7.widget.SearchView) MenuItemCompat.getActionView(searchItem);
+        SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+        searchView.setOnQueryTextListener(this);
+        if (mCurrentFragment.equalsIgnoreCase(NEW_GROUP)) {
+            searchItem.setVisible(true);
+        } else {
+            searchItem.setVisible(false);
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {
+        mNewGroupFragment.setFilterText(newText);
+        return false;
+    }
+
+    @Override
+    public void setCurrentFragment(String currentFragment) {
+        mCurrentFragment = currentFragment;
+        setActionBarTitle();
+        invalidateOptionsMenu();
+    }
+
+    private void setActionBarTitle() {
+        if (mCurrentFragment.equalsIgnoreCase(NEW_GROUP)) {
+            mActionBar.setTitle("New Group");
+        } else if (mCurrentFragment.equalsIgnoreCase(CONFIRM_GROUP)) {
+            mActionBar.setTitle("Confirm Group");
+        }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        if (getSupportFragmentManager().getBackStackEntryCount() == 1) {
+            mCurrentFragment = NEW_GROUP;
+            setActionBarTitle();
+            invalidateOptionsMenu();
+        }
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+            onSupportNavigateUp();
+        } else {
+            super.onBackPressed();
+        }
+    }
 }
+

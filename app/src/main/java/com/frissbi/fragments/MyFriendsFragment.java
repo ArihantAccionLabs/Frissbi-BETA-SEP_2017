@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.activities.ProfileActivity;
@@ -58,6 +59,7 @@ public class MyFriendsFragment extends Fragment implements FriendProfileListener
         mFriendsRecyclerView.setLayoutManager(layoutManager);
 
         mFrissbiContactList = FrissbiContact.findWithQuery(FrissbiContact.class, "select * from frissbi_contact where type=?", Utility.FRIEND_TYPE + "");
+        FLog.d("MyFriendsFragment", "mFrissbiContactList" + mFrissbiContactList);
         mFriendsAdapter = new FriendsAdapter(getActivity(), mFrissbiContactList, mFriendProfileListener);
         mFriendsRecyclerView.setAdapter(mFriendsAdapter);
         return view;
@@ -71,6 +73,7 @@ public class MyFriendsFragment extends Fragment implements FriendProfileListener
     public void viewFriendProfile(Long userId) {
         Intent intent = new Intent(getActivity(), ProfileActivity.class);
         intent.putExtra("friendUserId", userId);
+        intent.putExtra("isFriend", true);
         startActivity(intent);
     }
 }

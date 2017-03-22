@@ -27,7 +27,9 @@ import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.activities.CreateGroupActivity;
+import com.frissbi.activities.GroupsActivity;
 import com.frissbi.adapters.GroupParticipantAdapter;
+import com.frissbi.interfaces.CurrentGroupFragmentListener;
 import com.frissbi.interfaces.UploadPhotoListener;
 import com.frissbi.models.Friend;
 import com.frissbi.models.FrissbiContact;
@@ -56,6 +58,7 @@ public class ConfirmGroupFragment extends Fragment implements UploadPhotoListene
     private byte[] mImageByteArray;
     private String mPictureImagePath;
     private UploadPhotoListener mUploadPhotoListener;
+    private CurrentGroupFragmentListener mCurrentGroupFragmentListener;
 
     public ConfirmGroupFragment() {
         // Required empty public constructor
@@ -76,7 +79,7 @@ public class ConfirmGroupFragment extends Fragment implements UploadPhotoListene
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_confirm_group, container, false);
-        mUploadPhotoListener=(UploadPhotoListener)this;
+        mUploadPhotoListener = (UploadPhotoListener) this;
         setUpViews(view);
         return view;
     }
@@ -107,7 +110,7 @@ public class ConfirmGroupFragment extends Fragment implements UploadPhotoListene
                 UploadPhotoDialogFragment uploadPhotoDialogFragment = new UploadPhotoDialogFragment();
                 uploadPhotoDialogFragment.setUploadPhotoListener(mUploadPhotoListener, Utility.PROFILE_IMAGE);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                uploadPhotoDialogFragment.show(fragmentManager,"UploadPhotoDialogFragment");
+                uploadPhotoDialogFragment.show(fragmentManager, "UploadPhotoDialogFragment");
             }
         });
     }
@@ -136,7 +139,8 @@ public class ConfirmGroupFragment extends Fragment implements UploadPhotoListene
                                 JSONObject responseJsonObject = new JSONObject(response.response);
                                 if (responseJsonObject.getBoolean("groupCreated")) {
                                     Toast.makeText(getActivity(), response.message, Toast.LENGTH_SHORT).show();
-                                    Intent intent = new Intent(getActivity(), CreateGroupActivity.class);
+                                    Intent intent = new Intent(getActivity(), GroupsActivity.class);
+                                    intent.putExtra("isNewGroupCreated", true);
                                     startActivity(intent);
                                     getActivity().finish();
                                 } else {
@@ -162,6 +166,8 @@ public class ConfirmGroupFragment extends Fragment implements UploadPhotoListene
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+        mCurrentGroupFragmentListener = (CurrentGroupFragmentListener) context;
+        mCurrentGroupFragmentListener.setCurrentFragment(CreateGroupActivity.CONFIRM_GROUP);
         if (context instanceof OnFragmentInteractionListener) {
             mListener = (OnFragmentInteractionListener) context;
         } else {
@@ -244,9 +250,8 @@ public class ConfirmGroupFragment extends Fragment implements UploadPhotoListene
             Bitmap bitmap = Utility.getInstance().decodeFile(imgFile);
             mGroupIcon.setImageBitmap(bitmap);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 5, baos);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
             mImageByteArray = baos.toByteArray();
-
         }
     }
 }

@@ -1,21 +1,34 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v4.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.frissbi.fragments.PeopleFragment">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/people_recyclerView"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
 
-    <com.frissbi.CustomFontTextView
-        android:id="@+id/search_people_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
-        android:text="Search for people in search bar \n Type atleast 3 characters"
-        android:visibility="visible" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/mayKnow_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="6dp" />
 
-</RelativeLayout>
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/people_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/mayKnow_recyclerView"
+            android:layout_marginTop="10dp"
+            android:padding="6dp" />
+
+        <com.frissbi.CustomFontTextView
+            android:id="@+id/search_people_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/mayKnow_recyclerView"
+            android:layout_centerHorizontal="true"
+            android:text="@string/search_for_people"
+            android:visibility="visible" />
+    </RelativeLayout>
+</android.support.v4.widget.NestedScrollView>

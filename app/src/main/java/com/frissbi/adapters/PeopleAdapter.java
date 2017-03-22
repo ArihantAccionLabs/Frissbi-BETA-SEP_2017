@@ -10,9 +10,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frissbi.R;
-import com.frissbi.Utility.FriendStatus;
+import com.frissbi.enums.FriendStatus;
 import com.frissbi.interfaces.FriendRequestListener;
 import com.frissbi.models.Friend;
+import com.frissbi.models.FrissbiContact;
 
 import java.util.List;
 
@@ -23,12 +24,12 @@ import java.util.List;
 public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder> {
 
     private Context mContext;
-    private List<Friend> mFriendList;
+    private List<FrissbiContact> mFrissbiContactList;
     private FriendRequestListener mFriendRequestListener;
 
-    public PeopleAdapter(Context context, List<Friend> friendList, FriendRequestListener friendRequestListener) {
+    public PeopleAdapter(Context context, List<FrissbiContact> frissbiContactList, FriendRequestListener friendRequestListener) {
         mContext = context;
-        mFriendList = friendList;
+        mFrissbiContactList = frissbiContactList;
         mFriendRequestListener = friendRequestListener;
     }
 
@@ -40,25 +41,28 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
-        holder.peopleNameTv.setText(mFriendList.get(position).getFullName());
-        if (mFriendList.get(position).getStatus().equalsIgnoreCase(FriendStatus.UNFRIEND.toString())){
+
+        final FrissbiContact frissbiContact = mFrissbiContactList.get(position);
+
+        holder.peopleNameTv.setText(frissbiContact.getName());
+        if (frissbiContact.getStatus().equalsIgnoreCase(FriendStatus.UNFRIEND.toString())) {
             holder.addPeopleButton.setText("Add");
-        }else if (mFriendList.get(position).getStatus().equalsIgnoreCase(FriendStatus.WAITING.toString())){
+        } else if (frissbiContact.getStatus().equalsIgnoreCase(FriendStatus.WAITING.toString())) {
             holder.addPeopleButton.setText("Req Sent");
-        }else if (mFriendList.get(position).getStatus().equalsIgnoreCase(FriendStatus.CONFIRM.toString())){
+        } else if (frissbiContact.getStatus().equalsIgnoreCase(FriendStatus.CONFIRM.toString())) {
             holder.addPeopleButton.setText("Accept");
         }
         holder.addPeopleButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFriendRequestListener.sendFriendRequest(mFriendList.get(position));
+                mFriendRequestListener.sendFriendRequest(frissbiContact);
             }
         });
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mFriendRequestListener.viewProfile(mFriendList.get(position));
+                mFriendRequestListener.viewProfile(frissbiContact);
             }
         });
 
@@ -66,7 +70,7 @@ public class PeopleAdapter extends RecyclerView.Adapter<PeopleAdapter.ViewHolder
 
     @Override
     public int getItemCount() {
-        return mFriendList.size();
+        return mFrissbiContactList.size();
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

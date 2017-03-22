@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -35,7 +36,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class GroupsActivity extends AppCompatActivity implements GroupDetailsListener {
+public class GroupsActivity extends AppCompatActivity implements GroupDetailsListener, SwipeRefreshLayout.OnRefreshListener {
 
     private RecyclerView mGroupsRecyclerView;
     private List<FrissbiGroup> mFrissbiGroupList;
@@ -43,6 +44,7 @@ public class GroupsActivity extends AppCompatActivity implements GroupDetailsLis
     private GroupDetailsListener mGroupDetailsListener;
     private GroupsAdapter mGroupsAdapter;
     private Long mUserId;
+    private SwipeRefreshLayout mGroupsSwipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,14 +57,17 @@ public class GroupsActivity extends AppCompatActivity implements GroupDetailsLis
         mGroupsRecyclerView = (RecyclerView) findViewById(R.id.groups_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         mGroupsRecyclerView.setLayoutManager(layoutManager);
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mGroupsRecyclerView.getContext(),
-                DividerItemDecoration.VERTICAL);
-        mGroupsRecyclerView.addItemDecoration(dividerItemDecoration);
         mGroupDetailsListener = (GroupDetailsListener) this;
         FloatingActionButton addGroupFloatingButton = (FloatingActionButton) findViewById(R.id.add_group_floating_button);
-
-        getAllGroupsFromServer();
-
+        mGroupsSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.groups_swipeRefreshLayout);
+        mGroupsSwipeRefreshLayout.setOnRefreshListener(this);
+        if (getIntent().getExtras() != null && getIntent().getExtras().getBoolean("isNewGroupCreated")) {
+            getAllGroupsFromServer();
+        } else {
+            mFrissbiGroupList = FrissbiGroup.listAll(FrissbiGroup.class);
+            mGroupsAdapter = new GroupsAdapter(GroupsActivity.this, mFrissbiGroupList, mGroupDetailsListener);
+            mGroupsRecyclerView.setAdapter(mGroupsAdapter);
+        }
         addGroupFloatingButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -73,12 +78,10 @@ public class GroupsActivity extends AppCompatActivity implements GroupDetailsLis
     }
 
     private void getAllGroupsFromServer() {
-        FrissbiGroup.deleteAll(FrissbiGroup.class);
-        Participant.deleteAll(Participant.class);
-        FLog.d("GroupsActivity", "ParticipantList" + Participant.listAll(Participant.class));
-        mFrissbiGroupList.clear();
+        if (!mGroupsSwipeRefreshLayout.isRefreshing()) {
+            mProgressDialog.show();
+        }
 
-        mProgressDialog.show();
         String url = Utility.REST_URI + Utility.GROUPS + mUserId;
 
         TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
@@ -87,6 +90,12 @@ public class GroupsActivity extends AppCompatActivity implements GroupDetailsLis
                 if (response != null) {
                     if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
                         try {
+                            FrissbiGroup.deleteAll(FrissbiGroup.class);
+                            Participant.deleteAll(Participant.class);
+                            mFrissbiGroupList.clear();
+                            if (mGroupsAdapter != null) {
+                                mGroupsAdapter.notifyDataSetChanged();
+                            }
                             JSONObject responseJsonObject = new JSONObject(response.response);
                             JSONArray groupJsonArray = responseJsonObject.getJSONArray("groupArray");
                             for (int i = 0; i < groupJsonArray.length(); i++) {
@@ -136,6 +145,7 @@ public class GroupsActivity extends AppCompatActivity implements GroupDetailsLis
                     Toast.makeText(GroupsActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
                 }
                 mProgressDialog.dismiss();
+                mGroupsSwipeRefreshLayout.setRefreshing(false);
             }
 
         });
@@ -278,4 +288,8 @@ public class GroupsActivity extends AppCompatActivity implements GroupDetailsLis
         }
     }
 
+    @Override
+    public void onRefresh() {
+        getAllGroupsFromServer();
+    }
 }

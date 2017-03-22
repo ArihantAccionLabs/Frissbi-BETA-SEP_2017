@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
 import com.frissbi.Utility.Utility;
+import com.frissbi.interfaces.InviteFriendListener;
 import com.frissbi.models.FrissbiContact;
 import com.frissbi.models.MyContacts;
 
@@ -30,11 +31,13 @@ public class MyContactsAdapter extends RecyclerView.Adapter<MyContactsAdapter.Vi
     private List<FrissbiContact> mFrissbiContactList;
     private List<FrissbiContact> mOriginalFrissbiContactList;
     private MyContactsFilter mMyContactsFilter;
+    private InviteFriendListener mInviteFriendListener;
 
-    public MyContactsAdapter(Context context, List<FrissbiContact> frissbiContactList) {
+    public MyContactsAdapter(Context context, List<FrissbiContact> frissbiContactList, InviteFriendListener inviteFriendListener) {
         mContext = context;
         mFrissbiContactList = frissbiContactList;
         mOriginalFrissbiContactList = frissbiContactList;
+        mInviteFriendListener = inviteFriendListener;
     }
 
     @Override
@@ -46,7 +49,7 @@ public class MyContactsAdapter extends RecyclerView.Adapter<MyContactsAdapter.Vi
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
 
-        FrissbiContact frissbiContact = mFrissbiContactList.get(position);
+        final FrissbiContact frissbiContact = mFrissbiContactList.get(position);
 
         if (frissbiContact.getType() == Utility.EMAIL_TYPE) {
             holder.myContactsNameTv.setText(frissbiContact.getEmailId());
@@ -56,6 +59,13 @@ public class MyContactsAdapter extends RecyclerView.Adapter<MyContactsAdapter.Vi
             holder.myContactsNumTv.setVisibility(View.VISIBLE);
             holder.myContactsNumTv.setText(frissbiContact.getPhoneNumber());
         }
+
+        holder.inviteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mInviteFriendListener.inviteFriend(frissbiContact);
+            }
+        });
     }
 
     @Override

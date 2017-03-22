@@ -46,14 +46,18 @@ import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
+import com.frissbi.Utility.ReminderAlarmManager;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.TSLocationManager;
 import com.frissbi.Utility.Utility;
-import com.frissbi.fragments.FriendRequestFragment;
-import com.frissbi.fragments.MeetingAlertFragment;
+import com.frissbi.fragments.AddReminderDialogFragment;
 import com.frissbi.fragments.MeetingLogFragment;
+import com.frissbi.fragments.NotificationLogFragment;
 import com.frissbi.fragments.TimeLineFragment;
+import com.frissbi.interfaces.NewReminderListener;
 import com.frissbi.models.FrissbiContact;
+import com.frissbi.models.FrissbiGroup;
+import com.frissbi.models.Participant;
 import com.frissbi.networkhandler.TSNetworkHandler;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -77,7 +81,7 @@ import java.util.HashSet;
 import java.util.List;
 
 public class HomeActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, NewReminderListener {
 
     private static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 1000;
     private static final int REQUEST_CHECK_SETTINGS = 2000;
@@ -96,6 +100,7 @@ public class HomeActivity extends AppCompatActivity
     private Animation rotate_forward;
     private Animation rotate_backward;
     private EmailIdsAsync mEmailIdsAsync;
+    private NewReminderListener mNewReminderListener;
 
     String[] permissions = new String[]{
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
@@ -103,8 +108,6 @@ public class HomeActivity extends AppCompatActivity
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.READ_EXTERNAL_STORAGE,
-            Manifest.permission.READ_CONTACTS
-
     };
 
     @Override
@@ -118,7 +121,7 @@ public class HomeActivity extends AppCompatActivity
         mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.setCancelable(false);
         mEmailIdsAsync = new EmailIdsAsync();
-        checkPermissions();
+        mNewReminderListener = (NewReminderListener) this;
         mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
         mUserName = SharedPreferenceHandler.getInstance(this).getUserName();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -131,6 +134,9 @@ public class HomeActivity extends AppCompatActivity
                 if (Contacts.listAll(Contacts.class).size() == 0) {
                     // readContacts();
                 }*/
+                if (FrissbiContact.listAll(FrissbiContact.class).size() == 0) {
+                    saveAllContactsInLocal();
+                }
             }
 
 
@@ -173,14 +179,16 @@ public class HomeActivity extends AppCompatActivity
 
         }
 
+        checkPermissions();
+
         mTabLayout = (TabLayout) toolbar.findViewById(R.id.tabLayout);
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
         setupViewPager(mViewPager);
         mTabLayout.setupWithViewPager(mViewPager);
         mTabLayout.getTabAt(0).setIcon(R.drawable.icon_chat);
         mTabLayout.getTabAt(1).setIcon(R.drawable.icon_calendar);
-        mTabLayout.getTabAt(2).setIcon(R.drawable.icon_friends);
-        mTabLayout.getTabAt(3).setIcon(R.drawable.icon_alert);
+        // mTabLayout.getTabAt(2).setIcon(R.drawable.icon_friends);
+        mTabLayout.getTabAt(2).setIcon(R.drawable.icon_alert);
         mDimBackgroundLayout = (LinearLayout) findViewById(R.id.dim_background);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
@@ -229,12 +237,12 @@ public class HomeActivity extends AppCompatActivity
         SubActionButton locationButton = itemBuilder.setContentView(itemIcon1).build();
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(100, 100);
         locationButton.setLayoutParams(layoutParams);
-        SubActionButton addAlertIcon = itemBuilder.setContentView(itemIcon2).build();
-        addAlertIcon.setLayoutParams(layoutParams);
+        SubActionButton addRemainderIcon = itemBuilder.setContentView(itemIcon2).build();
+        addRemainderIcon.setLayoutParams(layoutParams);
         SubActionButton addMeetingIcon = itemBuilder.setContentView(itemIcon3).build();
         addMeetingIcon.setLayoutParams(layoutParams);
-        SubActionButton button4 = itemBuilder.setContentView(itemIcon4).build();
-        button4.setLayoutParams(layoutParams);
+        SubActionButton uploadPhotoIcon = itemBuilder.setContentView(itemIcon4).build();
+        uploadPhotoIcon.setLayoutParams(layoutParams);
         SubActionButton button5 = itemBuilder.setContentView(itemIcon5).build();
         button5.setLayoutParams(layoutParams);
 
@@ -243,6 +251,14 @@ public class HomeActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
 
+            }
+        });
+
+        uploadPhotoIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, UploadPhotoActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -256,12 +272,21 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
+        addRemainderIcon.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddReminderDialogFragment addReminderDialogFragment = new AddReminderDialogFragment();
+                addReminderDialogFragment.setReminderListener(mNewReminderListener);
+                addReminderDialogFragment.show(getSupportFragmentManager(), "AddReminderDialogFragment");
+            }
+        });
+
         //attach the sub buttons to the main button
         mFloatingActionMenu = new FloatingActionMenu.Builder(this).setStartAngle(180).setEndAngle(360)
                 .addSubActionView(locationButton)
-                .addSubActionView(addAlertIcon)
+                .addSubActionView(addRemainderIcon)
                 .addSubActionView(addMeetingIcon)
-                .addSubActionView(button4)
+                .addSubActionView(uploadPhotoIcon)
                 .addSubActionView(button5)
                 .attachTo(fab)
                 .build();
@@ -437,9 +462,12 @@ public class HomeActivity extends AppCompatActivity
         } else if (id == R.id.nav_profile) {
             Intent intent = new Intent(getApplication(), ProfileActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_setting) {
-            Intent intent = new Intent(getApplication(), Profile_Pic.class);
+        } else if (id == R.id.nav_reminder) {
+            Intent intent = new Intent(HomeActivity.this, RemindersActivity.class);
             startActivity(intent);
+        } else if (id == R.id.nav_setting) {
+           /* Intent intent = new Intent(getApplication(), Profile_Pic.class);
+            startActivity(intent);*/
         } else if (id == R.id.nav_logout) {
             SharedPreferenceHandler.getInstance(this).clearUserDetails();
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
@@ -468,9 +496,15 @@ public class HomeActivity extends AppCompatActivity
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
         viewPagerAdapter.addFragment(new TimeLineFragment());
         viewPagerAdapter.addFragment(new MeetingLogFragment());
-        viewPagerAdapter.addFragment(new FriendRequestFragment());
-        viewPagerAdapter.addFragment(new MeetingAlertFragment());
+        //viewPagerAdapter.addFragment(new FriendRequestFragment());
+        viewPagerAdapter.addFragment(new NotificationLogFragment());
         viewPager.setAdapter(viewPagerAdapter);
+    }
+
+    @Override
+    public void addReminder(String message, String time) {
+        Toast.makeText(this, "Reminder added", Toast.LENGTH_SHORT).show();
+        ReminderAlarmManager.getInstance(HomeActivity.this).setRemainderAlarm(message, time);
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
@@ -501,6 +535,7 @@ public class HomeActivity extends AppCompatActivity
 
 
     private void getFriendsFromServer() {
+        FrissbiContact.deleteAll(FrissbiContact.class);
         mProgressDialog.show();
         String url = Utility.REST_URI + Utility.USER_FRIENDSLIST + mUserId;
         TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
@@ -510,30 +545,27 @@ public class HomeActivity extends AppCompatActivity
                     if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
                         try {
                             JSONObject responseJsonObject = new JSONObject(response.response);
-                            JSONArray friendsListJsonArray = responseJsonObject.getJSONArray("friends_array");
-                            for (int index = 0; index < friendsListJsonArray.length(); index++) {
-                                JSONObject friendJsonObject = friendsListJsonArray.getJSONObject(index);
-                              /*  Friend friend = new Friend();
-                                friend.setUserId(friendJsonObject.getLong("userId"));
-                                friend.setFullName(friendJsonObject.getString("fullName"));
-                                friend.setEmailId(friendJsonObject.getString("email"));
-                                friend.save();*/
+                            if (responseJsonObject.has("friends_array")) {
+                                JSONArray friendsListJsonArray = responseJsonObject.getJSONArray("friends_array");
+                                for (int index = 0; index < friendsListJsonArray.length(); index++) {
+                                    JSONObject friendJsonObject = friendsListJsonArray.getJSONObject(index);
 
-                                FrissbiContact frissbiContact = new FrissbiContact();
-                                frissbiContact.setUserId(friendJsonObject.getLong("userId"));
-                                frissbiContact.setName(friendJsonObject.getString("fullName"));
-                                frissbiContact.setEmailId(friendJsonObject.getString("email"));
-                                if (friendJsonObject.has("profileImage")) {
-                                    frissbiContact.setImageId(friendJsonObject.getString("profileImage"));
+                                    FrissbiContact frissbiContact = new FrissbiContact();
+                                    frissbiContact.setUserId(friendJsonObject.getLong("userId"));
+                                    frissbiContact.setName(friendJsonObject.getString("fullName"));
+                                    frissbiContact.setEmailId(friendJsonObject.getString("emailId"));
+                                    if (friendJsonObject.has("profileImageId")) {
+                                        frissbiContact.setImageId(friendJsonObject.getString("profileImageId"));
+                                    }
+                                    if (friendJsonObject.has("phoneNumber")) {
+                                        frissbiContact.setPhoneNumber(friendJsonObject.getString("phoneNumber"));
+                                    }
+                                    frissbiContact.setType(Utility.FRIEND_TYPE);
+                                    frissbiContact.save();
                                 }
-                                if (friendJsonObject.has("phoneNumber")) {
-                                    frissbiContact.setPhoneNumber(friendJsonObject.getString("phoneNumber"));
-                                }
-                                frissbiContact.setType(Utility.FRIEND_TYPE);
-                                frissbiContact.save();
                             }
-                            FLog.d("HomeActivity", "FrissbiContactList++++++++1------" + FrissbiContact.listAll(FrissbiContact.class));
-                            mEmailIdsAsync.execute();
+
+                            getAllGroupsFromServer();
 
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -546,6 +578,67 @@ public class HomeActivity extends AppCompatActivity
                 }
             }
         });
+    }
+
+    private void getAllGroupsFromServer() {
+        FrissbiGroup.deleteAll(FrissbiGroup.class);
+        Participant.deleteAll(Participant.class);
+        String url = Utility.REST_URI + Utility.GROUPS + mUserId;
+        TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
+            @Override
+            public void handleResponse(TSNetworkHandler.TSResponse response) {
+                if (response != null) {
+                    if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
+                        try {
+                            JSONObject responseJsonObject = new JSONObject(response.response);
+                            JSONArray groupJsonArray = responseJsonObject.getJSONArray("groupArray");
+                            for (int i = 0; i < groupJsonArray.length(); i++) {
+                                JSONObject groupJsonObject = groupJsonArray.getJSONObject(i);
+                                FrissbiGroup frissbiGroup = new FrissbiGroup();
+                                frissbiGroup.setGroupId(groupJsonObject.getLong("groupId"));
+                                frissbiGroup.setName(groupJsonObject.getString("groupName"));
+                                if (groupJsonObject.has("groupImage")) {
+                                    frissbiGroup.setImage(groupJsonObject.getString("groupImage"));
+                                }
+                                frissbiGroup.setAdminId(groupJsonObject.getLong("adminId"));
+                                frissbiGroup.save();
+
+                                Participant adminParticipant = new Participant();
+                                adminParticipant.setGroupId(groupJsonObject.getLong("groupId"));
+                                adminParticipant.setParticipantId(groupJsonObject.getLong("adminId"));
+                                adminParticipant.setFullName(groupJsonObject.getString("fullName"));
+                                if (groupJsonObject.has("adminImage")) {
+                                    adminParticipant.setImage(groupJsonObject.getString("adminImage"));
+                                }
+                                adminParticipant.setAdmin(true);
+                                adminParticipant.save();
+
+                                JSONArray participantJsonArray = groupJsonObject.getJSONArray("receiptionistArray");
+                                for (int j = 0; j < participantJsonArray.length(); j++) {
+                                    Participant participant = new Participant();
+                                    JSONObject participantJsonObject = participantJsonArray.getJSONObject(j);
+                                    participant.setGroupId(groupJsonObject.getLong("groupId"));
+                                    participant.setParticipantId(participantJsonObject.getLong("userId"));
+                                    participant.setFullName(participantJsonObject.getString("fullName"));
+                                    participant.setImage(participantJsonObject.getString("profileImage"));
+                                    participant.save();
+                                }
+                            }
+                            mEmailIdsAsync.execute();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
+                        Toast.makeText(HomeActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(HomeActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+        });
+
     }
 
 
@@ -776,6 +869,9 @@ public class HomeActivity extends AppCompatActivity
                         // readContacts();
                     }*/
 
+                    if (FrissbiContact.listAll(FrissbiContact.class).size() == 0) {
+                        saveAllContactsInLocal();
+                    }
                 } else {
 
                     // permission denied, boo! Disable the

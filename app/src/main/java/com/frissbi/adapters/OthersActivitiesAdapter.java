@@ -38,10 +38,9 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
     private List<Activities> mActivitiesList;
     private Calendar mCalendar;
     private String mCurrentDay;
-    private MeetingDetailsListener mMeetingDetailsListener;
     private ViewImageListener mViewImageListener;
 
-    public OthersActivitiesAdapter(Context context, List<Activities> activitiesList, MeetingDetailsListener meetingDetailsListener, ViewImageListener viewImageListener) {
+    public OthersActivitiesAdapter(Context context, List<Activities> activitiesList, ViewImageListener viewImageListener) {
         mContext = context;
         mActivitiesList = activitiesList;
         mDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
@@ -50,7 +49,6 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
         mDateMonthFormat = new SimpleDateFormat("dd MMM", Locale.ENGLISH);
         mCalendar = Calendar.getInstance(Locale.ENGLISH);
         mCurrentDay = mDateFormat.format(mCalendar.getTime());
-        mMeetingDetailsListener = meetingDetailsListener;
         mViewImageListener = viewImageListener;
     }
 
@@ -68,10 +66,10 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
             View view = LayoutInflater.from(mContext).inflate(R.layout.profile_cover_upload_timeline_item, parent, false);
             viewHolder = new ProfileCoverUploadViewHolder(view);
         } else if (viewType == ActivityType.valueOf(ActivityType.FREE_TIME_TYPE.toString()).ordinal()) {
-            View view = LayoutInflater.from(mContext).inflate(R.layout.free_time_activity_item, parent, false);
+            View view = LayoutInflater.from(mContext).inflate(R.layout.free_time_timeline_item, parent, false);
             viewHolder = new FreeTimeViewHolder(view);
         } else if (viewType == ActivityType.valueOf(ActivityType.LOCATION_TYPE.toString()).ordinal()) {
-            View view = LayoutInflater.from(mContext).inflate(R.layout.location_activity_item, parent, false);
+            View view = LayoutInflater.from(mContext).inflate(R.layout.location_timeline_item, parent, false);
             viewHolder = new LocationViewHolder(view);
         }
         return viewHolder;
@@ -115,15 +113,27 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
             if (getItemViewType(position) == ActivityType.valueOf(ActivityType.STATUS_TYPE.toString()).ordinal()) {
                 ((StatusJoinViewHolder) holder).statusMessageTv.setText(activities.getStatusMessage());
                 ((StatusJoinViewHolder) holder).statusPostedTimeTv.setText(postedDate);
+                ((StatusJoinViewHolder) holder).profileNameTv.setText(activities.getUserName());
+                if (activities.getUserProfileImageId() != null) {
+                    ImageCacheHandler.getInstance(mContext).setImage(((StatusJoinViewHolder) holder).timelineItemProfileImage, activities.getUserProfileImageId());
+                }
 
             } else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.JOIN_DATE_TYPE.toString()).ordinal()) {
-                ((StatusJoinViewHolder) holder).statusMessageTv.setText("You joined Frissbi on " + activities.getJoinedDate());
+                ((StatusJoinViewHolder) holder).statusMessageTv.setText("Joined Frissbi on " + activities.getJoinedDate());
                 ((StatusJoinViewHolder) holder).statusPostedTimeTv.setText(postedDate);
+                ((StatusJoinViewHolder) holder).profileNameTv.setText(activities.getUserName());
+                if (activities.getUserProfileImageId() != null) {
+                    ImageCacheHandler.getInstance(mContext).setImage(((StatusJoinViewHolder) holder).timelineItemProfileImage, activities.getUserProfileImageId());
+                }
             }
 
         } else if (holder instanceof MeetingViewHolder) {
             ((MeetingViewHolder) holder).meetingMessageTv.setText(activities.getMeetingMessage());
             ((MeetingViewHolder) holder).meetingPostedTimeTv.setText(postedDate);
+            ((MeetingViewHolder) holder).profileNameTv.setText(activities.getUserName());
+            if (activities.getUserProfileImageId() != null) {
+                ImageCacheHandler.getInstance(mContext).setImage(((MeetingViewHolder) holder).timelineItemProfileImage, activities.getUserProfileImageId());
+            }
 
         } else if (holder instanceof ProfileCoverUploadViewHolder) {
             if (getItemViewType(position) == ActivityType.valueOf(ActivityType.PROFILE_TYPE.toString()).ordinal()) {
@@ -132,6 +142,10 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
                 if (activities.getProfileImageId() != null) {
                     ImageCacheHandler.getInstance(mContext).setImage(((ProfileCoverUploadViewHolder) holder).activityProfileImageView, activities.getProfileImageId());
                 }
+                ((ProfileCoverUploadViewHolder) holder).profileNameTv.setText(activities.getUserName());
+                if (activities.getProfileImageId() != null) {
+                    ImageCacheHandler.getInstance(mContext).setImage(((ProfileCoverUploadViewHolder) holder).timelineItemProfileImage, activities.getProfileImageId());
+                }
 
             } else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.COVER_TYPE.toString()).ordinal()) {
                 ((ProfileCoverUploadViewHolder) holder).profileUpdateMessageTv.setText("Updated cover image");
@@ -139,12 +153,20 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
                 if (activities.getCoverImageId() != null) {
                     ImageCacheHandler.getInstance(mContext).setImage(((ProfileCoverUploadViewHolder) holder).activityProfileImageView, activities.getCoverImageId());
                 }
+                ((ProfileCoverUploadViewHolder) holder).profileNameTv.setText(activities.getUserName());
+                if (activities.getUserProfileImageId() != null) {
+                    ImageCacheHandler.getInstance(mContext).setImage(((ProfileCoverUploadViewHolder) holder).timelineItemProfileImage, activities.getUserProfileImageId());
+                }
 
             } else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.UPLOAD_TYPE.toString()).ordinal()) {
                 ((ProfileCoverUploadViewHolder) holder).profileUpdateMessageTv.setText(activities.getImageCaption());
                 ((ProfileCoverUploadViewHolder) holder).profilePostedTimeTv.setText(postedDate);
                 if (activities.getProfileImageId() != null) {
                     ImageCacheHandler.getInstance(mContext).setImage(((ProfileCoverUploadViewHolder) holder).activityProfileImageView, activities.getUploadedImageId());
+                }
+                ((ProfileCoverUploadViewHolder) holder).profileNameTv.setText(activities.getUserName());
+                if (activities.getUserProfileImageId() != null) {
+                    ImageCacheHandler.getInstance(mContext).setImage(((ProfileCoverUploadViewHolder) holder).timelineItemProfileImage, activities.getUserProfileImageId());
                 }
             }
 
@@ -159,17 +181,23 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
             ((FreeTimeViewHolder) holder).freeTimeDateTv.setText(freeDate);
             ((FreeTimeViewHolder) holder).freeTimeTv.setText(Utility.getInstance().convertTime(activities.getFreeTimeFromTime()) + " to " + Utility.getInstance().convertTime(activities.getFreeTimeToTime()));
             ((FreeTimeViewHolder) holder).freeTimePostedTv.setText(postedDate);
+            ((FreeTimeViewHolder) holder).profileNameTv.setText(activities.getUserName());
+            if (activities.getUserProfileImageId() != null) {
+                ImageCacheHandler.getInstance(mContext).setImage(((FreeTimeViewHolder) holder).timelineItemProfileImage, activities.getUserProfileImageId());
+            }
         } else if (holder instanceof LocationViewHolder) {
             ((LocationViewHolder) holder).checkInAddressTv.setText(activities.getLocationAddress());
             ((LocationViewHolder) holder).locationTimeTv.setText(postedDate);
+            ((LocationViewHolder) holder).profileNameTv.setText(activities.getUserName());
+            if (activities.getUserProfileImageId() != null) {
+                ImageCacheHandler.getInstance(mContext).setImage(((LocationViewHolder) holder).timelineItemProfileImage, activities.getUserProfileImageId());
+            }
         }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (getItemViewType(position) == ActivityType.valueOf(ActivityType.MEETING_TYPE.toString()).ordinal()) {
-                    mMeetingDetailsListener.showMeetingDetails(activities.getMeetingId());
-                } else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.PROFILE_TYPE.toString()).ordinal()) {
+                if (getItemViewType(position) == ActivityType.valueOf(ActivityType.PROFILE_TYPE.toString()).ordinal()) {
                     mViewImageListener.viewImage(activities.getProfileImageId());
                 } else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.COVER_TYPE.toString()).ordinal()) {
                     mViewImageListener.viewImage(activities.getCoverImageId());
@@ -191,24 +219,33 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
 
 
     private class StatusJoinViewHolder extends RecyclerView.ViewHolder {
+        private final ImageView timelineItemProfileImage;
+        private final TextView profileNameTv;
         private TextView statusPostedTimeTv;
         private TextView statusMessageTv;
 
+
         StatusJoinViewHolder(View itemView) {
             super(itemView);
-            statusMessageTv = (TextView) itemView.findViewById(R.id.status_message_tv);
-            statusPostedTimeTv = (TextView) itemView.findViewById(R.id.status_time_tv);
+            statusMessageTv = (TextView) itemView.findViewById(R.id.status_tv);
+            statusPostedTimeTv = (TextView) itemView.findViewById(R.id.status_postedTime_tv);
+            timelineItemProfileImage = (ImageView) itemView.findViewById(R.id.timeline_item_profile_image);
+            profileNameTv = (TextView) itemView.findViewById(R.id.profileName_tv);
         }
     }
 
     private class MeetingViewHolder extends RecyclerView.ViewHolder {
         private TextView meetingMessageTv;
         private TextView meetingPostedTimeTv;
+        private final ImageView timelineItemProfileImage;
+        private final TextView profileNameTv;
 
         MeetingViewHolder(View itemView) {
             super(itemView);
-            meetingMessageTv = (TextView) itemView.findViewById(R.id.meeting_message_tv);
-            meetingPostedTimeTv = (TextView) itemView.findViewById(R.id.meeting_posted_time_tv);
+            meetingMessageTv = (TextView) itemView.findViewById(R.id.meeting_tv);
+            meetingPostedTimeTv = (TextView) itemView.findViewById(R.id.meeting_postedTime_tv);
+            timelineItemProfileImage = (ImageView) itemView.findViewById(R.id.timeline_item_profile_image);
+            profileNameTv = (TextView) itemView.findViewById(R.id.profileName_tv);
         }
     }
 
@@ -216,12 +253,16 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
         private TextView profilePostedTimeTv;
         private TextView profileUpdateMessageTv;
         private ImageView activityProfileImageView;
+        private final ImageView timelineItemProfileImage;
+        private final TextView profileNameTv;
 
         ProfileCoverUploadViewHolder(View itemView) {
             super(itemView);
-            activityProfileImageView = (ImageView) itemView.findViewById(R.id.activity_profile_imageView);
-            profileUpdateMessageTv = (TextView) itemView.findViewById(R.id.profile_update_message_tv);
-            profilePostedTimeTv = (TextView) itemView.findViewById(R.id.profile_time_tv);
+            activityProfileImageView = (ImageView) itemView.findViewById(R.id.timeline_activity_imageView);
+            profileUpdateMessageTv = (TextView) itemView.findViewById(R.id.profile_update_tv);
+            profilePostedTimeTv = (TextView) itemView.findViewById(R.id.profile_postedTime_tv);
+            timelineItemProfileImage = (ImageView) itemView.findViewById(R.id.timeline_item_profile_image);
+            profileNameTv = (TextView) itemView.findViewById(R.id.profileName_tv);
         }
     }
 
@@ -230,23 +271,31 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
         private TextView freeTimeDateTv;
         private TextView freeTimeTv;
         private TextView freeTimePostedTv;
+        private final ImageView timelineItemProfileImage;
+        private final TextView profileNameTv;
 
         FreeTimeViewHolder(View itemView) {
             super(itemView);
-            freeTimeDateTv = (TextView) itemView.findViewById(R.id.free_time_date_tv);
+            freeTimeDateTv = (TextView) itemView.findViewById(R.id.free_date_tv);
             freeTimeTv = (TextView) itemView.findViewById(R.id.free_time_tv);
-            freeTimePostedTv = (TextView) itemView.findViewById(R.id.free_time_posted_tv);
+            freeTimePostedTv = (TextView) itemView.findViewById(R.id.free_postedTime_tv);
+            timelineItemProfileImage = (ImageView) itemView.findViewById(R.id.timeline_item_profile_image);
+            profileNameTv = (TextView) itemView.findViewById(R.id.profileName_tv);
         }
     }
 
     private class LocationViewHolder extends RecyclerView.ViewHolder {
         private TextView checkInAddressTv;
         private TextView locationTimeTv;
+        private final ImageView timelineItemProfileImage;
+        private final TextView profileNameTv;
 
         LocationViewHolder(View itemView) {
             super(itemView);
-            checkInAddressTv = (TextView) itemView.findViewById(R.id.check_in_address_tv);
+            checkInAddressTv = (TextView) itemView.findViewById(R.id.check_in_tv);
             locationTimeTv = (TextView) itemView.findViewById(R.id.location_time_tv);
+            timelineItemProfileImage = (ImageView) itemView.findViewById(R.id.timeline_item_profile_image);
+            profileNameTv = (TextView) itemView.findViewById(R.id.profileName_tv);
         }
     }
 

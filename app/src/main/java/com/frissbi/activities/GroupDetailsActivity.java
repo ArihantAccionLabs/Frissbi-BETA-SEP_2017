@@ -111,6 +111,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements GroupMemb
 
 
     private void getGroupDetailsById(Long groupId) {
+        mProgressDialog.show();
         Participant.deleteAll(Participant.class, "group_id=?", groupId.toString());
         if (mParticipantList != null && mParticipantList.size() > 0) {
             mParticipantList.clear();
@@ -163,7 +164,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements GroupMemb
                 } else {
                     Toast.makeText(GroupDetailsActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
                 }
-
+                mProgressDialog.dismiss();
             }
         });
     }
@@ -197,7 +198,7 @@ public class GroupDetailsActivity extends AppCompatActivity implements GroupMemb
     }
 
     private void sendParticipantToServer(Long friendId) {
-
+        mProgressDialog.show();
         JSONObject jsonObject = new JSONObject();
         try {
             jsonObject.put("userId", mUserId);

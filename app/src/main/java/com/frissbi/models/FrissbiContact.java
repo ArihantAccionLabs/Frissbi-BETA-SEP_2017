@@ -17,6 +17,7 @@ public class FrissbiContact extends SugarRecord implements Comparable<FrissbiCon
     private String imageId;
     private int type;
     private boolean isSelected;
+    private String status;
 
 
     public Long getUserId() {
@@ -75,6 +76,14 @@ public class FrissbiContact extends SugarRecord implements Comparable<FrissbiCon
         isSelected = selected;
     }
 
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
     @Override
     public String toString() {
         return "FrissbiContact{" +
@@ -85,6 +94,7 @@ public class FrissbiContact extends SugarRecord implements Comparable<FrissbiCon
                 ", imageId='" + imageId + '\'' +
                 ", type=" + type +
                 ", isSelected=" + isSelected +
+                ", status='" + status + '\'' +
                 '}';
     }
 
@@ -99,7 +109,7 @@ public class FrissbiContact extends SugarRecord implements Comparable<FrissbiCon
         FLog.d(frissbiContact.userId + "  FrissbiContact", "this.userId" + this.userId);
         if (frissbiContact.getUserId() != null) {
             return frissbiContact.getUserId().equals(this.userId);
-        }else {
+        } else {
             return false;
         }
     }

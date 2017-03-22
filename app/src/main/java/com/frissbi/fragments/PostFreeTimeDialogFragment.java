@@ -20,12 +20,12 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 
 import com.frissbi.R;
+import com.frissbi.Utility.Utility;
 import com.frissbi.activities.MeetingActivity;
 import com.frissbi.interfaces.PostFreeTimeListener;
 
 import java.util.Calendar;
 
-import static com.frissbi.activities.MeetingActivity.updateTime;
 
 
 public class PostFreeTimeDialogFragment extends DialogFragment implements View.OnClickListener {
@@ -70,7 +70,7 @@ public class PostFreeTimeDialogFragment extends DialogFragment implements View.O
         hour = calendar.get(Calendar.HOUR_OF_DAY);
         min = calendar.get(Calendar.MINUTE);
         showDate(year, month + 1, day);
-        mFreeTimeTimeTextView.setText(updateTime(hour, min));
+        mFreeTimeTimeTextView.setText(Utility.getInstance().updateTime(hour, min));
     }
 
     @Override
@@ -153,7 +153,7 @@ public class PostFreeTimeDialogFragment extends DialogFragment implements View.O
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
             hour = hourOfDay;
             min = minute;
-            mFreeTimeTimeTextView.setText(updateTime(hourOfDay, minute));
+            mFreeTimeTimeTextView.setText(Utility.getInstance().updateTime(hourOfDay, minute));
         }
     };
 

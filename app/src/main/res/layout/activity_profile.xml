@@ -20,20 +20,20 @@
                 android:id="@+id/cover_photo_rl"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
-                android:background="@drawable/car_image">
+                android:background="@drawable/bg_triangle">
 
-                <LinearLayout
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="50dp"
                     android:layout_marginLeft="30dp"
                     android:layout_marginRight="30dp"
-                    android:layout_marginTop="50dp"
-                    android:weightSum="10">
+                    android:layout_marginTop="50dp">
 
                     <RelativeLayout
-                        android:layout_width="0dp"
-                        android:layout_height="match_parent"
+                        android:id="@+id/profile_image_rl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_weight="4">
 
                         <Button
@@ -46,24 +46,23 @@
 
                         <ImageView
                             android:id="@+id/profile_user_image"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
                             android:scaleType="fitXY"
                             android:src="@drawable/default_profile_image" />
 
                     </RelativeLayout>
 
                     <RelativeLayout
-                        android:layout_width="0dp"
+                        android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_gravity="center_vertical"
-                        android:layout_weight="6"
+                        android:layout_toRightOf="@+id/profile_image_rl"
                         android:background="#eeffffff"
                         android:gravity="center_vertical">
 
                         <com.frissbi.CustomFontTextView
                             android:id="@+id/profile_username_tv"
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="16dp"
                             android:text="User Name"
@@ -81,22 +80,57 @@
     -->
 
                     </RelativeLayout>
-                </LinearLayout>
 
-                <Button
-                    android:id="@+id/edit_cover_photo_button"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentBottom="true"
                     android:layout_alignParentRight="true"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginLeft="6dp"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginTop="6dp"
-                    android:background="@drawable/icon_edit_profile_pic_white" />
+                    android:layout_marginBottom="6dp">
+
+                    <Button
+                        android:id="@+id/accept_friend_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="10dp"
+                        android:background="#eeffffff"
+                        android:minHeight="40dp"
+                        android:text="Accept"
+                        android:textAllCaps="false"
+                        android:visibility="gone" />
+
+
+                    <Button
+                        android:id="@+id/add_friend_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginRight="30dp"
+                        android:layout_toRightOf="@+id/accept_friend_button"
+                        android:background="#eeffffff"
+                        android:minHeight="40dp"
+                        android:text="Add Friend"
+                        android:textAllCaps="false"
+                        android:visibility="gone" />
+
+
+                    <Button
+                        android:id="@+id/edit_cover_photo_button"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="6dp"
+                        android:layout_marginRight="10dp"
+                        android:layout_toRightOf="@+id/add_friend_button"
+                        android:background="@drawable/icon_edit_profile_pic_white"
+                        android:visibility="visible" />
+                </RelativeLayout>
             </RelativeLayout>
 
             <RelativeLayout
+                android:id="@+id/status_activities_rl"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/cover_photo_rl"
@@ -117,8 +151,7 @@
                             android:id="@+id/status_message_et"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:hint="What's on your mind?"
-                            android:textColorHint="@color/white" />
+                            android:hint="@string/what_s_on_your_mind" />
 
                     </android.support.design.widget.TextInputLayout>
 
@@ -127,9 +160,9 @@
                         android:layout_width="30dp"
                         android:layout_height="30dp"
                         android:layout_centerVertical="true"
+                        android:layout_marginRight="10dp"
                         android:layout_toLeftOf="@+id/post_free_time_tv"
                         android:src="@drawable/icon_tick"
-                        android:layout_marginRight="10dp"
                         android:visibility="gone" />
 
                     <com.frissbi.CustomFontTextView

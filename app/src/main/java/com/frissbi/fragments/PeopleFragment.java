@@ -13,13 +13,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frissbi.R;
-import com.frissbi.Utility.FriendStatus;
+import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.activities.ProfileActivity;
 import com.frissbi.adapters.PeopleAdapter;
+import com.frissbi.adapters.PeopleMayKnowAdapter;
+import com.frissbi.enums.FriendStatus;
 import com.frissbi.interfaces.FriendRequestListener;
-import com.frissbi.models.Friend;
+import com.frissbi.models.FrissbiContact;
 import com.frissbi.networkhandler.TSNetworkHandler;
 
 import org.json.JSONArray;
@@ -39,8 +41,10 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
     private RecyclerView mPeopleRecyclerView;
     private TextView mSearchPeopleTextView;
     private Long mUserId;
-    private List<Friend> mFriendList;
+    private List<FrissbiContact> mFrissbiContactList;
+    private List<FrissbiContact> mMayKnowFrissbiContactList;
     private FriendRequestListener mFriendRequestListener;
+    private RecyclerView mMayKnowRecyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -48,13 +52,60 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_people, container, false);
         mUserId = SharedPreferenceHandler.getInstance(getActivity()).getUserId();
-        mFriendList = new ArrayList<>();
+        mFrissbiContactList = new ArrayList<>();
         mFriendRequestListener = (FriendRequestListener) this;
+        mMayKnowFrissbiContactList = new ArrayList<>();
+        mMayKnowRecyclerView = (RecyclerView) view.findViewById(R.id.mayKnow_recyclerView);
+        RecyclerView.LayoutManager mayKnowLayoutManager = new LinearLayoutManager(getActivity(), LinearLayoutManager.HORIZONTAL, false);
+        mMayKnowRecyclerView.setLayoutManager(mayKnowLayoutManager);
         mPeopleRecyclerView = (RecyclerView) view.findViewById(R.id.people_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity());
         mPeopleRecyclerView.setLayoutManager(layoutManager);
         mSearchPeopleTextView = (TextView) view.findViewById(R.id.search_people_tv);
+        getPeopleMayKnowFromServer();
         return view;
+    }
+
+    private void getPeopleMayKnowFromServer() {
+
+        TSNetworkHandler.getInstance(getActivity()).getResponse(Utility.REST_URI + Utility.PEOPLE_YOU_MAY_KNOW + mUserId, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
+            @Override
+            public void handleResponse(TSNetworkHandler.TSResponse response) {
+                if (response != null) {
+                    if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
+                        try {
+                            JSONObject responseJsonObject = new JSONObject(response.response);
+
+                            JSONArray peopleJsonArray = responseJsonObject.getJSONArray("userJsonArray");
+
+                            for (int i = 0; i < peopleJsonArray.length(); i++) {
+                                JSONObject peopleJsonObject = peopleJsonArray.getJSONObject(i);
+                                FrissbiContact frissbiContact = new FrissbiContact();
+                                frissbiContact.setUserId(peopleJsonObject.getLong("userId"));
+                                frissbiContact.setName(peopleJsonObject.getString("fullName"));
+                                frissbiContact.setEmailId(peopleJsonObject.getString("emailId"));
+                                if (peopleJsonObject.has("profileImageId")) {
+                                    frissbiContact.setImageId(peopleJsonObject.getString("profileImageId"));
+                                }
+                                frissbiContact.setStatus(peopleJsonObject.getString("status"));
+                                frissbiContact.setType(Utility.FRIEND_TYPE);
+                                mMayKnowFrissbiContactList.add(frissbiContact);
+                            }
+
+                            PeopleMayKnowAdapter peopleMayKnowAdapter = new PeopleMayKnowAdapter(getActivity(), mMayKnowFrissbiContactList, mFriendRequestListener);
+                            mMayKnowRecyclerView.setAdapter(peopleMayKnowAdapter);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
+                        Toast.makeText(getActivity(), response.message, Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+            }
+        });
+
     }
 
     public void searchFriends(String query) {
@@ -62,38 +113,40 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
     }
 
     private void searchForPeopleInServer(String query) {
-        mFriendList.clear();
+        mFrissbiContactList.clear();
         String url = Utility.REST_URI + Utility.PEOPLE_SEARCH + mUserId + "/" + query;
         TSNetworkHandler.getInstance(getActivity()).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {
                 if (response != null) {
                     if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
-
                         try {
                             JSONObject responseJsonObject = new JSONObject(response.response);
 
                             JSONArray peopleJsonArray = responseJsonObject.getJSONArray("unfriendList");
 
                             for (int i = 0; i < peopleJsonArray.length(); i++) {
-                                Friend friend = new Friend();
                                 JSONObject peopleJsonObject = peopleJsonArray.getJSONObject(i);
-                                friend.setUserId(peopleJsonObject.getLong("userId"));
-                                friend.setFullName(peopleJsonObject.getString("fullName"));
-                                friend.setEmailId(peopleJsonObject.getString("emailId"));
-                                friend.setStatus(peopleJsonObject.getString("status"));
-                                if (peopleJsonObject.has("dob")) {
-                                    friend.setDob(peopleJsonObject.getString("dob"));
+                                FrissbiContact frissbiContact = new FrissbiContact();
+                                frissbiContact.setUserId(peopleJsonObject.getLong("userId"));
+                                frissbiContact.setName(peopleJsonObject.getString("fullName"));
+                                frissbiContact.setEmailId(peopleJsonObject.getString("emailId"));
+                                if (peopleJsonObject.has("profileImageId")) {
+                                    frissbiContact.setImageId(peopleJsonObject.getString("profileImageId"));
                                 }
-                                if (peopleJsonObject.has("gender")) {
-                                    friend.setGender(peopleJsonObject.getString("gender"));
+                                if (peopleJsonObject.has("phoneNumber")) {
+                                    frissbiContact.setPhoneNumber(peopleJsonObject.getString("phoneNumber"));
                                 }
-                                mFriendList.add(friend);
+                                frissbiContact.setStatus(peopleJsonObject.getString("status"));
+                                frissbiContact.setType(Utility.FRIEND_TYPE);
+                                mFrissbiContactList.add(frissbiContact);
                             }
 
-                            if (mFriendList.size() > 0) {
+                            FLog.d("mFrissbiContactList", "----" + mFrissbiContactList);
+
+                            if (mFrissbiContactList.size() > 0) {
                                 mSearchPeopleTextView.setVisibility(View.GONE);
-                                PeopleAdapter peopleAdapter = new PeopleAdapter(getActivity(), mFriendList, mFriendRequestListener);
+                                PeopleAdapter peopleAdapter = new PeopleAdapter(getActivity(), mFrissbiContactList, mFriendRequestListener);
                                 mPeopleRecyclerView.setAdapter(peopleAdapter);
                             } else {
                                 mSearchPeopleTextView.setVisibility(View.VISIBLE);
@@ -115,12 +168,12 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
     }
 
     @Override
-    public void sendFriendRequest(Friend friend) {
-        if (friend.getStatus().equalsIgnoreCase(FriendStatus.UNFRIEND.toString())) {
-            JSONObject jsonObject=new JSONObject();
+    public void sendFriendRequest(FrissbiContact frissbiContact) {
+        if (frissbiContact.getStatus().equalsIgnoreCase(FriendStatus.UNFRIEND.toString())) {
+            JSONObject jsonObject = new JSONObject();
             try {
-                jsonObject.put("userId",mUserId);
-                jsonObject.put("friendId",friend.getUserId());
+                jsonObject.put("userId", mUserId);
+                jsonObject.put("friendId", frissbiContact.getUserId());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -135,18 +188,17 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
                         } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
                             Toast.makeText(getActivity(), response.message, Toast.LENGTH_SHORT).show();
                         }
-
                     } else {
-                        Toast.makeText(getActivity(), "Something went wrong at server side", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
                     }
 
                 }
             });
-        } else if (friend.getStatus().equalsIgnoreCase(FriendStatus.CONFIRM.toString())) {
-            JSONObject jsonObject=new JSONObject();
+        } else if (frissbiContact.getStatus().equalsIgnoreCase(FriendStatus.CONFIRM.toString())) {
+            JSONObject jsonObject = new JSONObject();
             try {
-                jsonObject.put("userId",mUserId);
-                jsonObject.put("friendId",friend.getUserId());
+                jsonObject.put("userId", mUserId);
+                jsonObject.put("friendId", frissbiContact.getUserId());
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -163,7 +215,7 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
                         }
 
                     } else {
-                        Toast.makeText(getActivity(), "Something went wrong at server side", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
                     }
 
                 }
@@ -174,10 +226,11 @@ public class PeopleFragment extends Fragment implements FriendRequestListener {
     }
 
     @Override
-    public void viewProfile(Friend friend) {
-
+    public void viewProfile(FrissbiContact frissbiContact) {
         Intent intent = new Intent(getActivity(), ProfileActivity.class);
-        intent.putExtra("friend", friend);
+        intent.putExtra("friendUserId", frissbiContact.getUserId());
+        intent.putExtra("isFriend", false);
+        intent.putExtra("status", frissbiContact.getStatus());
         startActivity(intent);
 
     }

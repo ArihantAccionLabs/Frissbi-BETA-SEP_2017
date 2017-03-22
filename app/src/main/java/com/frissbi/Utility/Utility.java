@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Base64;
@@ -14,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -33,8 +36,10 @@ public class Utility {
     public static final int FRIEND_TYPE = 1;
     public static final int EMAIL_TYPE = 2;
     public static final int CONTACT_TYPE = 3;
+    public static final String GROUP_NOTIFICATION_TYPE = "GROUP_TYPE";
+    public static final String FRIEND_NOTIFICATION_TYPE = "FRIEND_TYPE";
     //public static final String REST_URI ="http://13.76.99.32/kleverlinkswebservices";
-    public static final String REST_URI = "http://192.168.2.16:9090/kleverlinkswebservices/rest";//Sunil
+    public static final String REST_URI = "http://192.168.2.236:9090/kleverlinkswebservices/rest";//Sunil
     public static final String USER_FRIENDSLIST = "/FriendListService/friendsList/";
     public static final String MEETING_INSERT = "/MeetingDetailsService/insertMeetingDetails/";
     public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getUserDetailsByMeetingID/";
@@ -66,6 +71,10 @@ public class Utility {
     public static final String STATUS_MESSAGE = "/UserActivityService/insertUserStatus";
     public static final String USER_ACTIVITIES = "/UserActivityService/getUserActivity/";
     public static final String FRIENDS_ACTIVITIES = "/FriendActivityService/getFriendActivity/";
+    public static final String INVITE_CONTACTS = "/FriendListService/adviseFissbiAppInstall";
+    public static final String PEOPLE_YOU_MAY_KNOW = "/FriendActivityService/getPeopleYouMayKnow/";
+    public static final String NOTIFICATION_LOG = "/FriendListService/getNotificationLogByUserId/";
+    public static final String UPLOAD_PHOTO = "/UserActivityService/insertUserPhotos";
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 100;
     private static Utility ourInstance = new Utility();
 
@@ -161,6 +170,70 @@ public class Utility {
 
     public String capitalize(final String line) {
         return Character.toUpperCase(line.charAt(0)) + line.substring(1);
+    }
+
+    public Bitmap rotateImage(Bitmap bitmap, String mPictureImagePath) {
+        int rotateAngle = 0;
+        ExifInterface ei = null;
+        try {
+            ei = new ExifInterface(mPictureImagePath);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        int orientation = ei.getAttributeInt(ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_UNDEFINED);
+
+        switch (orientation) {
+            case ExifInterface.ORIENTATION_ROTATE_90:
+                rotateAngle = 90;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_180:
+                rotateAngle = 180;
+                break;
+            case ExifInterface.ORIENTATION_ROTATE_270:
+                rotateAngle = 270;
+                break;
+            case ExifInterface.ORIENTATION_NORMAL:
+            default:
+                break;
+        }
+        Matrix matrix = new Matrix();
+        matrix.postRotate(rotateAngle);
+        return Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix,
+                true);
+    }
+
+    public String updateTime(int hours, int mins) {
+
+        String timeSet = "";
+        if (hours > 12) {
+            hours -= 12;
+            timeSet = "PM";
+        } else if (hours == 0) {
+            hours += 12;
+            timeSet = "AM";
+        } else if (hours == 12)
+            timeSet = "PM";
+        else
+            timeSet = "AM";
+        String minutes = "";
+        String _hours = "";
+
+        if (hours < 10) {
+            _hours = "0" + hours;
+        } else {
+            _hours = String.valueOf(hours);
+        }
+
+        if (mins < 10)
+            minutes = "0" + mins;
+        else
+            minutes = String.valueOf(mins);
+
+        // Append in a StringBuilder
+        String aTime = new StringBuilder().append(_hours).append(':').append(minutes).append(" ").append(timeSet).toString();
+        return aTime;
+
     }
 
 }

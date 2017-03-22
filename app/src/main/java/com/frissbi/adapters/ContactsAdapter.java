@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
+import com.frissbi.Utility.ImageCacheHandler;
 import com.frissbi.models.FrissbiContact;
 
 import java.util.ArrayList;
@@ -58,7 +59,9 @@ public class ContactsAdapter extends RecyclerView.Adapter<ContactsAdapter.ViewHo
         if (frissbiContact.getType() == 1) {
             holder.contactNameTv.setText(frissbiContact.getName());
             holder.phoneNumTv.setVisibility(View.GONE);
-            holder.profileImageView.setImageDrawable(ContextCompat.getDrawable(mContext, R.drawable.pic1));
+            if (frissbiContact.getImageId() != null) {
+                ImageCacheHandler.getInstance(mContext).setImage(holder.profileImageView, frissbiContact.getImageId());
+            }
         } else if (frissbiContact.getType() == 2) {
             holder.contactNameTv.setText(frissbiContact.getEmailId());
             holder.phoneNumTv.setVisibility(View.GONE);

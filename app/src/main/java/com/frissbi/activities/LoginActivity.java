@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.frissbi.R;
@@ -68,11 +69,12 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private SharedPreferences.Editor editor;
     private SharedPreferenceHandler mSharedPreferenceHandler;
     private byte[] imageByteArray;
+    private RelativeLayout mGoogleLoginLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.login_screen);
         if (SDK_INT > 8) {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder()
                     .permitAll().build();
@@ -80,9 +82,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
         }
         mSharedPreferenceHandler = SharedPreferenceHandler.getInstance(this);
-        SignInButton signInButton = (SignInButton) findViewById(R.id.sign_in_button);
-        signInButton.setSize(SignInButton.SIZE_STANDARD);
-        signInButton.setOnClickListener(this);
+        mGoogleLoginLayout = (RelativeLayout) findViewById(R.id.google_login_rl);
+        mGoogleLoginLayout.setOnClickListener(this);
         mProgressDialog = new CustomProgressDialog(this);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
@@ -102,7 +103,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
 
         switch (v.getId()) {
-            case R.id.sign_in_button:
+            case R.id.google_login_rl:
                 loginWithGoogle();
                 break;
         }
@@ -151,8 +152,10 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
                     e.printStackTrace();
                 }
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-                imageByteArray = baos.toByteArray();
+                if (mBitmap != null) {
+                    mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                    imageByteArray = baos.toByteArray();
+                }
             }
 
             shareLoginDetailsWithServer(profile);

@@ -27,9 +27,9 @@ public class Activities {
     private String joinedDate;
 
     private String date;
-    private int  type;
+    private int type;
     private String userProfileImageId;
-
+    private String userName;
 
     public String getStatusMessage() {
         return statusMessage;
@@ -152,6 +152,14 @@ public class Activities {
         this.userProfileImageId = userProfileImageId;
     }
 
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
     @Override
     public String toString() {
         return "Activities{" +
@@ -170,6 +178,7 @@ public class Activities {
                 ", date='" + date + '\'' +
                 ", type=" + type +
                 ", userProfileImageId='" + userProfileImageId + '\'' +
+                ", userName='" + userName + '\'' +
                 '}';
     }
 }

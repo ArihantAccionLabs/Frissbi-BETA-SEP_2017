@@ -13,7 +13,7 @@
             android:id="@+id/profile_imageView"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/pic1" />
+            android:src="@drawable/default_profile_image" />
 
         <RelativeLayout
             android:layout_width="match_parent"
