@@ -137,6 +137,12 @@ public static String getFriendStatusByFriendListId(Long friendListId){
 		ResultSet rs = pstmt.executeQuery();
 		while (rs.next()) {
 			requestStatus = rs.getString("RequestStatus");
+			
+				if((requestStatus.equals(FriendStatusEnum.WAITING.toString()))){
+					requestStatus = FriendStatusEnum.CONFIRM.toString();
+				}else if(requestStatus.equals(FriendStatusEnum.ACCEPTED.toString())){
+					requestStatus = FriendStatusEnum.FRIENDS.toString();
+				}
 		}
 	} catch (Exception e) {
 		e.printStackTrace();

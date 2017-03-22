@@ -162,30 +162,29 @@ public class UserActivityService {
 			for (ActivityBean activityBean : userActivityBeanList) {
 
 				json = new JSONObject();
-				json.put("date", dateTimeFormat.format(activityBean.getDate()));
 
 				if (activityBean.getMeetingId() != null) {
 					json.put("type", ActivityType.MEETING_TYPE.toString());
 					json.put("meetingId", activityBean.getMeetingId());
 					json.put("meetingMessage", activityBean.getMeetingMessage());
 				}
-				if (Utility.checkValidString(activityBean.getStatus())) {
+				else if (Utility.checkValidString(activityBean.getStatus())) {
 					json.put("status", activityBean.getStatus());
 					json.put("type", ActivityType.STATUS_TYPE.toString());
 				}
-				if (Utility.checkValidString(activityBean.getImageDescription())) {
+				else if (Utility.checkValidString(activityBean.getImageDescription())) {
 					json.put("imageDescription", activityBean.getImageDescription());
 					json.put("imageId", activityBean.getImage());
 					json.put("type", ActivityType.UPLOAD_TYPE.toString());
 				}
-				if (Utility.checkValidString(activityBean.getAddress())) {
+				else if (Utility.checkValidString(activityBean.getAddress())) {
 					json.put("address", activityBean.getAddress());
 					if(Utility.checkValidString(activityBean.getLocationDescription())){
 						json.put("description", activityBean.getLocationDescription());
 					}
 					json.put("type", ActivityType.LOCATION_TYPE.toString());
 				}
-				if (Utility.checkValidString(activityBean.getFromDate())) {
+				else if (Utility.checkValidString(activityBean.getFromDate())) {
 					java.util.Date fromTime = dateTimeFormat.parse(activityBean.getFromDate());
 					json.put("freeDate", dateFormat.format(fromTime));
 					json.put("freeFromTime", timeFormat.format(fromTime));
@@ -193,20 +192,25 @@ public class UserActivityService {
 
 					json.put("type", ActivityType.FREE_TIME_TYPE.toString());
 				}
-				if (Utility.checkValidString(activityBean.getProfileImage())) {
+				else if (Utility.checkValidString(activityBean.getProfileImage())) {
 					json.put("profileImageId", activityBean.getProfileImage());
 					json.put("type", ActivityType.PROFILE_TYPE.toString());
 				}
-				if (Utility.checkValidString(activityBean.getCoverImage())) {
+				else if (Utility.checkValidString(activityBean.getCoverImage())) {
 					json.put("coverImageId", activityBean.getCoverImage());
 					json.put("type", ActivityType.COVER_TYPE.toString());
 				}
-				if (Utility.checkValidString(activityBean.getRegistrationDate())) {
+				else if (Utility.checkValidString(activityBean.getRegistrationDate())) {
 					json.put("registrationDate", dateTimeFormat.format(activityBean.getDate()));
 					json.put("type", ActivityType.JOIN_DATE_TYPE.toString());
 				}
 				
-				jsonArray.put(json);
+				if(json.has("type")){
+				   json.put("date", dateTimeFormat.format(activityBean.getDate()));	
+				   jsonArray.put(json);
+				}
+				
+				
 			 if(count == 10){
 				 break;
 			 }
@@ -249,7 +253,6 @@ public class UserActivityService {
 				
 				json = new JSONObject();
 			
-				json.put("date", rs.getString("CreatedDateTime"));
 				json.put("userId", rs.getLong("UserID"));
 				//json.put("activityId", rs.getLong("UserActivityID"));
 				Long meetingId = rs.getLong("MeetingID"); 
@@ -257,36 +260,40 @@ public class UserActivityService {
 					json.put("type", ActivityType.MEETING_TYPE.toString());
 					json.put("meetingId", meetingId);
 					json.put("meetingMessage", rs.getString("MeetingMessage"));
-				} if(Utility.checkValidString(rs.getString("StatusDescription"))){
+				} else if(Utility.checkValidString(rs.getString("StatusDescription"))){
 				  json.put("status", rs.getString("StatusDescription"));
 				  json.put("type", ActivityType.STATUS_TYPE.toString());
-			  } if(Utility.checkValidString(rs.getString("ImageDescription"))){
+			  } else if(Utility.checkValidString(rs.getString("ImageDescription"))){
 				  json.put("imageDescription", rs.getString("ImageDescription"));
 				  json.put("imageId",rs.getString("ImageID"));
 				  json.put("type", ActivityType.UPLOAD_TYPE.toString());
-			  } if(Utility.checkValidString(rs.getString("Address"))){
+			  } else if(Utility.checkValidString(rs.getString("Address"))){
 				  json.put("address", rs.getString("Address")); 
 				  if(Utility.checkValidString(rs.getString("LocationDescription"))){
 						json.put("description", rs.getString("LocationDescription"));
 				  }
 				  json.put("type", ActivityType.LOCATION_TYPE.toString());
-			  } if(Utility.checkValidString(rs.getString("FromDateTime"))){
+			  } else if(Utility.checkValidString(rs.getString("FromDateTime"))){
 				  java.util.Date fromTime = dateTimeFormat.parse(rs.getString("FromDateTime"));
 				  json.put("freeDate", dateFormat.format(fromTime)); 
 				  json.put("freeFromTime",timeFormat.format(fromTime)); 
 				  json.put("freeToTime",timeFormat.format(dateTimeFormat.parse(rs.getString("ToDateTime")))); 
 				  json.put("type", ActivityType.FREE_TIME_TYPE.toString());
-			  }if(Utility.checkValidString(rs.getString("RegistrationDateTime"))){
+			  }else if(Utility.checkValidString(rs.getString("RegistrationDateTime"))){
 				  json.put("registrationDate", rs.getString("CreatedDateTime")); 
 				  json.put("type", ActivityType.JOIN_DATE_TYPE.toString());
-			  } if(Utility.checkValidString(rs.getString("ProfileImageID"))){
+			  }else  if(Utility.checkValidString(rs.getString("ProfileImageID"))){
 				  json.put("profileImageId", rs.getString("ProfileImageID")); 
 				  json.put("type", ActivityType.PROFILE_TYPE.toString());
-			  }if(Utility.checkValidString(rs.getString("CoverImageID"))){
+			  }else if(Utility.checkValidString(rs.getString("CoverImageID"))){
 				  json.put("coverImageId", rs.getString("CoverImageID")); 
 				  json.put("type", ActivityType.COVER_TYPE.toString());
 			  }	  
-					  
+				if(json.has("type")){
+					   json.put("date", rs.getString("date"));
+					   jsonArray.put(json);
+					}
+						  
 				jsonArray.put(json);
 			}
 			finalJson.put("userActivityArray", jsonArray);
@@ -520,8 +527,8 @@ public class UserActivityService {
 			callableStatement = conn.prepareCall(selectStoreProcedue);
 
 			callableStatement.setLong(1, jsonObject.getLong("userId"));
-			callableStatement.setString(2, mongoDBJDBC.insertImageToMongoDb(jsonObject));
-			callableStatement.setString(3, jsonObject.getString("description"));
+			callableStatement.setString(2, jsonObject.getString("description"));
+			callableStatement.setString(3, mongoDBJDBC.insertImageToMongoDb(jsonObject));
 			callableStatement.setTimestamp(4, new Timestamp(new java.util.Date().getTime()));
 
 			int isInserted = callableStatement.executeUpdate();

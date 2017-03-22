@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -269,6 +270,61 @@ public class NotificationService {
 		}
 		return names;
 	}
+	
+	public static void sendMeetingNotificationBeforeTwoHour(NotificationInfoDTO notificationInfoDTO) {
+
+		try {
+			int value = insertBatchNotification(notificationInfoDTO);
+			System.out.println("value===============" + value);
+			if (value != 0) {
+
+				Builder builder = null;
+				Sender sender = new Sender(Constants.GCM_APIKEY);
+				if (notificationInfoDTO.getJsonObject() != null) {
+					builder = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
+							.addData("meetingId", notificationInfoDTO.getMeetingId() + "")
+							.addData("meetingMessage", notificationInfoDTO.getMessage())
+							.addData("NotificationName", notificationInfoDTO.getNotificationType())
+							.addData("locationSuggestionJson", notificationInfoDTO.getJsonObject().toString())	;
+				} 
+				for (Long userId : notificationInfoDTO.getUserList()) {
+
+					String deviceRegistrationId = getDeviceRegistrationId(userId);
+					if (Utility.checkValidString(deviceRegistrationId)) {
+						
+						builder.addData("meetingFriendsArray", getFriendsJsonArray(notificationInfoDTO.getMeetingAcceptedUserBeanList() , userId).toString());
+						
+						Result result = sender.send(builder.build(), deviceRegistrationId, 1);
+						System.out.println(result);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
+	
+	
+	public static JSONArray getFriendsJsonArray(List<MeetingAcceptedUserBean> meetingAcceptedUserBeanList, Long userId) {
+		JSONArray jsonArray = new JSONArray();
+		JSONObject jsonObject = null;
+
+		for (MeetingAcceptedUserBean meetingAcceptedUserBean : meetingAcceptedUserBeanList) {
+			if (userId == meetingAcceptedUserBean.getUserId()) {
+
+				jsonObject = new JSONObject();
+				jsonObject.put("userId", meetingAcceptedUserBean.getUserId());
+				jsonObject.put("fullName", meetingAcceptedUserBean.getFullName());
+				jsonObject.put("profileImageId", meetingAcceptedUserBean.getProfileImageId());
+
+				jsonArray.put(jsonObject);
+			}
+
+		}
+		return jsonArray;
+	}
+	
 	
 	public static void sendMeetingNotification(NotificationInfoDTO notificationInfoDTO) {
 

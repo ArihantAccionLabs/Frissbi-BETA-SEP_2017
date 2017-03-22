@@ -394,14 +394,6 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 			for (ActivityBean activityBean : userActivityBeanList) {
 
 				json = new JSONObject();
-				json.put("date", dateTimeFormat.format(activityBean.getDate()));
-				json.put("userId", activityBean.getUserId());
-				if(Utility.checkValidString(activityBean.getUserProfileImageId())){
-					json.put("userProfileImageId", activityBean.getUserProfileImageId());
-				}
-				if(Utility.checkValidString(activityBean.getUserFullName())){
-					json.put("userFullName", activityBean.getUserFullName());
-				}
 				if (activityBean.getMeetingId() != null) {
 					json.put("type", ActivityType.MEETING_TYPE.toString());
 					json.put("meetingId", activityBean.getMeetingId());
@@ -410,7 +402,7 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 				}else if (Utility.checkValidString(activityBean.getStatus())) {
 					json.put("status", activityBean.getStatus());
 					json.put("type", ActivityType.STATUS_TYPE.toString());
-				}else if (Utility.checkValidString(activityBean.getImageDescription())) {
+				}else if (Utility.checkValidString(activityBean.getImage())) {
 					json.put("imageDescription", activityBean.getImageDescription());
 					json.put("imageId", activityBean.getImage());
 					json.put("type", ActivityType.UPLOAD_TYPE.toString());
@@ -438,8 +430,17 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 					json.put("registrationDate", dateTimeFormat.format(activityBean.getDate()));
 					json.put("type", ActivityType.JOIN_DATE_TYPE.toString());
 				}
-				
-				jsonArray.put(json);
+				if(json.has("type")){
+					json.put("date", dateTimeFormat.format(activityBean.getDate()));
+					json.put("userId", activityBean.getUserId());
+					if(Utility.checkValidString(activityBean.getUserProfileImageId())){
+						json.put("userProfileImageId", activityBean.getUserProfileImageId());
+					}
+					if(Utility.checkValidString(activityBean.getUserFullName())){
+						json.put("userFullName", activityBean.getUserFullName());
+					}
+					   jsonArray.put(json);
+				}
 			 if(count == 10){
 				 break;
 			 }
@@ -528,8 +529,21 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 					json.put("coverImageId", rs.getString("CoverImageID"));
 					json.put("type", ActivityType.COVER_TYPE.toString());
 				}
-
-				jsonArray.put(json);
+				if(json.has("type")){
+					json.put("date", rs.getString("CreatedDateTime"));
+					json.put("userId", rs.getLong("UserID"));
+					json.put("userProfileImageId", rs.getString("UserProfileImageID"));
+					
+					if(Utility.checkValidString(rs.getString("UserProfileImageID"))){
+						json.put("userProfileImageId", rs.getString("UserProfileImageID"));
+					}
+					if(Utility.checkValidString(rs.getString("UserFullName"))){
+						json.put("userFullName", rs.getString("UserFullName"));
+					}
+					
+					   jsonArray.put(json);
+				}
+				
 			}
 			finalJson.put("userActivityArray", jsonArray);
 			finalJson.put("isNextActivityExist", jsonArray.length() >= 10 ? true : false);

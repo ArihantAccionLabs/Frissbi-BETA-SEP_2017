@@ -724,7 +724,7 @@ public class MeetingDetails {
 				 
 				 userIdSet.add(meetingLogBean.getSenderUserId());
 				 
-				 String message = "Please share you location for the meeting "+meetingLogBean.getDescription()+" on "+meetingLogBean.getDate()+" from "+meetingLogBean.getStartTime()+" to "+meetingLogBean.getEndTime();
+				 String message = meetingLogBean.getDescription()+" at "+meetingLogBean.getStartTime();
 				 
 				 NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
 				 notificationInfoDTO.setUserList(userIdSet.stream().collect(Collectors.toList()));
@@ -746,7 +746,7 @@ public class MeetingDetails {
 				 jsonObject2.put("to", meetingLogBean.getEndTime());
 				 notificationInfoDTO.setJsonObject(jsonObject2);
 				 
-				 NotificationService.sendMeetingNotification(notificationInfoDTO);
+				 NotificationService.sendMeetingNotificationBeforeTwoHour(notificationInfoDTO);
 			  }
 		  }
 		 }
