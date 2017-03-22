@@ -6,7 +6,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
@@ -16,16 +15,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.ws.rs.PathParam;
-
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kleverlinks.bean.ActivityBean;
-import org.kleverlinks.bean.GroupInfoBean;
 import org.kleverlinks.enums.FriendStatusEnum;
 import org.kleverlinks.webservice.DataSourceConnection;
-import org.mongo.dao.MongoDBJDBC;
-import org.service.dto.UserDTO;
 import org.util.service.ServiceUtility;
 
 public class Utility {
@@ -154,5 +147,35 @@ public static String getFriendStatusByFriendListId(Long friendListId){
 	return requestStatus;
 	
 }
+
+public static  JSONObject getGroupInfoById(Long groupId){
+	
+	
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	JSONObject jsonObject = new JSONObject();
+	try {
+		conn = DataSourceConnection.getDBConnection();
+		String sql = "SELECT FG.GroupID,FG.GroupName,FG.GroupImage,U.UserID,U.FirstName,U.LastName FROM tbl_Group AS FG  "
+				+"INNER JOIN tbl_users AS U ON FG.UserID = U.UserID WHERE FG.GroupID =? AND FG.IsActive=?";	
+		pstmt = conn.prepareStatement(sql);
+		pstmt.setLong(1, groupId);
+		pstmt.setLong(2, 0);
+		ResultSet rs = pstmt.executeQuery();
+		while (rs.next()) {
+			jsonObject.put("groupName", rs.getString("GroupName"));
+			jsonObject.put("groupId", rs.getLong("GroupID"));
+			jsonObject.put("groupImageId", rs.getString("GroupImage"));
+			jsonObject.put("adminName", rs.getString("FirstName")+" "+rs.getString("LastName"));
+		}
+	} catch (Exception e) {
+		e.printStackTrace();
+	}finally{
+	ServiceUtility.closeConnection(conn);
+	ServiceUtility.closeSatetment(pstmt);
+	}
+	return jsonObject;
+}
+
 
 }

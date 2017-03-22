@@ -277,7 +277,6 @@ public class GroupCreationService {
 
 				conn = DataSourceConnection.getDBConnection();
 				preparedStatement = conn.prepareStatement(participantSql);
-				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 				for (GroupInfoBean groupInfoBean : groupInfoBeanList) {
 
 					JSONArray receiptionistArray = new JSONArray();
@@ -293,10 +292,10 @@ public class GroupCreationService {
 					outerJson.put("fullName", groupInfoBean.getFullName());
 					
 					if(Utility.checkValidString(groupInfoBean.getProfileImageId())){
-						outerJson.put("adminImage", mongoDBJDBC.getUriImage(groupInfoBean.getProfileImageId()));
+						outerJson.put("adminImageId", groupInfoBean.getProfileImageId());
 					}
 					if(Utility.checkValidString(groupInfoBean.getGroupImage())){
-						outerJson.put("groupImage", mongoDBJDBC.getUriImage(groupInfoBean.getGroupImage()));
+						outerJson.put("groupImageId", groupInfoBean.getGroupImage());
 					}
 					
 					while (rs.next()) {
@@ -304,7 +303,7 @@ public class GroupCreationService {
 						JSONObject jsonObject = new JSONObject();
 						jsonObject.put("fullName", rs.getString("FirstName") + " " + rs.getString("LastName"));
 						if (Utility.checkValidString(rs.getString("ProfileImageID"))) {
-								jsonObject.put("profileImage", mongoDBJDBC.getUriImage(rs.getString("ProfileImageID").trim()));
+								jsonObject.put("profileImageId", rs.getString("ProfileImageID").trim());
 						}
 						jsonObject.put("userId", rs.getString("UserID"));
 
@@ -350,14 +349,12 @@ public class GroupCreationService {
 				responseJson.put("groupName", groupInfoBean.getGroupName());
 				responseJson.put("adminId", groupInfoBean.getUserId());
 				responseJson.put("fullName", groupInfoBean.getFullName());
-
-				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
 				
 				if(Utility.checkValidString(groupInfoBean.getProfileImageId())){
-					responseJson.put("adminImage", mongoDBJDBC.getUriImage(groupInfoBean.getProfileImageId()));
+					responseJson.put("adminImageId", groupInfoBean.getProfileImageId());
 				}
 				if(Utility.checkValidString(groupInfoBean.getGroupImage())){
-					responseJson.put("groupImage", mongoDBJDBC.getUriImage(groupInfoBean.getGroupImage()));
+					responseJson.put("groupImageId", groupInfoBean.getGroupImage());
 				}
 
 				conn = DataSourceConnection.getDBConnection();
@@ -373,7 +370,7 @@ public class GroupCreationService {
 					JSONObject jsonObject = new JSONObject();
 					jsonObject.put("fullName", rs.getString("U.FirstName") + " " + rs.getString("U.LastName"));
 					if (Utility.checkValidString(rs.getString("U.ProfileImageID"))) {
-							jsonObject.put("profileImage",mongoDBJDBC.getUriImage(rs.getString("U.ProfileImageID").trim()));
+							jsonObject.put("profileImageId",rs.getString("U.ProfileImageID").trim());
 					}
 					jsonObject.put("userId", rs.getString("U.UserID"));
 

@@ -15,19 +15,23 @@ public class ActivityBean {
 	private String meetingUserImageId;
 	private String userProfileImageId;
 	private String userFullName;
-	public String getMeetingUserImageId() {
-		return meetingUserImageId;
-	}
-	public void setMeetingUserImageId(String meetingUserImageId) {
-		this.meetingUserImageId = meetingUserImageId;
-	}
 	private String address;
+	private String locationDescription;
 	private int isPrivate;
 	private String imageDescription;
 	private String image;
 	private String fromDate;
 	private String toDate;
 	private String registrationDate;
+
+	
+	
+	public String getMeetingUserImageId() {
+		return meetingUserImageId;
+	}
+	public void setMeetingUserImageId(String meetingUserImageId) {
+		this.meetingUserImageId = meetingUserImageId;
+	}
 
 	public Date getDate() {
 		return date;
@@ -134,6 +138,12 @@ public class ActivityBean {
 	}
 	public void setUserFullName(String userFullName) {
 		this.userFullName = userFullName;
+	}
+	public String getLocationDescription() {
+		return locationDescription;
+	}
+	public void setLocationDescription(String locationDescription) {
+		this.locationDescription = locationDescription;
 	}
 	@Override
 	public String toString() {

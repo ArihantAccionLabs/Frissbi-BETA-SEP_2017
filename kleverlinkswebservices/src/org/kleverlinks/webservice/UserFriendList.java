@@ -916,26 +916,28 @@ public class UserFriendList {
 			JSONObject jsonObject = null;
 			
 			while (rs.next()) {
-				jsonObject = new JSONObject();
 
 				if (Utility.checkValidString(rs.getString("NotificationType"))) {
 					
 					if (rs.getString("NotificationType").equals(NotificationsEnum.FRIEND_PENDING_REQUESTS.toString())) {
 						Long userFriendListId = rs.getLong("UserFriendListID");
 						if(userFriendListId != null){
-							jsonObject.put("status", Utility.getFriendStatusByFriendListId(rs.getLong("UserFriendListID")));
-							jsonObject.put("userFriendListID", rs.getLong("UserFriendListID"));
+							
+							jsonObject = ServiceUtility.getUserDetailByUserId(rs.getLong("SenderUserID"));
+							jsonObject.remove("emailId");
+							jsonObject.remove("userId");
+							jsonObject.put("status", Utility.getFriendStatusByFriendListId(userFriendListId));
+							jsonObject.put("senderUserId", rs.getLong("SenderUserID"));
+							jsonObject.put("type", "FRIEND_TYPE");
 						}
-						jsonObject.put("senderUserId", rs.getLong("SenderUserID"));
-						jsonObject.put("type", "FRIEND_TYPE");
 					}else{
-						jsonObject.put("groupId", rs.getLong("GroupId"));
+						jsonObject = Utility.getGroupInfoById(rs.getLong("GroupId"));
 						jsonObject.put("type", "GROUP_TYPE");
 					}
 				}
 				
-				jsonObject.put("userId", rs.getLong("UserID"));
-				jsonObject.put("notificationMessage", rs.getString("NotificationDescription"));
+				jsonObject.put("isRead", rs.getString("IsRead"));
+				jsonObject.put("notificationId", rs.getLong("NotificationID"));
 				
 				notificationArray.put(jsonObject);
 			}
@@ -944,6 +946,41 @@ public class UserFriendList {
 			finalJson.put("message", "Notification log fetched successfully");
 			finalJson.put("notificationArray", notificationArray);
 			
+			return finalJson.toString();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops Something went wrong");
+		return finalJson.toString();
+	}
+	
+	@GET
+	@Path("/updateNotificationAsRead/{userId}/{isRead}")
+	@Produces(MediaType.TEXT_PLAIN)
+	public String getNotificationLogByUserId(@PathParam("userId") Long userId , @PathParam("isRead") String isRead) {
+
+		JSONObject finalJson = new JSONObject();
+		CallableStatement callableStatement = null;
+		Connection conn = null;
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String notificationLogStoreProc = "{call usp_updateNotificationAsRead(?,?)}";
+			
+			callableStatement = conn.prepareCall(notificationLogStoreProc);
+			callableStatement.setLong(1, userId);
+			callableStatement.setString(2, isRead);
+			
+			int isUpdated = callableStatement.executeUpdate();
+			
+			if(isUpdated != 0){
+				
+				finalJson.put("status", true);
+				finalJson.put("message", "Notification updated successfully");
+			}
 			return finalJson.toString();
 		} catch (Exception e) {
 			e.printStackTrace();

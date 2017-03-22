@@ -30,7 +30,7 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
-		
+		System.out.println("hello    :::  ");
 	return "ok";	
 	}
 

@@ -226,7 +226,8 @@ public class FriendActivityService {
 		try {
 			conn = DataSourceConnection.getDBConnection();
 	    
-			String sql = "SELECT U.FirstName,U.LastName,U.ProfileImageID,UA.UserActivityID,UA.UserID,UA.StatusDescription,UA.ImageDescription,UA.ImageID,UA.FromDateTime,UA.ToDateTime,UA.IsPrivate,Address,UA.CreatedDateTime"
+			String sql = "SELECT U.FirstName,U.LastName,U.ProfileImageID,UA.UserActivityID,UA.UserID,UA.StatusDescription,UA.ImageDescription,"
+					+ "UA.ImageID,UA.FromDateTime,UA.ToDateTime,UA.IsPrivate,Address,UA.LocationDescription,UA.CreatedDateTime"
 					+ " FROM tbl_UserActivity AS UA INNER JOIN tbl_users AS U ON U.UserID=UA.UserID WHERE UA.UserID IN ("+friendUserIds+")";
 			statement = conn.createStatement();
 			ResultSet rs = statement.executeQuery(sql);
@@ -241,6 +242,7 @@ public class FriendActivityService {
 				userActivityBean.setFromDate(rs.getString("FromDateTime"));
 				userActivityBean.setToDate(rs.getString("ToDateTime"));
 				userActivityBean.setAddress(rs.getString("Address"));
+				userActivityBean.setLocationDescription(rs.getString("LocationDescription"));
 				userActivityBean.setIsPrivate(rs.getInt("IsPrivate"));
 				userActivityBean.setDate(df.parse(rs.getString("CreatedDateTime")));
 				userActivityBean.setUserProfileImageId(rs.getString("ProfileImageID"));
@@ -297,7 +299,7 @@ public class FriendActivityService {
 		DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertStoreProced = "{call usp_insertFriendActivityToTempTable(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+			String insertStoreProced = "{call usp_insertFriendActivityToTempTable(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProced);
 			deleteTemUserActivity(friendUserIds);
 			
@@ -331,9 +333,10 @@ public class FriendActivityService {
 				callableStatement.setString(13, activityBean.getImage());
 				callableStatement.setInt(14, activityBean.getIsPrivate());
 				callableStatement.setString(15, activityBean.getAddress());
-				callableStatement.setString(16, activityBean.getUserProfileImageId());
-				callableStatement.setString(17, activityBean.getUserFullName());
-				callableStatement.setString(18, dateTimeFormat.format(activityBean.getDate()));
+				callableStatement.setString(16, activityBean.getLocationDescription());
+				callableStatement.setString(17, activityBean.getUserProfileImageId());
+				callableStatement.setString(18, activityBean.getUserFullName());
+				callableStatement.setString(19, dateTimeFormat.format(activityBean.getDate()));
 			
 				callableStatement.addBatch();
 			}
@@ -413,6 +416,9 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 					json.put("type", ActivityType.UPLOAD_TYPE.toString());
 				}else if (Utility.checkValidString(activityBean.getAddress())) {
 					json.put("address", activityBean.getAddress());
+					if(Utility.checkValidString(activityBean.getLocationDescription())){
+						json.put("description", activityBean.getLocationDescription());
+					}
 					json.put("type", ActivityType.LOCATION_TYPE.toString());
 				}else if (Utility.checkValidString(activityBean.getFromDate())) {
 
@@ -448,7 +454,7 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 	@GET
 	@Path("/getFriendActivity/{userId}/{offSetValue}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String setUserActivity(@PathParam("userId") Long userId, @PathParam("offSetValue") int offSetValue) {
+	public String getFriendsMoreActivity(@PathParam("userId") Long userId, @PathParam("offSetValue") int offSetValue) {
 
 		JSONArray jsonArray = new JSONArray();
 
@@ -502,6 +508,9 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 					json.put("type", ActivityType.UPLOAD_TYPE.toString());
 				}else if (Utility.checkValidString(rs.getString("Address"))) {
 					json.put("address", rs.getString("Address"));
+					 if(Utility.checkValidString(rs.getString("LocationDescription"))){
+							json.put("description", rs.getString("LocationDescription"));
+					  }
 					json.put("type", ActivityType.LOCATION_TYPE.toString());
 				}else if (Utility.checkValidString(rs.getString("FromDateTime"))) {
 					java.util.Date fromTime = dateTimeFormat.parse(rs.getString("FromDateTime"));

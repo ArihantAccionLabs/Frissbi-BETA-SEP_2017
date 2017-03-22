@@ -8,7 +8,14 @@ public class LocationBean {
 	private String address;
 	private String latitude ;
 	private String longitude ;
-	
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+	private String description ;
 	public LocationBean(){}
 	
 	public LocationBean(JSONObject jsonObject) {
@@ -16,6 +23,9 @@ public class LocationBean {
 		this.address = jsonObject.getString("address");
 		this.latitude = jsonObject.getString("latitude");
 		this.longitude = jsonObject.getString("longitude");
+		if(jsonObject.has("description")){
+			this.description = jsonObject.getString("description");
+		}
 	}
 	public Long getUserId() {
 		return userId;

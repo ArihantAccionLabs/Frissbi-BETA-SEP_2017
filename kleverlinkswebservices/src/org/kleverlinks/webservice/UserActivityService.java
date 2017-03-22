@@ -24,6 +24,7 @@ import javax.ws.rs.core.MediaType;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.kleverlinks.bean.ActivityBean;
+import org.kleverlinks.bean.LocationBean;
 import org.kleverlinks.enums.ActivityType;
 import org.mongo.dao.MongoDBJDBC;
 import org.util.Utility;
@@ -179,6 +180,9 @@ public class UserActivityService {
 				}
 				if (Utility.checkValidString(activityBean.getAddress())) {
 					json.put("address", activityBean.getAddress());
+					if(Utility.checkValidString(activityBean.getLocationDescription())){
+						json.put("description", activityBean.getLocationDescription());
+					}
 					json.put("type", ActivityType.LOCATION_TYPE.toString());
 				}
 				if (Utility.checkValidString(activityBean.getFromDate())) {
@@ -262,6 +266,9 @@ public class UserActivityService {
 				  json.put("type", ActivityType.UPLOAD_TYPE.toString());
 			  } if(Utility.checkValidString(rs.getString("Address"))){
 				  json.put("address", rs.getString("Address")); 
+				  if(Utility.checkValidString(rs.getString("LocationDescription"))){
+						json.put("description", rs.getString("LocationDescription"));
+				  }
 				  json.put("type", ActivityType.LOCATION_TYPE.toString());
 			  } if(Utility.checkValidString(rs.getString("FromDateTime"))){
 				  java.util.Date fromTime = dateTimeFormat.parse(rs.getString("FromDateTime"));
@@ -368,6 +375,7 @@ public class UserActivityService {
 				userActivityBean.setFromDate(rs.getString("FromDateTime"));
 				userActivityBean.setToDate(rs.getString("ToDateTime"));
 				userActivityBean.setAddress(rs.getString("Address"));
+				userActivityBean.setLocationDescription(rs.getString("LocationDescription"));
 				userActivityBean.setIsPrivate(rs.getInt("IsPrivate"));
 				userActivityBean.setDate(df.parse(rs.getString("CreatedDateTime")));
 				
@@ -444,7 +452,7 @@ public class UserActivityService {
 			deleteTemUserActivity(userId);
 			
 			conn = DataSourceConnection.getDBConnection();
-			String selectStoreProcedue = "{call usp_insertUserActivityToTempTable(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+			String selectStoreProcedue = "{call usp_insertUserActivityToTempTable(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(selectStoreProcedue);
 			
 			for (ActivityBean activityBean : activityBeanList) {
@@ -474,7 +482,8 @@ public class UserActivityService {
 				callableStatement.setString(11, activityBean.getImage());
 				callableStatement.setInt(12, activityBean.getIsPrivate());
 				callableStatement.setString(13, activityBean.getAddress());
-				callableStatement.setString(14, dateTimeFormat.format(activityBean.getDate()));
+				callableStatement.setString(14, activityBean.getLocationDescription());
+				callableStatement.setString(15, dateTimeFormat.format(activityBean.getDate()));
 			
 				callableStatement.addBatch();
 			}
@@ -532,6 +541,50 @@ public class UserActivityService {
 		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
 	}
+	
+	@POST
+	@Path("/insertUserLocation")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.TEXT_PLAIN)
+	public String insertLocation(String userLocation) {
+
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		JSONObject finalJson = new JSONObject();
+
+		try {
+			JSONObject jsonObject = new JSONObject(userLocation);
+			LocationBean locationBean = new LocationBean(jsonObject);
+			conn = DataSourceConnection.getDBConnection();
+			String selectStoreProcedue = "{call usp_insertUserLocation(?,?,?,?,?,?)}";
+			callableStatement = conn.prepareCall(selectStoreProcedue);
+
+			callableStatement.setLong(1, locationBean.getUserId());
+			callableStatement.setString(2, locationBean.getAddress());
+			callableStatement.setString(3, locationBean.getLatitude());
+			callableStatement.setString(4, locationBean.getLongitude());
+			callableStatement.setString(5, locationBean.getDescription());
+			callableStatement.setTimestamp(6, new Timestamp(new java.util.Date().getTime()));
+
+			int isInserted = callableStatement.executeUpdate();
+			if (isInserted != 0) {
+				finalJson.put("status", true);
+				finalJson.put("message", "User Location inserted successfully");
+				return finalJson.toString();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		return finalJson.toString();
+	}
+	
+	
 	
 	@GET
 	@Path("/getImage/{imageId}")
