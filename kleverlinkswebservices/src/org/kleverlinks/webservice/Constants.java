@@ -9,7 +9,7 @@ public class Constants {
 	public static final String DB_URL = "jdbc:mysql://localhost:3306/FrissDB";
 	public static final String USER = "root";
 	public static final String PASS = "FRISSBI@31s";
-
+	//public static final String PASS = "test";
 	//server address : 139.59.32.89
 	// server db configuration
 	/*
@@ -30,7 +30,7 @@ public class Constants {
 
 	public static final String GOOGLE_MAP_KEY = "AIzaSyAgM-mwjfosilNEdn5aCe4FJ9aDOp_U7JM";
 	// local Server Urls
-	public static final String SERVER_URL = "http://139.59.32.89:8080";
+	public static final String PLAY_STORE_URL = "http://139.59.32.89:8080";
 
 	// Constant values for sending SMS
 	public static final String SMS_METHOD = "sms";

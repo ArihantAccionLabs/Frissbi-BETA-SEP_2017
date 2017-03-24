@@ -61,8 +61,6 @@ public class UserRegistration {
 						finalJson.put("message", "EmailId are exist");
 						return finalJson.toString();
 					}
-					java.util.Date dateobj = new java.util.Date();
-					java.sql.Timestamp sqlDateNow = new Timestamp(dateobj.getTime());
 					String contactNumberVerificationCode = phoneVerificationCode();
 					String emailVerificationCode = nextSessionId();
 					String insertStoreProc = "{call usp_InsertUserMasterDetails(?,?,?,?,?,?,?,?,?,?,?,?,?)}";
@@ -74,7 +72,7 @@ public class UserRegistration {
 					callableStatement.setDate(5, appUserBean.getDob() != null ?new java.sql.Date(appUserBean.getDob().getTime()):null);
 					callableStatement.setString(6, appUserBean.getFirstName());
 					callableStatement.setString(7, appUserBean.getLastName());
-					callableStatement.setTimestamp(8, sqlDateNow);
+					callableStatement.setTimestamp(8, new Timestamp(new java.util.Date().getTime()));
 					callableStatement.setString(9, contactNumberVerificationCode);
 					callableStatement.setString(10, emailVerificationCode);
 					callableStatement.setString(11, appUserBean.getDeviceRegistrationId());
@@ -103,13 +101,13 @@ public class UserRegistration {
 						
 						String message = "<p>HI " + appUserBean.getUsername() + "/" + appUserBean.getEmail() + ",</p>";
 						message += "<p>Please click on the activation button below to start using FRISSBI</p>";
-						message += "<a href=\"" + Constants.SERVER_URL
+						message += "<a href=\"" + Constants.PLAY_STORE_URL
 								+ "/kleverlinkswebservices/rest/UserRegistrationService/verifyemailaddress/"
 								+ appUserBean.getEmail() + "/" + emailVerificationCode
 								+ "\" target=\"_parent\"><button>Activate</button></a>";
 						message += "<p> OR</p>";
 						message += "<p>Copy &amp; paste the below URL into your browser and hit ENTER.</p>";
-						message += "<p>" + Constants.SERVER_URL
+						message += "<p>" + Constants.PLAY_STORE_URL
 								+ "/kleverlinkswebservices/rest/UserRegistrationService/verifyemailaddress/"
 								+ appUserBean.getEmail() + "/" + emailVerificationCode + "</p>";
 						message += "<p>";

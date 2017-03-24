@@ -57,11 +57,13 @@ public class UserFriendList {
 			callableStatement.setLong(2, friendBean.getFreindId());
 			callableStatement.setString(3, FriendStatusEnum.WAITING.toString());
 			callableStatement.setLong(4, friendBean.getUserId());
-			callableStatement.setTimestamp(5, new Timestamp(new java.util.Date().getTime()));
+			callableStatement.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
 			callableStatement.setDate(6, null);
 			callableStatement.registerOutParameter(7, Types.BIGINT);
 			int value = callableStatement.executeUpdate();
 
+			System.out.println(new Timestamp(new java.util.Date().getTime())+"  TimeStap ->  "+new Timestamp(System.currentTimeMillis()));
+			
 			Long userFriendListId = callableStatement.getLong(7);
 			System.out.println("userFriendListId  ::::::   " + userFriendListId + "  value  ::  " + value);
 			if (value == 1 && userFriendListId != 0) {
@@ -867,16 +869,16 @@ public class UserFriendList {
 
 				if (userJson.has("emailId")) {
 					String message = "<p>Hi " + userObject.getString("fullName") + " has invited to you on Frissbi ";
-					message += " Please click  " + Constants.SERVER_URL + " url to install  FRISSBI App</p>";
+					message += " Please click  " + Constants.PLAY_STORE_URL + " url to install  FRISSBI App</p>";
 					EmailService.SendMail(userJson.getString("emailId"), "Frissbi App installation", message);
 					finalJson.put("message", "Mail sent succesfully for inviting the user");
 				} else if (userJson.has("phoneNumber")) {
 					SmsService smsService = new SmsService();
 
 					String message = "HI " + userObject.getString("fullName") + " has invited to you on Frissbi ";
-					message += " Please click  " + Constants.SERVER_URL + " url to install  FRISSBI App ";
+					message += " Please click  " + Constants.PLAY_STORE_URL + " url to install  FRISSBI App ";
 
-					smsService.sendSms(userJson.getString("phoneNumber"), message);
+					smsService.sendSms(userJson.getString("phoneNumber").replaceAll("\\s",""), message);
 					finalJson.put("message", "Sms sent successfully for inviting the user");
 				}
 			}

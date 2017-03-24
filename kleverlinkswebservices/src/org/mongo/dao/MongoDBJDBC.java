@@ -132,8 +132,8 @@ public class MongoDBJDBC {
 			JSONObject profilejson = ServiceUtility.getUserImageId(imageJson.getLong("userId"));
 			System.out.println("profilejson  :   "+profilejson.toString());
 			
-			if (profilejson != null && profilejson.has("coverImageID")) {
-				deleteFile(imageJson.getString("file"),profilejson.getString("coverImageID"));
+			if (profilejson != null && profilejson.has("coverImageId")) {
+				deleteFile(imageJson.getString("file"),profilejson.getString("coverImageId"));
 			}
 				mongoFileId = insertFile(imageJson.getString("file"));
 			
@@ -200,7 +200,6 @@ public class MongoDBJDBC {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		Boolean isInserted = false;
-		System.out.println("imageJson  :  "+imageJson.toString());
 		try {
 			
 				conn = DataSourceConnection.getDBConnection();

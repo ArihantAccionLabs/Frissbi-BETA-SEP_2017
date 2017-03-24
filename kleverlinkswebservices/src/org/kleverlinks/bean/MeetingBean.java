@@ -59,13 +59,20 @@ public class MeetingBean {
 		String meetingDate = jsonObject.getString("meetingDateTime");
 		String durationTime = jsonObject.getString("duration");
 		String[] timeArray = durationTime.split(":");
-		String duration = timeArray[0] + ":" + timeArray[1] + ":00";
-		this.duration = duration;
 		try{
+		if(timeArray.length > 1){
+			this.duration = timeArray[0] + ":" + timeArray[1] + ":00";
+			LocalDateTime senderToDateTime = LocalDateTime.ofInstant(formatter.parse(meetingDate).toInstant(), ZoneId.systemDefault()).plusHours(Integer.parseInt(timeArray[0])).plusMinutes(Integer.parseInt(timeArray[1]));
+			this.senderToDateTime = senderToDateTime;
+		}else{
+			this.duration = timeArray[0] + ":00:00";
+			LocalDateTime senderToDateTime = LocalDateTime.ofInstant(formatter.parse(meetingDate).toInstant(), ZoneId.systemDefault()).plusHours(Integer.parseInt(timeArray[0]));
+			this.senderToDateTime = senderToDateTime;
+
+		}
+		
 		LocalDateTime senderFromDateTime = LocalDateTime.ofInstant(formatter.parse(meetingDate).toInstant(),ZoneId.systemDefault());
-		LocalDateTime senderToDateTime = LocalDateTime.ofInstant(formatter.parse(meetingDate).toInstant(), ZoneId.systemDefault()).plusHours(Integer.parseInt(timeArray[0])).plusMinutes(Integer.parseInt(timeArray[1]));
 		this.senderFromDateTime = senderFromDateTime;
-		this.senderToDateTime = senderToDateTime;
 		}catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -98,7 +105,7 @@ public class MeetingBean {
 		 if(jsonObject.has("contactsJsonArray")){
 			 
 				for (int i = 0; i < jsonObject.getJSONArray("contactsJsonArray").length(); i++) {
-					this.contactList.add(jsonObject.getJSONArray("contactsJsonArray").getString(i));
+					this.contactList.add(jsonObject.getJSONArray("contactsJsonArray").getString(i).replaceAll("\\s",""));
 				} 
 			 }
 	}

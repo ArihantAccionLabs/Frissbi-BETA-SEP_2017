@@ -110,9 +110,9 @@ public class MeetingDetails {
 			callableStatement.setTime(5, java.sql.Time.valueOf(meetingCreationBean.getDuration()));
 			callableStatement.setString(6, meetingCreationBean.getMeetingTitle());
 			if (meetingCreationBean.getIsLocationSelected()) {
-				callableStatement.setString(7, meetingInsertionObject.getString("latitude"));
-				callableStatement.setString(8, meetingInsertionObject.getString("longitude"));
-				callableStatement.setString(9, meetingInsertionObject.getString("address"));
+				callableStatement.setString(7, meetingCreationBean.getLatitude());
+				callableStatement.setString(8, meetingCreationBean.getLongitude());
+				callableStatement.setString(9, meetingCreationBean.getAddress());
 			} else {
 				callableStatement.setString(7, null);
 				callableStatement.setString(8, null);
@@ -127,31 +127,9 @@ public class MeetingDetails {
 			meetingId = callableStatement.getLong(12);
 			System.out.println(isError + "meetingId >>>>>>>>>>>>>>>>>> " + meetingId + "  value==" + value);
 
-			if (isError == 0 && value != 0) {
+			if (value != 0  && meetingId != 0l && meetingId != null) {
 
-				connection.setAutoCommit(false);
-				PreparedStatement ps = null;
-				String query = "INSERT into tbl_RecipientsDetails(MeetingID,UserID,Status,RecipientFromDateTime,RecipientToDateTime,Latitude,Longitude,DestinationType,GoogleAddress) values(?,?,?,?,?,?,?,?,?)";
-				ps = connection.prepareStatement(query);
-
-				for (Long friendId : meetingCreationBean.getFriendsIdList()) {
-
-					ps.setLong(1, meetingId);
-					ps.setLong(2, friendId);
-					ps.setString(3, "0");
-					ps.setTimestamp(4, null);
-					ps.setTimestamp(5, null);
-					ps.setString(6, null);
-					ps.setString(7, null);
-					ps.setLong(8, 0);
-					ps.setString(9, null);
-
-					ps.addBatch();
-
-				}
-				int[] insertedRow = ps.executeBatch();
-				connection.commit();
-				if (insertedRow.length != 0) {
+				if (insertMeetingReceiver(meetingCreationBean.getFriendsIdList() , meetingId)) {
 
 					NotificationService.sendingMeetingCreationNotification(meetingCreationBean, meetingId);
 					MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
@@ -173,7 +151,7 @@ public class MeetingDetails {
 
 				finalJson.put("status", true);
 				finalJson.put("isInserted", true);
-				finalJson.put("isLocationSelected", meetingInsertionObject.getBoolean("isLocationSelected"));
+				finalJson.put("isLocationSelected", meetingCreationBean.getIsLocationSelected());
 				finalJson.put("meetingId", meetingId);//
 				finalJson.put("message", "meeting inserted successfully");
 
@@ -895,7 +873,7 @@ public class MeetingDetails {
 		String message = "";
 		message = " You have " + meetingLogBean.getDescription() + " on " + meetingLogBean.getDate()
 				+ " from " + meetingLogBean.getStartTime() + " to " + meetingLogBean.getEndTime() + " created by "
-				+ userDetail.getString("fullName") + " Please click this url " + "https://alerts.solutionsinfini.com "
+				+ userDetail.getString("fullName") + " Please click this url " + Constants.PLAY_STORE_URL
 				+ " to install Frissbi App";
 
 			SmsService smsService = new SmsService();
@@ -914,7 +892,7 @@ public class MeetingDetails {
 		String htmlMessage = "";
 		htmlMessage = " You have " + meetingLogBean.getDescription() + " on " + meetingLogBean.getDate()
 				+ " from " + meetingLogBean.getStartTime() + " to " + meetingLogBean.getEndTime() + " created by "
-				+ userDetail.getString("fullName") + " Please click this url " + "https://alerts.solutionsinfini.com "
+				+ userDetail.getString("fullName") + " Please click this url " + Constants.PLAY_STORE_URL
 				+ " to install Frissbi App";
 
 
@@ -923,6 +901,42 @@ public class MeetingDetails {
 			e.printStackTrace();
 		}
 	}
+	
+	public Boolean insertMeetingReceiver(List<Long> receiverIdList , Long meetingId) {
+
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String insertStoreProcedue = "{call usp_insertMeetingReceiver(?,?,?,?)}";
+			callableStatement = conn.prepareCall(insertStoreProcedue);
+
+			for (Long receiverId : receiverIdList) {
+				
+			callableStatement.setLong(1, meetingId);
+			callableStatement.setLong(2, receiverId);
+			callableStatement.setInt(3, 0);
+			callableStatement.setTimestamp(4, new Timestamp(new java.util.Date().getTime()));
+			
+			callableStatement.addBatch();
+			}
+			int[] isInserted = callableStatement.executeBatch();
+			if (isInserted.length != 0) {
+				return true;
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		return false;
+	}
+	
+	
+	
+	
 
 	/*//logic for checking the source and destination  distance wrt Time
 	if(! timePostedFriendList.isEmpty()){
