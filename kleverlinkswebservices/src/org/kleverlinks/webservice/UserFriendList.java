@@ -178,6 +178,7 @@ public class UserFriendList {
 		Connection conn = null;
 		Statement stmt = null;
 		JSONObject finalJson = new JSONObject();
+		System.out.println("userIds ::   "+userIds);
 		try {
 			JSONObject userIdsJson = new JSONObject(userIds);
 			FriendBean friendBean = new FriendBean();
@@ -194,7 +195,7 @@ public class UserFriendList {
 			callableStatement.setDate(5, null);
 			callableStatement.setTimestamp(6, new Timestamp(new java.util.Date().getTime()));
 			int value = callableStatement.executeUpdate();
-
+            System.out.println("value  ::::  "+value);
 			if (value == 1) {
 				finalJson.put("status", true);
 				finalJson.put("message", "Friend is rejected");
@@ -238,7 +239,7 @@ public class UserFriendList {
 			callableStatement.setDate(5, null);
 			callableStatement.setTimestamp(6, new Timestamp(new java.util.Date().getTime()));
 			int value = callableStatement.executeUpdate();
-
+			System.out.println("value ::   "+value);
 			if (value == 1) {
 				finalJson.put("status", true);
 				finalJson.put("message", "Successfully unfriend");

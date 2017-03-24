@@ -489,7 +489,6 @@ public class UserRegistration {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String insertProfileImage(String imageFile) {
 
-		System.out.println("imageFile  :  "+imageFile);
 		JSONObject finalJson = new JSONObject();
 		String mongoFileId = null;
 		try {
