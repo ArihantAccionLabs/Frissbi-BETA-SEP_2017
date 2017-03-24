@@ -6,11 +6,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +24,7 @@ import org.kleverlinks.bean.UserFreeTimeBean;
 import org.kleverlinks.webservice.DataSourceConnection;
 import org.kleverlinks.webservice.NotificationsEnum;
 import org.service.dto.NotificationInfoDTO;
+import org.util.Utility;
 
 /*
  * @Author -> Sunil Verma
@@ -38,14 +36,14 @@ public class FreeTimeTracker {
 
 	public static void getUserFreeTime() {
      
-		List<UserFreeTimeBean> userIdList = new ArrayList<UserFreeTimeBean>();
+		List<Long> userIdList = new ArrayList<Long>();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
 		LocalDateTime fromTime = LocalDateTime.now().minusHours(2);
 		LocalDateTime toTime = fromTime.plusDays(2);
 
 		System.out.println("fromTime==="+ formatter.format(fromTime)+"  toTime  "+formatter.format(toTime));
 		
-		String sql = "SELECT * FROM tbl_UserActivity where FromDateTime BETWEEN ? AND ?";
+		String sql = "SELECT UserID,FromDateTime,ToDateTime FROM tbl_UserActivity where FromDateTime BETWEEN ? AND ?";
 		 
 		Connection conn = null;
 		PreparedStatement pstmt = null;
@@ -62,32 +60,27 @@ public class FreeTimeTracker {
 			// get All users who posted their free time on current date + 48
 		
 			while (rs.next()) {
-				UserFreeTimeBean userFreeTimeBean = new UserFreeTimeBean();
-				userFreeTimeBean.setUserId(rs.getLong("UserID"));
-				//userFreeTimeBean.setFreeFromTime(rs.getTimestamp("FromDateTime"));
-				//userFreeTimeBean.setFreeToTime(rs.getTimestamp("ToDateTime"));
-
-				userIdList.add(userFreeTimeBean);
+				userIdList.add(rs.getLong("UserID"));
 			}
 			
 			System.out.println("userIdList=================="+userIdList.size());
 			
-			for (UserFreeTimeBean userFreeTimeBean : userIdList) {  // getting friendlist for every users
+			for (Long userId : userIdList) {  // getting friendlist for every users
 				Set<Long> friendList = new HashSet<>();
 				sql = null;
 				pstmt = null;
 				rs = null;
-				sql = "SELECT * FROM  tbl_userfriendlist WHERE UserID1=? OR UserID2=?";
+				sql = "SELECT * FROM  tbl_userfriendlist WHERE SenderUserID=? OR ReceiverUserID=?";
 				pstmt = conn.prepareStatement(sql);
-				pstmt.setLong(1, userFreeTimeBean.getUserId());
-				pstmt.setLong(2, userFreeTimeBean.getUserId());
+				pstmt.setLong(1, userId);
+				pstmt.setLong(2, userId);
 
 				rs = pstmt.executeQuery();
 				
 				while (rs.next()) { // gettting friendlist
-					if (rs.getLong("UserID1") != 0 && rs.getLong("UserID2") != 0) {
-						friendList.add(rs.getLong("UserID1"));
-						friendList.add(rs.getLong("UserID2"));
+					if (rs.getLong("SenderUserID") != 0 && rs.getLong("ReceiverUserID") != 0) {
+						friendList.add(rs.getLong("SenderUserID"));
+						friendList.add(rs.getLong("ReceiverUserID"));
 					}
 				}
 				System.out.println("friendList=================="+friendList.size());
@@ -121,26 +114,31 @@ public class FreeTimeTracker {
 			String sql = null;
 			PreparedStatement pstmt = null;
 			ResultSet rs = null;
-			sql = "SELECT tbl_users.FirstName , tbl_users.LastName , tbl_UserFreeTimes.UserID , tbl_UserFreeTimes.FromDateTime , tbl_UserFreeTimes.ToDateTime   FROM tbl_users INNER JOIN  tbl_UserFreeTimes ON tbl_users.UserID= tbl_UserFreeTimes.UserID WHERE tbl_UserFreeTimes.UserID=?";
+			sql = "SELECT U.FirstName , U.LastName , U.UserID , UA.FromDateTime , UA.ToDateTime   FROM tbl_users AS U INNER JOIN  tbl_UserActivity AS UA ON U.UserID= UA.UserID WHERE UA.UserID=?";
 			Connection conn = DataSourceConnection.getDBConnection();
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setLong(1, integer);
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
+				if(Utility.checkValidString(rs.getString("FromDateTime"))){
+					
 				UserFreeTimeBean userFreeTimeBean = new UserFreeTimeBean();
 				userFreeTimeBean.setUserId(rs.getLong("UserID"));
-				//userFreeTimeBean.setFreeFromTime(rs.getTimestamp("FromDateTime"));
-				//userFreeTimeBean.setFreeToTime(rs.getTimestamp("ToDateTime"));
 				userFreeTimeBean.setFirstName(rs.getString("FirstName"));
 				userFreeTimeBean.setLastName(rs.getString("LastName"));
 				// userFreeTimeBean.setStartTime();
-
-				//LocalDateTime fromTime = LocalDateTime.ofInstant(userFreeTimeBean.getFreeFromTime().toInstant(),ZoneId.systemDefault());
-				//LocalDateTime toTime = LocalDateTime.ofInstant(userFreeTimeBean.getFreeToTime().toInstant(),	ZoneId.systemDefault());
-				//userFreeTimeBean.setStartTime(Float.parseFloat(fromTime.getHour()+"."+fromTime.getMinute()));
-				//userFreeTimeBean.setEndTime(Float.parseFloat(toTime.getHour()+"."+toTime.getMinute()));
+              
+				System.out.println("FromDateTime  :  "+rs.getString("FromDateTime"));
+				
+				LocalDateTime fromTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("FromDateTime"));
+				LocalDateTime toTime = ServiceUtility.convertStringToLocalDateTime(rs.getString("ToDateTime"));
+				userFreeTimeBean.setFreeFromTime(fromTime);
+				userFreeTimeBean.setFreeToTime(toTime);
+				userFreeTimeBean.setStartTime(Float.parseFloat(fromTime.getHour()+"."+fromTime.getMinute()));
+				userFreeTimeBean.setEndTime(Float.parseFloat(toTime.getHour()+"."+toTime.getMinute()));
 
 				timePostedFriendList.add(userFreeTimeBean);
+				}
 			}
 		}
 		System.out.println("timePostedFriendList====="+timePostedFriendList.size());
@@ -279,9 +277,8 @@ public class FreeTimeTracker {
 	   System.out.println("startFreeSlot==="+startFreeSlot+"  endFreeSlot===="+endFreeSlot+"===="+indexList.toString());
 	   
 	   //sending the notification from here
-	   DateFormat df = new SimpleDateFormat("dd-MMM-YYYY");
 	   for (int i = 0; i < indexList.size(); i++) {
-		   String message = "On date "+ df.format(beanList.get(0).getFreeFromTime())+" from "+startFreeSlot+" to "+endFreeSlot +" You and your friends ";
+		   String message = "On date "+ beanList.get(0).getFreeFromTime().toLocalDate()+" from "+startFreeSlot+" to "+endFreeSlot +" You and your friends ";
 		 
 		   int counter = 1;
 		   for (Integer integer : indexList) {

@@ -541,7 +541,12 @@ public class NotificationService {
 			String insertNotificationStoreProc = "{call usp_InsertNotification(?,?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertNotificationStoreProc);
 			callableStatement.setLong(1, notificationInfoDTO.getUserId());
-			callableStatement.setLong(2, notificationInfoDTO.getSenderUserId());
+			if(notificationInfoDTO.getSenderUserId() != null){
+				callableStatement.setLong(2, notificationInfoDTO.getSenderUserId());	
+			}else{
+				callableStatement.setLong(2, 0l);
+			}
+			
 			
 			if(notificationInfoDTO.getGroupId() != null){
 				callableStatement.setLong(3, notificationInfoDTO.getGroupId());

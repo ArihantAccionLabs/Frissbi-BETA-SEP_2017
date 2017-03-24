@@ -244,7 +244,6 @@ public class MeetingDetails {
 			 if(meetingDetailsJsonObject.has("meetingIdsJsonArray")){
 				 List<Long> meetingIdList = new ArrayList<Long>();
 				  
-				if (meetingDetailsJsonObject.has("meetingIdsJsonArray")) {
 					if (meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray").length() == 1) {
 
 						meetingIdList.add(meetingDetailsJsonObject.getJSONArray("meetingIdsJsonArray").getJSONObject(0).getLong("meetingId"));
@@ -254,7 +253,6 @@ public class MeetingDetails {
 						}
 
 					}
-				}
 					ServiceUtility.deleteUserFromMeeting(meetingIdList , meetingDetailsJsonObject.getLong("userId"));
 					NotificationService.sendNotification(meetingIdList, meetingDetailsJsonObject.getLong("userId"), NotificationsEnum.MEETING_REJECTED.ordinal());
 			

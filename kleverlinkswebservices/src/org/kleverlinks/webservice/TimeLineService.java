@@ -64,6 +64,7 @@ public class TimeLineService {
 					return finalJson.toString();
 				}
 			}
+			System.out.println("isIserted  :  "+isIserted);
 			if(isIserted != 0){
 				finalJson.put("status", true);
 				finalJson.put("isTimePosted", true);
@@ -95,7 +96,7 @@ public class TimeLineService {
 			callableStatement.setTimestamp(3,Timestamp.valueOf(userFreeTimeBean.getFreeToTime()));
 			callableStatement.setTimestamp(4, new Timestamp(new java.util.Date().getTime()));
 			 isIserted = callableStatement.executeUpdate();
-			
+			 
 		} catch (SQLException se) {
 			se.printStackTrace();
 		} catch (Exception e) {
