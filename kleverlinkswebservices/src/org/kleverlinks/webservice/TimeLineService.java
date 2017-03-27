@@ -9,7 +9,6 @@ import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Calendar;
 
 import javax.ws.rs.Consumes;

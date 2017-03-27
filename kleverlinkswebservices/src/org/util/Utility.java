@@ -183,5 +183,20 @@ public static  JSONObject getGroupInfoById(Long groupId){
 	return jsonObject;
 }
 
+public static String getIdsAsStringFormat(List<Long> userIds){
+	
+	int rowCount = 1;
+	String userArray = "";
+	for (Long integer : userIds) {
+
+		if (userIds.size() == rowCount) {
+			userArray += integer + "";
+		} else {
+			userArray += integer + ",";
+		}
+		rowCount++;
+	}
+	return userArray;
+}
 
 }

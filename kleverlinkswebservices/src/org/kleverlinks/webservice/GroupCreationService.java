@@ -4,6 +4,7 @@ import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -173,29 +174,34 @@ public class GroupCreationService {
 			ResultSet rs = preparedStatement.executeQuery();
 
 			while (rs.next()) {
-
+               
+            	String userIds = Utility.getIdsAsStringFormat(groupBean.getFriendList());  
+            	if(userIds.length() != 0){
+            		
+				groupBean.getFriendList().removeAll(existedMemberList(groupBean.getGroupId() , userIds));
+				if(! groupBean.getFriendList().isEmpty()){
+				
 				if (addGroupMember(groupBean)) {
 					
 					
 					JSONObject userObject = ServiceUtility.getUserDetailByUserId(groupBean.getUserId());
-					String message = userObject.getString("fullName")+" added you to "+groupBean.getGroupName();
+					String message = userObject.getString("fullName")+" added you to "+rs.getString("GroupName");
 					
 				   NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
 				   notificationInfoDTO.setSenderUserId(groupBean.getUserId());
 				   notificationInfoDTO.setGroupId(groupBean.getGroupId());
-				   notificationInfoDTO.setUserId(groupBean.getFriendId());
+				   notificationInfoDTO.setUserId(groupBean.getFriendList().get(0));
 				   notificationInfoDTO.setMessage(message);
 				   notificationInfoDTO.setNotificationType(NotificationsEnum.ADDED_TO_GROUP.toString());
 				   
 				   NotificationService.sendNewMemeberAddingNotification(notificationInfoDTO);
-					
-					
-					
 					responseJson.put("status", true);
 					responseJson.put("message", "New memeber is added in group " + rs.getString("GroupName"));
+				}
 				} else {
 					responseJson.put("status", false);
-					responseJson.put("message", "Something went wrong during adding the member");
+					responseJson.put("message", "This user is already exist to this group");
+				}
 				}
 				return responseJson.toString();
 			}
@@ -443,15 +449,7 @@ public class GroupCreationService {
 			String sql = "INSERT INTO tbl_FriendGroup (GroupID,UserID,CreratedDateTime) VALUES(?,?,?)";	
 			conn = DataSourceConnection.getDBConnection();
 			preparedStatement = conn.prepareStatement(sql);
-			if(groupBean.getFriendList().isEmpty()){
-			
-				preparedStatement.setLong(1, groupBean.getGroupId());
-				preparedStatement.setLong(2, groupBean.getFriendId());
-				preparedStatement.setTimestamp(3, new Timestamp(new Date().getTime()));
-				if(preparedStatement.executeUpdate() != 0){
-					return true;
-				}
-			}else{
+		
 				for(Long friendId : groupBean.getFriendList()){
 					
 					preparedStatement.setLong(1, groupBean.getGroupId());
@@ -464,7 +462,6 @@ public class GroupCreationService {
 				if(friendInserted.length != 0){
 					return true;
 				}
-			}
 	} catch (Exception e) {
 		e.printStackTrace();
 	} finally {
@@ -473,6 +470,31 @@ public class GroupCreationService {
 	}
 		return false;
 	}
+	
+	public List<Long> existedMemberList(Long groupId , String userIds){
+		Connection conn = null;
+		Statement statement = null;	
+		List<Long> userIdList = new ArrayList<>();
+		try{
+			String sql = "Select UserId from tbl_FriendGroup where GroupID="+groupId+" AND UserID IN ("+userIds+")";	
+			conn = DataSourceConnection.getDBConnection();
+			statement = conn.prepareStatement(sql);
+			
+		ResultSet rs =	statement.executeQuery(sql);
+		
+		while(rs.next()){
+			userIdList.add(rs.getLong("UserId"));	
+		}
+			
+	} catch (Exception e) {
+		e.printStackTrace();
+	} finally {
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(statement);
+	}
+		return userIdList;
+	}
+	
 	
 	public GroupInfoBean getGroupAdmin( Long groupId){
 		

@@ -80,7 +80,7 @@ public class GroupBean {
 		this.userId = jsonObject.getLong("userId");
 		
 		if(jsonObject.has("friendId")){
-			this.friendId = jsonObject.getLong("friendId");
+			friendList.add(jsonObject.getLong("friendId"));
 		}
 		
 		if(jsonObject.has("groupImage")){

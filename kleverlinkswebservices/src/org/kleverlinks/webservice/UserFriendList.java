@@ -11,7 +11,6 @@ import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -360,117 +359,6 @@ public class UserFriendList {
 	}
 
 	@GET
-	@Path("/pendingForApprovalList/{username}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String pendingForApprovalList(@PathParam("username") String userName) {
-		Connection conn = null;
-		Statement stmt = null;
-		Long userId = 0l;
-		ArrayList<Long> userIds = new ArrayList<Long>();
-		JSONArray jsonResultsArray = new JSONArray();
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			String sql;
-			sql = "SELECT userID from tbl_users where username ='" + userName + "'" + " limit 1";
-			ResultSet rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				userId = rs.getLong("userId");
-			}
-			sql = "Select * from tbl_userfriendlist  where ReceiverUserID ='" + userId + "' and requestStatus = 0";
-
-			rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				userIds.add(rs.getLong("SenderUserID"));
-			}
-
-			Iterator<Long> iterator = userIds.iterator();
-			while (iterator.hasNext()) {
-				userId = iterator.next();
-				sql = "Select * from tbl_users AS U LEFT OUTER JOIN tbl_usertransactions AS UT ON U.UserID = UT.UserID where U.UserID = '"
-						+ userId + "'";
-				rs = stmt.executeQuery(sql);
-
-				while (rs.next()) {
-					JSONObject jsonObject = new JSONObject();
-					jsonObject.put("UserId", rs.getString("UserId"));
-					jsonObject.put("UserName", rs.getString("UserName"));
-					jsonObject.put("FirstName", rs.getString("FirstName"));
-					jsonObject.put("LastName", rs.getString("LastName"));
-					jsonObject.put("EmailName", rs.getString("EmailName"));
-					jsonResultsArray.put(jsonObject);
-				}
-			}
-
-		} catch (SQLException se) {
-			se.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			ServiceUtility.closeConnection(conn);
-			ServiceUtility.closeSatetment(stmt);
-		}
-		return jsonResultsArray.toString();
-	}
-
-	@GET
-	@Path("/blockedFriendsList/{username}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String blockedFriendsList(@PathParam("username") String userName) {
-		Connection conn = null;
-		Statement stmt = null;
-		Long userId = 0l;
-		ArrayList<Long> userIds = new ArrayList<Long>();
-		JSONArray jsonResultsArray = new JSONArray();
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			String sql;
-			sql = "SELECT userID from tbl_users where username ='" + userName + "'" + " limit 1";
-			ResultSet rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				userId = rs.getLong("userId");
-			}
-			sql = "Select * from tbl_userfriendlist  where ActionUserID ='" + userId + "' and requestStatus = 2";
-
-			rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				userIds.add(rs.getLong("SenderUserID"));
-			}
-
-			Iterator<Long> iterator = userIds.iterator();
-			while (iterator.hasNext()) {
-				userId = iterator.next();
-				sql = "Select * from tbl_users where UserID = '" + userId + "'";
-				rs = stmt.executeQuery(sql);
-
-				while (rs.next()) {
-					JSONObject jsonObject = new JSONObject();
-					jsonObject.put("UserId", rs.getString("UserId"));
-					jsonObject.put("UserName", rs.getString("UserName"));
-					jsonObject.put("FirstName", rs.getString("FirstName"));
-					jsonObject.put("LastName", rs.getString("LastName"));
-					jsonObject.put("EmailName", rs.getString("EmailName"));
-					jsonResultsArray.put(jsonObject);
-				}
-			}
-
-		} catch (SQLException se) {
-			se.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			ServiceUtility.closeConnection(conn);
-			ServiceUtility.closeSatetment(stmt);
-		}
-		return jsonResultsArray.toString();
-	}
-
-	@GET
 	@Path("/search/{senderUserId}/{search_criteria}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String search(@PathParam("senderUserId") Long senderUserId,
@@ -491,17 +379,8 @@ public class UserFriendList {
 			allUserIds.addAll(waitingUserIds);
 			allUserIds.add(senderUserId);
 
-			String userArray = "";
-			int rowCount = 1;
-			for (Long integer : allUserIds) {
-
-				if (allUserIds.size() == rowCount) {
-					userArray += integer + "";
-				} else {
-					userArray += integer + ",";
-				}
-				rowCount++;
-			}
+			String userArray = Utility.getIdsAsStringFormat(allUserIds.stream().collect(Collectors.toList()));
+			
 			// System.out.println("userArray============"+userArray.toString());
 			conn = DataSourceConnection.getDBConnection();
 			stmt = conn.createStatement();
