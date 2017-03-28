@@ -21,7 +21,6 @@ public class CronScheduler {
 	@Path("/runCronScheduler")
 	@Produces(MediaType.TEXT_PLAIN)
 	public void doSomething() throws Exception {
-           System.out.println("doSomething=============================");
           
           /* //Smart reminder before 2 hours from meeting
            JobKey jobKeyA = new JobKey("jobA", "group1");
