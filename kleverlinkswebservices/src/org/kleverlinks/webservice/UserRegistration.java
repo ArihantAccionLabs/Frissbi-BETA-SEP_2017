@@ -36,7 +36,6 @@ public class UserRegistration {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String registerUser(String registerationData) {
 
-		System.out.println("registerationData  :  "+registerationData.toString());
 		JSONObject finalJson = new JSONObject();
 		Connection conn = null;
 		CallableStatement callableStatement = null;

@@ -236,7 +236,7 @@ public class UserActivityService {
 		JSONObject finalJson = new JSONObject();
 		JSONObject json = null;
 		try {
-			//System.out.println("userId:   "+userId+"  offSetValue  :  "+offSetValue);
+			System.out.println("userId:   "+userId+"  offSetValue  :  "+offSetValue);
 			conn = DataSourceConnection.getDBConnection();
 			String insertFrissbiLocationStoreProc = "{call usp_getUserActivity(?,?)}";
 			callableStatement = conn.prepareCall(insertFrissbiLocationStoreProc);
@@ -290,8 +290,7 @@ public class UserActivityService {
 				  json.put("type", ActivityType.COVER_TYPE.toString());
 			  }	  
 				if(json.has("type")){
-					   json.put("date", rs.getString("date"));
-					   jsonArray.put(json);
+					   json.put("date", rs.getString("CreatedDateTime"));
 					}
 						  
 				jsonArray.put(json);
