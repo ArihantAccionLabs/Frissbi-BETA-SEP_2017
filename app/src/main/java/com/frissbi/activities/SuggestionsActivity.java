@@ -7,11 +7,14 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
+import com.frissbi.adapters.GroupParticipantAdapter;
 import com.frissbi.adapters.LocationSuggestionAdapter;
+import com.frissbi.models.FrissbiContact;
 import com.frissbi.models.LocationSuggestion;
 import com.frissbi.networkhandler.TSNetworkHandler;
 
@@ -42,32 +45,39 @@ public class SuggestionsActivity extends AppCompatActivity {
         mLocationSuggestionRecyclerView = (RecyclerView) findViewById(R.id.location_suggestion_recyclerView);
         mLoadPlacesButton = (Button) findViewById(R.id.load_places_button);
         mSubmitPlaceButton = (Button) findViewById(R.id.submit_place_button);
+        TextView suggestionMeetingDesTv = (TextView) findViewById(R.id.suggestion_meeting_des_tv);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         mLocationSuggestionRecyclerView.setLayoutManager(layoutManager);
         Bundle bundle = getIntent().getExtras();
         if (bundle.containsKey("locationSuggestionJson")) {
             locationSuggestionJson = bundle.getString("locationSuggestionJson");
+            setMeetingFriends(bundle.getString("meetingFriendsArray"));
+            suggestionMeetingDesTv.setText(bundle.getString("meetingMessage"));
             try {
                 setSuggestedLocations(new JSONObject(locationSuggestionJson));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+            if (bundle.containsKey("meetingId")) {
+                mMeetingId = Long.parseLong(getIntent().getExtras().getString("meetingId"));
+                Log.d("SuggestionsActivity", "meetingId" + mMeetingId);
+            }
         }
 
-        if (bundle.containsKey("meetingId")) {
-            mMeetingId = Long.parseLong(getIntent().getExtras().getString("meetingId"));
-            Log.d("SuggestionsActivity", "meetingId" + mMeetingId);
-        }
-        if (bundle.containsKey("summaryMeetingId")) {
-            mMeetingId = getIntent().getExtras().getLong("summaryMeetingId");
-            Log.d("SuggestionsActivity", "meetingId" + mMeetingId);
-        }
+
         if (bundle.containsKey("isCallFromSummary")) {
             if (bundle.getBoolean("isCallFromSummary")) {
+                mMeetingId = getIntent().getExtras().getLong("summaryMeetingId");
                 isFromMeetingSummary = true;
                 getMorePlacesFromServer(0);
             }
+
         }
+
+       /* if (bundle.containsKey("summaryMeetingId")) {
+
+            Log.d("SuggestionsActivity", "meetingId" + mMeetingId);
+        }*/
 
         mLoadPlacesButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,6 +93,26 @@ public class SuggestionsActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void setMeetingFriends(String meetingFriendsArray) {
+        List<FrissbiContact> frissbiContactList = new ArrayList<>();
+        try {
+            JSONArray meetingFriendsJsonArray = new JSONArray(meetingFriendsArray);
+            for (int i = 0; i < meetingFriendsArray.length(); i++) {
+                JSONObject jsonObject = meetingFriendsJsonArray.getJSONObject(i);
+                FrissbiContact frissbiContact = new FrissbiContact();
+                frissbiContact.setUserId(jsonObject.getLong("userId"));
+                frissbiContact.setName(jsonObject.getString("fullName"));
+                frissbiContact.setImageId(jsonObject.getString("profileImageId"));
+                frissbiContactList.add(frissbiContact);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        GroupParticipantAdapter groupParticipantAdapter = new GroupParticipantAdapter(this, frissbiContactList);
+        mLocationSuggestionRecyclerView.setAdapter(groupParticipantAdapter);
     }
 
     private void submitSelectedPlace() {

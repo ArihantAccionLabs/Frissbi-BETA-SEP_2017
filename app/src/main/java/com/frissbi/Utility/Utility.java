@@ -1,6 +1,7 @@
 package com.frissbi.Utility;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -11,7 +12,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Base64;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
+
+import com.frissbi.R;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,7 +44,8 @@ public class Utility {
     public static final String GROUP_NOTIFICATION_TYPE = "GROUP_TYPE";
     public static final String FRIEND_NOTIFICATION_TYPE = "FRIEND_TYPE";
     //public static final String REST_URI ="http://13.76.99.32/kleverlinkswebservices";
-    public static final String REST_URI = "http://192.168.2.236:9090/kleverlinkswebservices/rest";//Sunil
+   // public static final String REST_URI = "http://139.59.32.89:8080/kleverlinkswebservices/rest";
+    public static final String REST_URI = "http://192.168.2.148:9090/kleverlinkswebservices/rest";//Sunil
     public static final String USER_FRIENDSLIST = "/FriendListService/friendsList/";
     public static final String MEETING_INSERT = "/MeetingDetailsService/insertMeetingDetails/";
     public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getUserDetailsByMeetingID/";
@@ -50,6 +56,8 @@ public class Utility {
     public static final String PEOPLE_SEARCH = "/FriendListService/search/";
     public static final String ADD_FRIEND = "/FriendListService/sendFriendRequest/";
     public static final String APPROVE_FRIEND = "/FriendListService/approveFriendRequest/";
+    public static final String REJECT_FRIEND = "/FriendListService/rejectFriendRequest";
+    public static final String UNFRIEND = "/FriendListService/unFriendRequest";
     public static final String VIEW_OTHER_PROFILE = "/FriendListService/seeOtherProfile/";
     public static final String MEETING_LOG_BY_DATE = "/MeetingDetailsService/getMeetingDetailsByUserID";
     public static final String MEETING_COUNT_BY_MONTH = "/CalendarService/getMeetingMonthWise";
@@ -75,6 +83,8 @@ public class Utility {
     public static final String PEOPLE_YOU_MAY_KNOW = "/FriendActivityService/getPeopleYouMayKnow/";
     public static final String NOTIFICATION_LOG = "/FriendListService/getNotificationLogByUserId/";
     public static final String UPLOAD_PHOTO = "/UserActivityService/insertUserPhotos";
+    public static final String CHECK_IN_LOCATION = "/UserActivityService/insertUserLocation";
+    public static final String NOTIFICATION_AS_READ = "/FriendListService/updateNotificationAsRead/";
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 100;
     private static Utility ourInstance = new Utility();
 
@@ -235,5 +245,28 @@ public class Utility {
         return aTime;
 
     }
+
+
+    public void setImageDialog(final Context context, String imageId) {
+
+        final Dialog dialog = new Dialog(context, android.R.style.Theme_Translucent_NoTitleBar_Fullscreen);
+        // it set dialogue hole page
+        dialog.getWindow().setLayout(WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT);
+
+
+        // fo no title
+        //   dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_image);
+        dialog.setCanceledOnTouchOutside(true);
+        final ImageView localImage = (ImageView) dialog.findViewById(R.id.img);
+
+        // ImageCacheHandler.getInstance(context).setImage(localImage, documentId, url);
+
+        ImageCacheHandler.getInstance(context).setImage(localImage, imageId);
+        dialog.show();
+
+    }
+
 
 }

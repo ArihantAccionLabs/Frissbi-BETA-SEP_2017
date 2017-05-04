@@ -48,7 +48,6 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="10dp"
-            android:scaleType="fitXY"
             android:src="@drawable/default_profile_image" />
 
 

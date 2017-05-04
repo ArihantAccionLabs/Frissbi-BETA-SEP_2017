@@ -8,7 +8,9 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 
 import com.frissbi.R;
 import com.frissbi.adapters.RemindersAdapter;
@@ -22,15 +24,35 @@ public class RemindersActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reminders);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         RecyclerView remindersRecyclerView = (RecyclerView) findViewById(R.id.reminders_recyclerView);
+        TextView noReminderTv = (TextView) findViewById(R.id.no_reminder_tv);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         remindersRecyclerView.setLayoutManager(layoutManager);
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(remindersRecyclerView.getContext(),
                 DividerItemDecoration.VERTICAL);
         remindersRecyclerView.addItemDecoration(dividerItemDecoration);
         List<FrissbiReminder> frissbiReminderList = FrissbiReminder.listAll(FrissbiReminder.class);
-        RemindersAdapter remindersAdapter = new RemindersAdapter(this, frissbiReminderList);
-        remindersRecyclerView.setAdapter(remindersAdapter);
+        if (frissbiReminderList.size() > 0) {
+            noReminderTv.setVisibility(View.GONE);
+            RemindersAdapter remindersAdapter = new RemindersAdapter(this, frissbiReminderList);
+            remindersRecyclerView.setAdapter(remindersAdapter);
+        } else {
+            noReminderTv.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+
+        }
     }
 
 }

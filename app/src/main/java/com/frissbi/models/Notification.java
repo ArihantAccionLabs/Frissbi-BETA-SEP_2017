@@ -5,6 +5,7 @@ package com.frissbi.models;
  */
 
 public class Notification {
+    private Long notificationId;
     private String message;
     private Long groupId;
     private String groupName;
@@ -16,6 +17,15 @@ public class Notification {
     private String friendName;
     private String friendImageId;
     private String type;
+    private boolean isRead;
+
+    public Long getNotificationId() {
+        return notificationId;
+    }
+
+    public void setNotificationId(Long notificationId) {
+        this.notificationId = notificationId;
+    }
 
     public String getMessage() {
         return message;
@@ -97,10 +107,19 @@ public class Notification {
         this.friendImageId = friendImageId;
     }
 
+    public boolean isRead() {
+        return isRead;
+    }
+
+    public void setRead(boolean read) {
+        isRead = read;
+    }
+
     @Override
     public String toString() {
         return "Notification{" +
-                "message='" + message + '\'' +
+                "notificationId=" + notificationId +
+                ", message='" + message + '\'' +
                 ", groupId=" + groupId +
                 ", groupName='" + groupName + '\'' +
                 ", groupAdmin='" + groupAdmin + '\'' +
@@ -110,6 +129,7 @@ public class Notification {
                 ", friendName='" + friendName + '\'' +
                 ", friendImageId='" + friendImageId + '\'' +
                 ", type='" + type + '\'' +
+                ", isRead=" + isRead +
                 '}';
     }
 }

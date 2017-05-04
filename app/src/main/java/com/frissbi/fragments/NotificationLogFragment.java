@@ -12,16 +12,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
-import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.activities.GroupDetailsActivity;
 import com.frissbi.activities.ProfileActivity;
-import com.frissbi.adapters.MeetingLogAdapter;
 import com.frissbi.adapters.NotificationLogAdapter;
 import com.frissbi.interfaces.NotificationListener;
 import com.frissbi.models.Notification;
@@ -78,18 +75,25 @@ public class NotificationLogFragment extends Fragment implements NotificationLis
                                     for (int i = 0; i < notificationJsonArray.length(); i++) {
                                         JSONObject notificationJsonObject = notificationJsonArray.getJSONObject(i);
                                         Notification notification = new Notification();
-                                        notification.setMessage(notificationJsonObject.getString("notificationMessage"));
                                         notification.setType(notificationJsonObject.getString("type"));
+                                        notification.setRead(notificationJsonObject.getBoolean("isRead"));
+                                        notification.setNotificationId(notificationJsonObject.getLong("notificationId"));
+
+
                                         if (notificationJsonObject.getString("type").equalsIgnoreCase(Utility.GROUP_NOTIFICATION_TYPE)) {
                                             notification.setGroupId(notificationJsonObject.getLong("groupId"));
                                             notification.setGroupName(notificationJsonObject.getString("groupName"));
                                             notification.setGroupAdmin(notificationJsonObject.getString("adminName"));
-                                            notification.setGroupImageId(notificationJsonObject.getString("groupImageId"));
+                                            if (notificationJsonObject.has("groupImageId")) {
+                                                notification.setGroupImageId(notificationJsonObject.getString("groupImageId"));
+                                            }
                                         }
                                         if (notificationJsonObject.getString("type").equalsIgnoreCase(Utility.FRIEND_NOTIFICATION_TYPE)) {
                                             notification.setFriendId(notificationJsonObject.getLong("senderUserId"));
                                             notification.setStatus(notificationJsonObject.getString("status"));
-                                            notification.setFriendImageId(notificationJsonObject.getString("profileImageId"));
+                                            if (notificationJsonObject.has("profileImageId")) {
+                                                notification.setFriendImageId(notificationJsonObject.getString("profileImageId"));
+                                            }
                                             notification.setFriendName(notificationJsonObject.getString("fullName"));
                                         }
                                         mNotificationList.add(notification);
@@ -116,6 +120,7 @@ public class NotificationLogFragment extends Fragment implements NotificationLis
     @Override
     public void selectedNotification(Notification notification) {
         FLog.d("NotificationLogFragment", "notification" + notification);
+        sendStatusOfNotificationToServer(notification.getNotificationId());
         if (notification.getType().equalsIgnoreCase(Utility.GROUP_NOTIFICATION_TYPE)) {
             Intent intent = new Intent(getActivity(), GroupDetailsActivity.class);
             intent.putExtra("groupId", notification.getGroupId());
@@ -129,6 +134,15 @@ public class NotificationLogFragment extends Fragment implements NotificationLis
         }
     }
 
+    private void sendStatusOfNotificationToServer(Long notificationId) {
+        TSNetworkHandler.getInstance(getActivity()).getResponse(Utility.REST_URI + Utility.NOTIFICATION_AS_READ + notificationId + "/true", new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
+            @Override
+            public void handleResponse(TSNetworkHandler.TSResponse response) {
+
+            }
+        });
+    }
+
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
@@ -136,6 +150,7 @@ public class NotificationLogFragment extends Fragment implements NotificationLis
             if (mNotificationList == null) {
                 mNotificationList = new ArrayList<>();
             }
+            // mProgressDialog = new CustomProgressDialog(getActivity());
             getNoficationsFromServer();
         }
     }

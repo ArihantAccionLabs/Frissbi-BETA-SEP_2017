@@ -6,6 +6,7 @@ package com.frissbi.models;
 
 public class LocationSuggestion {
     private Long locationId;
+    private String placeId;
     private String name;
     private String address;
     private double latitude;
@@ -69,16 +70,25 @@ public class LocationSuggestion {
         this.rating = rating;
     }
 
+    public String getPlaceId() {
+        return placeId;
+    }
+
+    public void setPlaceId(String placeId) {
+        this.placeId = placeId;
+    }
+
     @Override
     public String toString() {
         return "LocationSuggestion{" +
                 "locationId=" + locationId +
+                ", placeId='" + placeId + '\'' +
                 ", name='" + name + '\'' +
                 ", address='" + address + '\'' +
                 ", latitude=" + latitude +
                 ", longitude=" + longitude +
                 ", imageUrl='" + imageUrl + '\'' +
-                ", rating=" + rating +
+                ", rating='" + rating + '\'' +
                 '}';
     }
 }

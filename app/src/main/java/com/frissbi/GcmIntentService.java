@@ -1,6 +1,7 @@
 package com.frissbi;
 
 import android.app.IntentService;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -17,12 +18,12 @@ import android.widget.Toast;
 import com.frissbi.Frissbi_Meetings.Meeting_StatusPage;
 import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.Utility.FLog;
-import com.frissbi.enums.NotificationType;
 import com.frissbi.Utility.TSLocationManager;
 import com.frissbi.activities.GroupDetailsActivity;
 import com.frissbi.activities.MeetingDetailsActivity;
 import com.frissbi.activities.ProfileActivity;
 import com.frissbi.activities.SuggestionsActivity;
+import com.frissbi.enums.NotificationType;
 import com.frissbi.locations.NearByPlacess;
 import com.frissbi.networkhandler.TSNetworkHandler;
 import com.google.android.gms.gcm.GoogleCloudMessaging;
@@ -46,6 +47,8 @@ public class GcmIntentService extends IntentService {
     private Long friendUserId;
     private Long groupId;
     private Uri soundUri;
+    private String meetingFriendsArray;
+    private String meetingMessage;
 
     //  Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
     public GcmIntentService() {
@@ -69,6 +72,8 @@ public class GcmIntentService extends IntentService {
 
         if (intent.getExtras().containsKey("locationSuggestionJson")) {
             locationSuggestionJsonString = intent.getExtras().getString("locationSuggestionJson");
+            meetingFriendsArray = intent.getExtras().getString("meetingFriendsArray");
+            meetingMessage = intent.getExtras().getString("meetingMessage");
             try {
                 JSONObject jsonObject = new JSONObject(locationSuggestionJsonString);
                 isLocationUpdate = jsonObject.getBoolean("isLocationUpdate");
@@ -204,6 +209,8 @@ public class GcmIntentService extends IntentService {
                 intent = new Intent(this, SuggestionsActivity.class);
                 intent.putExtra("meetingId", mMeetingId);
                 intent.putExtra("locationSuggestionJson", locationSuggestionJsonString.toString());
+                intent.putExtra("meetingFriendsArray", meetingFriendsArray.toString());
+                intent.putExtra("meetingMessage", meetingMessage);
             }
             showNotification(intent, msg);
 
@@ -273,6 +280,7 @@ public class GcmIntentService extends IntentService {
                 .addAction(0, "Remind", contentIntent)
                 .setContentIntent(contentIntent)
                 .setContentText(msg)
+                .setPriority(Notification.PRIORITY_MAX)
                 .setAutoCancel(true);
         mNotificationManager.notify(NOTIFICATION_ID++, mBuilder.build());
     }

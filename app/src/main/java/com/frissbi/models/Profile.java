@@ -1,22 +1,26 @@
 package com.frissbi.models;
 
-import android.graphics.Bitmap;
+import com.orm.SugarRecord;
 
 /**
  * Created by thrymr on 21/2/17.
  */
 
-public class Profile {
+public class Profile extends SugarRecord {
 
     private String userName;
     private String firstName;
     private String lastName;
     private String email;
-    private String  imageId;
+    private String imageId;
     private String dob;
     private String contactNumber;
     private String gender;
     private String coverImageId;
+
+    public Profile() {
+        
+    }
 
     public String getUserName() {
         return userName;
@@ -50,11 +54,11 @@ public class Profile {
         this.email = email;
     }
 
-    public String  getImageId() {
+    public String getImageId() {
         return imageId;
     }
 
-    public void setImageId(String  imageId) {
+    public void setImageId(String imageId) {
         this.imageId = imageId;
     }
 

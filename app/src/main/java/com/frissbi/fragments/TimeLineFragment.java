@@ -6,27 +6,28 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
 import com.frissbi.R;
 import com.frissbi.Utility.CustomProgressDialog;
+import com.frissbi.Utility.EndlessScrollView;
 import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
+import com.frissbi.activities.FriendsListActivity;
 import com.frissbi.activities.MeetingDetailsActivity;
 import com.frissbi.adapters.OthersActivitiesAdapter;
 import com.frissbi.adapters.UpcomingMeetingAdapter;
 import com.frissbi.enums.ActivityType;
+import com.frissbi.interfaces.EndlessScrollListener;
 import com.frissbi.interfaces.MeetingDetailsListener;
 import com.frissbi.interfaces.ViewImageListener;
 import com.frissbi.models.Activities;
@@ -46,7 +47,7 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TimeLineFragment extends Fragment implements MeetingDetailsListener, ViewImageListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener {
+public class TimeLineFragment extends Fragment implements MeetingDetailsListener, ViewImageListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, EndlessScrollListener {
 
 
     private RecyclerView mUpcomingMeetingRecyclerView;
@@ -60,11 +61,12 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
     private OthersActivitiesAdapter mOthersActivitiesAdapter;
     private int mOtherActivityOffSetValue;
     private FloatingActionButton mTimelineScrollTopFloatingButton;
-    private Button mViewMoreActivitiesButton;
-    private NestedScrollView mTimelineNestedScrollView;
+    // private Button mViewMoreActivitiesButton;
+    private EndlessScrollView mTimelineEndlessScrollView;
     private ProgressDialog mProgressDialog;
     private SwipeRefreshLayout mTimelineSwipeRefreshLayout;
     private RelativeLayout mNofriendsLayout;
+    private boolean mIsNextActivityExist;
 
 
     public TimeLineFragment() {
@@ -91,14 +93,16 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
         RecyclerView.LayoutManager othersLayoutManager = new LinearLayoutManager(getActivity());
         mOthersActivitiesRecyclerView.setLayoutManager(othersLayoutManager);
         mOthersActivitiesRecyclerView.setNestedScrollingEnabled(false);
-        mViewMoreActivitiesButton = (Button) view.findViewById(R.id.view_more_activities_button);
+        // mViewMoreActivitiesButton = (Button) view.findViewById(R.id.view_more_activities_button);
         mTimelineScrollTopFloatingButton = (FloatingActionButton) view.findViewById(R.id.timeline_scroll_top_floating_button);
-        mTimelineNestedScrollView = (NestedScrollView) view.findViewById(R.id.timeline_nestedScrollView);
+        mTimelineEndlessScrollView = (EndlessScrollView) view.findViewById(R.id.timeline_nestedScrollView);
         mTimelineSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.timeline_swipeRefreshLayout);
         mNofriendsLayout = (RelativeLayout) view.findViewById(R.id.no_friends_rl);
         mTimelineSwipeRefreshLayout.setOnRefreshListener(this);
-        mViewMoreActivitiesButton.setOnClickListener(this);
+        // mViewMoreActivitiesButton.setOnClickListener(this);
         mTimelineScrollTopFloatingButton.setOnClickListener(this);
+        mTimelineEndlessScrollView.setScrollViewListener(this);
+        view.findViewById(R.id.make_friends_button).setOnClickListener(this);
         getUpcomingMeetingsFromServer();
         return view;
     }
@@ -214,7 +218,6 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
 
                             if (resposeJsonObject.has("userActivityArray")) {
                                 mNofriendsLayout.setVisibility(View.GONE);
-                                mTimelineScrollTopFloatingButton.setVisibility(View.VISIBLE);
                                 JSONArray userActivityJsonArray = resposeJsonObject.getJSONArray("userActivityArray");
 
                                 for (int i = 0; i < userActivityJsonArray.length(); i++) {
@@ -265,10 +268,12 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
                                 mOthersActivitiesRecyclerView.setAdapter(mOthersActivitiesAdapter);
 
                                 if (resposeJsonObject.getBoolean("isNextActivityExist")) {
-                                    mViewMoreActivitiesButton.setVisibility(View.VISIBLE);
+                                    //mViewMoreActivitiesButton.setVisibility(View.VISIBLE);
+                                    mIsNextActivityExist = true;
                                     mOtherActivityOffSetValue++;
                                 } else {
-                                    mViewMoreActivitiesButton.setVisibility(View.GONE);
+                                    mIsNextActivityExist = false;
+                                    // mViewMoreActivitiesButton.setVisibility(View.GONE);
                                 }
                             } else {
                                 mNofriendsLayout.setVisibility(View.VISIBLE);
@@ -284,6 +289,7 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
                     }
                 } else {
                     Toast.makeText(getActivity(), getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                    mProgressDialog.dismiss();
                 }
                 mProgressDialog.dismiss();
                 mTimelineSwipeRefreshLayout.setRefreshing(false);
@@ -349,10 +355,12 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
                             mOthersActivitiesAdapter.setMoreActivities(activitiesList);
 
                             if (resposeJsonObject.getBoolean("isNextActivityExist")) {
-                                mViewMoreActivitiesButton.setVisibility(View.VISIBLE);
+                                mIsNextActivityExist = true;
+                                //  mViewMoreActivitiesButton.setVisibility(View.VISIBLE);
                                 mOtherActivityOffSetValue++;
                             } else {
-                                mViewMoreActivitiesButton.setVisibility(View.GONE);
+                                mIsNextActivityExist = false;
+                                // mViewMoreActivitiesButton.setVisibility(View.GONE);
                             }
 
                         } catch (JSONException e) {
@@ -378,19 +386,25 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
 
     @Override
     public void viewImage(String imageId) {
-        ViewImageDialogFragment viewImageDialogFragment = new ViewImageDialogFragment();
+       /* ViewImageDialogFragment viewImageDialogFragment = new ViewImageDialogFragment();
         viewImageDialogFragment.setImageId(imageId);
-        viewImageDialogFragment.show(getActivity().getSupportFragmentManager(), "ViewImageDialogFragment");
+        viewImageDialogFragment.show(getActivity().getSupportFragmentManager(), "ViewImageDialogFragment");*/
+        Utility.getInstance().setImageDialog(getActivity(), imageId);
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.view_more_activities_button:
-                getMoreOtherActivities();
+                // getMoreOtherActivities();
                 break;
             case R.id.timeline_scroll_top_floating_button:
-                mTimelineNestedScrollView.fullScroll(ScrollView.FOCUS_UP);
+                mTimelineEndlessScrollView.fullScroll(ScrollView.FOCUS_UP);
+                break;
+            case R.id.make_friends_button:
+                Intent intent = new Intent(getActivity(), FriendsListActivity.class);
+                intent.putExtra("callFrom", "makeFriends");
+                startActivity(intent);
                 break;
 
         }
@@ -402,5 +416,27 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
     }
 
 
+    @Override
+    public void onScrollChanged(EndlessScrollView scrollView, int x, int y, int oldx, int oldy) {
+        // We take the last son in the scrollview
+        View view = scrollView.getChildAt(scrollView.getChildCount() - 1);
+
+        if (y == 0) {
+            mTimelineSwipeRefreshLayout.setEnabled(true);
+            mTimelineScrollTopFloatingButton.setVisibility(View.GONE);
+        } else {
+            mTimelineSwipeRefreshLayout.setEnabled(false);
+            mTimelineScrollTopFloatingButton.setVisibility(View.VISIBLE);
+        }
+
+        int distanceToEnd = (view.getBottom() - (scrollView.getHeight() + scrollView.getScrollY()));
+        // if diff is zero, then the bottom has been reached
+        if (distanceToEnd == 0) {
+            // do stuff your load more stuff
+            if (mIsNextActivityExist) {
+                getMoreOtherActivities();
+            }
+        }
+    }
 }
 

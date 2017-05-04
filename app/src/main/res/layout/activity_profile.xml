@@ -7,230 +7,238 @@
     android:layout_height="match_parent"
     tools:context="com.frissbi.activities.ProfileActivity">
 
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/profile_nestedScrollView"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="wrap_content">
 
-        <RelativeLayout
+        <com.frissbi.Utility.EndlessScrollView
+            android:id="@+id/profile_nestedScrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <RelativeLayout
-                android:id="@+id/cover_photo_rl"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:background="@drawable/bg_triangle">
+                android:layout_height="wrap_content">
 
                 <RelativeLayout
+                    android:id="@+id/cover_photo_rl"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="50dp"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginRight="30dp"
-                    android:layout_marginTop="50dp">
+                    android:layout_height="200dp"
+                    android:background="@drawable/bg_triangle">
 
                     <RelativeLayout
-                        android:id="@+id/profile_image_rl"
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_weight="4">
+                        android:layout_marginBottom="50dp"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginRight="30dp"
+                        android:layout_marginTop="50dp">
 
-                        <Button
-                            android:id="@+id/edit_profile_image_button"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:layout_marginLeft="6dp"
-                            android:layout_marginTop="6dp"
-                            android:background="@drawable/icon_edit_profile_pic_black" />
+                        <RelativeLayout
+                            android:id="@+id/profile_image_rl"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="4">
 
-                        <ImageView
-                            android:id="@+id/profile_user_image"
-                            android:layout_width="100dp"
-                            android:layout_height="100dp"
-                            android:scaleType="fitXY"
-                            android:src="@drawable/default_profile_image" />
+                            <Button
+                                android:id="@+id/edit_profile_image_button"
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:layout_marginLeft="6dp"
+                                android:layout_marginTop="6dp"
+                                android:background="@drawable/icon_edit_profile_pic_black" />
+
+                            <ImageView
+                                android:id="@+id/profile_user_image"
+                                android:layout_width="100dp"
+                                android:layout_height="100dp"
+                                android:scaleType="fitXY"
+                                android:src="@drawable/default_profile_image" />
+
+                        </RelativeLayout>
+
+                        <RelativeLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_toRightOf="@+id/profile_image_rl"
+                            android:background="#eeffffff"
+                            android:gravity="center_vertical">
+
+                            <com.frissbi.CustomFontTextView
+                                android:id="@+id/profile_username_tv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginLeft="16dp"
+                                android:text="User Name"
+                                android:textColor="@color/black" />
+
+                            <!--<com.frissbi.CustomFontTextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/profile_username_tv"
+                                android:layout_marginLeft="16dp"
+                                android:layout_marginTop="30dp"
+                                android:text="My Status Message"
+                                android:textColor="@color/black"
+                                android:textStyle="bold" />
+        -->
+
+                        </RelativeLayout>
+
 
                     </RelativeLayout>
 
                     <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        android:layout_marginBottom="6dp">
+
+                        <Button
+                            android:id="@+id/accept_friend_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="10dp"
+                            android:background="#eeffffff"
+                            android:minHeight="40dp"
+                            android:text="Accept"
+                            android:textAllCaps="false"
+                            android:visibility="gone" />
+
+
+                        <Button
+                            android:id="@+id/add_friend_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginRight="30dp"
+                            android:layout_toRightOf="@+id/accept_friend_button"
+                            android:background="#eeffffff"
+                            android:minHeight="40dp"
+                            android:text="Add Friend"
+                            android:textAllCaps="false"
+                            android:visibility="gone" />
+
+
+                        <Button
+                            android:id="@+id/edit_cover_photo_button"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="6dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_toRightOf="@+id/add_friend_button"
+                            android:background="@drawable/icon_edit_profile_pic_white"
+                            android:visibility="visible" />
+                    </RelativeLayout>
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/status_activities_rl"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/cover_photo_rl"
+                    android:background="@color/bg_color"
+                    android:padding="10dp">
+
+                    <RelativeLayout
+                        android:id="@+id/status_rl"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:layout_toRightOf="@+id/profile_image_rl"
-                        android:background="#eeffffff"
-                        android:gravity="center_vertical">
+                        android:layout_height="wrap_content">
+
+                        <android.support.design.widget.TextInputLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@+id/submit_status_imageView">
+
+                            <EditText
+                                android:id="@+id/status_message_et"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:hint="@string/what_s_on_your_mind" />
+
+                        </android.support.design.widget.TextInputLayout>
+
+                        <ImageView
+                            android:id="@+id/submit_status_imageView"
+                            android:layout_width="30dp"
+                            android:layout_height="30dp"
+                            android:layout_centerVertical="true"
+                            android:layout_marginRight="10dp"
+                            android:layout_toLeftOf="@+id/post_free_time_tv"
+                            android:src="@drawable/icon_tick"
+                            android:visibility="gone" />
 
                         <com.frissbi.CustomFontTextView
-                            android:id="@+id/profile_username_tv"
+                            android:id="@+id/post_free_time_tv"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:text="Free?"
+                            android:textColor="@color/white"
+                            android:textStyle="bold" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/activities_rl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/status_rl"
+                        android:layout_marginTop="20dp">
+
+                        <ImageView
+                            android:id="@+id/disclosure_imageView"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/icon_disclosure" />
+
+                        <com.frissbi.CustomFontTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="16dp"
-                            android:text="User Name"
-                            android:textColor="@color/black" />
-
-                        <!--<com.frissbi.CustomFontTextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/profile_username_tv"
-                            android:layout_marginLeft="16dp"
-                            android:layout_marginTop="30dp"
-                            android:text="My Status Message"
-                            android:textColor="@color/black"
-                            android:textStyle="bold" />
-    -->
+                            android:layout_toRightOf="@+id/disclosure_imageView"
+                            android:text="Recent Activities"
+                            android:textAllCaps="true"
+                            android:textColor="@color/white" />
 
                     </RelativeLayout>
 
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/activities_recyclerView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_below="@+id/activities_rl"
+                        android:layout_marginTop="20dp" />
 
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginBottom="6dp">
-
-                    <Button
-                        android:id="@+id/accept_friend_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="10dp"
-                        android:background="#eeffffff"
-                        android:minHeight="40dp"
-                        android:text="Accept"
-                        android:textAllCaps="false"
-                        android:visibility="gone" />
-
-
-                    <Button
-                        android:id="@+id/add_friend_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginRight="30dp"
-                        android:layout_toRightOf="@+id/accept_friend_button"
-                        android:background="#eeffffff"
-                        android:minHeight="40dp"
-                        android:text="Add Friend"
-                        android:textAllCaps="false"
-                        android:visibility="gone" />
-
-
-                    <Button
-                        android:id="@+id/edit_cover_photo_button"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="6dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_toRightOf="@+id/add_friend_button"
-                        android:background="@drawable/icon_edit_profile_pic_white"
-                        android:visibility="visible" />
-                </RelativeLayout>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/status_activities_rl"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/cover_photo_rl"
-                android:background="@color/bg_color"
-                android:padding="10dp">
-
-                <RelativeLayout
-                    android:id="@+id/status_rl"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <android.support.design.widget.TextInputLayout
+                    <!--<Button
+                        android:id="@+id/view_more_button"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_toLeftOf="@+id/submit_status_imageView">
+                        android:layout_below="@+id/activities_recyclerView"
+                        android:layout_marginLeft="60dp"
+                        android:layout_marginRight="60dp"
+                        android:layout_marginTop="10dp"
+                        android:text="View more"
+                        android:visibility="gone" />-->
 
-                        <EditText
-                            android:id="@+id/status_message_et"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:hint="@string/what_s_on_your_mind" />
-
-                    </android.support.design.widget.TextInputLayout>
-
-                    <ImageView
-                        android:id="@+id/submit_status_imageView"
-                        android:layout_width="30dp"
-                        android:layout_height="30dp"
-                        android:layout_centerVertical="true"
-                        android:layout_marginRight="10dp"
-                        android:layout_toLeftOf="@+id/post_free_time_tv"
-                        android:src="@drawable/icon_tick"
-                        android:visibility="gone" />
-
-                    <com.frissbi.CustomFontTextView
-                        android:id="@+id/post_free_time_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:text="Free?"
-                        android:textColor="@color/white"
-                        android:textStyle="bold" />
 
                 </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/activities_rl"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/status_rl"
-                    android:layout_marginTop="20dp">
-
-                    <ImageView
-                        android:id="@+id/disclosure_imageView"
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
-                        android:src="@drawable/icon_disclosure" />
-
-                    <com.frissbi.CustomFontTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="16dp"
-                        android:layout_toRightOf="@+id/disclosure_imageView"
-                        android:text="Recent Activities"
-                        android:textAllCaps="true"
-                        android:textColor="@color/white" />
-
-                </RelativeLayout>
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/activities_recyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@+id/activities_rl"
-                    android:layout_marginTop="20dp" />
-
-                <Button
-                    android:id="@+id/view_more_button"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/activities_recyclerView"
-                    android:layout_marginLeft="60dp"
-                    android:layout_marginRight="60dp"
-                    android:layout_marginTop="10dp"
-                    android:text="View more"
-                    android:visibility="gone" />
-
-                <android.support.design.widget.FloatingActionButton
-                    android:id="@+id/scroll_top_floating_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginBottom="20dp"
-                    android:src="@drawable/ic_action_arrow_top"
-                    android:visibility="visible"
-                    app:backgroundTint="@color/white" />
-
             </RelativeLayout>
-        </RelativeLayout>
-    </android.support.v4.widget.NestedScrollView>
+        </com.frissbi.Utility.EndlessScrollView>
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/scroll_top_floating_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="10dp"
+            android:layout_marginRight="10dp"
+            android:src="@drawable/ic_action_arrow_top"
+            android:visibility="gone"
+            app:backgroundTint="@color/white" />
+
+    </RelativeLayout>
 </android.support.v4.widget.SwipeRefreshLayout>

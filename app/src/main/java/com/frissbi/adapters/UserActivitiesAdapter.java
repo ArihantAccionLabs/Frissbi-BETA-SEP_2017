@@ -143,7 +143,7 @@ public class UserActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
             } else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.UPLOAD_TYPE.toString()).ordinal()) {
                 ((ProfileCoverUploadViewHolder) holder).profileUpdateMessageTv.setText(activities.getImageCaption());
                 ((ProfileCoverUploadViewHolder) holder).profilePostedTimeTv.setText(postedDate);
-                if (activities.getProfileImageId() != null) {
+                if (activities.getUploadedImageId() != null) {
                     ImageCacheHandler.getInstance(mContext).setImage(((ProfileCoverUploadViewHolder) holder).activityProfileImageView, activities.getUploadedImageId());
                 }
             }
@@ -173,6 +173,8 @@ public class UserActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     mViewImageListener.viewImage(activities.getProfileImageId());
                 } else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.COVER_TYPE.toString()).ordinal()) {
                     mViewImageListener.viewImage(activities.getCoverImageId());
+                } else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.UPLOAD_TYPE.toString()).ordinal()) {
+                    mViewImageListener.viewImage(activities.getUploadedImageId());
                 }
             }
         });

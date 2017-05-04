@@ -4,13 +4,10 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
@@ -37,7 +34,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 
 import static com.frissbi.Utility.Utility.CAMERA_REQUEST;
-import static com.frissbi.Utility.Utility.INVITE_CONTACTS;
 import static com.frissbi.Utility.Utility.SELECT_FILE;
 
 public class UploadPhotoActivity extends AppCompatActivity implements View.OnClickListener, UploadPhotoListener {
@@ -71,7 +67,7 @@ public class UploadPhotoActivity extends AppCompatActivity implements View.OnCli
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.submit_uploaded_image:
-                if (mImageByteArray.length > 0) {
+                if (mImageByteArray != null) {
                     if (mDescriptionEditText.getText().toString().trim().length() > 0) {
                         sendUploadedImageToServer();
                     } else {

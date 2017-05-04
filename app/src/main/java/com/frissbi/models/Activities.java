@@ -128,12 +128,12 @@ public class Activities {
         this.joinedDate = joinedDate;
     }
 
-    public int getType() {
-        return type;
-    }
-
     public void setType(int type) {
         this.type = type;
+    }
+
+    public int getType() {
+        return type;
     }
 
     public String getDate() {

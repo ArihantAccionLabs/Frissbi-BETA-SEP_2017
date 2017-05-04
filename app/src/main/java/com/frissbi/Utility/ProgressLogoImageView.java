@@ -6,6 +6,7 @@ import android.util.AttributeSet;
 import android.widget.ImageView;
 
 import com.frissbi.R;
+import com.frissbi.models.FrissbiContact;
 
 /**
  * Created by thrymr on 2/1/17.

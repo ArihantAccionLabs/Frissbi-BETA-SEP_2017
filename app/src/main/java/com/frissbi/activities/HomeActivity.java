@@ -3,7 +3,6 @@ package com.frissbi.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -22,15 +21,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
@@ -41,11 +37,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_profilePic.Profile_Pic;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
+import com.frissbi.Utility.ImageCacheHandler;
 import com.frissbi.Utility.ReminderAlarmManager;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.TSLocationManager;
@@ -58,6 +54,7 @@ import com.frissbi.interfaces.NewReminderListener;
 import com.frissbi.models.FrissbiContact;
 import com.frissbi.models.FrissbiGroup;
 import com.frissbi.models.Participant;
+import com.frissbi.models.Profile;
 import com.frissbi.networkhandler.TSNetworkHandler;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
@@ -192,11 +189,17 @@ public class HomeActivity extends AppCompatActivity
         mDimBackgroundLayout = (LinearLayout) findViewById(R.id.dim_background);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
+
         View navHeaderView = navigationView.getHeaderView(0);
 
         mUserNameTextView = (TextView) navHeaderView.findViewById(R.id.user_name_tv);
         mUserNameTextView.setText(mUserName.toUpperCase());
         mAddMeetingButton = (Button) findViewById(R.id.add_meeting);
+
+        Profile profile = Profile.first(Profile.class);
+        if (profile.getImageId() != null) {
+            ImageCacheHandler.getInstance(HomeActivity.this).setImage((ImageView) navHeaderView.findViewById(R.id.user_profile_image), profile.getImageId());
+        }
 
         fab = (android.support.design.widget.FloatingActionButton) findViewById(R.id.add_floating_button);
 
@@ -250,7 +253,8 @@ public class HomeActivity extends AppCompatActivity
         locationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent intent = new Intent(HomeActivity.this, CheckInLocationActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -419,21 +423,21 @@ public class HomeActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
+    /* @Override
+     public boolean onOptionsItemSelected(MenuItem item) {
+         // Handle action bar item clicks here. The action bar will
+         // automatically handle clicks on the Home/Up button, so long
+         // as you specify a parent activity in AndroidManifest.xml.
+         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+         //noinspection SimplifiableIfStatement
+         if (id == R.id.action_settings) {
+             return true;
+         }
 
-        return super.onOptionsItemSelected(item);
-    }
-
+         return super.onOptionsItemSelected(item);
+     }
+ */
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
@@ -466,8 +470,8 @@ public class HomeActivity extends AppCompatActivity
             Intent intent = new Intent(HomeActivity.this, RemindersActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_setting) {
-           /* Intent intent = new Intent(getApplication(), Profile_Pic.class);
-            startActivity(intent);*/
+            Intent intent = new Intent(getApplication(), SettingsActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_logout) {
             SharedPreferenceHandler.getInstance(this).clearUserDetails();
             Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
@@ -482,7 +486,7 @@ public class HomeActivity extends AppCompatActivity
     }
 
 
-    @Override
+  /*  @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_home, menu);
         // Retrieve the SearchView and plug it into SearchManager
@@ -490,7 +494,7 @@ public class HomeActivity extends AppCompatActivity
         SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         return true;
-    }
+    }*/
 
     private void setupViewPager(ViewPager viewPager) {
         ViewPagerAdapter viewPagerAdapter = new ViewPagerAdapter(getSupportFragmentManager());
@@ -527,7 +531,6 @@ public class HomeActivity extends AppCompatActivity
 
         public void addFragment(Fragment fragment) {
             mFragmentList.add(fragment);
-
 
         }
 
@@ -572,9 +575,11 @@ public class HomeActivity extends AppCompatActivity
                         }
                     } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
                         Toast.makeText(HomeActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                        mProgressDialog.dismiss();
                     }
                 } else {
                     Toast.makeText(HomeActivity.this, "Something went wrong at server end", Toast.LENGTH_SHORT).show();
+                    mProgressDialog.dismiss();
                 }
             }
         });
@@ -620,7 +625,9 @@ public class HomeActivity extends AppCompatActivity
                                     participant.setGroupId(groupJsonObject.getLong("groupId"));
                                     participant.setParticipantId(participantJsonObject.getLong("userId"));
                                     participant.setFullName(participantJsonObject.getString("fullName"));
-                                    participant.setImage(participantJsonObject.getString("profileImage"));
+                                    if (participantJsonObject.has("profileImage")) {
+                                        participant.setImage(participantJsonObject.getString("profileImage"));
+                                    }
                                     participant.save();
                                 }
                             }

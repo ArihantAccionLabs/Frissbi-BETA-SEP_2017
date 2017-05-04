@@ -3,13 +3,13 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="@dimen/nav_header_height"
-    android:layout_marginTop="20dp"
     android:background="@color/bg_color">
 
     <ImageView
         android:id="@+id/logo_imageView"
         android:layout_width="match_parent"
         android:layout_height="80dp"
+        android:layout_marginTop="@dimen/layout_height_20"
         app:srcCompat="@drawable/logo1" />
 
     <RelativeLayout

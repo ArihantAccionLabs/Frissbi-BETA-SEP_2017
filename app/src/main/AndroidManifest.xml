@@ -260,6 +260,14 @@
         <activity
             android:name=".activities.UploadPhotoActivity"
             android:label="Upload Photo" />
+        <activity
+            android:name=".activities.CheckInLocationActivity"
+            android:label="Check In" />
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:label="Settings" />
+        <activity android:name=".activities.MeetingsByDateActivity" />
+        <activity android:name=".activities.RegistrationActivity"></activity>
     </application>
 
 </manifest>

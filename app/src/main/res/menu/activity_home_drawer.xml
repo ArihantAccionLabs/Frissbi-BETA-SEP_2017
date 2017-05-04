@@ -4,15 +4,16 @@
     <group>
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/home_button"
+            android:checkable="true"
+            android:icon="@drawable/icon_home"
             android:title="Home" />
         <item
             android:id="@+id/nav_meeting"
-            android:icon="@drawable/meeting"
+            android:icon="@drawable/icon_meetings"
             android:title="Meetings" />
         <item
             android:id="@+id/nav_friends"
-            android:icon="@drawable/menu_friend"
+            android:icon="@drawable/menu_icon_friends"
             android:title="Friends" />
         <item
             android:id="@+id/nav_groups"
@@ -20,7 +21,7 @@
             android:title="Groups" />
         <item
             android:id="@+id/nav_profile"
-            android:icon="@drawable/menu_profile2"
+            android:icon="@drawable/icon_profile"
             android:title="Profile" />
         <item
             android:id="@+id/nav_reminder"
@@ -28,7 +29,7 @@
             android:title="Reminders" />
         <item
             android:id="@+id/nav_setting"
-            android:icon="@drawable/setting"
+            android:icon="@drawable/icon_settings"
             android:title="Setting" />
         <item
             android:id="@+id/nav_logout"

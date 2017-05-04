@@ -1,16 +1,24 @@
 package com.frissbi.activities;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.view.GestureDetectorCompat;
+import android.support.v4.view.MotionEventCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +46,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class MeetingCalendarActivity extends AppCompatActivity implements View.OnClickListener, MeetingDetailsListener {
+public class MeetingCalendarActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MeetingCalendarActivity";
     private ImageView mPreviousButton;
@@ -52,24 +60,26 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
     private CalendarGridAdapter mAdapter;
     private List<Date> mDayValueInCells;
     private List<Meeting> mMeetingList;
-    private MeetingDetailsListener mMeetingDetailsListener;
-    private RecyclerView mMeetingCalendarRecyclerView;
     private Integer mCurrentYear;
     private Integer mCurrentMonth;
     private String mCurrentDay;
     private ProgressDialog mProgressDialog;
-    private MeetingLogAdapter mMeetingLogAdapter;
     private Integer mSelectedYear;
     private Integer mSelectedMonth;
     private String mSelectedDay;
     private List<MeetingDate> mMeetingDateList;
 
+    MyGestureListener myGestureListener;
+    private GestureDetectorCompat mDetector;
+    private ActionBar mActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_meeting_calendar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mActionBar = getSupportActionBar();
+        mDetector = new GestureDetectorCompat(this, new MyGestureListener());
+        mActionBar.setDisplayHomeAsUpEnabled(true);
         mMonthFormat = new SimpleDateFormat("MMMM yyyy", Locale.ENGLISH);
         mDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         mCalendar = Calendar.getInstance(Locale.ENGLISH);
@@ -77,15 +87,35 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
         mCurrentMonth = mCalendar.get(Calendar.MONTH) + 1;
         mCurrentYear = mCalendar.get(Calendar.YEAR);
         mMeetingList = new ArrayList<>();
-        mMeetingDetailsListener = (MeetingDetailsListener) this;
         mProgressDialog = new CustomProgressDialog(this);
         mPreviousButton = (ImageView) findViewById(R.id.previous_month);
         mNextButton = (ImageView) findViewById(R.id.next_month);
         mCurrentDateTextView = (TextView) findViewById(R.id.display_current_date);
         mCalendarGridView = (GridView) findViewById(R.id.calendar_grid);
-        mMeetingCalendarRecyclerView = (RecyclerView) findViewById(R.id.meeting_calendar_recyclerView);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        mMeetingCalendarRecyclerView.setLayoutManager(layoutManager);
+
+
+        mCalendarGridView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (mDetector.onTouchEvent(event)) {
+                    FLog.d("MeetingCalendarActivity", "onTouchEvent--FALSE" + event);
+                    return false;
+                }
+                FLog.d("MeetingCalendarActivity", "onTouchEvent--TRUE");
+                return false;
+            }
+        });
+
+        /*meetingCalendarLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if(mDetector.onTouchEvent(event)){
+                    return false;
+                }
+                return true;
+            }
+        });*/
+        myGestureListener = new MyGestureListener();
 
         mSelectedYear = mCurrentYear;
         mSelectedMonth = mCurrentMonth;
@@ -93,8 +123,8 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
         checkMeetingInLocalDB(mSelectedYear, mSelectedMonth);
         // getMeetingLogByDate(mDateFormat.format(mCalendar.getTime()));
 
-        mPreviousButton.setOnClickListener(this);
-        mNextButton.setOnClickListener(this);
+       /* mPreviousButton.setOnClickListener(this);
+        mNextButton.setOnClickListener(this);*/
 
         mCalendarGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
@@ -106,7 +136,10 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
                 setUpCalendarAdapter(mCurrentDay, mSelectedDay, mMeetingDateList);
             }
         });
+
+
     }
+
 
     private void getMeetingsByDateFromLocalDB(String date) {
         List<Meeting> meetingList = Meeting.findWithQuery(Meeting.class, "select * from meeting where date=?", date);
@@ -115,13 +148,11 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
             List<MeetingFriends> meetingFriendsList = MeetingFriends.findWithQuery(MeetingFriends.class, "select * from meeting_friends where meeting_id=?", meeting.getMeetingId().toString());
             meeting.setMeetingFriendsList(meetingFriendsList);
         }
-
         if (meetingList.size() > 0) {
-            mMeetingCalendarRecyclerView.setVisibility(View.VISIBLE);
-            mMeetingLogAdapter = new MeetingLogAdapter(MeetingCalendarActivity.this, meetingList, mMeetingDetailsListener);
-            mMeetingCalendarRecyclerView.setAdapter(mMeetingLogAdapter);
+            Intent intent = new Intent(this, MeetingsByDateActivity.class);
+            intent.putExtra("date", date);
+            startActivity(intent);
         } else {
-            mMeetingCalendarRecyclerView.setVisibility(View.GONE);
             Toast.makeText(MeetingCalendarActivity.this, "No meeting available...", Toast.LENGTH_SHORT).show();
         }
     }
@@ -342,14 +373,14 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
                                     meeting.setMeetingFriendsList(meetingFriendsList);
                                     mMeetingList.add(meeting);
                                 }
-                                if (mMeetingList.size() > 0) {
+                               /* if (mMeetingList.size() > 0) {
                                     mMeetingCalendarRecyclerView.setVisibility(View.VISIBLE);
                                     mMeetingLogAdapter = new MeetingLogAdapter(MeetingCalendarActivity.this, mMeetingList, mMeetingDetailsListener);
                                     mMeetingCalendarRecyclerView.setAdapter(mMeetingLogAdapter);
                                 } else {
                                     mMeetingCalendarRecyclerView.setVisibility(View.GONE);
                                     Toast.makeText(MeetingCalendarActivity.this, "No meeting available...", Toast.LENGTH_SHORT).show();
-                                }
+                                }*/
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
@@ -377,7 +408,8 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
             mCal.add(Calendar.DAY_OF_MONTH, 1);
         }
         String sDate = mMonthFormat.format(mCalendar.getTime());
-        mCurrentDateTextView.setText(sDate);
+        //mCurrentDateTextView.setText(sDate);
+        mActionBar.setTitle(sDate);
         mAdapter = new CalendarGridAdapter(MeetingCalendarActivity.this, mDayValueInCells, mCalendar, currentDay, selectedDay, meetingDateList);
         mCalendarGridView.setAdapter(mAdapter);
     }
@@ -410,10 +442,127 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
         }
     }
 
+
+
     @Override
-    public void showMeetingDetails(Long meetingId) {
-        Intent intent = new Intent(MeetingCalendarActivity.this, MeetingDetailsActivity.class);
-        intent.putExtra("meetingId", meetingId);
-        startActivity(intent);
+    public boolean onTouchEvent(MotionEvent event) {
+        FLog.d("MeetingCalendarActivity", "onTouchEvent" + event);
+        this.mDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
     }
+
+   /* class SwipeGestureListener extends GestureDetector.SimpleOnGestureListener implements
+            View.OnTouchListener {
+        Context context;
+        GestureDetector gDetector;
+        static final int SWIPE_MIN_DISTANCE = 120;
+        static final int SWIPE_MAX_OFF_PATH = 250;
+        static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+
+        public SwipeGestureListener(Context context) {
+            this(context, null);
+        }
+
+        public SwipeGestureListener(Context context, GestureDetector gDetector) {
+
+            if (gDetector == null)
+                gDetector = new GestureDetector(context, this);
+
+            this.context = context;
+            this.gDetector = gDetector;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
+                               float velocityY) {
+            FLog.d("MeetingCalendarActivity", "onFling-----------");
+            if (Math.abs(e1.getY() - e2.getY()) > SWIPE_MAX_OFF_PATH) {
+                if (Math.abs(e1.getX() - e2.getX()) > SWIPE_MAX_OFF_PATH
+                        || Math.abs(velocityY) < SWIPE_THRESHOLD_VELOCITY) {
+                    return false;
+                }
+                if (e1.getY() - e2.getY() > SWIPE_MIN_DISTANCE) {
+                    Toast.makeText(MeetingCalendarActivity.this, "bottomToTop",
+                            Toast.LENGTH_SHORT).show();
+                } else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE) {
+                    Toast.makeText(MeetingCalendarActivity.this,
+                            "topToBottom  ", Toast.LENGTH_SHORT)
+                            .show();
+                }
+            } else {
+                if (Math.abs(velocityX) < SWIPE_THRESHOLD_VELOCITY) {
+                    return false;
+                }
+                if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE) {
+                    Toast.makeText(MeetingCalendarActivity.this, "swipe rightLeft ", Toast.LENGTH_SHORT).show();
+                } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE) {
+                    Toast.makeText(MeetingCalendarActivity.this,
+                            "swipe LeftToright  ", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            return super.onFling(e1, e2, velocityX, velocityY);
+
+        }
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+
+            return gDetector.onTouchEvent(event);
+        }
+
+        public GestureDetector getDetector() {
+            return gDetector;
+        }
+
+    }*/
+
+
+    private static final int SWIPE_MIN_DISTANCE = 100;
+    private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+    class MyGestureListener extends GestureDetector.SimpleOnGestureListener {
+        private static final String DEBUG_TAG = "Gestures";
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+            Log.d(DEBUG_TAG, "onDown: " + event.toString());
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent event1, MotionEvent event2,
+                               float velocityX, float velocityY) {
+          /*  if (event1.getX() - event2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                Log.d(DEBUG_TAG, "onDown: " + "Right to left");
+                return false; // Right to left
+
+            } else if (event2.getX() - event1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                Log.d(DEBUG_TAG, "onDown: " + "Left to right");
+                return false; // Left to right
+            }*/
+
+            if (event1.getY() - event2.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+                Log.d(DEBUG_TAG, "onDown: " + "Bottom to top");
+                mCalendar.add(Calendar.MONTH, 1);
+                mSelectedYear = mCalendar.get(Calendar.YEAR);
+                mSelectedMonth = mCalendar.get(Calendar.MONTH);
+                FLog.d(TAG, "next_month" + mCalendar.get(Calendar.MONTH) + "year--" + mCalendar.get(Calendar.YEAR));
+                checkMeetingInLocalDB(mSelectedYear, mSelectedMonth + 1);
+                return false; // Bottom to top
+            } else if (event2.getY() - event1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
+                Log.d(DEBUG_TAG, "onDown: " + "Top to bottom");
+                mCalendar.add(Calendar.MONTH, -1);
+                mSelectedYear = mCalendar.get(Calendar.YEAR);
+                mSelectedMonth = mCalendar.get(Calendar.MONTH);
+                FLog.d(TAG, "previous_month" + mCalendar.get(Calendar.MONTH) + "year--" + mCalendar.get(Calendar.YEAR));
+                checkMeetingInLocalDB(mSelectedYear, mSelectedMonth + 1);
+                return false; // Top to bottom
+            }
+            return false;
+        }
+    }
+
+
 }

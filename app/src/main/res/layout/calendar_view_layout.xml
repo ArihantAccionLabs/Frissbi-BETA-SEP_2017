@@ -10,7 +10,8 @@
         android:background="@color/bg_color"
         android:orientation="horizontal"
         android:paddingBottom="8dp"
-        android:paddingTop="8dp">
+        android:paddingTop="8dp"
+        android:visibility="gone">
 
         <ImageView
             android:id="@+id/previous_month"
@@ -48,8 +49,8 @@
         android:layout_height="wrap_content"
         android:background="@color/bg_color"
         android:orientation="horizontal"
-        android:paddingBottom="10dp"
-        android:paddingTop="4dp">
+        android:paddingBottom="12dp"
+        android:paddingTop="6dp">
 
         <TextView
             android:id="@+id/sun"
@@ -141,6 +142,7 @@
         android:id="@+id/calendar_grid"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:listSelector="@android:color/transparent"
         android:numColumns="7" />
 
 </LinearLayout>

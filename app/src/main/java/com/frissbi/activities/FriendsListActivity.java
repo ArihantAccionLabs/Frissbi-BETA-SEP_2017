@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
@@ -43,6 +42,7 @@ public class FriendsListActivity extends AppCompatActivity implements SearchView
         mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         mFriendsTabLayout = (TabLayout) findViewById(R.id.friends_tabLayout);
         mFriendsViewPager = (ViewPager) findViewById(R.id.friends_viewPager);
         mMyFriendsFragment = new MyFriendsFragment();
@@ -50,6 +50,13 @@ public class FriendsListActivity extends AppCompatActivity implements SearchView
         mPeopleFragment = new PeopleFragment();
         setupViewPager(mFriendsViewPager);
         mFriendsTabLayout.setupWithViewPager(mFriendsViewPager);
+        if (getIntent().getExtras() != null) {
+            if (getIntent().getExtras().containsKey("callFrom")) {
+                if (getIntent().getStringExtra("callFrom").equalsIgnoreCase("makeFriends")) {
+                    mFriendsViewPager.setCurrentItem(2);
+                }
+            }
+        }
     }
 
 

@@ -6,12 +6,9 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Base64;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-
-import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
 import com.frissbi.networkhandler.TSNetworkHandler;
 
@@ -57,25 +54,8 @@ public class ImageCacheHandler {
         bitmap = findImageFromMemory(fileName);
         imageView.setImageResource(R.drawable.default_profile_image);
         if (bitmap != null) {
-          /*  if (CommonUtility.progressBar != null) {
-                CommonUtility.progressBar.setVisibility(View.INVISIBLE);
-            }*/
             imageView.setImageBitmap(bitmap);
         } else {
-            /*new DownloadImageAsync(fileName, new DownloadCallback() {
-                @Override
-                public void downloadFinished(boolean status) {
-                    if (status) {
-                        bitmap = findImageFromMemory(fileName);
-
-                        if (bitmap != null) {
-                            imageView.setImageBitmap(bitmap);
-                        }
-
-
-                    }
-                }
-            }).execute(imageURL);*/
             String imageURL = Utility.REST_URI + Utility.GET_IMAGE + imageId;
             TSNetworkHandler.getInstance(mContext).getResponse(imageURL, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
                 @Override
@@ -102,7 +82,34 @@ public class ImageCacheHandler {
                 }
             });
         }
+    }
 
+
+    public void setLocationIcon(final ImageView imageView, String imageId, String imageURL) {
+        final String fileName = imageId;
+        bitmap = findImageFromMemory(fileName);
+        imageView.setImageResource(R.drawable.default_profile_image);
+        if (bitmap != null) {
+          /*  if (CommonUtility.progressBar != null) {
+                CommonUtility.progressBar.setVisibility(View.INVISIBLE);
+            }*/
+            imageView.setImageBitmap(bitmap);
+        } else {
+            new DownloadImageAsync(fileName, new DownloadCallback() {
+                @Override
+                public void downloadFinished(boolean status) {
+                    if (status) {
+                        bitmap = findImageFromMemory(fileName);
+
+                        if (bitmap != null) {
+                            imageView.setImageBitmap(bitmap);
+                        }
+
+
+                    }
+                }
+            }).execute(imageURL);
+        }
     }
 
     /**

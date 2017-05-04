@@ -2,6 +2,7 @@ package com.frissbi.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,7 @@ public class FriendsAdapter extends RecyclerView.Adapter<FriendsAdapter.ViewHold
 
     public FriendsAdapter(Context context, List<FrissbiContact> frissbiContactList, FriendProfileListener friendProfileListener) {
         mContext = context;
+        Log.d("FriendsAdapter", "frissbiContactList" + frissbiContactList);
         mFrissbiContactList = frissbiContactList;
         mOriginalFrissbiContactList = frissbiContactList;
         mFriendProfileListener = friendProfileListener;

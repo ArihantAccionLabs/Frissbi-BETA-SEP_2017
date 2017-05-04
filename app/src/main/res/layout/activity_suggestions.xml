@@ -6,11 +6,29 @@
     android:layout_height="match_parent"
     tools:context="com.frissbi.activities.SuggestionsActivity">
 
+    <com.frissbi.CustomFontTextView
+        android:id="@+id/suggestion_meeting_des_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:padding="6dp"
+        android:text="Meeting Description"
+        android:textColor="@color/black" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/meeting_friends_recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/suggestion_meeting_des_tv" />
+
+
     <android.support.v7.widget.RecyclerView
         android:id="@+id/location_suggestion_recyclerView"
         android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_above="@+id/load_more_ll"
-        android:layout_height="match_parent" />
+        android:layout_below="@+id/meeting_friends_recyclerView"
+        android:layout_marginTop="10dp" />
 
     <LinearLayout
         android:id="@+id/load_more_ll"

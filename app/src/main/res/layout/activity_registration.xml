@@ -3,12 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.frissbi.activities.MeetingCalendarActivity">
+    tools:context="com.frissbi.activities.RegistrationActivity">
 
-
-    <include
-        android:id="@+id/calendar_view_layout"
-        layout="@layout/calendar_view_layout" />
 
 
 </RelativeLayout>

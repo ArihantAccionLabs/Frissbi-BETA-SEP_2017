@@ -1,6 +1,7 @@
 package com.frissbi.adapters;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +44,12 @@ public class NotificationLogAdapter extends RecyclerView.Adapter<NotificationLog
     public void onBindViewHolder(ViewHolder holder, int position) {
         final Notification notification = mNotificationList.get(position);
         holder.notificationMessageTv.setText(notification.getMessage());
+
+        if (!notification.isRead()) {
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.lightgray));
+        } else {
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.white));
+        }
 
         if (notification.getType().equalsIgnoreCase(Utility.GROUP_NOTIFICATION_TYPE)) {
             if (notification.getGroupImageId() != null) {
