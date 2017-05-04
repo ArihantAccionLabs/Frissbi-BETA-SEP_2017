@@ -33,9 +33,8 @@ public class UserRegistration {
 	@POST
 	@Path("/registerUser")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String registerUser(String registerationData) {
-
 		JSONObject finalJson = new JSONObject();
 		Connection conn = null;
 		CallableStatement callableStatement = null;
@@ -44,12 +43,11 @@ public class UserRegistration {
 		try {
 			AppUserBean appUserBean = new AppUserBean(jsonObject);
 			
+			
 			if (appUserBean.getEmail() != null) {
 
 				conn = DataSourceConnection.getDBConnection();
-				if (appUserBean.getIsGmailLogin()) {
-					AppUserBean existedUser = checkEmail(appUserBean.getEmail());
-					System.out.println("existedUser     "+existedUser);
+					AppUserBean existedUser = checkEmail(appUserBean.getEmail() , appUserBean.getContactno());
 					if (existedUser != null) {
 						
 						updateDeviceRegId(existedUser.getUserId() , existedUser.getDeviceRegistrationId() , appUserBean.getDeviceRegistrationId());
@@ -57,12 +55,12 @@ public class UserRegistration {
 						finalJson.put("userId", existedUser.getUserId());
 						finalJson.put("userName", existedUser.getUsername());
 						finalJson.put("status", true);
-						finalJson.put("message", "EmailId are exist");
+						finalJson.put("message", "Emai or mobile number are exist");
 						return finalJson.toString();
 					}
 					String contactNumberVerificationCode = phoneVerificationCode();
 					String emailVerificationCode = nextSessionId();
-					String insertStoreProc = "{call usp_InsertUserMasterDetails(?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+					String insertStoreProc = "{call usp_InsertUserMasterDetails(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 					callableStatement = conn.prepareCall(insertStoreProc);
 					callableStatement.setString(1, appUserBean.getUsername());
 					callableStatement.setString(2, appUserBean.getPassword());
@@ -75,13 +73,15 @@ public class UserRegistration {
 					callableStatement.setString(9, contactNumberVerificationCode);
 					callableStatement.setString(10, emailVerificationCode);
 					callableStatement.setString(11, appUserBean.getDeviceRegistrationId());
-					callableStatement.registerOutParameter(12, Types.INTEGER);
+					callableStatement.setInt(12, appUserBean.getIsGmailLogin() ? 0 : 1);
 					callableStatement.registerOutParameter(13, Types.INTEGER);
+					callableStatement.registerOutParameter(14, Types.INTEGER);
 					int value = callableStatement.executeUpdate();
 
-					int isError = callableStatement.getInt(12);
-					Long userId = callableStatement.getLong(13);
-					System.out.println("userId     "+userId+"   "+(isError == 0 && value != 0 && userId != 0l) +"        "+(appUserBean.getImage() != null && !appUserBean.getImage().trim().isEmpty()));
+					int isError = callableStatement.getInt(13);
+					Long userId = callableStatement.getLong(14);
+					System.out.println("appUserBean     "+value+"   "+userId);
+					
 					if (value != 0 && userId != 0l) {
                         
 						if(Utility.checkValidString(appUserBean.getImage())){
@@ -124,7 +124,6 @@ public class UserRegistration {
 						return finalJson.toString();
 					}
 				}
-			}
 		} catch (SQLException se) {
 
 			se.printStackTrace();
@@ -140,6 +139,57 @@ public class UserRegistration {
 		return finalJson.toString();
 	}
 
+	@POST
+	@Path("/user-login")
+	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
+	public String login(String userCredential){
+		
+		JSONObject finalJson = new JSONObject();
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		try{
+		JSONObject jsonObject = new JSONObject(userCredential);
+		String emailId = jsonObject.getString("email");
+		String password = jsonObject.getString("password");
+		if(Utility.checkValidString(emailId) && Utility.checkValidString(password)){
+			
+		conn = DataSourceConnection.getDBConnection();
+		String loginStoreProcedure = "{call usp_userLogin(?,?)}";
+		callableStatement = conn.prepareCall(loginStoreProcedure);
+		callableStatement.setString(1, emailId);
+		callableStatement.setString(2, password);
+		
+		ResultSet rs = callableStatement.executeQuery();
+		Long userId = null;
+		while (rs.next()) {
+			userId = rs.getLong("UserID");	
+		}
+       if(userId != null && userId != 0l){
+    	   finalJson.put("userId", userId);
+    	   finalJson.put("status", true);
+    	   finalJson.put("message", "User login successfully");
+       }else{
+    	   finalJson.put("status", false);
+    	   finalJson.put("message", "Your credential is incorrect");
+       }
+		return finalJson.toString();
+		}
+		}catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+
+		return finalJson.toString();
+	}
+	
+	
+	
+	
 	public String nextSessionId() {
 		return new BigInteger(130, random).toString(32);
 	}
@@ -554,7 +604,7 @@ public class UserRegistration {
 		return finalJson.toString();
 	}
 
-	private AppUserBean checkEmail(String emailId) {
+	private AppUserBean checkEmail(String emailId,String contactNumber) {
 		Connection conn = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
@@ -562,9 +612,16 @@ public class UserRegistration {
 		AppUserBean appUserBean = null;
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			sql = "SELECT UserID,DeviceRegistrationID,UserName FROM tbl_users WHERE EmailName=? limit 1";
-			pstmt = conn.prepareStatement(sql);
-			pstmt.setString(1, emailId);
+			if(Utility.checkValidString(contactNumber)){
+				sql = "SELECT UserID,DeviceRegistrationID,UserName FROM tbl_users WHERE EmailName=? OR ContactNumber=? limit 1";
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, emailId);
+				pstmt.setString(2, contactNumber);
+			}else{
+				sql = "SELECT UserID,DeviceRegistrationID,UserName FROM tbl_users WHERE EmailName=? limit 1";
+				pstmt = conn.prepareStatement(sql);
+				pstmt.setString(1, emailId);	
+			}
 			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				appUserBean = new AppUserBean();

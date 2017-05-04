@@ -5,11 +5,13 @@ import java.security.SecureRandom;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.LocalDateTime;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -18,6 +20,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
+import org.service.dto.UserDTO;
 import org.util.service.ServiceUtility;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
@@ -29,8 +32,25 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
-		String phone = "+91 778889 9998";
-		System.out.println(new java.util.Date()+"   "+phone.replaceAll("\\s",""));
+		Connection conn = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		UserDTO userDTO = null;
+		try {
+			conn = DataSourceConnection.getDBConnection();
+			String sql = "SELECT * FROM tbl_MeetingDetails";
+			pstmt = conn.prepareStatement(sql);
+			rs = pstmt.executeQuery();
+			while (rs.next()) {
+				System.out.println("================"+rs.getString("SenderUserID"));
+				
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally{
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeSatetment(pstmt);
+		}
 
 	return "Youproject is running";	
 	}

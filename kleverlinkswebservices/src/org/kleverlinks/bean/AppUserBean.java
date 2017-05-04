@@ -3,6 +3,7 @@ package org.kleverlinks.bean;
 import java.text.SimpleDateFormat;
 
 import org.json.JSONObject;
+import org.util.Utility;
 
 public class AppUserBean {
 
@@ -119,7 +120,10 @@ public class AppUserBean {
 			this.username = userJson.getString("userName");
 			this.password = userJson.getString("password");
 			this.email = userJson.getString("email");
-			if(userJson.getString("dob") != null && !userJson.getString("dob").trim().isEmpty()){
+			if(userJson.has("contactno") && Utility.checkValidString(userJson.getString("contactno"))){
+				this.contactno = userJson.getString("contactno").trim();
+			}
+			if(userJson.has("dob") && Utility.checkValidString(userJson.getString("dob"))){
 				this.dob = new SimpleDateFormat("yyyy-mm-dd").parse(userJson.getString("dob"));
 			}
 			this.firstName = userJson.getString("firstName");
@@ -131,5 +135,12 @@ public class AppUserBean {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+	}
+	@Override
+	public String toString() {
+		return "AppUserBean [username=" + username + ", userId=" + userId + ", password=" + password + ", email="
+				+ email + ", contactno=" + contactno + ", dob=" + dob + ", firstName=" + firstName + ", lastName="
+				+ lastName + ", isGmailLogin=" + isGmailLogin + ", image=" + image + ", deviceRegistrationId="
+				+ deviceRegistrationId + "]";
 	}
 }
