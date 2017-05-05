@@ -91,33 +91,14 @@ public class AppUserBean {
 	public void setImage(String image) {
 		this.image = image;
 	}
-	public void toAppUserBean(JSONObject userJson){
-		
-		try{
-			
-			this.username = userJson.getString("userName");
-			this.password = userJson.getString("password");
-			this.email = userJson.getString("email");
-			if (userJson.getString("dob") != null && !userJson.getString("dob").trim().isEmpty()) {
-				this.dob = new SimpleDateFormat("yyyy-mm-dd").parse(userJson.getString("dob"));
-			}
-			this.firstName = userJson.getString("firstName");
-			this.lastName = userJson.getString("lastName");
-			this.isGmailLogin = userJson.getBoolean("isGmailLogin");
-			if(userJson.has("image")){
-				this.image = userJson.getString("image");
-			}
-			
-			
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	
 	public AppUserBean(JSONObject userJson) {
 		super();
 	try{
-		    this.deviceRegistrationId = userJson.getString("deviceRegistrationId");
-			this.username = userJson.getString("userName");
+		if(userJson.has("deviceRegistrationId")){
+			this.deviceRegistrationId = userJson.getString("deviceRegistrationId");
+	      }
+		    
 			this.password = userJson.getString("password");
 			this.email = userJson.getString("email");
 			if(userJson.has("contactno") && Utility.checkValidString(userJson.getString("contactno"))){
@@ -126,8 +107,25 @@ public class AppUserBean {
 			if(userJson.has("dob") && Utility.checkValidString(userJson.getString("dob"))){
 				this.dob = new SimpleDateFormat("yyyy-mm-dd").parse(userJson.getString("dob"));
 			}
-			this.firstName = userJson.getString("firstName");
-			this.lastName = userJson.getString("lastName");
+			if(userJson.has("firstName")){
+				
+				this.firstName = userJson.getString("firstName");
+			}
+			if(userJson.has("lastName")){
+				this.lastName = userJson.getString("lastName");
+			}else if(userJson.has("firstName")){
+				String[] parts = this.firstName.split(" ");
+				if(parts.length > 1){
+					String lastWord = parts[parts.length - 1];
+				    String restWord = this.firstName.substring(0,this.firstName.indexOf(lastWord)).trim(); 
+					this.firstName = restWord;
+					this.lastName = lastWord;
+					this.username = this.firstName;
+				}
+			}
+			if(userJson.has("userName")){
+		    	this.username = userJson.getString("userName");
+		    }
 			this.isGmailLogin = userJson.getBoolean("isGmailLogin");
 			if(userJson.has("image")){
 				this.image = userJson.getString("image");

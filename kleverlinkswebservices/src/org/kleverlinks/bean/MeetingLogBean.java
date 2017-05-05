@@ -1,5 +1,6 @@
 package org.kleverlinks.bean;
 
+import java.sql.Time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -14,6 +15,7 @@ public class MeetingLogBean {
 	private LocalDateTime toDate;
 	private String startTime;
 	private String endTime;
+	private Time meetingDuration;
 	private String description;
 	private String address;
 	private String latitude;
@@ -113,6 +115,12 @@ public class MeetingLogBean {
 	}
 	public String getProfileImageId() {
 		return profileImageId;
+	}
+	public Time getMeetingDuration() {
+		return meetingDuration;
+	}
+	public void setMeetingDuration(Time meetingDuration) {
+		this.meetingDuration = meetingDuration;
 	}
 	public void setProfileImageId(String profileImageId) {
 		this.profileImageId = profileImageId;

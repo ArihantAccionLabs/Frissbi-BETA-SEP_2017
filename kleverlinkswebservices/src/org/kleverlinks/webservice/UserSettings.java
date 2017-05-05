@@ -29,6 +29,7 @@ public class UserSettings {
 	@POST  
     @Path("/insertUserPreferredLocations")  
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String insertUserPreferredLocations(String locationInsertionData) {
 		
 		JSONObject locationObject = new JSONObject(locationInsertionData);

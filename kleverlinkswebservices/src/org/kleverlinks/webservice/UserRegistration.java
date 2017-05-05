@@ -51,15 +51,16 @@ public class UserRegistration {
 					if (existedUser != null) {
 						
 						updateDeviceRegId(existedUser.getUserId() , existedUser.getDeviceRegistrationId() , appUserBean.getDeviceRegistrationId());
-						
-						finalJson.put("userId", existedUser.getUserId());
+						if(appUserBean.getIsGmailLogin()){
+							finalJson.put("userId", existedUser.getUserId());
+						}
 						finalJson.put("userName", existedUser.getUsername());
 						finalJson.put("status", true);
-						finalJson.put("message", "Emai or mobile number are exist");
+						finalJson.put("message", "Email or mobile number are already exist");
 						return finalJson.toString();
 					}
 					String contactNumberVerificationCode = phoneVerificationCode();
-					String emailVerificationCode = nextSessionId();
+					String emailVerificationCode = Utility.nextSessionId();
 					String insertStoreProc = "{call usp_InsertUserMasterDetails(?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 					callableStatement = conn.prepareCall(insertStoreProc);
 					callableStatement.setString(1, appUserBean.getUsername());
@@ -72,7 +73,7 @@ public class UserRegistration {
 					callableStatement.setTimestamp(8, new Timestamp(new java.util.Date().getTime()));
 					callableStatement.setString(9, contactNumberVerificationCode);
 					callableStatement.setString(10, emailVerificationCode);
-					callableStatement.setString(11, appUserBean.getDeviceRegistrationId());
+					callableStatement.setString(11, appUserBean.getDeviceRegistrationId());																			
 					callableStatement.setInt(12, appUserBean.getIsGmailLogin() ? 0 : 1);
 					callableStatement.registerOutParameter(13, Types.INTEGER);
 					callableStatement.registerOutParameter(14, Types.INTEGER);
@@ -97,25 +98,27 @@ public class UserRegistration {
 					    		mongoDBJDBC.updateProfileImage(imageJson);
 					    	}
 						}
-						
-						String message = "<p>HI " + appUserBean.getUsername() + "/" + appUserBean.getEmail() + ",</p>";
-						message += "<p>Please click on the activation button below to start using FRISSBI</p>";
-						message += "<a href=\"" + Constants.PLAY_STORE_URL
-								+ "/kleverlinkswebservices/rest/UserRegistrationService/verifyemailaddress/"
-								+ appUserBean.getEmail() + "/" + emailVerificationCode
-								+ "\" target=\"_parent\"><button>Activate</button></a>";
-						message += "<p> OR</p>";
-						message += "<p>Copy &amp; paste the below URL into your browser and hit ENTER.</p>";
-						message += "<p>" + Constants.PLAY_STORE_URL
-								+ "/kleverlinkswebservices/rest/UserRegistrationService/verifyemailaddress/"
-								+ appUserBean.getEmail() + "/" + emailVerificationCode + "</p>";
-						message += "<p>";
-						message += "_________________________________________________________________________________________________________________________________________________________________</p>";
-						message += "<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(c) Frissbi, product of Kleverlinks Network Pvt Ltd.<br />";
-						message += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;www.friss.bi<br />";
-						message += "</p>";
-
-						EmailService.SendMail(appUserBean.getEmail(), "Frissbi Account Activation","Your new password is: " + message);
+						if(!appUserBean.getIsGmailLogin()){
+							String lastName =  Utility.checkValidString(appUserBean.getLastName()) ? appUserBean.getLastName() : "";
+							String message = "<p>HI " + appUserBean.getFirstName()+ " "+lastName+"</p>";
+							message += "<p>Please click on the activation button below to start using FRISSBI</p>";
+							message += "<a href=\"" + Constants.SERVER_URL
+									+ "/kleverlinkswebservices/rest/UserRegistrationService/verifyemailaddress/"
+									+ appUserBean.getEmail() + "/" + emailVerificationCode
+									+ "\" target=\"_parent\"><button>Activate</button></a>";
+							message += "<p> OR</p>";
+							message += "<p>Copy &amp; paste the below URL into your browser and hit ENTER.</p>";
+							message += "<p>" + Constants.SERVER_URL
+									+ "/kleverlinkswebservices/rest/UserRegistrationService/verifyemailaddress/"
+									+ appUserBean.getEmail() + "/" + emailVerificationCode + "</p>";
+							message += "<p>";
+							message += "_________________________________________________________________________________________________________________________________________________________________</p>";
+							message += "<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(c) Frissbi, product of Kleverlinks Network Pvt Ltd.<br />";
+							message += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;www.friss.bi<br />";
+							message += "</p>";
+							
+							EmailService.sendMail(appUserBean.getEmail(), "Frissbi Account Activation",message);
+						}
 						finalJson.put("status", true);
 						finalJson.put("message", "User registration completed successfully");
 						finalJson.put("userId", userId);
@@ -146,26 +149,35 @@ public class UserRegistration {
 	public String login(String userCredential){
 		
 		JSONObject finalJson = new JSONObject();
+		
+		AppUserBean appUserBean = new AppUserBean(new JSONObject(userCredential));
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		try{
-		JSONObject jsonObject = new JSONObject(userCredential);
-		String emailId = jsonObject.getString("email");
-		String password = jsonObject.getString("password");
-		if(Utility.checkValidString(emailId) && Utility.checkValidString(password)){
-			
 		conn = DataSourceConnection.getDBConnection();
 		String loginStoreProcedure = "{call usp_userLogin(?,?)}";
 		callableStatement = conn.prepareCall(loginStoreProcedure);
-		callableStatement.setString(1, emailId);
-		callableStatement.setString(2, password);
+		callableStatement.setString(1, appUserBean.getEmail());
+		callableStatement.setString(2, appUserBean.getPassword());
 		
 		ResultSet rs = callableStatement.executeQuery();
 		Long userId = null;
+		int isEmailVerified = 0;
 		while (rs.next()) {
 			userId = rs.getLong("UserID");	
+			isEmailVerified = rs.getInt("IsEmailVerified");	
 		}
        if(userId != null && userId != 0l){
+    	   if(isEmailVerified == 0){
+    		   finalJson.put("status", false);
+        	   finalJson.put("message", "Please verify your email"); 
+        	   
+        	   return finalJson.toString();
+    	   }
+    	   AppUserBean existedUser = checkEmail(appUserBean.getEmail() , appUserBean.getContactno());
+			if (existedUser != null) {
+				updateDeviceRegId(existedUser.getUserId() , existedUser.getDeviceRegistrationId() , appUserBean.getDeviceRegistrationId());
+			}
     	   finalJson.put("userId", userId);
     	   finalJson.put("status", true);
     	   finalJson.put("message", "User login successfully");
@@ -174,7 +186,6 @@ public class UserRegistration {
     	   finalJson.put("message", "Your credential is incorrect");
        }
 		return finalJson.toString();
-		}
 		}catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -183,15 +194,8 @@ public class UserRegistration {
 		}
 		finalJson.put("status", false);
 		finalJson.put("message", "Oops something went wrong");
-
+		
 		return finalJson.toString();
-	}
-	
-	
-	
-	
-	public String nextSessionId() {
-		return new BigInteger(130, random).toString(32);
 	}
 
 	public String phoneVerificationCode() {
@@ -341,102 +345,38 @@ public class UserRegistration {
 	@Produces(MediaType.TEXT_PLAIN)
 	public String verifyEmailAddress(@PathParam("email") String email,
 			@PathParam("verificationcode") String verificationCode) {
-
 		Connection conn = null;
-		Statement stmt = null;
-		String dbVerificationCode = "";
+		CallableStatement callableStatement = null;
 		String txt = "";
 		try {
-			conn = DataSourceConnection.getDBConnection();
-			CallableStatement callableStatement = null;
-			String insertStoreProc = "{call usp_GetUpdateVerificationCode(?,?,?,?)}";
-			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setString(1, email);
-			callableStatement.setInt(2, 0);
-			callableStatement.registerOutParameter(3, Types.VARCHAR);
-			callableStatement.registerOutParameter(4, Types.INTEGER);
-			int value = callableStatement.executeUpdate();
-			dbVerificationCode = callableStatement.getString(3);
-
-			if (dbVerificationCode.equals(verificationCode)) {
-				System.out.println("Successfully verified your email account");
-				txt = "You have successfully verfied your email account. Login to frissbi with your username and password";
-				callableStatement = null;
-				insertStoreProc = "{call usp_GetUpdateVerificationCode(?,?,?,?)}";
-				callableStatement = conn.prepareCall(insertStoreProc);
+			JSONObject jsonObject = Utility.checkUserEmailVerification(email);
+			if(jsonObject != null){
+             if(jsonObject.getInt("isEmailVerified") == 1){
+            	 return "You already successfully verfied your email account. Login to frissbi with your emailId and password"; 
+             }
+			if (jsonObject.getString("emailVerificationCode").equals(verificationCode)) {
+				conn = DataSourceConnection.getDBConnection();
+			    String storeProc = "{call usp_UpdateEmailVerification(?)}"  ; 
+				callableStatement = conn.prepareCall(storeProc);
 				callableStatement.setString(1, email);
-				callableStatement.setInt(2, 1);
-				callableStatement.registerOutParameter(3, Types.VARCHAR);
-				callableStatement.registerOutParameter(4, Types.INTEGER);
-				value = callableStatement.executeUpdate();
-
+				
+			   int	value = callableStatement.executeUpdate();
+               if(value != 0){
+            	   txt = "You have successfully verfied your email account. Login to frissbi with your emailId and password";
+               }
 			} else {
 				txt = "There was some problem in verifying your email account";
 			}
-		} catch (SQLException se) {
-			// Handle errors for JDBC
-			se.printStackTrace();
-		} catch (Exception e) {
-			// Handle errors for Class.forName
+		}else{
+			txt = "This email account is not belong to you";
+		}
+		} catch(Exception e){
 			e.printStackTrace();
 		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
 		return txt;
-	}
-
-	@GET
-	@Path("/checkUserEmailVerification/{username}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String checkUserEmailVerification(@PathParam("username") String username) {
-
-		Connection conn = null;
-		Statement stmt = null;
-		String isEmailVerified = "";
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			CallableStatement callableStatement = null;
-			String insertStoreProc = "{call usp_CheckUserEmailVerification(?)}";
-			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setString(1, username);
-			callableStatement.executeUpdate();
-			ResultSet rs = callableStatement.getResultSet();
-			while (rs.next()) {
-				isEmailVerified = rs.getString("IsEmailVerified");
-			}
-
-		} catch (SQLException se) {
-			// Handle errors for JDBC
-			se.printStackTrace();
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
-		return isEmailVerified;
 	}
 
 	@GET
@@ -638,8 +578,6 @@ public class UserRegistration {
 		return appUserBean;
 	}
 	private void updateDeviceRegId(Long userId , String existedDeviceRegId , String deviceRegId) {
-		
-		System.out.println("updateDeviceRegId   :    "+!deviceRegId.trim().equals(existedDeviceRegId));
 		
 		Connection conn = null;
 		CallableStatement callableStatement = null;

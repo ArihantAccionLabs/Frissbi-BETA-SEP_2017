@@ -5,22 +5,23 @@ import java.security.SecureRandom;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.LocalDateTime;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
-import org.service.dto.UserDTO;
+import org.kleverlinks.bean.CredentialBean;
+import org.util.Utility;
 import org.util.service.ServiceUtility;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
@@ -32,29 +33,10 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
-		Connection conn = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		UserDTO userDTO = null;
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			String sql = "SELECT * FROM tbl_MeetingDetails";
-			pstmt = conn.prepareStatement(sql);
-			rs = pstmt.executeQuery();
-			while (rs.next()) {
-				System.out.println("================"+rs.getString("SenderUserID"));
-				
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}finally{
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeSatetment(pstmt);
-		}
-
 	return "Youproject is running";	
 	}
 
+	
 	@GET  
     @Path("/authenticateUser/{userId}/{deviceRegistrationId}")  
     @Produces(MediaType.TEXT_PLAIN)
@@ -274,40 +256,72 @@ public class AuthenticateUser {
 		ServiceUtility.closeCallableSatetment(callableStatement);
 		return isError;
 	}
-	@GET  
-    @Path("/forgetPassword/{emailname}")  
-    @Produces(MediaType.TEXT_PLAIN)
-	public String forgetPassword(@PathParam("emailname") String emailname ){
+	@POST  
+    @Path("/forgotPassword")  
+	@Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+	public String forgetPassword(String credential){
+		
+		JSONObject finalJson = new JSONObject();
+		CredentialBean credentialBean = new CredentialBean(new JSONObject(credential));
 		Connection conn = null;
 		CallableStatement callableStatement = null;
-		String isError = "";
-		String newPassword = nextSessionId().substring(0,7);
 		try {
-			conn = DataSourceConnection.getDBConnection();
-			/*SMTPMailSender emailSender = new SMTPMailSender();
-			emailSender
-					.sendMessage(
-							emailname,
-							"Forgot Password",
-							"Your new password is: "+ newPassword
-									);*/
-			EmailService.SendMail(emailname,"Forgot Password", "Your new password is: "+ newPassword) ;
+				JSONObject jsonObject = Utility.checkUserEmailVerification(credentialBean.getEmail());
+				if(jsonObject != null){
+				
+				String sql = "{call usp_resetPassword(?,?,?,?)}";
+				conn = DataSourceConnection.getDBConnection();	
+				callableStatement = conn.prepareCall(sql);	
+				callableStatement.setInt(1, 0);
+				callableStatement.setString(2, credentialBean.getPassword());
+				callableStatement.setString(3, jsonObject.getString("emailVerificationCode"));
+				callableStatement.setString(4, credentialBean.getEmail());
+				
+			   int isUpdate =	callableStatement.executeUpdate();
+				
+			   if(isUpdate != 0){
+
+					String message = "<p>HI " + jsonObject.getString("userName")+"</p>";
+					message += "<p>Please click on the activation button below to start using FRISSBI</p>";
+					message += "<a href=\"" + Constants.SERVER_URL
+							+ "/kleverlinkswebservices/rest/UserRegistrationService/verifyemailaddress/"
+							+ credentialBean.getEmail() + "/" + jsonObject.getString("emailVerificationCode")
+							+ "\" target=\"_parent\"><button>Activate</button></a>";
+					message += "<p> OR</p>";
+					message += "<p>Copy &amp; paste the below URL into your browser and hit ENTER.</p>";
+					message += "<p>" + Constants.SERVER_URL
+							+ "/kleverlinkswebservices/rest/UserRegistrationService/verifyemailaddress/"
+							+ credentialBean.getEmail() + "/" + jsonObject.getString("emailVerificationCode") + "</p>";
+					message += "<p>";
+					message += "_________________________________________________________________________________________________________________________________________________________________</p>";
+					message += "<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(c) Frissbi, product of Kleverlinks Network Pvt Ltd.<br />";
+					message += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;www.friss.bi<br />";
+					message += "</p>";
+					
+					EmailService.sendMail(credentialBean.getEmail(), "Frissbi Forget Password",message);
+					
+					finalJson.put("status", true);
+					finalJson.put("message", "User reset password successfully");
+					
+					return finalJson.toString();
+			   }
+			}else{
+				finalJson.put("status", false);
+				finalJson.put("message", "EmailId doesn't exist");
+				
+				return finalJson.toString();
+			}
+			} catch(Exception e){
+				e.printStackTrace();
+			} finally {
+				ServiceUtility.closeConnection(conn);
+				ServiceUtility.closeCallableSatetment(callableStatement);
+			}
+			finalJson.put("status", false);
+			finalJson.put("message", "Oops Something went wrong");
 			
-			String insertStoreProc = "{call usp_UpdatePassword_ByEmailAddress(?,?,?)}";
-			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setString(1, newPassword );
-			callableStatement.setString(2, emailname );
-			callableStatement.registerOutParameter(3, Types.INTEGER);
-			int value = callableStatement.executeUpdate();
-			isError = callableStatement.getInt(3) +"";
-		} catch (SQLException se) {
-			se.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} 
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeCallableSatetment(callableStatement);
-		return isError;
+			return finalJson.toString();
 	}
 	
 	public String nextSessionId() {

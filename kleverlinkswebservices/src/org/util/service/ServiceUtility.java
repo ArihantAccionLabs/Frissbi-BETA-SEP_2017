@@ -498,6 +498,7 @@ public class ServiceUtility {
 					JSONObject jsonObject = new JSONObject();
 					jsonObject.put("userId", rs.getLong("UserID"));
 					jsonObject.put("fullName", rs.getString("firstName")+" "+rs.getString("lastName"));
+					jsonObject.put("profileImageId", rs.getString("profileImageId"));
 					jsonObject.put("status", rs.getLong("Status"));
 					friendsArray.put(jsonObject);
 					
@@ -546,6 +547,7 @@ public class ServiceUtility {
 					meetingLogBean.setLatitude(rs.getString("Latitude"));
 					meetingLogBean.setLongitude(rs.getString("Longitude"));
 					meetingLogBean.setAddress(rs.getString("GoogleAddress"));
+					meetingLogBean.setMeetingDuration(rs.getTime("ScheduledTimeSlot"));
 			}
 		} catch(Exception  e){
 			e.printStackTrace();

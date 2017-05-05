@@ -40,6 +40,7 @@ public class UserFriendList {
 	@POST
 	@Path("/sendFriendRequest")
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String sendFriendRequest(String userIds) {
 		System.out.println("userIds   :  " + userIds.toString());
 		Connection conn = null;
@@ -562,6 +563,7 @@ public class UserFriendList {
 
 	@GET
 	@Path("/viewProfile/{userId}")
+	@Produces(MediaType.APPLICATION_JSON)
 	public String viewProfile(@PathParam("userId") Long userId) {
 		System.out.println("userId  :  " + userId);
 		JSONObject finalJson = new JSONObject();
@@ -591,7 +593,7 @@ public class UserFriendList {
 		JSONObject finalJson = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ContactNumber,U.ProfileImageID,U.CoverImageID FROM tbl_users  U WHERE U.UserID=?";
+			String sql = "SELECT U.UserId,U.UserName,U.FirstName,U.LastName,U.EmailName,U.Gender,U.dob,U.ContactNumber,U.ProfileImageID,U.CoverImageID,U.IsGmailLogin FROM tbl_users  U WHERE U.UserID=?";
 			pstmt = conn.prepareStatement(sql);
 			pstmt.setLong(1, friendUserId);
 			ResultSet rs = pstmt.executeQuery();
@@ -605,6 +607,8 @@ public class UserFriendList {
 				jsonObject.put("gender", rs.getString("Gender"));
 				jsonObject.put("contactNumber", rs.getString("ContactNumber"));
 				jsonObject.put("dob", rs.getString("dob"));
+				
+				jsonObject.put("isGmailLogin", rs.getString("IsGmailLogin").equals("0") ? true : false);
 				jsonObject.put("status", FriendStatusEnum.UNFRIEND);
 
 				if (Utility.checkValidString(rs.getString("ProfileImageID"))) {
@@ -748,14 +752,14 @@ public class UserFriendList {
 
 				if (userJson.has("emailId")) {
 					String message = "<p>Hi " + userObject.getString("fullName") + " has invited to you on Frissbi ";
-					message += " Please click  " + Constants.PLAY_STORE_URL + " url to install  FRISSBI App</p>";
-					EmailService.SendMail(userJson.getString("emailId"), "Frissbi App installation", message);
+					message += " Please click  " + Constants.SERVER_URL + " url to install  FRISSBI App</p>";
+					EmailService.sendMail(userJson.getString("emailId"), "Frissbi App installation", message);
 					finalJson.put("message", "Mail sent succesfully for inviting the user");
 				} else if (userJson.has("phoneNumber")) {
 					SmsService smsService = new SmsService();
 
 					String message = "HI " + userObject.getString("fullName") + " has invited to you on Frissbi ";
-					message += " Please click  " + Constants.PLAY_STORE_URL + " url to install  FRISSBI App ";
+					message += " Please click  " + Constants.SERVER_URL + " url to install  FRISSBI App ";
 
 					smsService.sendSms(userJson.getString("phoneNumber").replaceAll("\\s",""), message);
 					finalJson.put("message", "Sms sent successfully for inviting the user");

@@ -13,7 +13,7 @@ import javax.mail.internet.MimeMessage;
 public class EmailService {
 
 	@SuppressWarnings("static-access")
-	public static void SendMail(String emailTo , String subject , String htmlMessage) throws Exception {
+	public static void sendMail(String emailTo , String subject , String htmlMessage) throws Exception {
 		Properties properties = new Properties();
 		properties.put("mail.transport.protocol", Constants.MAIL_TRANSPORT_PROTOCOL);
 		properties.put("mail.smtp.host", Constants.SMTP_HOST_NAME);
@@ -32,13 +32,13 @@ public class EmailService {
 		MimeMessage message = new MimeMessage(mailSession);
 		
 		message.setFrom(new InternetAddress(Constants.SEND_EMAIL_FROM));
-		
 		message.addRecipients(Message.RecipientType.CC, InternetAddress.parse(emailTo));
 		
 		//InternetAddress[] toAddresses = { new InternetAddress(emailTo) };
 		// message.setRecipients(Message.RecipientType.TO, toAddresses);
 		 message.setSubject(subject);
 		 message.setContent(htmlMessage , "text/html");
+		
 		Transport transport = mailSession.getTransport();
 		transport.connect();
 		transport.send(message);

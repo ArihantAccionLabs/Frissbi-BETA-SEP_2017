@@ -519,7 +519,7 @@ public class MeetingDetails {
 	 */
 	@GET
 	@Path("/getUserDetailsByMeetingID/{meetingId}/{userId}")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getUserDetailsByMeetingID(@PathParam("meetingId") Long meetingId, @PathParam("userId") Long userId) {
 
 		JSONObject jsonObject = new JSONObject();
@@ -538,6 +538,9 @@ public class MeetingDetails {
 				 jsonObject.put("meetingId" , meetingLogBean.getMeetingId());
 				 jsonObject.put("meetingSenderId" , meetingLogBean.getSenderUserId());
 				 jsonObject.put("date" , meetingLogBean.getDate());
+				 
+				 DateFormat  dateFormat = new SimpleDateFormat("HH:mm");
+				 jsonObject.put("meetingDuration" ,dateFormat.format(meetingLogBean.getMeetingDuration()));
 				 jsonObject.put("from" , meetingLogBean.getFromDate().getHour()+":"+meetingLogBean.getFromDate().getMinute());
 				 jsonObject.put("to" , meetingLogBean.getToDate().getHour()+":"+meetingLogBean.getToDate().getMinute());
 				 jsonObject.put("description" , meetingLogBean.getDescription());
@@ -564,14 +567,17 @@ public class MeetingDetails {
 			
 			 JSONObject friendsObject = ServiceUtility.getReceiverDetailsByMeetingId(meetingId , userId);
 			 JSONArray friendsArray = friendsObject.getJSONArray("friendsArray");
-			 if(friendsArray.length() == 0 && meetingLogBean != null){
-				 JSONObject jsonObject2 = new JSONObject();
-				 jsonObject2.put("userId", meetingLogBean.getSenderUserId());
-				 jsonObject2.put("fullName", meetingLogBean.getFullName());
-				 jsonObject2.put("status", "1");
+			 
+			 if(!(userId.longValue() == meetingLogBean.getSenderUserId().longValue())){
+				    JSONObject creatorJson = new JSONObject();
 				 
-				 friendsArray.put(jsonObject2);
-			 }
+				    creatorJson.put("userId", meetingLogBean.getSenderUserId());
+				    creatorJson.put("fullName", meetingLogBean.getFullName());
+				    creatorJson.put("profileImageId", meetingLogBean.getProfileImageId());
+				    creatorJson.put("status", "1");
+					friendsArray.put(creatorJson);
+			}
+			 
 			 if(! jsonObject.has("meetingStatus")){
 				 jsonObject.put("meetingStatus" , friendsObject.get("status"));
 			 }
@@ -872,7 +878,7 @@ public class MeetingDetails {
 		String message = "";
 		message = " You have " + meetingLogBean.getDescription() + " on " + meetingLogBean.getDate()
 				+ " from " + meetingLogBean.getStartTime() + " to " + meetingLogBean.getEndTime() + " created by "
-				+ userDetail.getString("fullName") + " Please click this url " + Constants.PLAY_STORE_URL
+				+ userDetail.getString("fullName") + " Please click this url " + Constants.SERVER_URL
 				+ " to install Frissbi App";
 
 			SmsService smsService = new SmsService();
@@ -891,11 +897,11 @@ public class MeetingDetails {
 		String htmlMessage = "";
 		htmlMessage = " You have " + meetingLogBean.getDescription() + " on " + meetingLogBean.getDate()
 				+ " from " + meetingLogBean.getStartTime() + " to " + meetingLogBean.getEndTime() + " created by "
-				+ userDetail.getString("fullName") + " Please click this url " + Constants.PLAY_STORE_URL
+				+ userDetail.getString("fullName") + " Please click this url " + Constants.SERVER_URL
 				+ " to install Frissbi App";
 
 
-			EmailService.SendMail(emailTo, "Frissbi Meeting", htmlMessage);
+			EmailService.sendMail(emailTo, "Frissbi Meeting", htmlMessage);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

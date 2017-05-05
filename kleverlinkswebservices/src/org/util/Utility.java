@@ -1,5 +1,7 @@
 package org.util;
 
+import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.ws.rs.PathParam;
 
 import org.json.JSONObject;
 import org.kleverlinks.bean.ActivityBean;
@@ -197,6 +201,41 @@ public static String getIdsAsStringFormat(List<Long> userIds){
 		rowCount++;
 	}
 	return userArray;
+}
+
+public static String nextSessionId() {
+	 SecureRandom random = new SecureRandom();
+	return new BigInteger(130, random).toString(32);
+}
+
+public static JSONObject checkUserEmailVerification(@PathParam("emailId") String emailId) {
+
+	Connection conn = null;
+	CallableStatement callableStatement = null;
+	JSONObject jsonObject = null;
+	try {
+		conn = DataSourceConnection.getDBConnection();
+		String insertStoreProc = "{call usp_CheckUserEmailVerification(?)}";
+		callableStatement = conn.prepareCall(insertStoreProc);
+		callableStatement.setString(1, emailId);
+		callableStatement.executeUpdate();
+		ResultSet rs = callableStatement.getResultSet();
+		while (rs.next()) {
+			jsonObject = new JSONObject();
+			jsonObject.put("isEmailVerified", rs.getInt("IsEmailVerified"));
+			jsonObject.put("isGmailLogin", rs.getInt("IsGmailLogin"));
+			jsonObject.put("emailVerificationCode", rs.getString("EmailVerificationCode"));
+			jsonObject.put("userName", rs.getString("UserName"));
+			jsonObject.put("userId", rs.getString("UserID"));
+		}
+
+	} catch(Exception e){
+		e.printStackTrace();
+	} finally {
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeCallableSatetment(callableStatement);
+	}
+	return jsonObject;
 }
 
 }
