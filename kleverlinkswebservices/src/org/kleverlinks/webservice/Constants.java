@@ -8,8 +8,8 @@ public class Constants {
 	// local db configuration
 	public static final String DB_URL = "jdbc:mysql://localhost:3306/FrissDB";
 	public static final String USER = "root";
-	//public static final String PASS = "FRISSBI@31s";
-	public static final String PASS = "test";
+	public static final String PASS = "FRISSBI@31s";
+	//public static final String PASS = "test";
 	//server address : 139.59.32.89
 	// server db configuration
 	/*
