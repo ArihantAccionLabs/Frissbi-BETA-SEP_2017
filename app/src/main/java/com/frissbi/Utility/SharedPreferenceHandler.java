@@ -12,7 +12,6 @@ public class SharedPreferenceHandler {
     private static final String PREF_NAME = "frissbiPref";
     private static final String IS_LOGGED_IN = "isLoggedIn";
     private static final String USER_ID = "userId";
-    private static final String USER_NAME = "userName";
     private Context mContext;
 
 
@@ -28,9 +27,8 @@ public class SharedPreferenceHandler {
         mSharedPreferences = mContext.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
 
-    public void storeLoginDetails(Long userId, String userName) {
+    public void storeLoginDetails(Long userId) {
         mSharedPreferences.edit().putLong(USER_ID, userId).apply();
-        mSharedPreferences.edit().putString(USER_NAME, userName).apply();
         mSharedPreferences.edit().putBoolean(IS_LOGGED_IN, true).apply();
     }
 
@@ -42,9 +40,6 @@ public class SharedPreferenceHandler {
         return mSharedPreferences.getLong(USER_ID, 0L);
     }
 
-    public String  getUserName() {
-        return mSharedPreferences.getString(USER_NAME, "");
-    }
 
     public void clearUserDetails() {
         mSharedPreferences.edit().clear().apply();

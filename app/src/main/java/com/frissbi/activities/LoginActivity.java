@@ -1,6 +1,7 @@
 package com.frissbi.activities;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -9,10 +10,14 @@ import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Base64;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -29,10 +34,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.Scopes;
-import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Scope;
-
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import org.json.JSONException;
@@ -44,6 +47,8 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static android.os.Build.VERSION.SDK_INT;
 
@@ -70,6 +75,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private SharedPreferenceHandler mSharedPreferenceHandler;
     private byte[] imageByteArray;
     private RelativeLayout mGoogleLoginLayout;
+    private EditText mLoginEmailEt;
+    private EditText mLoginPasswordEt;
+    private AlertDialog mAlertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +91,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         }
         mSharedPreferenceHandler = SharedPreferenceHandler.getInstance(this);
         mGoogleLoginLayout = (RelativeLayout) findViewById(R.id.google_login_rl);
+        mLoginEmailEt = (EditText) findViewById(R.id.login_email_et);
+        mLoginPasswordEt = (EditText) findViewById(R.id.login_password_et);
+        findViewById(R.id.get_started_button).setOnClickListener(this);
+        findViewById(R.id.create_account_button).setOnClickListener(this);
+        findViewById(R.id.forgot_password).setOnClickListener(this);
         mGoogleLoginLayout.setOnClickListener(this);
         mProgressDialog = new CustomProgressDialog(this);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -106,8 +119,155 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             case R.id.google_login_rl:
                 loginWithGoogle();
                 break;
+            case R.id.create_account_button:
+                Intent intent = new Intent(LoginActivity.this, RegistrationActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.get_started_button:
+                if (validateFieldValues()) {
+                    login();
+                }
+                break;
+            case R.id.forgot_password:
+                showForgotPasswordDialog();
+                break;
         }
 
+    }
+
+    private void showForgotPasswordDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Forgot Password");
+        View view = LayoutInflater.from(this).inflate(R.layout.forgot_password_alert, null);
+        builder.setView(view);
+        final AlertDialog alertDialog = builder.create();
+        final EditText emailEt = (EditText) view.findViewById(R.id.email_et);
+        final EditText passwordEt = (EditText) view.findViewById(R.id.password_et);
+        EditText confirmPasswordEt = (EditText) view.findViewById(R.id.confirm_password_et);
+        Button submitButton = (Button) view.findViewById(R.id.submit_button);
+
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+                sendNewPasswordToServer(emailEt.getText().toString(), passwordEt.getText().toString());
+            }
+        });
+
+        alertDialog.show();
+    }
+
+    private void sendNewPasswordToServer(String email, String password) {
+        JSONObject jsonObject = new JSONObject();
+        try {
+
+            jsonObject.put("email", email);
+            jsonObject.put("password", password);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String url = Utility.REST_URI + Utility.FORGOT;
+        TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
+            @Override
+            public void handleResponse(TSNetworkHandler.TSResponse response) {
+
+                if (response != null) {
+                    if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
+                        Toast.makeText(LoginActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                        emailReset();
+                    } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
+                        Toast.makeText(LoginActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(LoginActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                }
+                mProgressDialog.dismiss();
+
+            }
+        });
+    }
+
+    private boolean validateFieldValues() {
+
+        if (mLoginEmailEt.getText().toString().trim().length() > 0) {
+
+            if (mLoginEmailEt.getText().toString().matches("[a-zA-Z0-9._-]+@[a-z]+.[a-z]+")) {
+                if (!mLoginEmailEt.getText().toString().matches("[a-zA-Z0-9._-]+@gmail+.com+")) {
+                    if (mLoginPasswordEt.getText().toString().trim().length() > 0) {
+                        if (isValidPassword(mLoginPasswordEt.getText().toString().trim())) {
+                            return true;
+                        } else {
+                            Toast.makeText(this, "Password must be 6 characters with atleast  on special character", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(this, "Please enter password", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(this, "Please login through google", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Please enter valid email", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
+        return false;
+    }
+
+    public boolean isValidPassword(final String password) {
+
+        Pattern pattern;
+        Matcher matcher;
+        final String PASSWORD_PATTERN = "((?=.*[@#$%^&+=]).{6,12})";
+
+        pattern = Pattern.compile(PASSWORD_PATTERN);
+        matcher = pattern.matcher(password);
+
+        return matcher.matches();
+
+    }
+
+    private void login() {
+        mProgressDialog.show();
+        JSONObject jsonObject = new JSONObject();
+        try {
+
+            jsonObject.put("email", mLoginEmailEt.getText().toString());
+            jsonObject.put("password", mLoginPasswordEt.getText().toString());
+            jsonObject.put("isGmailLogin", false);
+            jsonObject.put("deviceRegistrationId", FirebaseInstanceId.getInstance().getToken());
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String url = Utility.REST_URI + Utility.LOGIN;
+        TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
+            @Override
+            public void handleResponse(TSNetworkHandler.TSResponse response) {
+
+                if (response != null) {
+                    if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
+                        Toast.makeText(LoginActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                        try {
+                            JSONObject responseJsonObject = new JSONObject(response.response);
+                            mSharedPreferenceHandler.storeLoginDetails(responseJsonObject.getLong("userId"));
+                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
+                        Toast.makeText(LoginActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(LoginActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                }
+                mProgressDialog.dismiss();
+
+            }
+        });
     }
 
     private void loginWithGoogle() {
@@ -251,10 +411,9 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             public void handleResponse(TSNetworkHandler.TSResponse response) {
                 if (response != null) {
                     if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
-
                         try {
                             JSONObject responseJsonObject = new JSONObject(response.response);
-                            mSharedPreferenceHandler.storeLoginDetails(responseJsonObject.getLong("userId"), responseJsonObject.getString("userName"));
+                            mSharedPreferenceHandler.storeLoginDetails(responseJsonObject.getLong("userId"));
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
                             startActivity(intent);
                             finish();
@@ -308,6 +467,29 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             e.printStackTrace();
             return null;
         }
+    }
+
+    private void emailReset() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(LoginActivity.this);
+        builder.setTitle("Alert!");
+        builder.setMessage("Please check mail and login..");
+        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mAlertDialog.dismiss();
+            }
+        });
+        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                mAlertDialog.dismiss();
+            }
+        });
+
+        mAlertDialog = builder.create();
+        mAlertDialog.show();
+
+
     }
 
 }

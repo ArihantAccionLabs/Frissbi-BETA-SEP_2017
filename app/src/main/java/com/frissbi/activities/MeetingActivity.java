@@ -28,7 +28,6 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
 import com.frissbi.SelectedContacts;
 import com.frissbi.Utility.ConnectionDetector;
@@ -113,9 +112,9 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
         RelativeLayout locationLayout = (RelativeLayout) findViewById(R.id.location_rl);
         RelativeLayout descriptionLayout = (RelativeLayout) findViewById(R.id.description_rl);
         // mSelectedContactsExpandableListView = (ExpandableListView) findViewById(R.id.selected_contacts_expandableListView);
-        mMeetingTitleTextView = (TextView) findViewById(R.id.meeting_title_tv);
         ImageView confirmMeetingImageView = (ImageView) findViewById(R.id.confirm_meeting);
         Button addAttendeeButton = (Button) findViewById(R.id.add_attendee_button);
+        mMeetingTitleTextView = (TextView) findViewById(R.id.meeting_title_tv);
         mMeetingAttendeesRecyclerView = (RecyclerView) findViewById(R.id.meeting_attendees_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mMeetingAttendeesRecyclerView.setLayoutManager(layoutManager);
@@ -158,7 +157,6 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 alertDialog.dismiss();
                 Intent intent = new Intent(MeetingActivity.this, MySavedPlacesActivity.class);
                 startActivityForResult(intent, PLACE_REQ_CODE);
-
             }
         });
         anyPlaceTv.setOnClickListener(new View.OnClickListener() {

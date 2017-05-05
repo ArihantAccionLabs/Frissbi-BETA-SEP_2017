@@ -15,11 +15,20 @@ import android.view.animation.Animation;
 import android.view.animation.Animation.AnimationListener;
 import android.widget.ImageView;
 
+import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.activities.HomeActivity;
-import com.frissbi.R;
 import com.frissbi.activities.LoginActivity;
+import com.frissbi.models.Friend;
+import com.frissbi.models.FrissbiContact;
+import com.frissbi.models.FrissbiGroup;
+import com.frissbi.models.FrissbiReminder;
+import com.frissbi.models.Meeting;
+import com.frissbi.models.MeetingDate;
+import com.frissbi.models.MeetingFriends;
+import com.frissbi.models.Participant;
+import com.frissbi.models.Profile;
 
 public class SplashScreen extends Activity implements AnimationListener {
     private static int SPLASH_TIME_OUT = 1000;
@@ -45,7 +54,10 @@ public class SplashScreen extends Activity implements AnimationListener {
         //img.startAnimation(animMove);
         preferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
         editor = preferences.edit();
+
     }
+
+
 
     private void redirectToHomeOrLoginScreen() {
         new Handler().postDelayed(new Runnable() {
@@ -68,6 +80,7 @@ public class SplashScreen extends Activity implements AnimationListener {
                 Log.d("value is", UserName);
                 editor.commit();*/
                 //String password = myPrefs.getString("PASSWORD",null);
+                Log.d("SplashScreen", "isLoggedIn" + SharedPreferenceHandler.getInstance(SplashScreen.this).isLoggedIn());
                 if (SharedPreferenceHandler.getInstance(SplashScreen.this).isLoggedIn()) {
                     //username and password are present, do your stuff
                     Intent intent = new Intent(getApplicationContext(), HomeActivity.class);

@@ -1,7 +1,6 @@
 package com.frissbi.activities;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -12,10 +11,8 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -28,7 +25,9 @@ import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
+import com.frissbi.adapters.GroupParticipantAdapter;
 import com.frissbi.adapters.MeetingFriendsAdapter;
+import com.frissbi.models.FrissbiContact;
 import com.frissbi.models.Meeting;
 import com.frissbi.models.MeetingFriends;
 import com.frissbi.networkhandler.TSNetworkHandler;
@@ -59,37 +58,37 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
     private TextView mMeetingDetailsAtTextView;
     private LinearLayout mMeetingStatusLayout;
     private View mStatusView;
-    private Button mMoreFriendsButton;
+    //private Button mMoreFriendsButton;
     private TextView mMeetingDetailsFriendTextView;
     private ProgressDialog mProgressDialog;
     private Long mMeetingId;
     private AlertDialog mMeetingCanceledAlertDialog;
-    private Button mChangePlaceButton;
+    //private Button mChangePlaceButton;
+    private TextView mMeetingDateTextView;
+    private TextView mMeetingTimeTextView;
+    private TextView mMeetingPlaceTextView;
+    private TextView mMeetingDurationTextView;
+    private TextView mMeetingTitleTextView;
+    private RecyclerView mMeetingAttendeesRecyclerView;
+    private List<FrissbiContact> mFrissbiContactsList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_meeting_details);
+        setContentView(R.layout.meeting_details);
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         mProgressDialog = new CustomProgressDialog(this);
-
+        mFrissbiContactsList = new ArrayList<>();
         Bundle bundle = getIntent().getExtras();
 
         mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
-        mMeetingDetailsTitleTextView = (TextView) findViewById(R.id.meeting_details_title_tv);
-        mMeetingDetailsDateTextView = (TextView) findViewById(R.id.meeting_details_date_tv);
-        mMeetingDetailsTimeTextView = (TextView) findViewById(R.id.meeting_details_time_tv);
-        mMeetingDetailsAtTextView = (TextView) findViewById(R.id.meeting_details_at_tv);
-        mMeetingStatusLayout = (LinearLayout) findViewById(R.id.status_ll);
-        mStatusView = findViewById(R.id.view3);
-        mMoreFriendsButton = (Button) findViewById(R.id.more_friends_button);
-        mMeetingDetailsFriendTextView = (TextView) findViewById(R.id.meeting_details_friend_tv);
+        // mMoreFriendsButton = (Button) findViewById(R.id.more_friends_button);
+       /* mMeetingDetailsFriendTextView = (TextView) findViewById(R.id.meeting_details_friend_tv);
 
-        mMeetingDetailsStatusTextView = (TextView) findViewById(R.id.meeting_details_status_tv);
-        mMeetingAcceptButton = (Button) findViewById(R.id.meeting_accept_button);
-        mMeetingIgnoreButton = (Button) findViewById(R.id.meeting_ignore_button);
-        mChangePlaceButton = (Button) findViewById(R.id.change_place_button);
+        mMeetingDetailsStatusTextView = (TextView) findViewById(R.id.meeting_details_status_tv);*/
+
+        // mChangePlaceButton = (Button) findViewById(R.id.change_place_button);
 
 
         if (bundle.containsKey("meetingId")) {
@@ -101,16 +100,30 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             }
         }
 
+        setUpViews();
 
-        mMeetingAcceptButton.setOnClickListener(this);
-        mMeetingIgnoreButton.setOnClickListener(this);
-        mMoreFriendsButton.setOnClickListener(this);
-        mChangePlaceButton.setOnClickListener(this);
+
+        // mMoreFriendsButton.setOnClickListener(this);
+        // mChangePlaceButton.setOnClickListener(this);
 
     }
 
+    private void setUpViews() {
+        mMeetingDetailsDateTextView = (TextView) findViewById(R.id.meeting_date_tv);
+        mMeetingDetailsTimeTextView = (TextView) findViewById(R.id.meeting_time_tv);
+        mMeetingDetailsAtTextView = (TextView) findViewById(R.id.meeting_place_tv);
+        mMeetingDurationTextView = (TextView) findViewById(R.id.meeting_duration_tv);
+        mMeetingDetailsTitleTextView = (TextView) findViewById(R.id.meeting_title_tv);
+        mMeetingAcceptButton = (Button) findViewById(R.id.accept_meeting_button);
+        mMeetingIgnoreButton = (Button) findViewById(R.id.ignore_meeting_button);
+        mMeetingAttendeesRecyclerView = (RecyclerView) findViewById(R.id.meeting_attendees_recyclerView);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mMeetingAttendeesRecyclerView.setLayoutManager(layoutManager);
+        mMeetingAcceptButton.setOnClickListener(this);
+        mMeetingIgnoreButton.setOnClickListener(this);
+    }
+
     private void setMeetingObject(JSONObject meetingJsonObject) {
-        List<MeetingFriends> meetingFriendsList = new ArrayList<>();
         try {
             mMeeting = new Meeting();
             mMeeting.setMeetingId(meetingJsonObject.getLong("meetingId"));
@@ -123,6 +136,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             mMeeting.setDate(meetingJsonObject.getString("date"));
             mMeeting.setFromTime(meetingJsonObject.getString("from"));
             mMeeting.setToTime(meetingJsonObject.getString("to"));
+            mMeeting.setDuration(meetingJsonObject.getString("meetingDuration"));
             mMeeting.setDescription(meetingJsonObject.getString("description"));
             if (meetingJsonObject.getBoolean("isLocationSelected")) {
                 mMeeting.setLocationSelected(meetingJsonObject.getBoolean("isLocationSelected"));
@@ -135,7 +149,43 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
 
             JSONArray friendsJsonArray = meetingJsonObject.getJSONArray("friendsJsonArray");
             int friendsLength = friendsJsonArray.length();
-            if (friendsLength > 0) {
+            for (int j = 0; j < friendsLength; j++) {
+                FrissbiContact frissbiContact = new FrissbiContact();
+                JSONObject friendJsonObject = friendsJsonArray.getJSONObject(j);
+                frissbiContact.setUserId(friendJsonObject.getLong("userId"));
+                frissbiContact.setName(friendJsonObject.getString("fullName"));
+                if (friendJsonObject.has("profileImageId")) {
+                    frissbiContact.setImageId(friendJsonObject.getString("profileImageId"));
+                }
+                frissbiContact.setType(Utility.FRIEND_TYPE);
+                mFrissbiContactsList.add(frissbiContact);
+            }
+
+
+            JSONArray emailIdJsonArray = meetingJsonObject.getJSONArray("emailIdJsonArray");
+            int emailIdsLength = emailIdJsonArray.length();
+            if (emailIdsLength > 0) {
+                for (int j = 0; j < emailIdsLength; j++) {
+                    FrissbiContact frissbiContact = new FrissbiContact();
+                    frissbiContact.setName(emailIdJsonArray.getString(j));
+                    frissbiContact.setType(Utility.EMAIL_TYPE);
+                    mFrissbiContactsList.add(frissbiContact);
+                }
+            }
+            JSONArray contactsJsonArray = meetingJsonObject.getJSONArray("contactsJsonArray");
+            int contactsLength = contactsJsonArray.length();
+            if (contactsLength > 0) {
+                for (int j = 0; j < contactsLength; j++) {
+                    FrissbiContact frissbiContact = new FrissbiContact();
+                    frissbiContact.setName(contactsJsonArray.getString(j));
+                    frissbiContact.setType(Utility.CONTACT_TYPE);
+                    mFrissbiContactsList.add(frissbiContact);
+                }
+            }
+
+
+
+            /*if (friendsLength > 0) {
                 for (int j = 0; j < friendsLength; j++) {
                     MeetingFriends meetingFriends = new MeetingFriends();
                     JSONObject jsonObject = friendsJsonArray.getJSONObject(j);
@@ -166,34 +216,85 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
                     meetingFriendsList.add(meetingFriends);
                 }
             }
-            mMeeting.setMeetingFriendsList(meetingFriendsList);
+            mMeeting.setMeetingFriendsList(meetingFriendsList);*/
             if (!meetingJsonObject.getBoolean("isLocationSelected")) {
                 if (meetingJsonObject.has("updateCount")) {
                     if (meetingJsonObject.getInt("updateCount") != 0 && meetingJsonObject.getInt("updateCount") != 2) {
-                        mChangePlaceButton.setVisibility(View.VISIBLE);
+                        //mChangePlaceButton.setVisibility(View.VISIBLE);
                     } else {
-                        mChangePlaceButton.setVisibility(View.GONE);
+                        // mChangePlaceButton.setVisibility(View.GONE);
                     }
                 }
             }
 
-            setViewWithValues();
+            // setViewWithValues();
+            setData();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    private void setViewWithValues() {
-        FLog.d("MeetingDetailsActivity", "meeting" + mMeeting);
-        mMeetingFriendsList = mMeeting.getMeetingFriendsList();
+    private void setData() {
+       /* mMeetingFriendsList = mMeeting.getMeetingFriendsList();
         if (mMeetingFriendsList.size() > 1) {
             mMeetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
             mMoreFriendsButton.setVisibility(View.VISIBLE);
         } else {
             mMeetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
             mMoreFriendsButton.setVisibility(View.GONE);
+        }*/
+
+        GroupParticipantAdapter groupParticipantAdapter = new GroupParticipantAdapter(MeetingDetailsActivity.this, mFrissbiContactsList, true);
+        mMeetingAttendeesRecyclerView.setAdapter(groupParticipantAdapter);
+
+        mMeetingDetailsTitleTextView.setText(mMeeting.getDescription());
+        mMeetingDetailsDateTextView.setText(mMeeting.getDate());
+        mMeetingDurationTextView.setText(mMeeting.getDuration());
+        mMeetingDetailsTimeTextView.setText(Utility.getInstance().convertTime(mMeeting.getFromTime()));
+        if (mMeeting.isLocationSelected()) {
+            mMeetingDetailsAtTextView.setText(mMeeting.getAddress());
+        } else {
+            mMeetingDetailsAtTextView.setText("Any Place");
         }
+
+        if (!mMeeting.getMeetingSenderId().equals(mUserId)) {
+           /* mMeetingStatusLayout.setVisibility(View.VISIBLE);
+            mStatusView.setVisibility(View.VISIBLE);
+            if (mMeeting.getMeetingStatus() == Utility.STATUS_PENDING) {
+                mMeetingDetailsStatusTextView.setText("PENDING");
+                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.light_orange));
+            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
+                mMeetingDetailsStatusTextView.setText("ACCEPTED");
+                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
+                mMeetingAcceptButton.setVisibility(View.GONE);
+            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_REJECT) {
+                mMeetingDetailsStatusTextView.setText("REJECTED");
+                mMeetingAcceptButton.setVisibility(View.GONE);
+                mMeetingIgnoreButton.setVisibility(View.GONE);
+                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.red));
+            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
+                mMeetingDetailsStatusTextView.setText("COMPLETED");
+                mMeetingAcceptButton.setVisibility(View.GONE);
+                mMeetingIgnoreButton.setVisibility(View.GONE);
+                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.blue));
+            }*/
+        } else {
+            mMeetingAcceptButton.setVisibility(View.GONE);
+            mMeetingStatusLayout.setVisibility(View.GONE);
+        }
+    }
+
+    private void setViewWithValues() {
+        FLog.d("MeetingDetailsActivity", "meeting" + mMeeting);
+        mMeetingFriendsList = mMeeting.getMeetingFriendsList();
+       /* if (mMeetingFriendsList.size() > 1) {
+            mMeetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
+            mMoreFriendsButton.setVisibility(View.VISIBLE);
+        } else {
+            mMeetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
+            mMoreFriendsButton.setVisibility(View.GONE);
+        }*/
         mMeetingDetailsTitleTextView.setText(mMeeting.getDescription());
         mMeetingDetailsDateTextView.setText(mMeeting.getDate());
         mMeetingDetailsTimeTextView.setText(Utility.getInstance().convertTime(mMeeting.getFromTime()) + " to " + Utility.getInstance().convertTime(mMeeting.getToTime()));
@@ -279,19 +380,19 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
     public void onClick(View view) {
 
         switch (view.getId()) {
-            case R.id.meeting_accept_button:
+            case R.id.accept_meeting_button:
                 sendMeetingStatusToServer(true, Utility.STATUS_ACCEPT, new JSONArray());
                 break;
-            case R.id.meeting_ignore_button:
+            case R.id.ignore_meeting_button:
                 showRejectConformationAlert();
 
                 break;
-            case R.id.more_friends_button:
+            /*case R.id.more_friends_button:
                 showFriendsListAlertDialog();
                 break;
             case R.id.change_place_button:
                 redirectToSuggestPlaces();
-                break;
+                break;*/
         }
 
     }
@@ -482,7 +583,6 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
         mConfirmAlertDialog = builder.create();
         mConfirmAlertDialog.show();
     }
-
 
 
 }

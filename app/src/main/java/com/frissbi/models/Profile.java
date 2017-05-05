@@ -17,6 +17,7 @@ public class Profile extends SugarRecord {
     private String contactNumber;
     private String gender;
     private String coverImageId;
+    private boolean isGmailLogin;
 
     public Profile() {
         
@@ -94,6 +95,14 @@ public class Profile extends SugarRecord {
         this.coverImageId = coverImageId;
     }
 
+    public boolean isGmailLogin() {
+        return isGmailLogin;
+    }
+
+    public void setGmailLogin(boolean gmailLogin) {
+        isGmailLogin = gmailLogin;
+    }
+
     @Override
     public String toString() {
         return "Profile{" +
@@ -106,6 +115,7 @@ public class Profile extends SugarRecord {
                 ", contactNumber='" + contactNumber + '\'' +
                 ", gender='" + gender + '\'' +
                 ", coverImageId='" + coverImageId + '\'' +
+                ", isGmailLogin=" + isGmailLogin +
                 '}';
     }
 }

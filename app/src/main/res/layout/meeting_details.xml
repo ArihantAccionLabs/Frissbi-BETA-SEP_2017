@@ -16,24 +16,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@+id/add_attendee_button" />
-
-        <Button
-            android:id="@+id/add_attendee_button"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/btn_add" />
-
-        <com.frissbi.CustomFontTextView
-            android:id="@+id/add_attendee_tv"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="Add Attendees"
-            android:textColor="@color/white"
-            android:visibility="visible" />
-
     </RelativeLayout>
 
     <RelativeLayout
@@ -315,14 +297,39 @@
 
     </RelativeLayout>
 
-    <ImageView
-        android:id="@+id/confirm_meeting"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="30dp"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/attendee_rl"
-        android:src="@drawable/btn_arrow" />
+        android:weightSum="2">
+
+        <Button
+            android:id="@+id/accept_meeting_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="10dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_background_blue"
+            android:text="Accept"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+        <Button
+            android:id="@+id/ignore_meeting_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="30dp"
+            android:layout_weight="1"
+            android:background="@drawable/button_background_grey"
+            android:text="Ignore"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:textSize="16sp" />
+
+
+    </LinearLayout>
 
 </RelativeLayout>

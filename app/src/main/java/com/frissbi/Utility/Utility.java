@@ -44,8 +44,8 @@ public class Utility {
     public static final String GROUP_NOTIFICATION_TYPE = "GROUP_TYPE";
     public static final String FRIEND_NOTIFICATION_TYPE = "FRIEND_TYPE";
     //public static final String REST_URI ="http://13.76.99.32/kleverlinkswebservices";
-   // public static final String REST_URI = "http://139.59.32.89:8080/kleverlinkswebservices/rest";
-    public static final String REST_URI = "http://192.168.2.148:9090/kleverlinkswebservices/rest";//Sunil
+    public static final String REST_URI = "http://139.59.32.89:8080/kleverlinkswebservices/rest";
+    //public static final String REST_URI = "http://192.168.2.148:9090/kleverlinkswebservices/rest";//Sunil
     public static final String USER_FRIENDSLIST = "/FriendListService/friendsList/";
     public static final String MEETING_INSERT = "/MeetingDetailsService/insertMeetingDetails/";
     public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getUserDetailsByMeetingID/";
@@ -85,6 +85,10 @@ public class Utility {
     public static final String UPLOAD_PHOTO = "/UserActivityService/insertUserPhotos";
     public static final String CHECK_IN_LOCATION = "/UserActivityService/insertUserLocation";
     public static final String NOTIFICATION_AS_READ = "/FriendListService/updateNotificationAsRead/";
+    public static final String REGISTRATION = "/UserRegistrationService/registerUser";
+    public static final String LOGIN = "/UserRegistrationService/user-login";
+    public static final String FORGOT = "/AuthenticateUserService/forgotPassword";
+
     private static final int MY_PERMISSIONS_REQUEST_LOCATION = 100;
     private static Utility ourInstance = new Utility();
 

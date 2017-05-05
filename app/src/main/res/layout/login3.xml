@@ -34,6 +34,7 @@
             android:layout_height="120dp"
             android:background="@color/bg_color"
             android:gravity="center">
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -61,10 +62,9 @@
                 android:id="@+id/roundpic"
                 android:layout_width="50dp"
                 android:layout_height="50dp"
-                android:background="@drawable/pic1"
+                android:layout_gravity="right|top"
 
-                android:layout_gravity="right|top" />
-
+                android:background="@drawable/pic1" />
 
 
         </FrameLayout>
@@ -75,11 +75,13 @@
             android:layout_height="fill_parent"
             android:layout_marginBottom="50dp"
             android:orientation="vertical">
+
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="3dp"
                 android:orientation="vertical">
+
                 <com.frissbi.Utility.MyTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -106,8 +108,8 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="#e3e3e3">
-            </View>
+                android:background="#e3e3e3"></View>
+
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
@@ -119,6 +121,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:orientation="horizontal">
+
                     <com.frissbi.Utility.MyTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -131,6 +134,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
+
                     <EditText
                         android:id="@+id/phone"
                         android:layout_width="fill_parent"
@@ -160,72 +164,75 @@
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="3dp"
-                    android:padding="20dp"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:padding="20dp">
 
 
                     <CheckBox
+                        android:id="@+id/chekpriv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:button="@drawable/toggle_selector"
-                        android:id="@+id/chekpriv" />
+                        android:button="@drawable/toggle_selector" />
 
                     <com.frissbi.Utility.MyTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="@dimen/text_sizes_townty"
-                        android:textSize="13dp"
+                        android:text="I agree to"
 
                         android:textColor="@drawable/list_item_text_selector"
-                        android:text="I agree to" />
+                        android:textSize="13dp" />
+
                     <com.frissbi.Utility.MyTextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="5dp"
-                        android:textSize="13dp"
                         android:id="@+id/terms"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="Terms of use"
 
                         android:textColor="@drawable/text_color_blue"
-                        android:text="Terms of use" />
+                        android:textSize="13dp" />
+
                     <com.frissbi.Utility.MyTextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="5dp"
-                        android:textSize="13dp"
+                        android:text="and"
 
                         android:textColor="@drawable/list_item_text_selector"
-                        android:text="and" />
+                        android:textSize="13dp" />
 
 
                     <com.frissbi.Utility.MyTextView
+                        android:id="@+id/privacy"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="5dp"
 
-                        android:textSize="13dp"
-                        android:id="@+id/privacy"
+                        android:layout_marginLeft="5dp"
+                        android:text="Privacy Policy"
 
                         android:textColor="@drawable/text_color_blue"
-                        android:text="Privacy Policy" />
-                    </LinearLayout>
-
+                        android:textSize="13dp" />
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="#e3e3e3">
-                </View>
             </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#e3e3e3"></View>
+        </LinearLayout>
 
 
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="fill_parent"
         android:layout_height="60dp"
         android:layout_gravity="bottom|center"
         android:background="@color/bg_color"
         android:gravity="center">
+
         <com.frissbi.Utility.MyTextView
             android:id="@+id/next"
             android:layout_width="fill_parent"
@@ -235,8 +242,8 @@
             android:text="CREATE"
             android:textColor="#FFFFFF"
             android:textSize="30dp"
-            android:visibility="gone"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:visibility="gone" />
 
 
     </LinearLayout>

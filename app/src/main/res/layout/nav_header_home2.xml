@@ -13,6 +13,7 @@
         app:srcCompat="@drawable/logo1" />
 
     <RelativeLayout
+        android:id="@+id/profile_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/logo_imageView"

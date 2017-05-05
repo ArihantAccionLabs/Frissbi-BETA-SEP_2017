@@ -3,14 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <com.frissbi.CustomFontTextView
         android:id="@+id/my_places_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="20dp"
+        android:text="@string/my_places"
         android:textColor="@color/black"
-        android:text="@string/my_places" />
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
     <View
         android:id="@+id/view"
@@ -19,7 +21,7 @@
         android:layout_below="@+id/my_places_tv"
         android:background="@color/gray" />
 
-    <TextView
+    <com.frissbi.CustomFontTextView
         android:id="@+id/any_place_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -27,7 +29,28 @@
         android:gravity="center"
         android:padding="20dp"
         android:text="@string/any_place"
-        android:textColor="@color/black" />
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        android:textStyle="bold" />
+
+    <View
+        android:id="@+id/view1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/any_place_tv"
+        android:background="@color/gray" />
+
+    <com.frissbi.CustomFontTextView
+        android:id="@+id/online_tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view1"
+        android:gravity="center"
+        android:padding="20dp"
+        android:text="Online"
+        android:textColor="@color/black"
+        android:textSize="30sp"
+        android:textStyle="bold" />
 
 
 </RelativeLayout>

@@ -27,7 +27,7 @@ public class Friss_Pojo {
     public static final String User_Id = "UserId";
     public static String MeetingID;
     //public static final String REST_URI ="http://13.76.99.32/kleverlinkswebservices";
-    public static final String REST_URI = "http://192.168.2.94:9090/kleverlinkswebservices";//Sunil
+    public static final String REST_URI = "http://192.168.2.148:9090/kleverlinkswebservices";//Sunil
     //public static final String REST_URI ="http://192.168.43.63:9080/kleverlinkswebservices";
     public static final String USER_AUTHENTICATION = "/AuthenticateUserService/userAuthentication/";
     public static final String USER_REGISTRATION = "/UserRegistrationService/registerUser/";

@@ -60,7 +60,7 @@
             android:value="frissbi.db" />
         <meta-data
             android:name="VERSION"
-            android:value="4" />
+            android:value="5" />
         <meta-data
             android:name="QUERY_LOG"
             android:value="true" />
@@ -267,7 +267,9 @@
             android:name=".activities.SettingsActivity"
             android:label="Settings" />
         <activity android:name=".activities.MeetingsByDateActivity" />
-        <activity android:name=".activities.RegistrationActivity"></activity>
+        <activity
+            android:name=".activities.RegistrationActivity"
+            android:label="New Account" />
     </application>
 
 </manifest>

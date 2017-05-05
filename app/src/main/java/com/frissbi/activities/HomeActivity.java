@@ -90,7 +90,6 @@ public class HomeActivity extends AppCompatActivity
     private ViewPager mViewPager;
     private Button mAddMeetingButton;
     private Long mUserId;
-    private String mUserName;
     private ProgressDialog mProgressDialog;
     private LinearLayout mDimBackgroundLayout;
     private FloatingActionMenu mFloatingActionMenu;
@@ -106,6 +105,7 @@ public class HomeActivity extends AppCompatActivity
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.READ_EXTERNAL_STORAGE,
     };
+    private View mNavHeaderView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -120,7 +120,6 @@ public class HomeActivity extends AppCompatActivity
         mEmailIdsAsync = new EmailIdsAsync();
         mNewReminderListener = (NewReminderListener) this;
         mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
-        mUserName = SharedPreferenceHandler.getInstance(this).getUserName();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this,
                     android.Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED) {
@@ -182,24 +181,27 @@ public class HomeActivity extends AppCompatActivity
         mViewPager = (ViewPager) findViewById(R.id.viewPager);
         setupViewPager(mViewPager);
         mTabLayout.setupWithViewPager(mViewPager);
-        mTabLayout.getTabAt(0).setIcon(R.drawable.icon_chat);
-        mTabLayout.getTabAt(1).setIcon(R.drawable.icon_calendar);
+        mTabLayout.getTabAt(0).setIcon(R.drawable.icon_timeline);
+        mTabLayout.getTabAt(1).setIcon(R.drawable.meetings_log_icon);
         // mTabLayout.getTabAt(2).setIcon(R.drawable.icon_friends);
-        mTabLayout.getTabAt(2).setIcon(R.drawable.icon_alert);
+        mTabLayout.getTabAt(2).setIcon(R.drawable.icon_notifications);
         mDimBackgroundLayout = (LinearLayout) findViewById(R.id.dim_background);
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
 
 
-        View navHeaderView = navigationView.getHeaderView(0);
+        mNavHeaderView = navigationView.getHeaderView(0);
 
-        mUserNameTextView = (TextView) navHeaderView.findViewById(R.id.user_name_tv);
-        mUserNameTextView.setText(mUserName.toUpperCase());
+        mUserNameTextView = (TextView) mNavHeaderView.findViewById(R.id.user_name_tv);
+        mNavHeaderView.findViewById(R.id.profile_layout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplication(), ProfileActivity.class);
+                startActivity(intent);
+            }
+        });
+
         mAddMeetingButton = (Button) findViewById(R.id.add_meeting);
 
-        Profile profile = Profile.first(Profile.class);
-        if (profile.getImageId() != null) {
-            ImageCacheHandler.getInstance(HomeActivity.this).setImage((ImageView) navHeaderView.findViewById(R.id.user_profile_image), profile.getImageId());
-        }
 
         fab = (android.support.design.widget.FloatingActionButton) findViewById(R.id.add_floating_button);
 
@@ -232,7 +234,7 @@ public class HomeActivity extends AppCompatActivity
         itemIcon3.setImageResource(R.drawable.icon_calendar);
 
         ImageView itemIcon4 = new ImageView(this);
-        itemIcon4.setImageResource(R.drawable.icon_friends);
+        itemIcon4.setImageResource(R.drawable.icon_camera);
 
         ImageView itemIcon5 = new ImageView(this);
         itemIcon5.setImageResource(R.drawable.icon_chat);
@@ -352,7 +354,7 @@ public class HomeActivity extends AppCompatActivity
 
             }
         });
-
+        getProfileDetails();
 
     }
 
@@ -462,9 +464,6 @@ public class HomeActivity extends AppCompatActivity
             startActivity(intent);
         } else if (id == R.id.nav_groups) {
             Intent intent = new Intent(getApplication(), GroupsActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.nav_profile) {
-            Intent intent = new Intent(getApplication(), ProfileActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_reminder) {
             Intent intent = new Intent(HomeActivity.this, RemindersActivity.class);
@@ -1003,4 +1002,77 @@ public class HomeActivity extends AppCompatActivity
         }
         return true;
     }
+
+    /*To Get Profile Details
+      */
+    private void getProfileDetails() {
+        mProgressDialog.show();
+        String url = Utility.REST_URI + Utility.VIEW_PROFILE + mUserId;
+        TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
+            @Override
+            public void handleResponse(TSNetworkHandler.TSResponse response) {
+
+                if (response != null) {
+                    if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
+                        try {
+                            JSONObject responseJsonObject = new JSONObject(response.response);
+                            FLog.d("ProfileActivity", "responseJsonObject" + responseJsonObject);
+                            Profile.deleteAll(Profile.class);
+                            Profile profile = new Profile();
+                            JSONObject profileJsonObject = responseJsonObject.getJSONObject("viewProfile");
+                            profile.setUserName(profileJsonObject.getString("userName"));
+                            profile.setFirstName(profileJsonObject.getString("firstName"));
+                            if (profileJsonObject.has("lastName")) {
+                                profile.setLastName(profileJsonObject.getString("lastName"));
+                            }
+                            profile.setEmail(profileJsonObject.getString("email"));
+                            if (profileJsonObject.has("contactNumber")) {
+                                profile.setContactNumber(profileJsonObject.getString("contactNumber"));
+                            }
+
+                            if (profileJsonObject.has("profileImageId")) {
+                                profile.setImageId(profileJsonObject.getString("profileImageId"));
+                            }
+
+                            if (profileJsonObject.has("coverImageId")) {
+                                profile.setCoverImageId(profileJsonObject.getString("coverImageId"));
+                            }
+
+                            if (profileJsonObject.has("gender")) {
+                                profile.setGender(profileJsonObject.getString("gender"));
+                            }
+
+                            if (profileJsonObject.has("dob")) {
+                                profile.setDob(profileJsonObject.getString("dob"));
+                            }
+
+                            if (profileJsonObject.has("isGmailLogin")) {
+                                profile.setGmailLogin(profileJsonObject.getBoolean("isGmailLogin"));
+                            }
+
+                            profile.save();
+                            setProfileDetails();
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
+                        Toast.makeText(HomeActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                    }
+                }
+                mProgressDialog.dismiss();
+            }
+        });
+    }
+
+    private void setProfileDetails() {
+        Profile profile = Profile.first(Profile.class);
+        Log.d("HomeActivity", "Profile" + profile);
+
+        if (profile.getImageId() != null) {
+            ImageCacheHandler.getInstance(HomeActivity.this).setImage((ImageView) mNavHeaderView.findViewById(R.id.user_profile_image), profile.getImageId());
+        }
+        mUserNameTextView.setText(profile.getUserName());
+    }
+
 }
