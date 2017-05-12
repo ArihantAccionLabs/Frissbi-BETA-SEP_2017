@@ -9,7 +9,7 @@
         android:layout_width="50dp"
         android:layout_height="50dp" />
 
-    <com.frissbi.CustomFontTextView
+    <com.frissbi.Utility.CustomFontTextView
         android:id="@+id/participant_username_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -20,7 +20,7 @@
         android:textColor="@color/black"
         android:textSize="16sp" />
 
-    <com.frissbi.CustomFontTextView
+    <com.frissbi.Utility.CustomFontTextView
         android:id="@+id/admin_tv"
         android:visibility="gone"
         android:layout_width="wrap_content"

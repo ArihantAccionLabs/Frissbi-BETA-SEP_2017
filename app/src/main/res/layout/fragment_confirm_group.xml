@@ -38,7 +38,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/group_rl">
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/participant_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

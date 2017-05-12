@@ -12,7 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.frissbi.R;
-import com.frissbi.SelectedContacts;
+import com.frissbi.models.SelectedContacts;
 import com.frissbi.Utility.ImageCacheHandler;
 import com.frissbi.models.FrissbiContact;
 

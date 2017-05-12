@@ -1,7 +1,10 @@
 package com.frissbi.activities;
 
 import android.app.ProgressDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,12 +21,16 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.FileProvider;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.util.Linkify;
 import android.util.Base64;
+import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -46,7 +53,8 @@ import com.frissbi.enums.ActivityType;
 import com.frissbi.enums.FriendStatus;
 import com.frissbi.fragments.PostFreeTimeDialogFragment;
 import com.frissbi.fragments.UploadPhotoDialogFragment;
-import com.frissbi.fragments.ViewImageDialogFragment;
+import com.frissbi.frissbi.GetTermsandConditions;
+import com.frissbi.frissbi.Privacypolicy;
 import com.frissbi.interfaces.EndlessScrollListener;
 import com.frissbi.interfaces.MeetingDetailsListener;
 import com.frissbi.interfaces.PostFreeTimeListener;
@@ -111,8 +119,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     private String mFriendStatus;
     private Button mAcceptFriendButton;
     private Profile profile;
-    private ViewImageDialogFragment viewImageDialogFragment;
     private boolean mIsNextActivityExist;
+    private AlertDialog alertDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -154,7 +162,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         mActivitiesList = new ArrayList<>();
         mFragmentManager = getSupportFragmentManager();
         mUploadPhotoDialogFragment = new UploadPhotoDialogFragment();
-        viewImageDialogFragment = new ViewImageDialogFragment();
         mUploadPhotoListener = (UploadPhotoListener) this;
         mPostFreeTimeListener = (PostFreeTimeListener) this;
         mMeetingDetailsListener = (MeetingDetailsListener) this;
@@ -408,7 +415,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                             if (profileJsonObject.has("dob")) {
                                 profile.setDob(profileJsonObject.getString("dob"));
                             }
-                            profile.save();
                             setProfileDetails(profile);
 
                         } catch (JSONException e) {
@@ -606,10 +612,85 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             case android.R.id.home:
                 onBackPressed();
                 return true;
-            default:
-                return super.onOptionsItemSelected(item);
-
+            case R.id.rate:
+                rateApp();
+                break;
+            case R.id.share:
+                shareApp();
+                break;
+            case R.id.about:
+                showAboutDialog();
+                break;
         }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void showAboutDialog() {
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        View view = LayoutInflater.from(this).inflate(R.layout.about_alert, null);
+        builder.setView(view);
+        TextView urlTv = (TextView) view.findViewById(R.id.url_tv);
+        TextView versionTv = (TextView) view.findViewById(R.id.version_tv);
+        view.findViewById(R.id.terms_conditions_tv).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), GetTermsandConditions.class);
+                startActivity(intent);
+            }
+        });
+        view.findViewById(R.id.privacy_tv).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent1 = new Intent(getApplicationContext(), Privacypolicy.class);
+                startActivity(intent1);
+            }
+        });
+        try {
+            PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+            versionTv.setText("Version : " + pInfo.versionName);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        view.findViewById(R.id.ok_button).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+            }
+        });
+
+        Linkify.addLinks(urlTv, Linkify.WEB_URLS);
+        alertDialog = builder.create();
+        alertDialog.show();
+
+
+    }
+
+    private void rateApp() {
+        Uri uri = Uri.parse("market://details?id=" + getPackageName());
+        Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
+        // To count with Play market backstack, After pressing back button,
+        // to taken back to our application, we need to add following flags to intent.
+        goToMarket.addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY |
+                Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        try {
+            startActivity(goToMarket);
+        } catch (ActivityNotFoundException e) {
+            startActivity(new Intent(Intent.ACTION_VIEW,
+                    Uri.parse("http://play.google.com/store/apps/details?id=" + getPackageName())));
+        }
+    }
+
+    private void shareApp() {
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("text/plain");
+        i.putExtra(Intent.EXTRA_SUBJECT, "Frissbi App");
+        String sAux = "\nHey, I'd like you to try FRISSBI\n\n";
+        sAux = sAux + "https://play.google.com/store/apps/details?id=com.frissbi&hl=en \n\n";
+        i.putExtra(Intent.EXTRA_TEXT, sAux);
+        startActivity(Intent.createChooser(i, "Share with"));
     }
 
     public void sendFriendRequest() {
@@ -1026,4 +1107,13 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             }
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_profile, menu);
+        return true;
+    }
+
+
 }

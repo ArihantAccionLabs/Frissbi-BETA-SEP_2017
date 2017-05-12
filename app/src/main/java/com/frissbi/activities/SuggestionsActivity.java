@@ -10,8 +10,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.R;
+import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.GroupParticipantAdapter;
 import com.frissbi.adapters.LocationSuggestionAdapter;
 import com.frissbi.models.FrissbiContact;
@@ -126,7 +126,7 @@ public class SuggestionsActivity extends AppCompatActivity {
                 jsonObject.put("address", locationSuggestion.getAddress());
                 jsonObject.put("isFromMeetingSummary", isFromMeetingSummary);
 
-                TSNetworkHandler.getInstance(this).getResponse(Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.SUBMIT_MEETING_LOCATION, jsonObject, new TSNetworkHandler.ResponseHandler() {
+                TSNetworkHandler.getInstance(this).getResponse(Utility.REST_URI + Utility.SUBMIT_MEETING_LOCATION, jsonObject, new TSNetworkHandler.ResponseHandler() {
                     @Override
                     public void handleResponse(TSNetworkHandler.TSResponse response) {
                         if (response != null) {
@@ -161,7 +161,7 @@ public class SuggestionsActivity extends AppCompatActivity {
     }
 
     private void getMorePlacesFromServer(int size) {
-        String url = Friss_Pojo.REST_URI + "/" + "rest" + Friss_Pojo.MORE_LOCATIONS + mMeetingId + "/" + size;
+        String url = Utility.REST_URI  + Utility.MORE_LOCATIONS + mMeetingId + "/" + size;
         TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {

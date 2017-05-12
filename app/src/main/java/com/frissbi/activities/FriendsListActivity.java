@@ -87,23 +87,39 @@ public class FriendsListActivity extends AppCompatActivity implements SearchView
 
     @Override
     public boolean onQueryTextSubmit(String query) {
-
-        if (query.length() >= 3) {
-            if (mPeopleFragment.isMenuVisible()) {
-                mPeopleFragment.searchFriends(query);
-            }
-        } else {
-            Toast.makeText(this, "Atleast 3 characters required to search people", Toast.LENGTH_SHORT).show();
+        int index = mFriendsViewPager.getCurrentItem();
+        switch (index) {
+            case 0:
+                mMyFriendsFragment.filterFriends(query);
+                break;
+            case 1:
+                mMyContactsFragment.filterContacts(query);
+                break;
+            case 2:
+                if (query.length() >= 3) {
+                    mPeopleFragment.searchFriends(query);
+                } else {
+                    Toast.makeText(this, "Atleast 3 characters required to search people", Toast.LENGTH_SHORT).show();
+                }
+                break;
         }
+
         return false;
     }
 
     @Override
     public boolean onQueryTextChange(String newText) {
-        if (mMyFriendsFragment.isMenuVisible()) {
-            mMyFriendsFragment.filterFriends(newText);
-        } else if (mMyContactsFragment.isMenuVisible()) {
-            mMyContactsFragment.filterContacts(newText);
+        int index = mFriendsViewPager.getCurrentItem();
+        switch (index) {
+            case 0:
+                mMyFriendsFragment.filterFriends(newText);
+                break;
+            case 1:
+                mMyContactsFragment.filterContacts(newText);
+                break;
+            case 2:
+                mPeopleFragment.searchFriends(newText);
+                break;
         }
         return false;
     }

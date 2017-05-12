@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:buttonTint="@color/bg_color" />
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/friend_username"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

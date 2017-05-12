@@ -4,7 +4,7 @@
     android:layout_height="wrap_content"
     android:layout_margin="6dp">
 
-    <com.frissbi.CustomFontTextView
+    <com.frissbi.Utility.CustomFontTextView
         android:id="@+id/reminder_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

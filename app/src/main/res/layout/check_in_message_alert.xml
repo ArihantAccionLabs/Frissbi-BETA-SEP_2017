@@ -10,14 +10,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp">
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/you_are_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:text="You are at " />
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/check_in_loc_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -40,7 +40,8 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:layout_toLeftOf="@+id/submit_checkIn_imageView"
-            android:hint="Say Something" />
+            android:hint="Say Something"
+            android:textColorHint="@android:color/black" />
 
         <ImageView
             android:id="@+id/submit_checkIn_imageView"

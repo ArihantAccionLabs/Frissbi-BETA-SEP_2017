@@ -13,11 +13,11 @@
             android:title="Meetings" />
         <item
             android:id="@+id/nav_friends"
-            android:icon="@drawable/menu_icon_friends"
+            android:icon="@drawable/icon_profile"
             android:title="Friends" />
         <item
             android:id="@+id/nav_groups"
-            android:icon="@drawable/icon_group"
+            android:icon="@drawable/menu_icon_friends"
             android:title="Groups" />
         <!--<item
             android:id="@+id/nav_profile"
@@ -25,7 +25,7 @@
             android:title="Profile" />-->
         <item
             android:id="@+id/nav_reminder"
-            android:icon="@drawable/icon_notifications"
+            android:icon="@drawable/icon_not"
             android:title="Reminders" />
         <item
             android:id="@+id/nav_setting"

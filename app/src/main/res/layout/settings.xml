@@ -34,7 +34,7 @@
                         android:scaleType="fitXY"
                         android:src="@drawable/default_profile_image" />
 
-                    <com.frissbi.CustomFontTextView
+                    <com.frissbi.Utility.CustomFontTextView
                         android:id="@+id/profile_imageUpdate_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -116,10 +116,23 @@
 
                 </android.support.design.widget.TextInputLayout>
 
+                <com.frissbi.Utility.CustomFontTextView
+                    android:id="@+id/dob_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/phone_layout"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="16dp"
+                    android:layout_marginTop="4dp"
+                    android:text="DOB"
+                    android:textColor="@android:color/black"
+                    android:textSize="20sp" />
+
+
             </RelativeLayout>
 
             <Button
-                android:id="@+id/save"
+                android:id="@+id/save_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_alignParentBottom="true"

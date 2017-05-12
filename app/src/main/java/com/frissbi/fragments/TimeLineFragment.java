@@ -136,7 +136,9 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
                                 meeting.setDescription(meetingJsonObject.getString("description"));
                                 if (meetingJsonObject.getBoolean("isLocationSelected")) {
                                     meeting.setLocationSelected(meetingJsonObject.getBoolean("isLocationSelected"));
-                                    meeting.setAddress(meetingJsonObject.getString("address"));
+                                    if (meetingJsonObject.has("address")) {
+                                        meeting.setAddress(meetingJsonObject.getString("address"));
+                                    }
                                     meeting.setLatitude(meetingJsonObject.getDouble("latitude"));
                                     meeting.setLongitude(meetingJsonObject.getDouble("longitude"));
                                 } else {

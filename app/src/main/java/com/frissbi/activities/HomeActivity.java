@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Typeface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -29,6 +30,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Button;
@@ -88,7 +90,6 @@ public class HomeActivity extends AppCompatActivity
 
     private TabLayout mTabLayout;
     private ViewPager mViewPager;
-    private Button mAddMeetingButton;
     private Long mUserId;
     private ProgressDialog mProgressDialog;
     private LinearLayout mDimBackgroundLayout;
@@ -107,6 +108,18 @@ public class HomeActivity extends AppCompatActivity
     };
     private View mNavHeaderView;
 
+    /**
+     * The total number of menu items in the {@link NavigationView}
+     */
+    private static final int MENU_ITEMS = 7;
+    /**
+     * Contains the {@link MenuItem} views in the {@link NavigationView}
+     */
+    private final ArrayList<View> mMenuItems = new ArrayList<>(MENU_ITEMS);
+    private Typeface myTypeface;
+    private NavigationView navigationView;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -114,6 +127,7 @@ public class HomeActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
+        myTypeface = Typeface.createFromAsset(getAssets(), "fonts/Karla-Regular.ttf");
         mProgressDialog = new CustomProgressDialog(this);
         mProgressDialog.setCanceledOnTouchOutside(false);
         mProgressDialog.setCancelable(false);
@@ -186,7 +200,7 @@ public class HomeActivity extends AppCompatActivity
         // mTabLayout.getTabAt(2).setIcon(R.drawable.icon_friends);
         mTabLayout.getTabAt(2).setIcon(R.drawable.icon_notifications);
         mDimBackgroundLayout = (LinearLayout) findViewById(R.id.dim_background);
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = (NavigationView) findViewById(R.id.nav_view);
 
 
         mNavHeaderView = navigationView.getHeaderView(0);
@@ -200,7 +214,6 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
-        mAddMeetingButton = (Button) findViewById(R.id.add_meeting);
 
 
         fab = (android.support.design.widget.FloatingActionButton) findViewById(R.id.add_floating_button);
@@ -211,9 +224,6 @@ public class HomeActivity extends AppCompatActivity
 
             }
         });
-        // Create an icon
-        ImageView icon = new ImageView(this);
-        icon.setImageResource(R.mipmap.icon);
 
 
      /*   FloatingActionButton actionButton = new FloatingActionButton.Builder(this)
@@ -225,22 +235,29 @@ public class HomeActivity extends AppCompatActivity
         // repeat many times:
         ImageView itemIcon1 = new ImageView(this);
 
-        itemIcon1.setImageResource(R.drawable.icon_location);
+        itemIcon1.setImageResource(R.drawable.loc_icon);
 
         ImageView itemIcon2 = new ImageView(this);
-        itemIcon2.setImageResource(R.drawable.icon_alert);
+        itemIcon2.setImageResource(R.drawable.rem_icon);
 
         ImageView itemIcon3 = new ImageView(this);
-        itemIcon3.setImageResource(R.drawable.icon_calendar);
+        itemIcon3.setImageResource(R.drawable.cal_icon);
 
         ImageView itemIcon4 = new ImageView(this);
-        itemIcon4.setImageResource(R.drawable.icon_camera);
+        itemIcon4.setImageResource(R.drawable.cam_icon);
 
         ImageView itemIcon5 = new ImageView(this);
-        itemIcon5.setImageResource(R.drawable.icon_chat);
+        itemIcon5.setImageResource(R.drawable.chat_icon);
 
-        SubActionButton locationButton = itemBuilder.setContentView(itemIcon1).build();
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(100, 100);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        itemIcon1.setLayoutParams(layoutParams);
+        itemIcon2.setLayoutParams(layoutParams);
+        itemIcon3.setLayoutParams(layoutParams);
+        itemIcon4.setLayoutParams(layoutParams);
+        itemIcon5.setLayoutParams(layoutParams);
+
+        /*SubActionButton locationButton = itemBuilder.setContentView(itemIcon1).build();
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(100,100);
         locationButton.setLayoutParams(layoutParams);
         SubActionButton addRemainderIcon = itemBuilder.setContentView(itemIcon2).build();
         addRemainderIcon.setLayoutParams(layoutParams);
@@ -249,10 +266,10 @@ public class HomeActivity extends AppCompatActivity
         SubActionButton uploadPhotoIcon = itemBuilder.setContentView(itemIcon4).build();
         uploadPhotoIcon.setLayoutParams(layoutParams);
         SubActionButton button5 = itemBuilder.setContentView(itemIcon5).build();
-        button5.setLayoutParams(layoutParams);
+        button5.setLayoutParams(layoutParams);*/
 
 
-        locationButton.setOnClickListener(new View.OnClickListener() {
+        itemIcon1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(HomeActivity.this, CheckInLocationActivity.class);
@@ -260,7 +277,7 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
-        uploadPhotoIcon.setOnClickListener(new View.OnClickListener() {
+        itemIcon4.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, UploadPhotoActivity.class);
@@ -268,7 +285,7 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
-        addMeetingIcon.setOnClickListener(new View.OnClickListener() {
+        itemIcon3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mDimBackgroundLayout.setVisibility(View.GONE);
@@ -278,7 +295,7 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
-        addRemainderIcon.setOnClickListener(new View.OnClickListener() {
+        itemIcon2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AddReminderDialogFragment addReminderDialogFragment = new AddReminderDialogFragment();
@@ -287,13 +304,21 @@ public class HomeActivity extends AppCompatActivity
             }
         });
 
+        itemIcon5.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, ProfileActivity.class);
+                startActivity(intent);
+            }
+        });
+
         //attach the sub buttons to the main button
         mFloatingActionMenu = new FloatingActionMenu.Builder(this).setStartAngle(180).setEndAngle(360)
-                .addSubActionView(locationButton)
-                .addSubActionView(addRemainderIcon)
-                .addSubActionView(addMeetingIcon)
-                .addSubActionView(uploadPhotoIcon)
-                .addSubActionView(button5)
+                .addSubActionView(itemIcon1)
+                .addSubActionView(itemIcon2)
+                .addSubActionView(itemIcon3)
+                .addSubActionView(itemIcon4)
+                .addSubActionView(itemIcon5)
                 .attachTo(fab)
                 .build();
 
@@ -337,24 +362,31 @@ public class HomeActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
 
+       /* // Grab the NavigationView Menu
+        final Menu navMenu = navigationView.getMenu();
+        // Install an OnGlobalLayoutListener and wait for the NavigationMenu to fully initialize
+        navigationView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                // Remember to remove the installed OnGlobalLayoutListener
+                navigationView.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                // Loop through and find each MenuItem View
+                for (int i = 0, length = MENU_ITEMS; i < length; i++) {
+                    final String id = "menuItem" + (i + 1);
+                    final MenuItem item = navMenu.findItem(getResources().getIdentifier(id, "id", getPackageName()));
+                    navigationView.findViewsWithText(mMenuItems, item.getTitle(), View.FIND_VIEWS_WITH_TEXT);
+                }
+                // Loop through each MenuItem View and apply your custom Typeface
+                for (final View menuItem : mMenuItems) {
+                    ((TextView) menuItem).setTypeface(myTypeface, Typeface.BOLD);
+                }
+            }
+        });*/
+
         //mViewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
 
-
-        mAddMeetingButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(HomeActivity.this, MeetingActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-
-            }
-        });
         getProfileDetails();
+
 
     }
 

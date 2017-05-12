@@ -43,7 +43,7 @@ import java.util.List;
 public class MeetingDetailsActivity extends AppCompatActivity implements View.OnClickListener {
     private Meeting mMeeting;
     private Long mUserId;
-    private TextView mMeetingDetailsStatusTextView;
+    // private TextView mMeetingDetailsStatusTextView;
     private Button mMeetingAcceptButton;
     private Button mMeetingIgnoreButton;
     private AlertDialog mAlertDialog;
@@ -63,7 +63,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
     private ProgressDialog mProgressDialog;
     private Long mMeetingId;
     private AlertDialog mMeetingCanceledAlertDialog;
-    //private Button mChangePlaceButton;
+    private TextView mChangePlaceButton;
     private TextView mMeetingDateTextView;
     private TextView mMeetingTimeTextView;
     private TextView mMeetingPlaceTextView;
@@ -88,7 +88,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
 
         mMeetingDetailsStatusTextView = (TextView) findViewById(R.id.meeting_details_status_tv);*/
 
-        // mChangePlaceButton = (Button) findViewById(R.id.change_place_button);
+        mChangePlaceButton = (TextView) findViewById(R.id.change_place_tv);
 
 
         if (bundle.containsKey("meetingId")) {
@@ -104,7 +104,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
 
 
         // mMoreFriendsButton.setOnClickListener(this);
-        // mChangePlaceButton.setOnClickListener(this);
+        mChangePlaceButton.setOnClickListener(this);
 
     }
 
@@ -220,9 +220,9 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             if (!meetingJsonObject.getBoolean("isLocationSelected")) {
                 if (meetingJsonObject.has("updateCount")) {
                     if (meetingJsonObject.getInt("updateCount") != 0 && meetingJsonObject.getInt("updateCount") != 2) {
-                        //mChangePlaceButton.setVisibility(View.VISIBLE);
+                        mChangePlaceButton.setVisibility(View.VISIBLE);
                     } else {
-                        // mChangePlaceButton.setVisibility(View.GONE);
+                        mChangePlaceButton.setVisibility(View.GONE);
                     }
                 }
             }
@@ -258,31 +258,28 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             mMeetingDetailsAtTextView.setText("Any Place");
         }
 
+
         if (!mMeeting.getMeetingSenderId().equals(mUserId)) {
-           /* mMeetingStatusLayout.setVisibility(View.VISIBLE);
+            mMeetingStatusLayout.setVisibility(View.VISIBLE);
             mStatusView.setVisibility(View.VISIBLE);
             if (mMeeting.getMeetingStatus() == Utility.STATUS_PENDING) {
-                mMeetingDetailsStatusTextView.setText("PENDING");
-                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.light_orange));
+                // mMeetingDetailsStatusTextView.setText("PENDING");
+                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.light_orange));
             } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
-                mMeetingDetailsStatusTextView.setText("ACCEPTED");
-                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
+                //mMeetingDetailsStatusTextView.setText("ACCEPTED");
+                //mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
                 mMeetingAcceptButton.setVisibility(View.GONE);
             } else if (mMeeting.getMeetingStatus() == Utility.STATUS_REJECT) {
-                mMeetingDetailsStatusTextView.setText("REJECTED");
+                //mMeetingDetailsStatusTextView.setText("REJECTED");
                 mMeetingAcceptButton.setVisibility(View.GONE);
                 mMeetingIgnoreButton.setVisibility(View.GONE);
-                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.red));
-            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
-                mMeetingDetailsStatusTextView.setText("COMPLETED");
-                mMeetingAcceptButton.setVisibility(View.GONE);
-                mMeetingIgnoreButton.setVisibility(View.GONE);
-                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.blue));
-            }*/
+                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.red));
+            }
         } else {
             mMeetingAcceptButton.setVisibility(View.GONE);
             mMeetingStatusLayout.setVisibility(View.GONE);
         }
+
     }
 
     private void setViewWithValues() {
@@ -308,22 +305,22 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             mMeetingStatusLayout.setVisibility(View.VISIBLE);
             mStatusView.setVisibility(View.VISIBLE);
             if (mMeeting.getMeetingStatus() == Utility.STATUS_PENDING) {
-                mMeetingDetailsStatusTextView.setText("PENDING");
-                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.light_orange));
+                // mMeetingDetailsStatusTextView.setText("PENDING");
+                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.light_orange));
             } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
-                mMeetingDetailsStatusTextView.setText("ACCEPTED");
-                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
+                //mMeetingDetailsStatusTextView.setText("ACCEPTED");
+                //mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
                 mMeetingAcceptButton.setVisibility(View.GONE);
             } else if (mMeeting.getMeetingStatus() == Utility.STATUS_REJECT) {
-                mMeetingDetailsStatusTextView.setText("REJECTED");
+                //mMeetingDetailsStatusTextView.setText("REJECTED");
                 mMeetingAcceptButton.setVisibility(View.GONE);
                 mMeetingIgnoreButton.setVisibility(View.GONE);
-                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.red));
+                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.red));
             } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
-                mMeetingDetailsStatusTextView.setText("COMPLETED");
+                // mMeetingDetailsStatusTextView.setText("COMPLETED");
                 mMeetingAcceptButton.setVisibility(View.GONE);
                 mMeetingIgnoreButton.setVisibility(View.GONE);
-                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.blue));
+                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.blue));
             }
         } else {
             mMeetingAcceptButton.setVisibility(View.GONE);
@@ -389,10 +386,10 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
                 break;
             /*case R.id.more_friends_button:
                 showFriendsListAlertDialog();
-                break;
-            case R.id.change_place_button:
-                redirectToSuggestPlaces();
                 break;*/
+            case R.id.change_place_tv:
+                redirectToSuggestPlaces();
+                break;
         }
 
     }
@@ -478,8 +475,8 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
                         JSONObject responseJsonObject = new JSONObject(response.response);
                         if (responseJsonObject.has("isAccepted")) {
                             if (responseJsonObject.getBoolean("isAccepted")) {
-                                mMeetingDetailsStatusTextView.setText("ACCEPTED");
-                                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
+                                //mMeetingDetailsStatusTextView.setText("ACCEPTED");
+                                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
                                 mMeetingAcceptButton.setVisibility(View.GONE);
                                 Toast.makeText(MeetingDetailsActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
                             } else {
@@ -489,8 +486,8 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
 
                         if (responseJsonObject.has("isRejected")) {
                             if (responseJsonObject.getBoolean("isRejected")) {
-                                mMeetingDetailsStatusTextView.setText("REJECTED");
-                                mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.red));
+                                // mMeetingDetailsStatusTextView.setText("REJECTED");
+                                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.red));
                                 mMeetingAcceptButton.setVisibility(View.GONE);
                                 mMeetingIgnoreButton.setVisibility(View.GONE);
                                 Toast.makeText(MeetingDetailsActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();

@@ -29,7 +29,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.frissbi.R;
-import com.frissbi.SelectedContacts;
+import com.frissbi.models.SelectedContacts;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
@@ -538,10 +538,6 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                             final JSONObject responseJsonObject = new JSONObject(response.response);
                             if (responseJsonObject.getBoolean("isInserted")) {
                                 Toast.makeText(MeetingActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
-                                /*ReminderAlarmManager.getInstance(MeetingActivity.this).setMeetingAlarm(responseJsonObject.getLong("meetingId"), responseJsonObject.getBoolean("isLocationSelected"),
-                                        mMeetingDateTextView.getText().toString() + "  " + mMeetingTimeTextView.getText().toString());*/
-                              /*  Intent intent = new Intent(MeetingActivity.this, HomeActivity.class);
-                                startActivity(intent);*/
                                 onBackPressed();
                             } else {
                                 showConflictingAlertDialog(responseJsonObject.getString("message"), responseJsonObject.getJSONArray("meetingIdsJsonArray"));

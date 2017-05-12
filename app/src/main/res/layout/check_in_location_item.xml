@@ -23,7 +23,7 @@
             android:layout_marginLeft="10dp"
             android:layout_toRightOf="@+id/check_in_image">
 
-            <com.frissbi.CustomFontTextView
+            <com.frissbi.Utility.CustomFontTextView
                 android:id="@+id/check_in_name_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

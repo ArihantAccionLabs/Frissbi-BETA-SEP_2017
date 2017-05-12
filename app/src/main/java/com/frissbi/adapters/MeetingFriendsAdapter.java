@@ -48,7 +48,7 @@ public class MeetingFriendsAdapter extends RecyclerView.Adapter<MeetingFriendsAd
             holder.friendStatusTv.setText("REJECTED");
         }
         if (mMeetingFriendsList.get(position).getType().equalsIgnoreCase("friend")) {
-            holder.profileImageView.setImageResource(R.drawable.pic1);
+            holder.profileImageView.setImageResource(R.drawable.default_profile_image);
         } else if (mMeetingFriendsList.get(position).getType().equalsIgnoreCase("email")) {
             holder.profileImageView.setImageResource(R.drawable.email_icon);
         } else if (mMeetingFriendsList.get(position).getType().equalsIgnoreCase("contact")) {

@@ -10,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
 import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;

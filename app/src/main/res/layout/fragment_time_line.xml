@@ -20,7 +20,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <com.frissbi.CustomFontTextView
+                <com.frissbi.Utility.CustomFontTextView
                     android:id="@+id/upcoming_meeting_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
                     android:layout_marginTop="10dp"
                     android:padding="6dp" />
 
-                <com.frissbi.CustomFontTextView
+                <com.frissbi.Utility.CustomFontTextView
                     android:id="@+id/others_doing_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -67,7 +67,7 @@
                     android:gravity="center"
                     android:visibility="gone">
 
-                    <com.frissbi.CustomFontTextView
+                    <com.frissbi.Utility.CustomFontTextView
                         android:id="@+id/no_friends_tv"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"

@@ -143,21 +143,63 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         final AlertDialog alertDialog = builder.create();
         final EditText emailEt = (EditText) view.findViewById(R.id.email_et);
         final EditText passwordEt = (EditText) view.findViewById(R.id.password_et);
-        EditText confirmPasswordEt = (EditText) view.findViewById(R.id.confirm_password_et);
+        final EditText confirmPasswordEt = (EditText) view.findViewById(R.id.confirm_password_et);
         Button submitButton = (Button) view.findViewById(R.id.submit_button);
 
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                alertDialog.dismiss();
-                sendNewPasswordToServer(emailEt.getText().toString(), passwordEt.getText().toString());
+
+                if (emailEt.getText().toString().trim().length() > 0) {
+                    if (passwordEt.getText().toString().trim().length() > 0) {
+                        if (confirmPasswordEt.getText().toString().trim().length() > 0) {
+                            if (validateEmailPassword(emailEt.getText().toString(), passwordEt.getText().toString(), confirmPasswordEt.getText().toString())) {
+                                alertDialog.dismiss();
+                                sendNewPasswordToServer(emailEt.getText().toString(), passwordEt.getText().toString());
+                            }
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Enter confirm password", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(LoginActivity.this, "Enter password", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(LoginActivity.this, "Enter email Id", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
         alertDialog.show();
     }
 
+    private boolean validateEmailPassword(String email, String password, String confirmPassword) {
+
+        if (email.matches("[a-zA-Z0-9._-]+@[a-z]+.[a-z]+")) {
+
+
+            if (isValidPassword(password)) {
+                if (isValidPassword(confirmPassword)) {
+                    if (password.equals(confirmPassword)) {
+                        return true;
+                    } else {
+                        Toast.makeText(this, "Password and Confirm Password must match", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(this, "Confirm Password must be 6 characters with at least  on special character", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                Toast.makeText(this, "Password must be 6 characters with at least  on special character", Toast.LENGTH_SHORT).show();
+            }
+
+        } else {
+            Toast.makeText(this, "Please enter valid email", Toast.LENGTH_SHORT).show();
+        }
+        return false;
+    }
+
     private void sendNewPasswordToServer(String email, String password) {
+        mProgressDialog.show();
         JSONObject jsonObject = new JSONObject();
         try {
 
@@ -209,6 +251,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             } else {
                 Toast.makeText(this, "Please enter valid email", Toast.LENGTH_SHORT).show();
             }
+        }else {
+            Toast.makeText(this, "Please enter email", Toast.LENGTH_SHORT).show();
         }
 
 

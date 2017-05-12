@@ -12,7 +12,7 @@ import android.widget.Filterable;
 import android.widget.TextView;
 
 import com.frissbi.R;
-import com.frissbi.SelectedContacts;
+import com.frissbi.models.SelectedContacts;
 import com.frissbi.Utility.FLog;
 import com.frissbi.models.Friend;
 

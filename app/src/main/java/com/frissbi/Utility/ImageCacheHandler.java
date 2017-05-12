@@ -140,7 +140,6 @@ public class ImageCacheHandler {
 
 
     public Bitmap findImageFromMemory(String userId) {
-        FLog.d("ImageID", userId);
         try {
             File file = new File(directory, userId + ".jpeg");
             FLog.d("ImageID", file + "");

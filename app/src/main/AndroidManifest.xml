@@ -50,7 +50,7 @@
         android:xlargeScreens="true" />
 
     <application
-        android:name=".MainApplication"
+        android:name=".Utility.MainApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -91,125 +91,42 @@
         </provider>
 
         <activity
-            android:name=".frissbi.SplashScreen"
+            android:name=".activities.SplashScreen"
             android:label="@string/app_name"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".frissbi.Login"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".frissbi.Update_profile"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_Meetings.Meetingrequst"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_Friends.Friend_PendingList"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_Meetings.MeetingSummary"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_Meetings.MeetingPendingList"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_Friends.FriendSerching"
-            android:screenOrientation="portrait"
-            android:windowSoftInputMode="stateHidden|adjustResize" />
-        <activity
-            android:name=".locations.NearByPlacess"
-            android:screenOrientation="portrait" />
         <activity
             android:name=".frissbi.Privacypolicy"
             android:screenOrientation="portrait" />
         <activity
             android:name=".frissbi.GetTermsandConditions"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_img_crop.CropImage"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_Friends.FriendList_CheckBox"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".frissbi.ForgotPassword"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".frissbi.UserProfileAccept"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".frissbi.Register"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".MapLocations.SetLocationMap"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".MapLocations.ToLocationsformap"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".frissbi.Test"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".frissbi.Test1"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_Meetings.Meets"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_Meetings.MeetingAcept"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Gmail.GmailSyncActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Gmail.ProfileGetActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_Friends.Friends_list"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_profilePic.Profile_Pic"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_Meetings.Meeting_StatusPage"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".frissbi.UserProfile"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".Frissbi_Meetings.MeetingendTime"
-            android:screenOrientation="portrait" />
-        <activity android:name=".Notifications.GetIntent" />
 
         <receiver
-            android:name=".GcmBroadcastReceiver"
+            android:name=".notifications.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
                 <category android:name="com.frissbi" />
             </intent-filter>
         </receiver>
 
-        <service android:name=".GcmIntentService" />
+        <service android:name=".notifications.GcmIntentService" />
 
         <activity
             android:name=".activities.HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".TabActivity"
-            android:label="@string/title_activity_tab"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar">
+
+        </activity>
+
         <activity
             android:name=".activities.MeetingActivity"
             android:label="LET&apos;S MEET" />
-        <activity android:name=".MyPlacesActivity" />
         <activity
             android:name=".activities.SelectLocationAndSaveActivity"
             android:theme="@style/AppTheme.NoActionBar" />

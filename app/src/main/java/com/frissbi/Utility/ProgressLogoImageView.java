@@ -12,7 +12,7 @@ import com.frissbi.models.FrissbiContact;
  * Created by thrymr on 2/1/17.
  */
 
-public class ProgressLogoImageView extends ImageView {
+public class ProgressLogoImageView extends android.support.v7.widget.AppCompatImageView {
 
     public ProgressLogoImageView(Context context) {
         super(context);

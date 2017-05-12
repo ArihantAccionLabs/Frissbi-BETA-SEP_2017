@@ -60,7 +60,9 @@ public class NotificationLogFragment extends Fragment implements NotificationLis
     }
 
     private void getNoficationsFromServer() {
-        mProgressDialog.show();
+        if (mProgressDialog != null) {
+            mProgressDialog.show();
+        }
         TSNetworkHandler.getInstance(getActivity()).getResponse(Utility.REST_URI + Utility.NOTIFICATION_LOG + SharedPreferenceHandler.getInstance(getActivity()).getUserId(), new HashMap<String, String>()
                 , TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
                     @Override
@@ -111,7 +113,9 @@ public class NotificationLogFragment extends Fragment implements NotificationLis
                         } else {
                             Toast.makeText(getActivity(), getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
                         }
-                        mProgressDialog.dismiss();
+                        if (mProgressDialog != null) {
+                            mProgressDialog.dismiss();
+                        }
                     }
                 });
 

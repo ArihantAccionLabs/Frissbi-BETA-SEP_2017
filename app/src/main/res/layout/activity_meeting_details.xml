@@ -14,7 +14,7 @@
         android:layout_marginTop="6dp"
         android:weightSum="5">
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meet_for_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -23,7 +23,7 @@
             android:textColor="@color/black"
             android:textSize="16sp" />
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meeting_details_title_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -49,7 +49,7 @@
         android:layout_marginTop="10dp"
         android:weightSum="5">
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meet_date_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -58,7 +58,7 @@
             android:textColor="@color/black"
             android:textSize="16dp" />
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meeting_details_date_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -84,7 +84,7 @@
         android:layout_marginTop="10dp"
         android:weightSum="5">
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meet_time_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -93,7 +93,7 @@
             android:textColor="@color/black"
             android:textSize="16dp" />
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meeting_details_time_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -120,7 +120,7 @@
         android:layout_marginTop="10dp"
         android:weightSum="5">
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meet_at_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -129,7 +129,7 @@
             android:textColor="@color/black"
             android:textSize="16sp" />
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meeting_details_at_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -148,7 +148,7 @@
             android:text="Change"
             android:textAllCaps="false"
             android:textColor="@color/white"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
     </LinearLayout>
 
@@ -170,7 +170,7 @@
         android:visibility="gone"
         android:weightSum="5">
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meet_status_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -179,7 +179,7 @@
             android:textColor="@color/black"
             android:textSize="16sp" />
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meeting_details_status_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -207,7 +207,7 @@
         android:gravity="center_vertical"
         android:weightSum="5">
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meet_friends_text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -216,7 +216,7 @@
             android:textColor="@color/black"
             android:textSize="16sp" />
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/meeting_details_friend_tv"
             android:layout_width="0dp"
             android:layout_height="wrap_content"

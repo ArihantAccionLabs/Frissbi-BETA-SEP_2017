@@ -1,15 +1,11 @@
 package com.frissbi.activities;
 
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.view.GestureDetectorCompat;
-import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MenuItem;
@@ -18,7 +14,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -28,8 +23,6 @@ import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.CalendarGridAdapter;
-import com.frissbi.adapters.MeetingLogAdapter;
-import com.frissbi.interfaces.MeetingDetailsListener;
 import com.frissbi.models.Meeting;
 import com.frissbi.models.MeetingDate;
 import com.frissbi.models.MeetingFriends;
@@ -46,7 +39,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class MeetingCalendarActivity extends AppCompatActivity implements View.OnClickListener {
+public class MeetingCalendarActivity extends AppCompatActivity {
 
     private static final String TAG = "MeetingCalendarActivity";
     private ImageView mPreviousButton;
@@ -88,9 +81,6 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
         mCurrentYear = mCalendar.get(Calendar.YEAR);
         mMeetingList = new ArrayList<>();
         mProgressDialog = new CustomProgressDialog(this);
-        mPreviousButton = (ImageView) findViewById(R.id.previous_month);
-        mNextButton = (ImageView) findViewById(R.id.next_month);
-        mCurrentDateTextView = (TextView) findViewById(R.id.display_current_date);
         mCalendarGridView = (GridView) findViewById(R.id.calendar_grid);
 
 
@@ -154,37 +144,6 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
             startActivity(intent);
         } else {
             Toast.makeText(MeetingCalendarActivity.this, "No meeting available...", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-
-    @Override
-    public void onClick(View v) {
-        switch (v.getId()) {
-            case R.id.previous_month:
-                mCalendar.add(Calendar.MONTH, -1);
-                mSelectedYear = mCalendar.get(Calendar.YEAR);
-                mSelectedMonth = mCalendar.get(Calendar.MONTH);
-                FLog.d(TAG, "previous_month" + mCalendar.get(Calendar.MONTH) + "year--" + mCalendar.get(Calendar.YEAR));
-                checkMeetingInLocalDB(mSelectedYear, mSelectedMonth + 1);
-                /*if (mCalendar.get(Calendar.MONTH) == mCurrentMonth) {
-                    setUpCalendarAdapter(mCurrentDay);
-                } else {
-                    setUpCalendarAdapter(0);
-                }*/
-                break;
-            case R.id.next_month:
-                mCalendar.add(Calendar.MONTH, 1);
-                mSelectedYear = mCalendar.get(Calendar.YEAR);
-                mSelectedMonth = mCalendar.get(Calendar.MONTH);
-                FLog.d(TAG, "next_month" + mCalendar.get(Calendar.MONTH) + "year--" + mCalendar.get(Calendar.YEAR));
-                checkMeetingInLocalDB(mSelectedYear, mSelectedMonth + 1);
-              /* if (mCalendar.get(Calendar.MONTH) == mCurrentMonth) {
-                    setUpCalendarAdapter(mCurrentDay);
-                } else {
-                    setUpCalendarAdapter(0);
-                }*/
-                break;
         }
     }
 
@@ -441,7 +400,6 @@ public class MeetingCalendarActivity extends AppCompatActivity implements View.O
 
         }
     }
-
 
 
     @Override

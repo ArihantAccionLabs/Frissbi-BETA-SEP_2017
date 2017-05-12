@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -169,9 +168,8 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
             case DATE_DIALOG_ID:
                 DatePickerDialog dateDialog = new DatePickerDialog(RegistrationActivity.this, myDateListener,
                         calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
-                    dateDialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
-                }
+                dateDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
 
                 return dateDialog;
 

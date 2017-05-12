@@ -12,7 +12,6 @@
     <string name="google_maps_key">AIzaSyCmJAbD3ijBFz_oFjOLvNJnh5e9chInBdc</string>
     <!--- Drawable-->
     <drawable name="friss_ring">@drawable/frissbi_logo_home</drawable>
-    <drawable name="foreground_img">@drawable/singupbg</drawable>
     <!--- End Logain-->
 
 

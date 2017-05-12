@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:layout_toLeftOf="@+id/status_icon_imageView">
 
-            <com.frissbi.CustomFontTextView
+            <com.frissbi.Utility.CustomFontTextView
                 android:id="@+id/meeting_log_description_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -29,14 +29,14 @@
                 android:layout_below="@id/meeting_log_description_tv"
                 android:layout_marginTop="6dp">
 
-                <com.frissbi.CustomFontTextView
+                <com.frissbi.Utility.CustomFontTextView
                     android:id="@+id/meeting_log_date_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Date:"
                     android:textColor="@color/black" />
 
-                <com.frissbi.CustomFontTextView
+                <com.frissbi.Utility.CustomFontTextView
                     android:id="@+id/meeting_log_time_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -55,8 +55,8 @@
             android:layout_height="30dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
-            android:visibility="gone"
-            android:src="@drawable/meet_reject" />
+            android:visibility="visible"
+            android:src="@drawable/icon_received" />
     </RelativeLayout>
 
 

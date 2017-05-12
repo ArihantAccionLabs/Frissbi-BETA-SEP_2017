@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:visibility="gone">
 
-        <com.frissbi.CustomFontTextView
+        <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/participant_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -37,7 +37,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.frissbi.CustomFontTextView
+            <com.frissbi.Utility.CustomFontTextView
                 android:id="@+id/select_participant_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

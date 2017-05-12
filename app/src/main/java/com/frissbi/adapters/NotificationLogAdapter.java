@@ -9,11 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.frissbi.Frissbi_img_crop.Util;
 import com.frissbi.R;
 import com.frissbi.Utility.ImageCacheHandler;
 import com.frissbi.Utility.Utility;
-import com.frissbi.frissbi.Test;
 import com.frissbi.interfaces.NotificationListener;
 import com.frissbi.models.Notification;
 

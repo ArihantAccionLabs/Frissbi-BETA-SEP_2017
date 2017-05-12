@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.frissbi.R;
-import com.frissbi.SelectLocationListener;
+import com.frissbi.interfaces.SelectLocationListener;
 import com.frissbi.models.MyPlaces;
 
 import java.util.List;

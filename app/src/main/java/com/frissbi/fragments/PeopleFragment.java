@@ -21,10 +21,8 @@ import com.frissbi.adapters.PeopleAdapter;
 import com.frissbi.adapters.PeopleMayKnowAdapter;
 import com.frissbi.enums.FriendStatus;
 import com.frissbi.interfaces.FriendRequestListener;
-import com.frissbi.models.Friend;
 import com.frissbi.models.FrissbiContact;
 import com.frissbi.networkhandler.TSNetworkHandler;
-import com.orm.query.Select;
 
 import org.json.JSONArray;
 import org.json.JSONException;

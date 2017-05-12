@@ -47,8 +47,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="24dp"
                 android:layout_marginTop="4dp"
-                android:backgroundTint="@color/white"
-                android:layout_toRightOf="@+id/name_icon">
+                android:layout_toRightOf="@+id/name_icon"
+                android:backgroundTint="@color/white">
 
                 <EditText
                     android:id="@+id/reg_name_et"
@@ -212,10 +212,9 @@
             <CheckBox
                 android:id="@+id/terms_conditions_checkBox"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:button="@drawable/toggle_selector" />
+                android:layout_height="wrap_content" />
 
-            <com.frissbi.Utility.MyTextView
+            <com.frissbi.Utility.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/text_sizes_townty"
@@ -223,16 +222,16 @@
                 android:textColor="@drawable/list_item_text_selector"
                 android:textSize="13dp" />
 
-            <com.frissbi.Utility.MyTextView
+            <com.frissbi.Utility.CustomFontTextView
                 android:id="@+id/terms_conditions_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:text="Terms of use"
-                android:textColor="@drawable/text_color_blue"
+                android:textColor="@android:color/holo_blue_bright"
                 android:textSize="13dp" />
 
-            <com.frissbi.Utility.MyTextView
+            <com.frissbi.Utility.CustomFontTextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
@@ -241,13 +240,13 @@
                 android:textSize="13dp" />
 
 
-            <com.frissbi.Utility.MyTextView
+            <com.frissbi.Utility.CustomFontTextView
                 android:id="@+id/privacy_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:text="Privacy Policy"
-                android:textColor="@drawable/text_color_blue"
+                android:textColor="@android:color/holo_blue_bright"
                 android:textSize="13dp" />
         </LinearLayout>
 

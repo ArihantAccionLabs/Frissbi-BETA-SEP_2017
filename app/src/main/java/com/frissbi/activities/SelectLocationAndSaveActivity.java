@@ -23,7 +23,6 @@ import android.widget.EditText;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-import com.frissbi.Frissbi_Pojo.Friss_Pojo;
 import com.frissbi.MapLocations.PlaceJSONParser;
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
@@ -345,7 +344,7 @@ public class SelectLocationAndSaveActivity extends AppCompatActivity {
         mGoogleMap.clear();
         LatLng latLng = new LatLng(latitude, longitude);
         Log.d("SelectLocation", "Location---latLng" + latLng);
-        mGoogleMap.addMarker(new MarkerOptions().position(latLng).title("Current Location").snippet("Hyderabad").icon(BitmapDescriptorFactory.fromResource(R.drawable.location2)));
+        mGoogleMap.addMarker(new MarkerOptions().position(latLng).title("Current Location").snippet("Hyderabad").icon(BitmapDescriptorFactory.fromResource(R.drawable.location)));
         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mGoogleMap.animateCamera(CameraUpdateFactory.zoomTo(15));
     }

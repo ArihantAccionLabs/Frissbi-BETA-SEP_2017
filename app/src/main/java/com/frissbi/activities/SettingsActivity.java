@@ -1,5 +1,8 @@
 package com.frissbi.activities;
 
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -16,9 +19,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frissbi.R;
+import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.ImageCacheHandler;
 import com.frissbi.Utility.SharedPreferenceHandler;
@@ -33,12 +38,14 @@ import org.json.JSONObject;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.util.Calendar;
 
 import static com.frissbi.Utility.Utility.CAMERA_REQUEST;
 import static com.frissbi.Utility.Utility.SELECT_FILE;
 
 public class SettingsActivity extends AppCompatActivity implements View.OnClickListener, UploadPhotoListener {
 
+    private static final int DATE_DIALOG_ID = 1000;
     private ImageView mProfileUserImageView;
     private EditText mUsernameEt;
     private EditText mEmailEt;
@@ -47,12 +54,17 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private UploadPhotoListener mUploadPhotoListener;
     private String mPictureImagePath;
     private byte[] mImageByteArray;
+    private Calendar calendar;
+    private TextView mDobTextView;
+    private ProgressDialog mProgressDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        mProgressDialog = new CustomProgressDialog(this);
+        calendar = Calendar.getInstance();
         setUpViews();
     }
 
@@ -61,7 +73,10 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         mUsernameEt = (EditText) findViewById(R.id.username_et);
         mEmailEt = (EditText) findViewById(R.id.email_et);
         mPhoneEt = (EditText) findViewById(R.id.phone_et);
+        mDobTextView = (TextView) findViewById(R.id.dob_tv);
+        mDobTextView.setOnClickListener(this);
         findViewById(R.id.profile_imageUpdate_tv).setOnClickListener(this);
+        findViewById(R.id.save_button).setOnClickListener(this);
         mUploadPhotoDialogFragment = new UploadPhotoDialogFragment();
         mUploadPhotoListener = (UploadPhotoListener) this;
     }
@@ -72,6 +87,12 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             case R.id.profile_imageUpdate_tv:
                 mUploadPhotoDialogFragment.setUploadPhotoListener(mUploadPhotoListener, Utility.PROFILE_IMAGE);
                 mUploadPhotoDialogFragment.show(getSupportFragmentManager(), "UploadPhotoDialogFragment");
+                break;
+            case R.id.dob_tv:
+                onCreateDialog(DATE_DIALOG_ID).show();
+                break;
+            case R.id.save_button:
+                sendDetailsToServer();
                 break;
         }
     }
@@ -185,6 +206,108 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         }
 
     }
+
+
+    protected Dialog onCreateDialog(int id) {
+        switch (id) {
+            case DATE_DIALOG_ID:
+                DatePickerDialog dateDialog = new DatePickerDialog(SettingsActivity.this, myDateListener,
+                        calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+                dateDialog.getDatePicker().setMaxDate(System.currentTimeMillis());
+
+
+                return dateDialog;
+
+        }
+        return null;
+    }
+
+    private DatePickerDialog.OnDateSetListener myDateListener = new DatePickerDialog.OnDateSetListener() {
+        @Override
+        public void onDateSet(android.widget.DatePicker arg0, int arg1, int arg2, int arg3) {
+            // TODO Auto-generated method stub
+            // arg1 = year
+            // arg2 = month
+            // arg3 = day
+
+            int year, month, day;
+            year = arg1;
+            month = arg2;
+            day = arg3;
+
+            Calendar cal = Calendar.getInstance();
+            int tyear = cal.get(Calendar.YEAR);
+            int tmonth = cal.get(Calendar.MONTH);
+            int tday = cal.get(Calendar.DAY_OF_MONTH);
+
+            if (tyear == year) {
+                if (month == tmonth) {
+                    if (tday > day) {
+                        day = 1;
+                    }
+                    showDate(year, tmonth + 1, day);
+                } else {
+                    showDate(year, month + 1, day);
+                }
+            } else {
+                showDate(arg1, month + 1, day);
+            }
+
+        }
+    };
+
+
+    private void showDate(int year, int month, int day) {
+        mDobTextView.setText(new StringBuilder().append(year).append("-").append(month).append("-").append(day));
+    }
+
+
+    private void sendDetailsToServer() {
+        mProgressDialog.show();
+        JSONObject jsonObject = new JSONObject();
+        try {
+
+            jsonObject.put("userId", SharedPreferenceHandler.getInstance(SettingsActivity.this).getUserId());
+            jsonObject.put("dob", mDobTextView.getText().toString());
+            jsonObject.put("firstName", mUsernameEt.getText().toString());
+            jsonObject.put("contactno", mPhoneEt.getText().toString());
+            jsonObject.put("email", mEmailEt.getText().toString());
+            Log.d("SettingsActivity", "jsonObject" + jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        String url = Utility.REST_URI + Utility.UPDATE_PROFILE;
+        TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
+            @Override
+            public void handleResponse(TSNetworkHandler.TSResponse response) {
+
+                if (response != null) {
+                    if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
+                        Toast.makeText(SettingsActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                        try {
+                            JSONObject jsonObject = new JSONObject(response.response);
+                            Profile.deleteAll(Profile.class);
+                            Profile profile = new Profile();
+                            profile.setContactNumber(jsonObject.getString("contactno"));
+                            profile.setDob(jsonObject.getString("dob"));
+                            profile.setFirstName(jsonObject.getString("firstName"));
+                            profile.setEmail(jsonObject.getString("email"));
+                            profile.save();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
+                        Toast.makeText(SettingsActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    Toast.makeText(SettingsActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                }
+                mProgressDialog.dismiss();
+
+            }
+        });
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

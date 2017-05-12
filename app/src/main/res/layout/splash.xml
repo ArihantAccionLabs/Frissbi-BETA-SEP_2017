@@ -4,7 +4,7 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     android:gravity="center_vertical|center_horizontal"
-    android:background="@drawable/gradient_drawable1">
+    android:background="@color/bg_color">
 
 
     <ImageButton

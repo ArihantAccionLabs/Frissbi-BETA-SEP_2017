@@ -31,7 +31,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp">
 
-            <com.frissbi.CustomFontTextView
+            <com.frissbi.Utility.CustomFontTextView
                 android:id="@+id/free_time_posted_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -39,14 +39,14 @@
                 android:text="Time"
                 android:textSize="10sp" />
 
-            <com.frissbi.CustomFontTextView
+            <com.frissbi.Utility.CustomFontTextView
                 android:id="@+id/free_time_date_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:text="Date" />
 
-            <com.frissbi.CustomFontTextView
+            <com.frissbi.Utility.CustomFontTextView
                 android:id="@+id/free_time_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

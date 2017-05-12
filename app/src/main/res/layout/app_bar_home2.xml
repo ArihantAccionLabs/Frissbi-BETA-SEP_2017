@@ -43,16 +43,6 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
-    <Button
-        android:id="@+id/add_meeting"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_gravity="bottom"
-        android:layout_margin="20dp"
-        android:background="@drawable/addbutton"
-        android:visibility="gone" />
-
 
     <LinearLayout
         android:id="@+id/dim_background"

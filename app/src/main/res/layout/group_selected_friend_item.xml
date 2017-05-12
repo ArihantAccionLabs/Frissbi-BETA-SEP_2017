@@ -10,7 +10,7 @@
         android:layout_centerHorizontal="true"
         android:src="@drawable/default_profile_image" />
 
-    <com.frissbi.CustomFontTextView
+    <com.frissbi.Utility.CustomFontTextView
         android:id="@+id/participant_name"
         android:layout_width="80dp"
         android:layout_height="wrap_content"
