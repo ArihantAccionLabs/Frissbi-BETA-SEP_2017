@@ -1,0 +1,294 @@
+TASK com.frissbi id=93
+  ACTIVITY com.frissbi/.activities.FriendsListActivity 2183723a pid=20393
+    Local FragmentActivity 56ff2d2 State:
+      mCreated=truemResumed=true mStopped=false mReallyStopped=false
+      mLoadersStarted=true
+    Active Fragments in 1471f0b3:
+      #0: MyFriendsFragment{94c3670 #0 id=0x7f1000d7 android:switcher:2131755223:0}
+        mFragmentId=#7f1000d7 mContainerId=#7f1000d7 mTag=android:switcher:2131755223:0
+        mState=1 mIndex=0 mWho=android:fragment:0 mBackStackNesting=0
+        mAdded=false mRemoving=false mFromLayout=false mInLayout=false
+        mHidden=false mDetached=true mMenuVisible=false mHasMenu=false
+        mRetainInstance=false mRetaining=false mUserVisibleHint=false
+        mFragmentManager=FragmentManager{1471f0b3 in HostCallbacks{38a97de9}}
+        mHost=android.support.v4.app.FragmentActivity$HostCallbacks@38a97de9
+        mSavedViewState={2131755409=android.support.v7.widget.RecyclerView$SavedState@fbdca6e}
+        Child FragmentManager{690e50f in MyFriendsFragment{94c3670}}:
+          FragmentManager misc state:
+            mHost=android.support.v4.app.FragmentActivity$HostCallbacks@38a97de9
+            mContainer=android.support.v4.app.Fragment$2@2a16499c
+            mParent=MyFriendsFragment{94c3670 #0 id=0x7f1000d7 android:switcher:2131755223:0}
+            mCurState=1 mStateSaved=true mDestroyed=false
+      #1: MyContactsFragment{930fa5 #1 id=0x7f1000d7 android:switcher:2131755223:1}
+        mFragmentId=#7f1000d7 mContainerId=#7f1000d7 mTag=android:switcher:2131755223:1
+        mState=5 mIndex=1 mWho=android:fragment:1 mBackStackNesting=0
+        mAdded=true mRemoving=false mFromLayout=false mInLayout=false
+        mHidden=false mDetached=false mMenuVisible=false mHasMenu=false
+        mRetainInstance=false mRetaining=false mUserVisibleHint=false
+        mFragmentManager=FragmentManager{1471f0b3 in HostCallbacks{38a97de9}}
+        mHost=android.support.v4.app.FragmentActivity$HostCallbacks@38a97de9
+        mContainer=android.support.v4.view.ViewPager{c001f7a VFED.... ........ 0,72-540,838 #7f1000d7 app:id/friends_viewPager}
+        mView=android.widget.FrameLayout{3800c32b V.E..... .......D 540,0-1080,766}
+        mInnerView=android.widget.FrameLayout{3800c32b V.E..... .......D 540,0-1080,766}
+        Child FragmentManager{320c6388 in MyContactsFragment{930fa5}}:
+          FragmentManager misc state:
+            mHost=android.support.v4.app.FragmentActivity$HostCallbacks@38a97de9
+            mContainer=android.support.v4.app.Fragment$2@18ca0121
+            mParent=MyContactsFragment{930fa5 #1 id=0x7f1000d7 android:switcher:2131755223:1}
+            mCurState=5 mStateSaved=false mDestroyed=false
+      #2: PeopleFragment{1ae0b946 #2 id=0x7f1000d7 android:switcher:2131755223:2}
+        mFragmentId=#7f1000d7 mContainerId=#7f1000d7 mTag=android:switcher:2131755223:2
+        mState=5 mIndex=2 mWho=android:fragment:2 mBackStackNesting=0
+        mAdded=true mRemoving=false mFromLayout=false mInLayout=false
+        mHidden=false mDetached=false mMenuVisible=true mHasMenu=false
+        mRetainInstance=false mRetaining=false mUserVisibleHint=true
+        mFragmentManager=FragmentManager{1471f0b3 in HostCallbacks{38a97de9}}
+        mHost=android.support.v4.app.FragmentActivity$HostCallbacks@38a97de9
+        mContainer=android.support.v4.view.ViewPager{c001f7a VFED.... ........ 0,72-540,838 #7f1000d7 app:id/friends_viewPager}
+        mView=android.widget.RelativeLayout{3c466707 V.E..... ........ 1080,0-1620,766}
+        mInnerView=android.widget.RelativeLayout{3c466707 V.E..... ........ 1080,0-1620,766}
+        Child FragmentManager{13c83034 in PeopleFragment{1ae0b946}}:
+          FragmentManager misc state:
+            mHost=android.support.v4.app.FragmentActivity$HostCallbacks@38a97de9
+            mContainer=android.support.v4.app.Fragment$2@27248e5d
+            mParent=PeopleFragment{1ae0b946 #2 id=0x7f1000d7 android:switcher:2131755223:2}
+            mCurState=5 mStateSaved=false mDestroyed=false
+    Added Fragments:
+      #0: MyContactsFragment{930fa5 #1 id=0x7f1000d7 android:switcher:2131755223:1}
+      #1: PeopleFragment{1ae0b946 #2 id=0x7f1000d7 android:switcher:2131755223:2}
+    FragmentManager misc state:
+      mHost=android.support.v4.app.FragmentActivity$HostCallbacks@38a97de9
+      mContainer=android.support.v4.app.FragmentActivity$HostCallbacks@38a97de9
+      mCurState=5 mStateSaved=false mDestroyed=false
+    View Hierarchy:
+      com.android.internal.policy.impl.PhoneWindow$DecorView{6df23d2 V.E..... ... 0,0-540,960}
+        android.widget.LinearLayout{30586ca3 V.E..... ... 0,0-540,960}
+          android.view.ViewStub{2fd21ba0 G.E..... ... 0,0-0,0 #1020419}
+          android.widget.FrameLayout{1ea0b359 V.E..... ... 0,38-540,960}
+            android.support.v7.widget.ActionBarOverlayLayout{10e7ab1e V.E..... ... 0,0-540,922 #7f1000ac app:id/decor_content_parent}
+              android.support.v7.widget.ContentFrameLayout{3ffb2fff V.E..... ... 0,84-540,922 #1020002 android:id/content}
+                android.widget.RelativeLayout{24cd51cc V.E..... ... 0,0-540,838}
+                  android.support.design.widget.TabLayout{a202c15 VFED.... ... 0,0-540,72 #7f1000d6 app:id/friends_tabLayout}
+                    android.support.design.widget.TabLayout$SlidingTabStrip{a5f5b2a V.ED.... ... 0,0-540,72}
+                      android.support.design.widget.TabLayout$TabView{24dccd1b VFE...C. ... 0,0-180,72}
+                        android.support.v7.widget.AppCompatImageView{3663beb8 G.ED.... ... 0,0-0,0}
+                        android.support.v7.widget.AppCompatTextView{6e47491 V.ED.... ... 54,21-126,50}
+                      android.support.design.widget.TabLayout$TabView{3effff6 VFE...C. ... 180,0-360,72}
+                        android.support.v7.widget.AppCompatImageView{3b711ff7 G.ED.... ... 0,0-0,0}
+                        android.support.v7.widget.AppCompatTextView{36f20e64 V.ED.... ... 35,21-145,50}
+                      android.support.design.widget.TabLayout$TabView{2acac8cd VFE...C. .S. 360,0-540,72}
+                        android.support.v7.widget.AppCompatImageView{1d142582 G.ED.... .S. 0,0-0,0}
+                        android.support.v7.widget.AppCompatTextView{98dc493 V.ED.... .S. 52,21-128,50}
+                  android.support.v4.view.ViewPager{c001f7a VFED.... ... 0,72-540,838 #7f1000d7 app:id/friends_viewPager}
+                    android.widget.FrameLayout{3800c32b V.E..... ... 540,0-1080,766}
+                      android.support.v7.widget.RecyclerView{1ff3acd0 VFED.... ... 0,0-540,766 #7f100190 app:id/my_contacts_recyclerView}
+                        android.support.v7.widget.CardView{124824c9 V.E..... ... 9,9-531,89}
+                          android.widget.RelativeLayout{6317ce V.E..... ... 0,0-522,80}
+                            android.widget.RelativeLayout{12c616ef V.E..... ... 9,9-513,71}
+                              com.frissbi.Utility.CustomFontTextView{52ec5fc V.ED.... ... 0,0-130,33 #7f100205 app:id/my_contacts_name}
+                              com.frissbi.Utility.CustomFontTextView{12254485 V.ED.... ... 0,33-120,62 #7f100206 app:id/my_contacts_num}
+                            android.support.v7.widget.AppCompatButton{189ce2da VFED..C. ... 381,9-513,69 #7f100207 app:id/invite_button}
+                        android.support.v7.widget.CardView{1687330b V.E..... ... 9,107-531,187}
+                          android.widget.RelativeLayout{ea045e8 V.E..... ... 0,0-522,80}
+                            android.widget.RelativeLayout{8faa401 V.E..... ... 9,9-513,71}
+                              com.frissbi.Utility.CustomFontTextView{a7652a6 V.ED.... ... 0,0-130,33 #7f100205 app:id/my_contacts_name}
+                              com.frissbi.Utility.CustomFontTextView{13f3f4e7 V.ED.... ... 0,33-120,62 #7f100206 app:id/my_contacts_num}
+                            android.support.v7.widget.AppCompatButton{2527d894 VFED..C. ... 381,9-513,69 #7f100207 app:id/invite_button}
+                        android.support.v7.widget.CardView{c6c7f3d V.E..... ... 9,205-531,285}
+                          android.widget.RelativeLayout{3f24f332 V.E..... ... 0,0-522,80}
+                            android.widget.RelativeLayout{2f80f883 V.E..... ... 9,9-513,71}
+                              com.frissbi.Utility.CustomFontTextView{3df3ea00 V.ED.... ... 0,0-130,33 #7f100205 app:id/my_contacts_name}
+                              com.frissbi.Utility.CustomFontTextView{2e26d239 V.ED.... ... 0,33-120,62 #7f100206 app:id/my_contacts_num}
+                            android.support.v7.widget.AppCompatButton{bab107e VFED..C. ... 381,9-513,69 #7f100207 app:id/invite_button}
+                        android.support.v7.widget.CardView{165099df V.E..... ... 9,303-531,383}
+                          android.widget.RelativeLayout{30ada62c V.E..... ... 0,0-522,80}
+                            android.widget.RelativeLayout{149958f5 V.E..... ... 9,9-513,71}
+                              com.frissbi.Utility.CustomFontTextView{e3b68a V.ED.... ... 0,0-46,33 #7f100205 app:id/my_contacts_name}
+                              com.frissbi.Utility.CustomFontTextView{3b4ef4fb V.ED.... ... 0,33-161,62 #7f100206 app:id/my_contacts_num}
+                            android.support.v7.widget.AppCompatButton{464f918 VFED..C. ... 381,9-513,69 #7f100207 app:id/invite_button}
+                        android.support.v7.widget.CardView{2e972973 V.E..... ... 9,401-531,481}
+                          android.widget.RelativeLayout{23738f71 V.E..... ... 0,0-522,80}
+                            android.widget.RelativeLayout{304eb156 V.E..... ... 9,9-513,71}
+                              com.frissbi.Utility.CustomFontTextView{a0de5d7 V.ED.... ... 0,0-46,33 #7f100205 app:id/my_contacts_name}
+                              com.frissbi.Utility.CustomFontTextView{1f3c8ec4 V.ED.... ... 0,33-161,62 #7f100206 app:id/my_contacts_num}
+                            android.support.v7.widget.AppCompatButton{2fe0b1ad VFED..C. ... 381,9-513,69 #7f100207 app:id/invite_button}
+                        android.support.v7.widget.CardView{26efe030 V.E..... ... 9,499-531,579}
+                          android.widget.RelativeLayout{319c8ce2 V.E..... ... 0,0-522,80}
+                            android.widget.RelativeLayout{2b610873 V.E..... ... 9,9-513,71}
+                              com.frissbi.Utility.CustomFontTextView{4d5d330 V.ED.... ... 0,0-46,33 #7f100205 app:id/my_contacts_name}
+                              com.frissbi.Utility.CustomFontTextView{3c83bba9 V.ED.... ... 0,33-156,62 #7f100206 app:id/my_contacts_num}
+                            android.support.v7.widget.AppCompatButton{34fa952e VFED..C. ... 381,9-513,69 #7f100207 app:id/invite_button}
+                        android.support.v7.widget.CardView{3f9144a9 V.E..... ... 9,597-531,677}
+                          android.widget.RelativeLayout{37b9b8cf V.E..... ... 0,0-522,80}
+                            android.widget.RelativeLayout{f7cf25c V.E..... ... 9,9-513,71}
+                              com.frissbi.Utility.CustomFontTextView{39336965 V.ED.... ... 0,0-46,33 #7f100205 app:id/my_contacts_name}
+                              com.frissbi.Utility.CustomFontTextView{2e1ed63a V.ED.... ... 0,33-144,62 #7f100206 app:id/my_contacts_num}
+                            android.support.v7.widget.AppCompatButton{334312eb VFED..C. ... 381,9-513,69 #7f100207 app:id/invite_button}
+                        android.support.v7.widget.CardView{177bea2e V.E..... ... 9,695-531,775}
+                          android.widget.RelativeLayout{1014d848 V.E..... ... 0,0-522,80}
+                            android.widget.RelativeLayout{27636e1 V.E..... ... 9,9-513,71}
+                              com.frissbi.Utility.CustomFontTextView{24141c06 V.ED.... ... 0,0-127,33 #7f100205 app:id/my_contacts_name}
+                              com.frissbi.Utility.CustomFontTextView{2fbdf2c7 V.ED.... ... 0,33-156,62 #7f100206 app:id/my_contacts_num}
+                            android.support.v7.widget.AppCompatButton{c330f4 VFED..C. ... 381,9-513,69 #7f100207 app:id/invite_button}
+                    android.widget.RelativeLayout{3c466707 V.E..... ... 1080,0-1620,766}
+                      android.support.v7.widget.RecyclerView{1cbe601d VFED.... F.. 0,0-540,766 #7f100192 app:id/people_recyclerView}
+                        android.support.v7.widget.CardView{31c5f292 V.E...C. ... 6,6-534,99}
+                          android.widget.RelativeLayout{301cf463 V.E..... ... 0,0-528,93}
+                            android.widget.RelativeLayout{365c6860 V.E..... ... 9,9-387,84}
+                              android.support.v7.widget.AppCompatImageView{2765e119 V.ED.... ... 0,0-75,75 #7f100230 app:id/people_image}
+                              android.support.v7.widget.AppCompatTextView{34ca5de V.ED.... ... 84,23-378,52 #7f100231 app:id/people_name_tv}
+                            android.support.v7.widget.AppCompatButton{29e073bf VFED..C. ... 387,16-519,76 #7f10022f app:id/add_people_button}
+                        android.support.v7.widget.CardView{3c8faa8c V.E...C. ... 6,111-534,204}
+                          android.widget.RelativeLayout{36a75d5 V.E..... ... 0,0-528,93}
+                            android.widget.RelativeLayout{1bf941ea V.E..... ... 9,9-387,84}
+                              android.support.v7.widget.AppCompatImageView{328cdb V.ED.... ... 0,0-75,75 #7f100230 app:id/people_image}
+                              android.support.v7.widget.AppCompatTextView{8d2e378 V.ED.... ... 84,23-378,52 #7f100231 app:id/people_name_tv}
+                            android.support.v7.widget.AppCompatButton{29e99a51 VFED..C. ... 387,16-519,76 #7f10022f app:id/add_people_button}
+                        android.support.v7.widget.CardView{312192b6 V.E...C. ... 6,216-534,309}
+                          android.widget.RelativeLayout{14c31bb7 V.E..... ... 0,0-528,93}
+                            android.widget.RelativeLayout{300ebf24 V.E..... ... 9,9-387,84}
+                              android.support.v7.widget.AppCompatImageView{2e5c8a8d V.ED.... ... 0,0-75,75 #7f100230 app:id/people_image}
+                              android.support.v7.widget.AppCompatTextView{25ac2442 V.ED.... ... 84,23-378,52 #7f100231 app:id/people_name_tv}
+                            android.support.v7.widget.AppCompatButton{a63bc53 VFED..C. ... 387,16-519,76 #7f10022f app:id/add_people_button}
+                      com.frissbi.Utility.CustomFontTextView{b0aa990 G.ED.... ... 120,356-420,409 #7f100193 app:id/search_people_tv}
+              android.support.v7.widget.ActionBarContainer{28944289 V.ED.... ... 0,0-540,84 #7f1000ad app:id/action_bar_container}
+                android.support.v7.widget.Toolbar{325c428e V.E..... ... 0,0-540,84 #7f1000ae app:id/action_bar}
+                  android.support.v7.widget.AppCompatTextView{1563caaf V.ED.... ... 108,21-108,62}
+                  android.support.v7.widget.AppCompatImageButton{3598cebc VFED..C. ... 0,0-72,84}
+                  android.support.v7.widget.ActionMenuView{2757e45 V.E..... ... 108,0-540,84}
+                    android.support.v7.widget.SearchView{6ddf99a VFE..... ... 0,6-432,78 #7f100267 app:id/friends_search}
+                      android.widget.LinearLayout{35ac62cb V.E..... ... 0,0-432,72 #7f1000b1 app:id/search_bar}
+                        android.support.v7.widget.AppCompatTextView{14821aa8 G.ED.... ... 0,0-0,0 #7f1000b2 app:id/search_badge}
+                        android.support.v7.widget.AppCompatImageView{2574b9c1 GFED..C. ... 0,0-72,72 #7f1000b3 app:id/search_button}
+                        android.widget.LinearLayout{2f921566 V.E..... ... 12,0-420,72 #7f1000b4 app:id/search_edit_frame}
+                          android.support.v7.widget.AppCompatImageView{369c60a7 G.ED.... ... 0,0-0,0 #7f1000b5 app:id/search_mag_icon}
+                          android.widget.LinearLayout{e323954 V.E..... ... 0,0-408,72 #7f1000b6 app:id/search_plate}
+                            android.support.v7.widget.SearchView$SearchAutoComplete{3d230fd VFED..CL ... 0,9-348,63 #7f1000b7 app:id/search_src_text}
+                            android.support.v7.widget.AppCompatImageView{c1a21f2 VFED..C. ... 348,0-408,72 #7f1000b8 app:id/search_close_btn}
+                          android.widget.LinearLayout{10a46043 G.E..... ... 0,0-0,0 #7f1000b9 app:id/submit_area}
+                            android.support.v7.widget.AppCompatImageView{222396c0 GFED..C. ... 0,0-0,0 #7f1000ba app:id/search_go_btn}
+                            android.support.v7.widget.AppCompatImageView{3995dff9 GFED..C. ... 0,0-0,0 #7f1000bb app:id/search_voice_btn}
+                android.support.v7.widget.ActionBarContextView{22a46b3e G.E..... ... 0,0-0,0 #7f1000af app:id/action_context_bar}
+        android.view.View{8a2bd9f V.ED.... ... 0,0-540,38 #102002f android:id/statusBarBackground}
+
+  ACTIVITY com.frissbi/.activities.HomeActivity b78b270 pid=20393
+    Local FragmentActivity fa5714c State:
+      mCreated=truemResumed=false mStopped=true mReallyStopped=true
+      mLoadersStarted=true
+    Active Fragments in b0b5eec:
+      #0: TimeLineFragment{14b82b5 #0 id=0x7f100135 android:switcher:2131755317:0}
+        mFragmentId=#7f100135 mContainerId=#7f100135 mTag=android:switcher:2131755317:0
+        mState=2 mIndex=0 mWho=android:fragment:0 mBackStackNesting=0
+        mAdded=true mRemoving=false mFromLayout=false mInLayout=false
+        mHidden=false mDetached=false mMenuVisible=true mHasMenu=false
+        mRetainInstance=false mRetaining=false mUserVisibleHint=true
+        mFragmentManager=FragmentManager{b0b5eec in HostCallbacks{1bf7fd4a}}
+        mHost=android.support.v4.app.FragmentActivity$HostCallbacks@1bf7fd4a
+        mContainer=android.support.v4.view.ViewPager{3535100c VFED.... ........ 0,122-540,960 #7f100135 app:id/viewPager}
+        mView=android.widget.FrameLayout{28ff94bb V.E..... ........ 0,0-540,838}
+        mInnerView=android.widget.FrameLayout{28ff94bb V.E..... ........ 0,0-540,838}
+        Child FragmentManager{17c57dd8 in TimeLineFragment{14b82b5}}:
+          FragmentManager misc state:
+            mHost=android.support.v4.app.FragmentActivity$HostCallbacks@1bf7fd4a
+            mContainer=android.support.v4.app.Fragment$2@387e9531
+            mParent=TimeLineFragment{14b82b5 #0 id=0x7f100135 android:switcher:2131755317:0}
+            mCurState=2 mStateSaved=true mDestroyed=false
+      #1: MeetingLogFragment{3440a416 #1 id=0x7f100135 android:switcher:2131755317:1}
+        mFragmentId=#7f100135 mContainerId=#7f100135 mTag=android:switcher:2131755317:1
+        mState=2 mIndex=1 mWho=android:fragment:1 mBackStackNesting=0
+        mAdded=true mRemoving=false mFromLayout=false mInLayout=false
+        mHidden=false mDetached=false mMenuVisible=false mHasMenu=false
+        mRetainInstance=false mRetaining=false mUserVisibleHint=false
+        mFragmentManager=FragmentManager{b0b5eec in HostCallbacks{1bf7fd4a}}
+        mHost=android.support.v4.app.FragmentActivity$HostCallbacks@1bf7fd4a
+        mSavedViewState={2131755406=android.view.AbsSavedState$1@3088c197, 2131755407=android.support.v7.widget.RecyclerView$SavedState@27009f84}
+        mContainer=android.support.v4.view.ViewPager{3535100c VFED.... ........ 0,122-540,960 #7f100135 app:id/viewPager}
+        mView=android.support.v4.widget.SwipeRefreshLayout{2ff6536d V.ED.... ......ID 540,0-1080,838 #7f10018e app:id/swipeRefreshLayout}
+        mInnerView=android.support.v4.widget.SwipeRefreshLayout{2ff6536d V.ED.... ......ID 540,0-1080,838 #7f10018e app:id/swipeRefreshLayout}
+        Child FragmentManager{2c9aeba2 in MeetingLogFragment{3440a416}}:
+          FragmentManager misc state:
+            mHost=android.support.v4.app.FragmentActivity$HostCallbacks@1bf7fd4a
+            mContainer=android.support.v4.app.Fragment$2@130de033
+            mParent=MeetingLogFragment{3440a416 #1 id=0x7f100135 android:switcher:2131755317:1}
+            mCurState=2 mStateSaved=true mDestroyed=false
+    Added Fragments:
+      #0: TimeLineFragment{14b82b5 #0 id=0x7f100135 android:switcher:2131755317:0}
+      #1: MeetingLogFragment{3440a416 #1 id=0x7f100135 android:switcher:2131755317:1}
+    FragmentManager misc state:
+      mHost=android.support.v4.app.FragmentActivity$HostCallbacks@1bf7fd4a
+      mContainer=android.support.v4.app.FragmentActivity$HostCallbacks@1bf7fd4a
+      mCurState=2 mStateSaved=true mDestroyed=false
+    View Hierarchy:
+      com.android.internal.policy.impl.PhoneWindow$DecorView{31aa2ff0 I.E..... ... 0,0-540,960}
+        android.widget.LinearLayout{3b1b969 V.E..... ... 0,0-540,960}
+          android.view.ViewStub{9601fee G.E..... ... 0,0-0,0 #1020419}
+          android.widget.FrameLayout{27bc4c8f V.E..... ... 0,0-540,960}
+            android.support.v7.widget.FitWindowsLinearLayout{101a5b1c V.E..... ... 0,0-540,960 #7f1000a9 app:id/action_bar_root}
+              android.support.v7.widget.ViewStubCompat{36a38325 G.E..... ... 0,0-0,0 #7f1000aa app:id/action_mode_bar_stub}
+              android.support.v7.widget.ContentFrameLayout{29324cfa V.E..... ... 0,0-540,960 #1020002 android:id/content}
+                android.support.v4.widget.DrawerLayout{213b22ab VFED.... F.. 0,0-540,960 #7f1000d8 app:id/drawer_layout}
+                  android.support.design.widget.CoordinatorLayout{26000d08 V.ED.... ... 0,0-540,960}
+                    android.support.design.widget.AppBarLayout{30cdff3f V.E..... ... 0,38-540,122}
+                      android.support.v7.widget.Toolbar{e2e2ca1 V.E..... ... 0,0-540,84 #7f10012a app:id/toolbar}
+                        android.support.design.widget.TabLayout{c83ec6 VFED.... ... 108,6-468,78 #7f100134 app:id/tabLayout}
+                          android.support.design.widget.TabLayout$SlidingTabStrip{2b873e87 V.ED.... ... 0,0-360,72}
+                            android.support.design.widget.TabLayout$TabView{210cf1b4 VFE...C. .S. 0,0-90,72}
+                              android.support.v7.widget.AppCompatImageView{295ff1dd V.ED.... .S. 27,18-63,54}
+                              android.support.v7.widget.AppCompatTextView{7798152 G.ED.... .S. 0,0-0,0}
+                            android.support.design.widget.TabLayout$TabView{b8f3c23 VFE...C. ... 90,0-180,72}
+                              android.support.v7.widget.AppCompatImageView{36617520 V.ED.... ... 27,18-63,54}
+                              android.support.v7.widget.AppCompatTextView{feeced9 G.ED.... ... 0,0-0,0}
+                            android.support.design.widget.TabLayout$TabView{208a609e VFE...C. ... 180,0-270,72}
+                              android.support.v7.widget.AppCompatImageView{1c8f777f V.ED.... ... 27,18-63,54}
+                              android.support.v7.widget.AppCompatTextView{ab8c34c G.ED.... ... 0,0-0,0}
+                            android.support.design.widget.TabLayout$TabView{34f47f95 VFE...C. ... 270,0-360,72}
+                              android.support.v7.widget.AppCompatImageView{d37e8aa V.ED.... ... 27,18-63,54}
+                              android.support.v7.widget.AppCompatTextView{72e0c9b G.ED.... ... 0,0-0,0}
+                        android.support.v7.widget.AppCompatImageButton{3154c838 VFED..C. ... 0,0-72,84}
+                        android.support.v7.widget.ActionMenuView{296a8011 V.E..... ... 468,0-540,84}
+                          android.support.v7.widget.SearchView{3383e576 VFE..... ... 0,6-72,78 #7f100268 app:id/action_search}
+                            android.widget.LinearLayout{e56d777 V.E..... ... 0,0-72,72 #7f1000b1 app:id/search_bar}
+                              android.support.v7.widget.AppCompatTextView{2daa2fe4 G.ED.... ... 0,0-0,0 #7f1000b2 app:id/search_badge}
+                              android.support.v7.widget.AppCompatImageView{3a660c4d VFED..C. ... 0,0-72,72 #7f1000b3 app:id/search_button}
+                              android.widget.LinearLayout{5c0e302 G.E..... ... 0,0-0,0 #7f1000b4 app:id/search_edit_frame}
+                                android.support.v7.widget.AppCompatImageView{dd77413 G.ED.... ... 0,0-0,0 #7f1000b5 app:id/search_mag_icon}
+                                android.widget.LinearLayout{23cc6650 V.E..... ... 0,0-0,0 #7f1000b6 app:id/search_plate}
+                                  android.support.v7.widget.SearchView$SearchAutoComplete{37142049 VFED..CL ... 0,0-0,0 #7f1000b7 app:id/search_src_text}
+                                  android.support.v7.widget.AppCompatImageView{16de2d4e VFED..C. ... 0,0-0,0 #7f1000b8 app:id/search_close_btn}
+                                android.widget.LinearLayout{6bb3e6f G.E..... ... 0,0-0,0 #7f1000b9 app:id/submit_area}
+                                  android.support.v7.widget.AppCompatImageView{2399977c GFED..C. ... 0,0-0,0 #7f1000ba app:id/search_go_btn}
+                                  android.support.v7.widget.AppCompatImageView{1a757805 GFED..C. ... 0,0-0,0 #7f1000bb app:id/search_voice_btn}
+                    android.support.v4.view.ViewPager{3535100c VFED.... ... 0,122-540,960 #7f100135 app:id/viewPager}
+                      android.widget.FrameLayout{28ff94bb V.E..... ... 0,0-540,838}
+                        android.support.v7.widget.AppCompatTextView{2773d05a V.ED.... ... 0,0-540,838}
+                      android.support.v4.widget.SwipeRefreshLayout{2ff6536d V.ED.... ... 540,0-1080,838 #7f10018e app:id/swipeRefreshLayout}
+                        android.support.v4.widget.CircleImageView{1567528b G.ED.... ... 240,-60-300,0}
+                        android.support.v7.widget.RecyclerView{3aa6af68 VFED.... ... 0,0-540,838 #7f10018f app:id/meeting_log_recyclerView}
+                    android.support.v7.widget.AppCompatButton{7c3ad55 GFED..C. ... 0,0-0,0 #7f100136 app:id/add_meeting}
+                    android.widget.LinearLayout{11dee36a G.E...C. ... 0,0-0,0 #7f100137 app:id/dim_background}
+                    android.support.design.widget.FloatingActionButton{132d505b VFED..C. ... 228,846-312,930 #7f100138 app:id/add_floating_button}
+                  android.support.design.widget.NavigationView{14da8f81 I.ED.... ... -420,0-0,960 #7f1000d9 app:id/nav_view}
+                    android.support.design.internal.NavigationMenuView{378e9826 VFED.V.. ... 0,0-420,960 #7f10017b app:id/design_navigation_view}
+                      android.widget.LinearLayout{2d768c67 V.E..... ... 0,0-420,252 #7f10017a app:id/navigation_header_container}
+                        android.widget.LinearLayout{38eb5a14 V.E..... ... 0,0-420,240}
+                          android.support.v7.widget.AppCompatImageView{311fa2bd V.ED.... ... 0,37-420,150 #7f10020b app:id/logo_imageView}
+                          android.support.v7.widget.AppCompatTextView{293c10b2 V.ED.... ... 0,150-420,203 #7f10020c app:id/user_name_tv}
+                      android.support.design.internal.NavigationMenuItemView{37558803 VFED..C. ... 0,252-420,324}
+                        android.support.v7.widget.AppCompatCheckedTextView{142e0380 V.ED.... ... 24,0-396,72 #7f10017c app:id/design_menu_item_text}
+                        android.view.ViewStub{11a8adb9 G.E..... ... 0,0-0,0 #7f10017d}
+                      android.support.design.internal.NavigationMenuItemView{3fd685fe VFED..C. ... 0,324-420,396}
+                        android.support.v7.widget.AppCompatCheckedTextView{2b9ea15f V.ED.... ... 24,0-396,72 #7f10017c app:id/design_menu_item_text}
+                        android.view.ViewStub{162fd7ac G.E..... ... 0,0-0,0 #7f10017d}
+                      android.support.design.internal.NavigationMenuItemView{11d6c75 VFED..C. ... 0,396-420,468}
+                        android.support.v7.widget.AppCompatCheckedTextView{811040a V.ED.... ... 24,0-396,72 #7f10017c app:id/design_menu_item_text}
+                        android.view.ViewStub{835f47b G.E..... ... 0,0-0,0 #7f10017d}
+                      android.support.design.internal.NavigationMenuItemView{198c298 VFED..C. ... 0,468-420,540}
+                        android.support.v7.widget.AppCompatCheckedTextView{12e55af1 V.ED.... ... 24,0-396,72 #7f10017c app:id/design_menu_item_text}
+                        android.view.ViewStub{34c356d6 G.E..... ... 0,0-0,0 #7f10017d}
+                      android.support.design.internal.NavigationMenuItemView{3b255d57 VFED..C. ... 0,540-420,612}
+                        android.support.v7.widget.AppCompatCheckedTextView{19a37044 V.ED.... ... 24,0-396,72 #7f10017c app:id/design_menu_item_text}
+                        android.view.ViewStub{f63b52d G.E..... ... 0,0-0,0 #7f10017d}
+                      android.support.design.internal.NavigationMenuItemView{3c760a62 VFED..C. ... 0,612-420,684}
+                        android.support.v7.widget.AppCompatCheckedTextView{1f3877f3 V.ED.... ... 24,0-396,72 #7f10017c app:id/design_menu_item_text}
+                        android.view.ViewStub{38894cb0 G.E..... ... 0,0-0,0 #7f10017d}
+        android.view.View{27f37729 V.ED.... ... 0,0-540,38 #102002f android:id/statusBarBackground}

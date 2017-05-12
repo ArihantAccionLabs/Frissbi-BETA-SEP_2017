@@ -1,0 +1,259 @@
+TASK com.frissbi id=121
+  ACTIVITY com.frissbi/.activities.GroupsActivity 93296db pid=18739
+    Local FragmentActivity 2f6ad9c State:
+      mCreated=truemResumed=true mStopped=false mReallyStopped=false
+      mLoadersStarted=true
+    FragmentManager misc state:
+      mHost=android.support.v4.app.FragmentActivity$HostCallbacks@e345440
+      mContainer=android.support.v4.app.FragmentActivity$HostCallbacks@e345440
+      mCurState=5 mStateSaved=false mDestroyed=false
+    View Hierarchy:
+      com.android.internal.policy.impl.PhoneWindow$DecorView{27738f79 V.E..... ... 0,0-540,960}
+        android.widget.LinearLayout{328124be V.E..... ... 0,0-540,960}
+          android.view.ViewStub{322b91f G.E..... ... 0,0-0,0 #1020419}
+          android.widget.FrameLayout{372a746c V.E..... ... 0,38-540,960}
+            android.support.v7.widget.ActionBarOverlayLayout{2414aa35 V.E..... ... 0,0-540,922 #7f1000ad app:id/decor_content_parent}
+              android.support.v7.widget.ContentFrameLayout{2a6ceca V.E..... ... 0,84-540,922 #1020002 android:id/content}
+                android.widget.RelativeLayout{2e43c83b V.E..... ... 0,0-540,838 #7f1000e5 app:id/activity_groups}
+                  android.support.v7.widget.RecyclerView{32806b58 VFED.... F.. 0,0-540,838 #7f1000e6 app:id/groups_recyclerView}
+                    android.support.v7.widget.CardView{3f72b4b1 V.E...CL ... 21,21-519,126}
+                      android.widget.RelativeLayout{28cb0d96 V.E..... ... 0,0-498,105}
+                        android.support.v7.widget.AppCompatImageView{149cad17 V.ED.... ... 15,15-90,90 #7f1001fd app:id/friend_profile_image}
+                        com.frissbi.Utility.CustomFontTextView{3a3ce504 V.ED.... ... 105,37-483,67 #7f1001fe app:id/friend_username_tv}
+                        android.support.v7.widget.AppCompatImageView{3ecceaed G.ED.... ... 0,0-0,0 #7f1001ff app:id/selected_icon}
+                    android.support.v7.widget.CardView{d226d22 V.E...CL ... 21,138-519,243}
+                      android.widget.RelativeLayout{1f3503b3 V.E..... ... 0,0-498,105}
+                        android.support.v7.widget.AppCompatImageView{254d70 V.ED.... ... 15,15-90,90 #7f1001fd app:id/friend_profile_image}
+                        com.frissbi.Utility.CustomFontTextView{21a48e9 V.ED.... ... 105,37-483,67 #7f1001fe app:id/friend_username_tv}
+                        android.support.v7.widget.AppCompatImageView{349e396e G.ED.... ... 0,0-0,0 #7f1001ff app:id/selected_icon}
+                    android.support.v7.widget.CardView{35f2280f V.E...CL ... 21,255-519,360}
+                      android.widget.RelativeLayout{ae9d09c V.E..... ... 0,0-498,105}
+                        android.support.v7.widget.AppCompatImageView{17c58aa5 V.ED.... ... 15,15-90,90 #7f1001fd app:id/friend_profile_image}
+                        com.frissbi.Utility.CustomFontTextView{2ff87e7a V.ED.... ... 105,37-483,67 #7f1001fe app:id/friend_username_tv}
+                        android.support.v7.widget.AppCompatImageView{2fb3362b G.ED.... ... 0,0-0,0 #7f1001ff app:id/selected_icon}
+                    android.support.v7.widget.CardView{3a115a88 V.E...CL ... 21,372-519,477}
+                      android.widget.RelativeLayout{10292c21 V.E..... ... 0,0-498,105}
+                        android.support.v7.widget.AppCompatImageView{2f800846 V.ED.... ... 15,15-90,90 #7f1001fd app:id/friend_profile_image}
+                        com.frissbi.Utility.CustomFontTextView{282d0a07 V.ED.... ... 105,37-483,67 #7f1001fe app:id/friend_username_tv}
+                        android.support.v7.widget.AppCompatImageView{1ca59734 G.ED.... ... 0,0-0,0 #7f1001ff app:id/selected_icon}
+                    android.support.v7.widget.CardView{ccb695d V.E...CL ... 21,489-519,594}
+                      android.widget.RelativeLayout{7a462d2 V.E..... ... 0,0-498,105}
+                        android.support.v7.widget.AppCompatImageView{17863fa3 V.ED.... ... 15,15-90,90 #7f1001fd app:id/friend_profile_image}
+                        com.frissbi.Utility.CustomFontTextView{69ef2a0 V.ED.... ... 105,37-483,67 #7f1001fe app:id/friend_username_tv}
+                        android.support.v7.widget.AppCompatImageView{75a3e59 G.ED.... ... 0,0-0,0 #7f1001ff app:id/selected_icon}
+                  android.support.design.widget.FloatingActionButton{3241da1e VFED..C. ... 426,724-510,808 #7f1000e7 app:id/add_group_floating_button}
+              android.support.v7.widget.ActionBarContainer{7b332ff V.ED.... ... 0,0-540,84 #7f1000ae app:id/action_bar_container}
+                android.support.v7.widget.Toolbar{111098cc V.E..... ... 0,0-540,84 #7f1000af app:id/action_bar}
+                  android.support.v7.widget.AppCompatTextView{c676715 V.ED.... ... 108,21-204,62}
+                  android.support.v7.widget.AppCompatImageButton{18ad7a2a VFED..C. ... 0,0-72,84}
+                  android.support.v7.widget.ActionMenuView{392001b V.E..... ... 540,0-540,84}
+                android.support.v7.widget.ActionBarContextView{311475b8 G.E..... ... 0,0-0,0 #7f1000b0 app:id/action_context_bar}
+        android.view.View{25e45f91 V.ED.... ... 0,0-540,38 #102002f android:id/statusBarBackground}
+
+  ACTIVITY com.frissbi/.activities.HomeActivity 10b99096 pid=18739
+    Local FragmentActivity 217dcb3b State:
+      mCreated=truemResumed=false mStopped=true mReallyStopped=true
+      mLoadersStarted=true
+    Active Fragments in 32810ef6:
+      #0: TimeLineFragment{1bc682f7 #0 id=0x7f100167 android:switcher:2131755367:0}
+        mFragmentId=#7f100167 mContainerId=#7f100167 mTag=android:switcher:2131755367:0
+        mState=2 mIndex=0 mWho=android:fragment:0 mBackStackNesting=0
+        mAdded=true mRemoving=false mFromLayout=false mInLayout=false
+        mHidden=false mDetached=false mMenuVisible=true mHasMenu=false
+        mRetainInstance=false mRetaining=false mUserVisibleHint=true
+        mFragmentManager=FragmentManager{32810ef6 in HostCallbacks{11773564}}
+        mHost=android.support.v4.app.FragmentActivity$HostCallbacks@11773564
+        mSavedViewState={2131755498=android.view.AbsSavedState$1@315e63cd, 2131755499=HorizontalScrollView.SavedState{5272482 scrollPosition=0}, 2131755500=android.view.AbsSavedState$1@315e63cd, 2131755501=android.support.v7.widget.RecyclerView$SavedState@1d565793, 2131755502=android.view.AbsSavedState$1@315e63cd, 2131755503=android.support.v7.widget.RecyclerView$SavedState@1b2443d0, 2131755504=android.view.AbsSavedState$1@315e63cd, 2131755505=android.view.AbsSavedState$1@315e63cd}
+        mContainer=android.support.v4.view.ViewPager{a47b3e1 VFED.... ........ 0,122-540,960 #7f100167 app:id/viewPager}
+        mView=android.support.v4.widget.SwipeRefreshLayout{1dfa6fc9 V.ED.... ........ 0,0-540,838 #7f1001ea app:id/timeline_swipeRefreshLayout}
+        mInnerView=android.support.v4.widget.SwipeRefreshLayout{1dfa6fc9 V.ED.... ........ 0,0-540,838 #7f1001ea app:id/timeline_swipeRefreshLayout}
+        Child FragmentManager{102706ce in TimeLineFragment{1bc682f7}}:
+          FragmentManager misc state:
+            mHost=android.support.v4.app.FragmentActivity$HostCallbacks@11773564
+            mContainer=android.support.v4.app.Fragment$2@1604d9ef
+            mParent=TimeLineFragment{1bc682f7 #0 id=0x7f100167 android:switcher:2131755367:0}
+            mCurState=2 mStateSaved=true mDestroyed=false
+      #1: MeetingLogFragment{1851ccfc #1 id=0x7f100167 android:switcher:2131755367:1}
+        mFragmentId=#7f100167 mContainerId=#7f100167 mTag=android:switcher:2131755367:1
+        mState=2 mIndex=1 mWho=android:fragment:1 mBackStackNesting=0
+        mAdded=true mRemoving=false mFromLayout=false mInLayout=false
+        mHidden=false mDetached=false mMenuVisible=false mHasMenu=false
+        mRetainInstance=false mRetaining=false mUserVisibleHint=false
+        mFragmentManager=FragmentManager{32810ef6 in HostCallbacks{11773564}}
+        mHost=android.support.v4.app.FragmentActivity$HostCallbacks@11773564
+        mSavedViewState={2131755478=android.view.AbsSavedState$1@315e63cd, 2131755479=android.support.v7.widget.RecyclerView$SavedState@e313f85}
+        mContainer=android.support.v4.view.ViewPager{a47b3e1 VFED.... ........ 0,122-540,960 #7f100167 app:id/viewPager}
+        mView=android.support.v4.widget.SwipeRefreshLayout{3230c1da V.ED.... ........ 540,0-1080,838 #7f1001d6 app:id/swipeRefreshLayout}
+        mInnerView=android.support.v4.widget.SwipeRefreshLayout{3230c1da V.ED.... ........ 540,0-1080,838 #7f1001d6 app:id/swipeRefreshLayout}
+        Child FragmentManager{26f260b in MeetingLogFragment{1851ccfc}}:
+          FragmentManager misc state:
+            mHost=android.support.v4.app.FragmentActivity$HostCallbacks@11773564
+            mContainer=android.support.v4.app.Fragment$2@1e6cbce8
+            mParent=MeetingLogFragment{1851ccfc #1 id=0x7f100167 android:switcher:2131755367:1}
+            mCurState=2 mStateSaved=true mDestroyed=false
+    Added Fragments:
+      #0: TimeLineFragment{1bc682f7 #0 id=0x7f100167 android:switcher:2131755367:0}
+      #1: MeetingLogFragment{1851ccfc #1 id=0x7f100167 android:switcher:2131755367:1}
+    FragmentManager misc state:
+      mHost=android.support.v4.app.FragmentActivity$HostCallbacks@11773564
+      mContainer=android.support.v4.app.FragmentActivity$HostCallbacks@11773564
+      mCurState=2 mStateSaved=true mDestroyed=false
+    View Hierarchy:
+      com.android.internal.policy.impl.PhoneWindow$DecorView{194b4f01 I.E..... ... 0,0-540,960}
+        android.widget.LinearLayout{12e921a6 V.E..... ... 0,0-540,960}
+          android.view.ViewStub{1e817e7 G.E..... ... 0,0-0,0 #1020419}
+          android.widget.FrameLayout{2ac4bf94 V.E..... ... 0,0-540,960}
+            android.support.v7.widget.FitWindowsLinearLayout{289cda3d V.E..... ... 0,0-540,960 #7f1000aa app:id/action_bar_root}
+              android.support.v7.widget.ViewStubCompat{1d75b232 G.E..... ... 0,0-0,0 #7f1000ab app:id/action_mode_bar_stub}
+              android.support.v7.widget.ContentFrameLayout{2c144b83 V.E..... ... 0,0-540,960 #1020002 android:id/content}
+                android.support.v4.widget.DrawerLayout{1df84100 VFED.... ... 0,0-540,960 #7f1000e8 app:id/drawer_layout}
+                  android.support.design.widget.CoordinatorLayout{2c81dd39 V.ED.... ... 0,0-540,960}
+                    android.support.design.widget.AppBarLayout{87a2948 V.E..... ... 0,38-540,122}
+                      android.support.v7.widget.Toolbar{17c8bf7e V.E..... ... 0,0-540,84 #7f10015c app:id/toolbar}
+                        android.support.design.widget.TabLayout{24461cdf VFED.... ... 108,6-468,78 #7f100166 app:id/tabLayout}
+                          android.support.design.widget.TabLayout$SlidingTabStrip{2206d2c V.ED.... ... 0,0-360,72}
+                            android.support.design.widget.TabLayout$TabView{251a13f5 VFE...C. .S. 0,0-90,72}
+                              android.support.v7.widget.AppCompatImageView{22ad558a V.ED.... .S. 27,18-63,54}
+                              android.support.v7.widget.AppCompatTextView{699a7fb G.ED.... .S. 0,0-0,0}
+                            android.support.design.widget.TabLayout$TabView{7bd3018 VFE...C. ... 90,0-180,72}
+                              android.support.v7.widget.AppCompatImageView{3ac4fa71 V.ED.... ... 27,18-63,54}
+                              android.support.v7.widget.AppCompatTextView{2e934056 G.ED.... ... 0,0-0,0}
+                            android.support.design.widget.TabLayout$TabView{ad0c8d7 VFE...C. ... 180,0-270,72}
+                              android.support.v7.widget.AppCompatImageView{256135c4 V.ED.... ... 27,18-63,54}
+                              android.support.v7.widget.AppCompatTextView{225dccad G.ED.... ... 0,0-0,0}
+                            android.support.design.widget.TabLayout$TabView{311b0be2 VFE...C. ... 270,0-360,72}
+                              android.support.v7.widget.AppCompatImageView{38ef1b73 V.ED.... ... 27,18-63,54}
+                              android.support.v7.widget.AppCompatTextView{61dea30 G.ED.... ... 0,0-0,0}
+                        android.support.v7.widget.AppCompatImageButton{93786a9 VFED..C. ... 0,0-72,84}
+                        android.support.v7.widget.ActionMenuView{2762042e V.E..... ... 468,0-540,84}
+                          android.support.v7.widget.SearchView{b95fbcf VFE..... ... 0,6-72,78 #7f1002ee app:id/action_search}
+                            android.widget.LinearLayout{32af795c V.E..... ... 0,0-72,72 #7f1000b2 app:id/search_bar}
+                              android.support.v7.widget.AppCompatTextView{4d8e465 G.ED.... ... 0,0-0,0 #7f1000b3 app:id/search_badge}
+                              android.support.v7.widget.AppCompatImageView{310e353a VFED..C. ... 0,0-72,72 #7f1000b4 app:id/search_button}
+                              android.widget.LinearLayout{1c2085eb G.E..... ... 0,0-0,0 #7f1000b5 app:id/search_edit_frame}
+                                android.support.v7.widget.AppCompatImageView{2168cf48 G.ED.... ... 0,0-0,0 #7f1000b6 app:id/search_mag_icon}
+                                android.widget.LinearLayout{27861e1 V.E..... ... 0,0-0,0 #7f1000b7 app:id/search_plate}
+                                  android.support.v7.widget.SearchView$SearchAutoComplete{101a6b06 VFED..CL ... 0,0-0,0 #7f1000b8 app:id/search_src_text}
+                                  android.support.v7.widget.AppCompatImageView{347f95c7 VFED..C. ... 0,0-0,0 #7f1000b9 app:id/search_close_btn}
+                                android.widget.LinearLayout{18df97f4 G.E..... ... 0,0-0,0 #7f1000ba app:id/submit_area}
+                                  android.support.v7.widget.AppCompatImageView{32383b1d GFED..C. ... 0,0-0,0 #7f1000bb app:id/search_go_btn}
+                                  android.support.v7.widget.AppCompatImageView{19623192 GFED..C. ... 0,0-0,0 #7f1000bc app:id/search_voice_btn}
+                    android.support.v4.view.ViewPager{a47b3e1 VFED.... ... 0,122-540,960 #7f100167 app:id/viewPager}
+                      android.support.v4.widget.SwipeRefreshLayout{1dfa6fc9 V.ED.... ... 0,0-540,838 #7f1001ea app:id/timeline_swipeRefreshLayout}
+                        android.support.v4.widget.NestedScrollView{22d5c763 VFED.... ... 0,0-540,838 #7f1001eb app:id/timeline_nestedScrollView}
+                          android.widget.RelativeLayout{11583f60 V.E..... ... 0,0-540,1986}
+                            com.frissbi.Utility.CustomFontTextView{2a226c19 V.ED.... ... 0,15-540,45 #7f1001ec app:id/upcoming_meeting_text}
+                            android.support.v7.widget.RecyclerView{21edd4de VFED.... F.. 0,60-540,408 #7f1001ed app:id/upcoming_meeting_recyclerView}
+                              android.support.v7.widget.CardView{2ad376bf V.E...C. ... 24,24-324,324 #7f1002d7 app:id/upcoming_meeting_cardView}
+                                android.widget.RelativeLayout{f1f18c V.E..... ... 0,0-300,300}
+                                  com.frissbi.Utility.CustomFontTextView{3ce4b0d5 V.ED.... ... 15,15-285,122 #7f1002d8 app:id/meeting_description_tv}
+                                  com.frissbi.Utility.CustomFontTextView{34fe60ea V.ED.... ... 15,167-285,225 #7f1002d9 app:id/upcoming_meeting_time_tv}
+                              android.support.v7.widget.CardView{30d2bfdb V.E...C. ... 354,24-654,324}
+                                android.widget.RelativeLayout{3e929a78 V.E..... ... 0,0-300,300}
+                                  com.frissbi.Utility.CustomFontTextView{4c8551 V.ED.... ... 81,131-218,168 #7f1002e0 app:id/view_more_tv}
+                            com.frissbi.Utility.CustomFontTextView{1ed9a1b6 V.ED.... ... 0,408-540,438 #7f1001ee app:id/others_doing_text}
+                            android.support.v7.widget.RecyclerView{3ab37eb7 VFED.... ... 0,438-540,1887 #7f1001ef app:id/others_activities_recyclerView}
+                              android.widget.RelativeLayout{2792e624 V.E...C. ... 24,24-516,241}
+                                android.support.v7.widget.AppCompatImageView{3f83258d V.ED.... ... 0,0-75,75 #7f1001f5 app:id/timeline_item_profile_image}
+                                android.widget.RelativeLayout{18562342 V.E..... ... 90,0-492,217}
+                                  com.frissbi.Utility.CustomFontTextView{22774f53 V.ED.... ... 0,0-283,26 #7f1001f6 app:id/profileName_tv}
+                                  com.frissbi.Utility.CustomFontTextView{342a4090 V.ED.... ... 0,26-402,52 #7f1002b8 app:id/profile_update_tv}
+                                  android.support.v7.widget.AppCompatImageView{15098d89 V.ED.... ... 30,67-180,217 #7f1002b9 app:id/timeline_activity_imageView}
+                                  com.frissbi.Utility.CustomFontTextView{1f27318e V.ED.... ... 292,0-402,19 #7f1002b7 app:id/profile_postedTime_tv}
+                              android.widget.RelativeLayout{169d8daf V.E...C. ... 24,272-516,429}
+                                android.support.v7.widget.AppCompatImageView{269ad5bc V.ED.... ... 0,0-75,75 #7f1001f5 app:id/timeline_item_profile_image}
+                                android.widget.RelativeLayout{28747945 V.E..... ... 90,0-492,157}
+                                  com.frissbi.Utility.CustomFontTextView{6e8d89a V.ED.... ... 0,0-283,26 #7f1001f6 app:id/profileName_tv}
+                                  com.frissbi.Utility.CustomFontTextView{43f55cb V.ED.... ... 0,35-402,157 #7f1002d4 app:id/status_tv}
+                                  com.frissbi.Utility.CustomFontTextView{11d91a8 V.ED.... ... 292,0-402,19 #7f1002d3 app:id/status_postedTime_tv}
+                              android.widget.RelativeLayout{be864c1 V.E...C. ... 24,460-516,536}
+                                android.support.v7.widget.AppCompatImageView{eebe466 V.ED.... ... 0,0-75,75 #7f1001f5 app:id/timeline_item_profile_image}
+                                android.widget.RelativeLayout{6eb83a7 V.E..... ... 90,0-492,76}
+                                  com.frissbi.Utility.CustomFontTextView{2e8e2054 V.ED.... ... 0,0-283,26 #7f1001f6 app:id/profileName_tv}
+                                  com.frissbi.Utility.CustomFontTextView{35558bfd V.ED.... ... 292,0-402,19 #7f1001f7 app:id/free_postedTime_tv}
+                                  com.frissbi.Utility.CustomFontTextView{8c1e0f2 V.ED.... ... 0,25-65,51 #7f1001f8 app:id/free_date_tv}
+                                  com.frissbi.Utility.CustomFontTextView{3a42b343 V.ED.... ... 0,50-207,76 #7f1001f4 app:id/free_time_tv}
+                              android.widget.RelativeLayout{9d6edc0 V.E...C. ... 24,567-516,643}
+                                android.support.v7.widget.AppCompatImageView{f73eaf9 V.ED.... ... 0,0-75,75 #7f1001f5 app:id/timeline_item_profile_image}
+                                android.widget.RelativeLayout{1b891a3e V.E..... ... 90,0-492,76}
+                                  com.frissbi.Utility.CustomFontTextView{953409f V.ED.... ... 0,0-283,26 #7f1001f6 app:id/profileName_tv}
+                                  com.frissbi.Utility.CustomFontTextView{301d25ec V.ED.... ... 292,0-402,19 #7f1001f7 app:id/free_postedTime_tv}
+                                  com.frissbi.Utility.CustomFontTextView{1e7f3db5 V.ED.... ... 0,25-65,51 #7f1001f8 app:id/free_date_tv}
+                                  com.frissbi.Utility.CustomFontTextView{2ff89c4a V.ED.... ... 0,50-207,76 #7f1001f4 app:id/free_time_tv}
+                              android.widget.RelativeLayout{17b547bb V.E...C. ... 24,674-516,749}
+                                android.support.v7.widget.AppCompatImageView{9acb4d8 V.ED.... ... 0,0-75,75 #7f1001f5 app:id/timeline_item_profile_image}
+                                android.widget.RelativeLayout{34b30031 V.E..... ... 90,0-492,61}
+                                  com.frissbi.Utility.CustomFontTextView{112c3316 V.ED.... ... 0,0-283,26 #7f1001f6 app:id/profileName_tv}
+                                  com.frissbi.Utility.CustomFontTextView{2066a497 V.ED.... ... 0,35-148,61 #7f1002d4 app:id/status_tv}
+                                  com.frissbi.Utility.CustomFontTextView{35a44684 V.ED.... ... 292,0-402,19 #7f1002d3 app:id/status_postedTime_tv}
+                              android.widget.RelativeLayout{32866e6d V.E...C. ... 24,780-516,997}
+                                android.support.v7.widget.AppCompatImageView{e306aa2 V.ED.... ... 0,0-75,75 #7f1001f5 app:id/timeline_item_profile_image}
+                                android.widget.RelativeLayout{2666f333 V.E..... ... 90,0-492,217}
+                                  com.frissbi.Utility.CustomFontTextView{46146f0 V.ED.... ... 0,0-283,26 #7f1001f6 app:id/profileName_tv}
+                                  com.frissbi.Utility.CustomFontTextView{ea88469 V.ED.... ... 0,26-402,52 #7f1002b8 app:id/profile_update_tv}
+                                  android.support.v7.widget.AppCompatImageView{284e8eee V.ED.... ... 30,67-180,217 #7f1002b9 app:id/timeline_activity_imageView}
+                                  com.frissbi.Utility.CustomFontTextView{13138f8f V.ED.... ... 292,0-402,19 #7f1002b7 app:id/profile_postedTime_tv}
+                              android.widget.RelativeLayout{2cabe21c V.E...C. ... 24,1028-516,1104}
+                                android.support.v7.widget.AppCompatImageView{21bbfe25 V.ED.... ... 0,0-75,75 #7f1001f5 app:id/timeline_item_profile_image}
+                                android.widget.RelativeLayout{1a18abfa V.E..... ... 90,0-492,76}
+                                  com.frissbi.Utility.CustomFontTextView{1e4395ab V.ED.... ... 0,0-283,26 #7f1001f6 app:id/profileName_tv}
+                                  com.frissbi.Utility.CustomFontTextView{27a30408 V.ED.... ... 292,0-402,19 #7f1001f7 app:id/free_postedTime_tv}
+                                  com.frissbi.Utility.CustomFontTextView{31d357a1 V.ED.... ... 0,25-65,51 #7f1001f8 app:id/free_date_tv}
+                                  com.frissbi.Utility.CustomFontTextView{3358dc6 V.ED.... ... 0,50-207,76 #7f1001f4 app:id/free_time_tv}
+                              android.widget.RelativeLayout{1c23e187 V.E...C. ... 24,1135-516,1210}
+                                android.support.v7.widget.AppCompatImageView{1f6858b4 V.ED.... ... 0,0-75,75 #7f1001f5 app:id/timeline_item_profile_image}
+                                android.widget.RelativeLayout{39acccdd V.E..... ... 90,0-492,61}
+                                  com.frissbi.Utility.CustomFontTextView{4ecc052 V.ED.... ... 0,0-283,26 #7f1001f6 app:id/profileName_tv}
+                                  com.frissbi.Utility.CustomFontTextView{cd30f23 V.ED.... ... 0,35-113,61 #7f1002d4 app:id/status_tv}
+                                  com.frissbi.Utility.CustomFontTextView{1c8c4c20 V.ED.... ... 292,0-402,19 #7f1002d3 app:id/status_postedTime_tv}
+                              android.widget.RelativeLayout{27ae59d9 V.E...C. ... 24,1241-516,1317}
+                                android.support.v7.widget.AppCompatImageView{1b728f9e V.ED.... ... 0,0-75,75 #7f1001f5 app:id/timeline_item_profile_image}
+                                android.widget.RelativeLayout{9bd7a7f V.E..... ... 90,0-492,76}
+                                  com.frissbi.Utility.CustomFontTextView{1e3a0a4c V.ED.... ... 0,0-283,26 #7f1001f6 app:id/profileName_tv}
+                                  com.frissbi.Utility.CustomFontTextView{10a1ba95 V.ED.... ... 292,0-402,19 #7f1001f7 app:id/free_postedTime_tv}
+                                  com.frissbi.Utility.CustomFontTextView{3ff407aa V.ED.... ... 0,25-65,51 #7f1001f8 app:id/free_date_tv}
+                                  com.frissbi.Utility.CustomFontTextView{2cb93f9b V.ED.... ... 0,50-207,76 #7f1001f4 app:id/free_time_tv}
+                              android.widget.RelativeLayout{9237f38 V.E...C. ... 24,1348-516,1424}
+                                android.support.v7.widget.AppCompatImageView{12306b11 V.ED.... ... 0,0-75,75 #7f1001f5 app:id/timeline_item_profile_image}
+                                android.widget.RelativeLayout{1f62f476 V.E..... ... 90,0-492,76}
+                                  com.frissbi.Utility.CustomFontTextView{ce23a77 V.ED.... ... 0,0-283,26 #7f1001f6 app:id/profileName_tv}
+                                  com.frissbi.Utility.CustomFontTextView{192d56e4 V.ED.... ... 292,0-402,19 #7f1001f7 app:id/free_postedTime_tv}
+                                  com.frissbi.Utility.CustomFontTextView{211fa74d V.ED.... ... 0,25-65,51 #7f1001f8 app:id/free_date_tv}
+                                  com.frissbi.Utility.CustomFontTextView{3201e202 V.ED.... ... 0,50-207,76 #7f1001f4 app:id/free_time_tv}
+                            android.support.design.widget.FloatingActionButton{2d360713 VFED..C. ... 426,1902-510,1986 #7f1001f0 app:id/timeline_scroll_top_floating_button}
+                            android.support.v7.widget.AppCompatButton{1dafd50 VFED..C. ... 75,1902-435,1974 #7f1001f1 app:id/view_more_activities_button}
+                        android.support.v4.widget.CircleImageView{3f4c6b49 G.ED.... ... 240,-60-300,0}
+                      android.support.v4.widget.SwipeRefreshLayout{3230c1da V.ED.... ... 540,0-1080,838 #7f1001d6 app:id/swipeRefreshLayout}
+                        android.support.v4.widget.CircleImageView{3fb01c4e G.ED.... ... 240,-60-300,0}
+                        android.support.v7.widget.RecyclerView{38f0016f VFED.... ... 0,0-540,838 #7f1001d7 app:id/meeting_log_recyclerView}
+                    android.support.v7.widget.AppCompatButton{3a5c5506 GFED..C. ... 0,0-0,0 #7f100168 app:id/add_meeting}
+                    android.widget.LinearLayout{3dc37c7 G.E...C. ... 0,0-0,0 #7f100169 app:id/dim_background}
+                    android.support.design.widget.FloatingActionButton{28ac91f4 VFED..C. ... 228,846-312,930 #7f10016a app:id/add_floating_button}
+                  android.support.design.widget.NavigationView{297a9e7c I.ED.... ... -420,0-0,960 #7f1000e9 app:id/nav_view}
+                    android.support.design.internal.NavigationMenuView{15677305 VFED.V.. ... 0,0-420,960 #7f1001be app:id/design_navigation_view}
+                      android.widget.LinearLayout{1cf5af5a V.E..... ... 0,0-420,252 #7f1001bd app:id/navigation_header_container}
+                        android.widget.LinearLayout{29a5458b V.E..... ... 0,0-420,240}
+                          android.support.v7.widget.AppCompatImageView{2b112668 V.ED.... ... 0,37-420,150 #7f100280 app:id/logo_imageView}
+                          android.support.v7.widget.AppCompatTextView{2c713a81 V.ED.... ... 0,150-420,203 #7f100281 app:id/user_name_tv}
+                      android.support.design.internal.NavigationMenuItemView{2ccf6726 VFED..C. ... 0,252-420,324}
+                        android.support.v7.widget.AppCompatCheckedTextView{3320af67 V.ED.... ... 24,0-396,72 #7f1001bf app:id/design_menu_item_text}
+                        android.view.ViewStub{b064114 G.E..... ... 0,0-0,0 #7f1001c0}
+                      android.support.design.internal.NavigationMenuItemView{2f5fdbd VFED..C. ... 0,324-420,396}
+                        android.support.v7.widget.AppCompatCheckedTextView{333acfb2 V.ED.... ... 24,0-396,72 #7f1001bf app:id/design_menu_item_text}
+                        android.view.ViewStub{10fedb03 G.E..... ... 0,0-0,0 #7f1001c0}
+                      android.support.design.internal.NavigationMenuItemView{a905a80 VFED..C. ... 0,396-420,468}
+                        android.support.v7.widget.AppCompatCheckedTextView{3a09b8b9 V.ED.... ... 24,0-396,72 #7f1001bf app:id/design_menu_item_text}
+                        android.view.ViewStub{48234fe G.E..... ... 0,0-0,0 #7f1001c0}
+                      android.support.design.internal.NavigationMenuItemView{120a245f VFED..C. ... 0,468-420,540}
+                        android.support.v7.widget.AppCompatCheckedTextView{5e09eac V.ED.... ... 24,0-396,72 #7f1001bf app:id/design_menu_item_text}
+                        android.view.ViewStub{16042775 G.E..... ... 0,0-0,0 #7f1001c0}
+                      android.support.design.internal.NavigationMenuItemView{1d48a30a VFED..C. ... 0,540-420,612}
+                        android.support.v7.widget.AppCompatCheckedTextView{3d56a77b V.ED.... ... 24,0-396,72 #7f1001bf app:id/design_menu_item_text}
+                        android.view.ViewStub{90ef998 G.E..... ... 0,0-0,0 #7f1001c0}
+                      android.support.design.internal.NavigationMenuItemView{efcc5f1 VFED..C. ... 0,612-420,684}
+                        android.support.v7.widget.AppCompatCheckedTextView{2f55e5d6 V.ED.... ... 24,0-396,72 #7f1001bf app:id/design_menu_item_text}
+                        android.view.ViewStub{2d1e4057 G.E..... ... 0,0-0,0 #7f1001c0}
+                      android.support.design.internal.NavigationMenuItemView{7c61744 VFED..C. ... 0,684-420,756}
+                        android.support.v7.widget.AppCompatCheckedTextView{2d06d02d V.ED.... ... 24,0-396,72 #7f1001bf app:id/design_menu_item_text}
+                        android.view.ViewStub{2f228962 G.E..... ... 0,0-0,0 #7f1001c0}
+        android.view.View{3b5c8af3 V.ED.... ... 0,0-540,38 #102002f android:id/statusBarBackground}
