@@ -32,7 +32,7 @@ public class CalendarService {
 	@POST
 	@Path("/getMeetingMonthWise")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getMeetingMonthWise(String meetingDetails){
 		
 		System.out.println("meetingDetails================"+meetingDetails.toString());
@@ -71,13 +71,13 @@ public class CalendarService {
 			monthLastDate.set(Calendar.MINUTE, 59);
 			monthLastDate.set(Calendar.SECOND, 00);
 	
-			DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm ");  
+			DateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");  
 	        System.out.println("Today            : " + sdf.format(monthFirstDate.getTime()));  
 	        System.out.println("Last Day of Month: " + sdf.format(monthLastDate.getTime()));
 				conn = DataSourceConnection.getDBConnection();
 
 				 String sql = "SELECT DISTINCT(M.MeetingID),M.SenderFromDateTime,M.SenderToDateTime,M.MeetingDescription,M.Latitude,M.Longitude,M.GoogleAddress,M.MeetingStatus "
-				 		        + "FROM FrissDB.tbl_RecipientsDetails AS R "
+				 		        + "FROM tbl_RecipientsDetails AS R "
 								+ "INNER JOIN FrissDB.tbl_MeetingDetails AS M	"
 								+ "ON R.MeetingID = M.MeetingID "
 								+ "WHERE (M.SenderUserID = ? OR  (R.UserID=? AND R.Status = 1)) "

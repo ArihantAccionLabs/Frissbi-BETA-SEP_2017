@@ -357,7 +357,7 @@ public class MeetingDetails {
 		int updatedRow = 0;
 		try{
 			conn = DataSourceConnection.getDBConnection();
-		  	String updateMeetingSqlProc = "{call usp_UpdateMeetingAddress(?,?,?,?,?,?)}";
+		  	String updateMeetingSqlProc = "{call usp_UpdateMeetingRequest(?,?,?,?,?)}";
 		  	callableStatement = conn.prepareCall(updateMeetingSqlProc);
 			callableStatement.setLong(1, meetingId);
 			callableStatement.setLong(2, userId);
@@ -373,7 +373,7 @@ public class MeetingDetails {
 			ServiceUtility.closeCallableSatetment(callableStatement);
 			ServiceUtility.closeConnection(conn);
 		}
-		System.out.println("MeetingRequestUpdate============================="+updatedRow);
+		System.out.println("MeetingRequestUpdate==========usp_UpdateMeetingRequest==================="+updatedRow);
 		return updatedRow;
 	}
 

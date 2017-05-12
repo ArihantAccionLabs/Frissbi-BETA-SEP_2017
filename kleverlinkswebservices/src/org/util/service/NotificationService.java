@@ -72,7 +72,7 @@ public class NotificationService {
 
 				if (userDTO.getFullName() != null && !userDTO.getFullName().trim().isEmpty()) {
 
-					message = userDTO.getFullName().toUpperCase() +" Accepted your metting "+ meetingLogBean.getDescription();
+					message = userDTO.getFullName().toUpperCase() +" Accepted your meeting "+ meetingLogBean.getDescription();
 					userList.add(meetingLogBean.getSenderUserId());
 				}
 			} else {

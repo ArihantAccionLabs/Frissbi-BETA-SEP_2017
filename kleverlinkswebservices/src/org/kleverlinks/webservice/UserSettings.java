@@ -292,72 +292,77 @@ public class UserSettings {
 	}
 	
 	@GET  
-    @Path("/getFrissbiPrivacyPolicy/{userId}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getFrissbiPrivacyPolicy(@PathParam("userId") int userId
-			) {
+    @Path("/getFrissbiPrivacyPolicy")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getFrissbiPrivacyPolicy(@PathParam("userId") Long userId) {
 
 		Connection conn = null;
 		CallableStatement callableStatement = null;
-		JSONObject jsonObject = new JSONObject();
+		JSONObject finalJson = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertStoreProc = "{call usp_GetFrissbiPrivacyPolicy(?)}";
+			String insertStoreProc = "{call usp_GetFrissbiPrivacyPolicy()}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
 			while(rs.next()){
 				if (rs.getString("FrissbiPrivacyPolicyID").equals("1") ){
-				jsonObject.put("PrivacyPolicyText", rs.getString("PrivacyPolicyText"));
+					finalJson.put("PrivacyPolicyText", rs.getString("PrivacyPolicyText"));
 				}
 			}
+			finalJson.put("status", true);
+			finalJson.put("message", "Frissbi Privacy Policyfetched successfully");
+			return finalJson.toString();
 		} catch (SQLException se) {
 			se.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
-		} 
-		ServiceUtility.closeConnection(conn);//closing connection
-		ServiceUtility.closeCallableSatetment(callableStatement);//closing Statement
-		return jsonObject.toString();
+		}finally{
+			ServiceUtility.closeConnection(conn);//closing connection
+			ServiceUtility.closeCallableSatetment(callableStatement);//closing Statement
+		}
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+		return finalJson.toString();
 	}
 	
 	@GET  
-    @Path("/getTermsandConditions/{userId}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getTermsandConditions(@PathParam("userId") int userId
-			) {
+    @Path("/getTermsAndConditions")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getTermsandConditions() {
 
 		Connection conn = null;
 		CallableStatement callableStatement = null;
-		JSONObject jsonObject = new JSONObject();
+		JSONObject finalJson = new JSONObject();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertStoreProc = "{call usp_GetFrissbiPrivacyPolicy(?)}";
+			String insertStoreProc = "{call usp_GetFrissbiPrivacyPolicy()}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId);
 			callableStatement.execute();
 			ResultSet rs = callableStatement.getResultSet();
 
 			while(rs.next()){
 				if (rs.getString("FrissbiPrivacyPolicyID").equals("2") ){
-				jsonObject.put("PrivacyPolicyText", rs.getString("PrivacyPolicyText"));
+					finalJson.put("PrivacyPolicyText", rs.getString("PrivacyPolicyText"));
 				}
 			}
+			finalJson.put("status", true);
+			finalJson.put("message", "Frissbi Terms and condition fetched successfully");
+			return finalJson.toString();
 		} catch (SQLException se) {
 			se.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
+		}finally{
+			
+			ServiceUtility.closeConnection(conn);//closing connection
+			ServiceUtility.closeCallableSatetment(callableStatement);//closing Statement
 		} 
-		ServiceUtility.closeConnection(conn);//closing connection
-		ServiceUtility.closeCallableSatetment(callableStatement);//closing Statement
-		return jsonObject.toString();
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops something went wrong");
+
+		return finalJson.toString();
 	}
 
-	public static void main(String []args){
-		UserSettings userSettings = new UserSettings();
-		//System.out.println(userSettings.getUserPreferredOriginsByUserID(54));
-		System.out.println(userSettings.getUserPreferredLocations(56));
-	}
 }

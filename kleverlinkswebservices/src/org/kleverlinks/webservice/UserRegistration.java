@@ -1,6 +1,5 @@
 package org.kleverlinks.webservice;
 
-import java.io.FileOutputStream;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.sql.CallableStatement;
@@ -42,7 +41,6 @@ public class UserRegistration {
 		JSONObject jsonObject = new JSONObject(registerationData);
 		try {
 			AppUserBean appUserBean = new AppUserBean(jsonObject);
-			
 			
 			if (appUserBean.getEmail() != null) {
 
@@ -277,190 +275,6 @@ public class UserRegistration {
 		return finalJson.toString();
 	}
 
-	@POST
-	@Path("/updateProfilePic/{userId}/{avatarPath}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String updateProfilePic(@PathParam("userId") Long userId, @PathParam("avatarPath") String avatarPath) {
-
-		Connection conn = null;
-		CallableStatement callableStatement = null;
-		String isError = "";
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			// BufferedImage image = null;
-			// byte[] imageInByte =
-			// avatarPath.getBytes(Charset.forName("UTF-8"));
-			// byte[] imageByte;
-			System.out.println("length is:" + avatarPath.length() + "  " + avatarPath);
-			avatarPath = avatarPath.replace("@", "/");
-
-			// byte[] imageByteArray = new Base64().decode(avatarPath);
-
-			// Write Image into File system - Make sure you update the path
-			String name = "c:/Users/frissbijava/Downloads/Images/" + "User-" + userId + ".jpg";
-			FileOutputStream imageOutFile = new FileOutputStream(name);
-			imageOutFile.write(avatarPath.getBytes());
-			imageOutFile.close();
-
-			// System.out.println(avatarPath);
-			// try {
-			// BASE64Decoder decoder = new BASE64Decoder();
-			// imageByte = decoder.decodeBuffer(avatarPath);
-			// ByteArrayInputStream bis = new ByteArrayInputStream(imageByte);
-			// image = ImageIO.read(bis);
-			// bis.close();
-			// } catch (Exception e) {
-			// e.printStackTrace();
-			// }
-			// CompressJPEGFile compressJPEGFile = new CompressJPEGFile();
-			// String imagePath = compressJPEGFile.compressImage(avatarPath);
-			// String name =
-			// "c:/Users/frissbijava/Downloads/Images/"+"User-"+userId+".jpg";
-			// File outputfile = new File(name);
-			// ImageIO.write(image, "jpg", outputfile);
-			// InputStream in = new ByteArrayInputStream(imageInByte);
-			// BufferedImage bImageFromConvert = ImageIO.read(in);
-
-			// ImageIO.write(bImageFromConvert, "jpg", new File(name));
-			String insertStoreProc = "{call usp_UpdateUserTransactionDetails(?,?,?)}";
-			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setLong(1, userId);
-			callableStatement.setString(2, name);
-			callableStatement.registerOutParameter(3, Types.INTEGER);
-			callableStatement.executeUpdate();
-			isError = callableStatement.getInt(3) + "";
-		} catch (SQLException se) {
-			se.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			ServiceUtility.closeConnection(conn);
-			ServiceUtility.closeCallableSatetment(callableStatement);
-		}
-		return isError;
-	}
-
-	@GET
-	@Path("/verifyemailaddress/{email}/{verificationcode}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String verifyEmailAddress(@PathParam("email") String email,
-			@PathParam("verificationcode") String verificationCode) {
-		Connection conn = null;
-		CallableStatement callableStatement = null;
-		String txt = "";
-		try {
-			JSONObject jsonObject = Utility.checkUserEmailVerification(email);
-			if(jsonObject != null){
-             if(jsonObject.getInt("isEmailVerified") == 1){
-            	 return "You already successfully verfied your email account. Login to frissbi with your emailId and password"; 
-             }
-			if (jsonObject.getString("emailVerificationCode").equals(verificationCode)) {
-				conn = DataSourceConnection.getDBConnection();
-			    String storeProc = "{call usp_UpdateEmailVerification(?)}"  ; 
-				callableStatement = conn.prepareCall(storeProc);
-				callableStatement.setString(1, email);
-				
-			   int	value = callableStatement.executeUpdate();
-               if(value != 0){
-            	   txt = "You have successfully verfied your email account. Login to frissbi with your emailId and password";
-               }
-			} else {
-				txt = "There was some problem in verifying your email account";
-			}
-		}else{
-			txt = "This email account is not belong to you";
-		}
-		} catch(Exception e){
-			e.printStackTrace();
-		} finally {
-			ServiceUtility.closeConnection(conn);
-			ServiceUtility.closeCallableSatetment(callableStatement);
-		}
-		return txt;
-	}
-
-	@GET
-	@Path("/getUsername/{userid}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getUsername(@PathParam("userid") Long userID) {
-		Connection conn = null;
-		Statement stmt = null;
-		String username = null;
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			String sql;
-			sql = "SELECT userName from tbl_users where userID = " + userID + " limit 1";
-			ResultSet rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				username = rs.getString("userName");
-			}
-
-		} catch (SQLException se) {
-			// Handle errors for JDBC
-			se.printStackTrace();
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
-		return username;
-	}
-
-	@GET
-	@Path("/getUserId/{userName}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String getUserId(@PathParam("userName") String userName) {
-		Connection conn = null;
-		Statement stmt = null;
-		String userId = null;
-		try {
-			conn = DataSourceConnection.getDBConnection();
-			stmt = conn.createStatement();
-			String sql;
-			sql = "SELECT userID from tbl_users where userName = '" + userName + "'";
-			ResultSet rs = stmt.executeQuery(sql);
-
-			while (rs.next()) {
-				userId = rs.getString("userID");
-			}
-
-		} catch (SQLException se) {
-			// Handle errors for JDBC
-			se.printStackTrace();
-		} catch (Exception e) {
-			// Handle errors for Class.forName
-			e.printStackTrace();
-		} finally {
-			// finally block used to close resources
-			try {
-				if (stmt != null)
-					stmt.close();
-			} catch (SQLException se2) {
-			} // nothing we can do
-			try {
-				if (conn != null)
-					conn.close();
-			} catch (SQLException se) {
-				se.printStackTrace();
-			} // end finally try
-		} // end try
-		return userId;
-	}
-
 	@GET
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
@@ -583,7 +397,7 @@ public class UserRegistration {
 		CallableStatement callableStatement = null;
 		try {
 			
-			if(Utility.checkValidString(deviceRegId)  && !deviceRegId.trim().equals(existedDeviceRegId)){
+			if(Utility.checkValidString(deviceRegId)){
 			
 			conn = DataSourceConnection.getDBConnection();
 	
@@ -605,4 +419,5 @@ public class UserRegistration {
 			ServiceUtility.closeCallableSatetment(callableStatement);
 		}
 	}
+	
 }
