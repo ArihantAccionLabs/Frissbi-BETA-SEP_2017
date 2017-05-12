@@ -21,8 +21,8 @@ public class Constants {
 
 	// sending mails constant
 	public static final String SMTP_HOST_NAME = "smtp.sendgrid.net";
-	public static final String SMTP_AUTH_USER = "sunilvermaec@gmail.com";
-	public static final String SMTP_AUTH_PWD = "sunil@123";
+	public static final String SMTP_AUTH_USER = "saikrishnakn";
+	public static final String SMTP_AUTH_PWD = "NEWFLIGHT@31s";
 	public static final String MAIL_TRANSPORT_PROTOCOL = "smtp";
 	public static final int MAIL_SMTP_PORT = 587;
 	public static final String MAIL_SMTP_AUTH = "true";
@@ -30,7 +30,7 @@ public class Constants {
 
 	public static final String GOOGLE_MAP_KEY = "AIzaSyAgM-mwjfosilNEdn5aCe4FJ9aDOp_U7JM";
 	// local Server Urls
-	public static final String SERVER_URL = "http://http://139.59.32.89:8080";
+	public static final String SERVER_URL = "http://139.59.32.89:8080";
 
 	// Constant values for sending SMS
 	public static final String SMS_METHOD = "sms";

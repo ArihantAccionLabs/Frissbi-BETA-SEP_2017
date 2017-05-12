@@ -152,7 +152,7 @@ public class MeetingDetails {
 				finalJson.put("isInserted", true);
 				finalJson.put("isLocationSelected", meetingCreationBean.getIsLocationSelected());
 				finalJson.put("meetingId", meetingId);//
-				finalJson.put("message", "meeting inserted successfully");
+				finalJson.put("message", "Meeting Created Successfully");
 
 				return finalJson.toString();
 			}
@@ -347,7 +347,7 @@ public class MeetingDetails {
 			ServiceUtility.closeCallableSatetment(callableStatement);
 		}
 		finalJson.put("status", false);
-		finalJson.put("message", "Oopse something went wrong");
+		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
 	}
 	

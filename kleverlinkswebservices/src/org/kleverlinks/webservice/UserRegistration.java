@@ -540,7 +540,7 @@ public class UserRegistration {
 			ServiceUtility.closeCallableSatetment(callableStatement);
 		} 
 		finalJson.put("status", false);
-		finalJson.put("message", "Oopse something went wrong");
+		finalJson.put("message", "Oops something went wrong");
 		return finalJson.toString();
 	}
 

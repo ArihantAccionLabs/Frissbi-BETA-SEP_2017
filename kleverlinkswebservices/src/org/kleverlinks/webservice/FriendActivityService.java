@@ -39,7 +39,7 @@ public class FriendActivityService {
 
 	@GET
 	@Path("/getFriendActivity/{userId}")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getFriendActivity(@PathParam("userId") Long userId){
 		JSONObject finalJson = new JSONObject();
 		List<ActivityBean> userActivityBeanList = new ArrayList<ActivityBean>();
@@ -368,7 +368,7 @@ public class FriendActivityService {
 			int isDeleted = statement.executeUpdate(sql);
 			if (isDeleted != 0) {
 				finalJson.put("status", true);
-				finalJson.put("message", "User photos inserted successfully");
+				finalJson.put("message", "Image Uploaded");
 				return true;
 			}
 		} catch (Exception e) {
@@ -413,11 +413,12 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 					}
 					json.put("type", ActivityType.LOCATION_TYPE.toString());
 				}else if (Utility.checkValidString(activityBean.getFromDate())) {
-
+					
 					java.util.Date fromTime = dateTimeFormat.parse(activityBean.getFromDate());
+					java.util.Date toTime = dateTimeFormat.parse(activityBean.getToDate());
 					json.put("freeDate", dateFormat.format(fromTime));
 					json.put("freeFromTime", timeFormat.format(fromTime));
-					json.put("freeToTime", timeFormat.format(dateFormat.parse(activityBean.getToDate())));
+					json.put("freeToTime", timeFormat.format(toTime));
 
 					json.put("type", ActivityType.FREE_TIME_TYPE.toString());
 				}else if (Utility.checkValidString(activityBean.getProfileImage())) {
@@ -454,7 +455,7 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 
 	@GET
 	@Path("/getFriendActivity/{userId}/{offSetValue}")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getFriendsMoreActivity(@PathParam("userId") Long userId, @PathParam("offSetValue") int offSetValue) {
 
 		JSONArray jsonArray = new JSONArray();
@@ -515,9 +516,10 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 					json.put("type", ActivityType.LOCATION_TYPE.toString());
 				}else if (Utility.checkValidString(rs.getString("FromDateTime"))) {
 					java.util.Date fromTime = dateTimeFormat.parse(rs.getString("FromDateTime"));
+					java.util.Date toTime = dateTimeFormat.parse(rs.getString("ToDateTime"));
 					json.put("freeDate", dateFormat.format(fromTime));
 					json.put("freeFromTime", timeFormat.format(fromTime));
-					json.put("freeToTime", timeFormat.format(dateFormat.parse(rs.getString("ToDateTime"))));
+					json.put("freeToTime", timeFormat.format(toTime));
 					json.put("type", ActivityType.FREE_TIME_TYPE.toString());
 				}else if (Utility.checkValidString(rs.getString("RegistrationDateTime"))) {
 					json.put("registrationDate", rs.getString("CreatedDateTime"));

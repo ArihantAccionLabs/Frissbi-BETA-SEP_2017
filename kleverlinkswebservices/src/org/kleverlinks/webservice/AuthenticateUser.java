@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.sql.CallableStatement;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -20,6 +19,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.json.JSONObject;
+import org.kleverlinks.bean.AppUserBean;
 import org.kleverlinks.bean.CredentialBean;
 import org.util.Utility;
 import org.util.service.ServiceUtility;
@@ -33,6 +33,10 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
+		System.out.println("This project is running");
+		
+		//EmailService.sendMail("sunil@thrymr.net", "Testing email", "hiii");
+		
 	return "Youproject is running";	
 	}
 
@@ -171,36 +175,25 @@ public class AuthenticateUser {
 	}
 	@GET  
     @Path("/getUserDetailsByUserID/{userId}")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getUserDetailsByUserID(@PathParam("userId") Long userId ) {
 
-		Connection conn = null;
-		CallableStatement callableStatement = null;
 		JSONObject jsonObject = new JSONObject();
 		try {
-			conn = DataSourceConnection.getDBConnection();
-			String insertStoreProc = "{callusp_GetUserDetailsByUserID(?)(?)}";
-			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setLong(1, userId);
-			callableStatement.execute();
-			ResultSet rs = callableStatement.getResultSet();
-
-			while(rs.next()){
-				jsonObject.put("FirstName", rs.getString("FirstName"));
-				jsonObject.put("LastName", rs.getString("LastName"));
+			jsonObject =	ServiceUtility.getUserDetailByUserId(userId);
+			if(jsonObject != null){
+				return jsonObject.toString();
 			}
-		} catch (SQLException se) {
-			se.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeCallableSatetment(callableStatement);
+		jsonObject.put("status", false);
+		jsonObject.put("message", "Oops Something went wrong");
 		return jsonObject.toString();
 	}
 	@GET  
     @Path("/getUserAvatarPath/{userId}")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getUserAvatarPath(@PathParam("userId") int userId ) {
 
 		Connection conn = null;
@@ -226,35 +219,43 @@ public class AuthenticateUser {
 		ServiceUtility.closeCallableSatetment(callableStatement);
 		return encodedString;
 	}
-	@GET  
-    @Path("/updateUserProfileSetting/{userId}/{firstName}/{lastName}/{gender}/{dateOfBirth}")
-	@Produces(MediaType.TEXT_PLAIN)
-	public String updateUserProfileSetting(@PathParam("userId") int userId,@PathParam("firstName") String firstName,
-			@PathParam("lastName") String lastName,@PathParam("gender") String gender,
-			@PathParam("dateOfBirth") Date dateOfBirth) {
-
+	@POST
+    @Path("/updateUserProfileSetting")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String updateUserProfileSetting(String userSettingData){
+        System.out.println("userSettingData ======  "+userSettingData.toString());
 		Connection conn = null;
 		CallableStatement callableStatement = null;
-		String isError ="";
+		JSONObject finalJson = new JSONObject();
 		try {
+			JSONObject jsonObject = new JSONObject(userSettingData);
+			AppUserBean appUserBean  = new AppUserBean(jsonObject);
 			conn = DataSourceConnection.getDBConnection();
 			String insertStoreProc = "{call usp_UpdateUserProfileSetting(?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProc);
-			callableStatement.setInt(1, userId);
-			callableStatement.setString(2, firstName);
-			callableStatement.setString(3, lastName);
-			callableStatement.setString(4, gender);
-			callableStatement.setTimestamp(5, new Timestamp(dateOfBirth.getTime()));
-			int value = callableStatement.executeUpdate();
-			isError = callableStatement.getInt(6) +"";
+			callableStatement.setLong(1, appUserBean.getUserId());
+			callableStatement.setString(2, appUserBean.getFirstName());
+			callableStatement.setString(3, appUserBean.getLastName());
+			callableStatement.setString(4, appUserBean.getContactno());
+			callableStatement.setDate(5, appUserBean.getDob() != null ?new java.sql.Date(appUserBean.getDob().getTime()):null);
+			int isUpdate = callableStatement.executeUpdate();
+			if(isUpdate != 0){
+				jsonObject.put("status", true);
+				jsonObject.put("message", "User setting updated successfully");
+				return jsonObject.toString();
+			}
 		} catch (SQLException se) {
 			se.printStackTrace();
 		} catch (Exception e) {
 			e.printStackTrace();
-		} 
-		ServiceUtility.closeConnection(conn);
-		ServiceUtility.closeCallableSatetment(callableStatement);
-		return isError;
+		} finally{
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+	   }
+		finalJson.put("status", false);
+		finalJson.put("message", "Oops Something went wrong");
+		
+		return finalJson.toString();
 	}
 	@POST  
     @Path("/forgotPassword")  

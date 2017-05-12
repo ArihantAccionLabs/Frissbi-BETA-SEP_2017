@@ -533,7 +533,7 @@ public class UserActivityService {
 			int isInserted = callableStatement.executeUpdate();
 			if (isInserted != 0) {
 				finalJson.put("status", true);
-				finalJson.put("message", "User photos inserted successfully");
+				finalJson.put("message", "Image Uploaded");
 				return finalJson.toString();
 			}
 		} catch (Exception e) {
@@ -575,7 +575,7 @@ public class UserActivityService {
 			int isInserted = callableStatement.executeUpdate();
 			if (isInserted != 0) {
 				finalJson.put("status", true);
-				finalJson.put("message", "User Location inserted successfully");
+				finalJson.put("message", "Checked-In Here");
 				return finalJson.toString();
 			}
 		} catch (Exception e) {
@@ -596,13 +596,14 @@ public class UserActivityService {
 	@Path("/getImage/{imageId}")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String getImage(@PathParam("imageId") String imageId) {
-
+        System.out.println("imageId === "+imageId);
 		JSONObject finalJson = new JSONObject();
 		try {
 			MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();
-		    mongoDBJDBC.getUriImage(imageId);
-		    
-		    finalJson.put("uriImage",  mongoDBJDBC.getUriImage(imageId));
+			String uriImage = mongoDBJDBC.getUriImage(imageId);
+		    if(uriImage != null){
+		    	finalJson.put("uriImage",  uriImage);
+		    }
 		    finalJson.put("status", true);
 			finalJson.put("message", "User photos fetched successfully");
 			return finalJson.toString();

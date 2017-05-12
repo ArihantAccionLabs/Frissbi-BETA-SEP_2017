@@ -67,6 +67,9 @@ public class ServiceUtility {
 				if(Utility.checkValidString(rs.getString("ContactNumber"))){
 					jsonObject.put("phoneNumber", rs.getString("ContactNumber"));
 				}
+				if(Utility.checkValidString(rs.getString("dob"))){
+					jsonObject.put("dob", rs.getString("dob"));
+				}
 			}
 			return jsonObject;
 		} catch (Exception e) {
