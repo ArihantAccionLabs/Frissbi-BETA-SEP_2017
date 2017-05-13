@@ -44,8 +44,8 @@ public class Utility {
     public static final String GROUP_NOTIFICATION_TYPE = "GROUP_TYPE";
     public static final String FRIEND_NOTIFICATION_TYPE = "FRIEND_TYPE";
     //public static final String REST_URI ="http://13.76.99.32/kleverlinkswebservices";
-    public static final String REST_URI = "http://139.59.32.89:8080/kleverlinkswebservices/rest";
-    // public static final String REST_URI = "http://192.168.2.148:9090/kleverlinkswebservices/rest";//Sunil
+   // public static final String REST_URI = "http://139.59.32.89:8080/kleverlinkswebservices/rest";
+    public static final String REST_URI = "http://192.168.1.193:9090/kleverlinkswebservices/rest";//Sunil
     public static final String USER_FRIENDSLIST = "/FriendListService/friendsList/";
     public static final String MEETING_INSERT = "/MeetingDetailsService/insertMeetingDetails/";
     public static final String MEETING_SINGALDETAILS = "/MeetingDetailsService/getUserDetailsByMeetingID/";

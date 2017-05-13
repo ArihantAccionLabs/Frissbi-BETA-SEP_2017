@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
+    android:layout_marginBottom="50dp"
     tools:context="com.frissbi.fragments.TimeLineFragment">
 
     <RelativeLayout
@@ -20,7 +21,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <com.frissbi.Utility.CustomFontTextView
+                <com.frissbi.Utility.CustomBoldTextView
                     android:id="@+id/upcoming_meeting_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -39,7 +40,7 @@
                     android:layout_marginTop="10dp"
                     android:padding="6dp" />
 
-                <com.frissbi.Utility.CustomFontTextView
+                <com.frissbi.Utility.CustomBoldTextView
                     android:id="@+id/others_doing_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -56,6 +57,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_below="@+id/others_doing_text"
+                    android:layout_marginBottom="60dp"
                     android:padding="6dp" />
 
                 <RelativeLayout

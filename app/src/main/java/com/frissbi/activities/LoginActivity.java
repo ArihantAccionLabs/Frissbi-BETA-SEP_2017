@@ -251,7 +251,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             } else {
                 Toast.makeText(this, "Please enter valid email", Toast.LENGTH_SHORT).show();
             }
-        }else {
+        } else {
             Toast.makeText(this, "Please enter email", Toast.LENGTH_SHORT).show();
         }
 
@@ -292,7 +292,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 
                 if (response != null) {
                     if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
-                        Toast.makeText(LoginActivity.this, response.message, Toast.LENGTH_SHORT).show();
                         try {
                             JSONObject responseJsonObject = new JSONObject(response.response);
                             mSharedPreferenceHandler.storeLoginDetails(responseJsonObject.getLong("userId"));

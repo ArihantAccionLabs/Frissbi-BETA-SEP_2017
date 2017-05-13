@@ -1,345 +1,360 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/triangle_bg">
 
     <RelativeLayout
-        android:id="@+id/attendee_rl"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_margin="10dp">
+        android:layout_height="wrap_content">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/meeting_attendees_recyclerView"
+        <RelativeLayout
+            android:id="@+id/attendee_rl"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@+id/add_attendee_button" />
-    </RelativeLayout>
+            android:layout_alignParentTop="true"
+            android:layout_margin="10dp">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@+id/attendee_rl"
-        android:layout_marginTop="20dp">
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/meeting_attendees_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_toLeftOf="@+id/add_attendee_button" />
+        </RelativeLayout>
 
-        <android.support.v7.widget.CardView
-            android:id="@+id/meeting_cardView"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_alignParentBottom="true"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginTop="10dp">
+            android:layout_below="@+id/attendee_rl"
+            android:layout_marginTop="20dp">
 
-            <RelativeLayout
+            <android.support.v7.widget.CardView
+                android:id="@+id/meeting_cardView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
                 android:layout_marginTop="10dp">
 
                 <RelativeLayout
-                    android:id="@+id/date_rl"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="12dp">
-
-                    <ImageView
-                        android:id="@+id/calendar_imageView"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:src="@drawable/icon_calendar" />
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="10dp">
 
                     <RelativeLayout
-                        android:layout_width="wrap_content"
+                        android:id="@+id/date_rl"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_toRightOf="@+id/calendar_imageView">
+                        android:padding="12dp">
 
+                        <ImageView
+                            android:id="@+id/calendar_imageView"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/icon_calendar" />
 
-                        <com.frissbi.Utility.CustomFontTextView
-                            android:id="@+id/meeting_date_tv"
+                        <RelativeLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="2017-01-01"
-                            android:textColor="@color/black"
-                            android:textStyle="bold" />
-
-                        <com.frissbi.Utility.CustomFontTextView
-                            android:id="@+id/date_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/meeting_date_tv"
-                            android:layout_marginTop="10dp"
-                            android:text="Date"
-                            android:textColor="@color/light_red" />
-
-                    </RelativeLayout>
-
-                </RelativeLayout>
-
-                <View
-                    android:id="@+id/date_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_below="@+id/date_rl"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:background="@color/blue_grey_800" />
-
-
-                <RelativeLayout
-                    android:id="@+id/time_rl"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/date_rl"
-                    android:padding="12dp">
-
-                    <ImageView
-                        android:id="@+id/clock_imageView"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:src="@drawable/icon_clock" />
-
-                    <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_toRightOf="@+id/clock_imageView">
-
-
-                        <com.frissbi.Utility.CustomFontTextView
-                            android:id="@+id/meeting_time_tv"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerHorizontal="true"
-                            android:gravity="center_horizontal"
-                            android:text="10:00"
-                            android:textColor="@color/black"
-                            android:textStyle="bold" />
-
-                        <com.frissbi.Utility.CustomFontTextView
-                            android:id="@+id/time_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/meeting_time_tv"
-                            android:layout_marginTop="10dp"
-                            android:text="Time"
-                            android:textColor="@color/light_orange" />
-
-                    </RelativeLayout>
-
-                </RelativeLayout>
-
-                <View
-                    android:id="@+id/time_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_below="@+id/time_rl"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:background="@color/blue_grey_800" />
-
-
-                <RelativeLayout
-                    android:id="@+id/duration_rl"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/time_view"
-                    android:padding="12dp">
-
-                    <ImageView
-                        android:id="@+id/duration_imageView"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:src="@drawable/icon_fwd" />
-
-                    <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_toRightOf="@+id/duration_imageView">
-
-                        <com.frissbi.Utility.CustomFontTextView
-                            android:id="@+id/meeting_duration_tv"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_horizontal"
-                            android:text="2 hours"
-                            android:textColor="@color/black"
-                            android:textStyle="bold" />
-
-                        <com.frissbi.Utility.CustomFontTextView
-                            android:id="@+id/duration_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/meeting_duration_tv"
-                            android:layout_marginTop="10dp"
-                            android:text="Duration"
-                            android:textColor="@color/light_orange" />
-
-
-                    </RelativeLayout>
-
-                </RelativeLayout>
-
-                <View
-                    android:id="@+id/duration_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_below="@+id/duration_rl"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:background="@color/blue_grey_800" />
-
-
-                <RelativeLayout
-                    android:id="@+id/location_rl"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/duration_view"
-                    android:padding="12dp">
-
-                    <ImageView
-                        android:id="@+id/location_imageView"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:src="@drawable/icon_location_black" />
-
-                    <RelativeLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_toRightOf="@+id/location_imageView">
-
-                        <com.frissbi.Utility.CustomFontTextView
-                            android:id="@+id/meeting_place_tv"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_horizontal"
-                            android:text="Select Location"
-                            android:textColor="@color/black"
-                            android:textStyle="bold" />
-
-                        <com.frissbi.Utility.CustomFontTextView
-                            android:id="@+id/place_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/meeting_place_tv"
-                            android:layout_marginTop="10dp"
-                            android:text="Location"
-                            android:textColor="@color/light_orange" />
-
-                        <com.frissbi.Utility.CustomFontTextView
-                            android:id="@+id/change_place_tv"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentRight="true"
                             android:layout_centerVertical="true"
-                            android:text="Change"
-                            android:textColor="@color/bg_color"
-                            android:visibility="gone" />
+                            android:layout_marginLeft="20dp"
+                            android:layout_toRightOf="@+id/calendar_imageView">
+
+
+                            <com.frissbi.Utility.CustomFontTextView
+                                android:id="@+id/meeting_date_tv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="2017-01-01"
+                                android:textColor="@color/black"
+                                android:textStyle="bold" />
+
+                            <com.frissbi.Utility.CustomFontTextView
+                                android:id="@+id/date_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/meeting_date_tv"
+                                android:layout_marginTop="10dp"
+                                android:text="Date"
+                                android:textColor="@color/light_red" />
+
+                        </RelativeLayout>
 
                     </RelativeLayout>
 
-                </RelativeLayout>
+                    <View
+                        android:id="@+id/date_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/date_rl"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:background="@color/blue_grey_800" />
 
-                <View
-                    android:id="@+id/location_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_below="@+id/location_rl"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp"
-                    android:background="@color/blue_grey_800" />
-
-                <RelativeLayout
-                    android:id="@+id/description_rl"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/location_view"
-                    android:padding="12dp">
-
-                    <ImageView
-                        android:id="@+id/description_imageView"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        android:src="@drawable/icon_message_chat" />
 
                     <RelativeLayout
-                        android:layout_width="wrap_content"
+                        android:id="@+id/time_rl"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_centerVertical="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_toRightOf="@+id/description_imageView">
+                        android:layout_below="@+id/date_rl"
+                        android:padding="12dp">
 
-                        <com.frissbi.Utility.CustomFontTextView
-                            android:id="@+id/meeting_title_tv"
+                        <ImageView
+                            android:id="@+id/clock_imageView"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/icon_clock" />
+
+                        <RelativeLayout
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:gravity="center_horizontal"
-                            android:text="Select Title"
-                            android:textColor="@color/black"
-                            android:textStyle="bold" />
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="20dp"
+                            android:layout_toRightOf="@+id/clock_imageView">
 
-                        <com.frissbi.Utility.CustomFontTextView
-                            android:id="@+id/title_text"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_below="@+id/meeting_title_tv"
-                            android:layout_marginTop="10dp"
-                            android:text="Title"
-                            android:textColor="@color/light_orange" />
+
+                            <com.frissbi.Utility.CustomFontTextView
+                                android:id="@+id/meeting_time_tv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_centerHorizontal="true"
+                                android:gravity="center_horizontal"
+                                android:text="10:00"
+                                android:textColor="@color/black"
+                                android:textStyle="bold" />
+
+                            <com.frissbi.Utility.CustomFontTextView
+                                android:id="@+id/time_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/meeting_time_tv"
+                                android:layout_marginTop="10dp"
+                                android:text="Time"
+                                android:textColor="@color/light_orange" />
+
+                        </RelativeLayout>
 
                     </RelativeLayout>
+
+                    <View
+                        android:id="@+id/time_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/time_rl"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:background="@color/blue_grey_800" />
+
+
+                    <RelativeLayout
+                        android:id="@+id/duration_rl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/time_view"
+                        android:padding="12dp">
+
+                        <ImageView
+                            android:id="@+id/duration_imageView"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/icon_fwd" />
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="20dp"
+                            android:layout_toRightOf="@+id/duration_imageView">
+
+                            <com.frissbi.Utility.CustomFontTextView
+                                android:id="@+id/meeting_duration_tv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_horizontal"
+                                android:text="2 hours"
+                                android:textColor="@color/black"
+                                android:textStyle="bold" />
+
+                            <com.frissbi.Utility.CustomFontTextView
+                                android:id="@+id/duration_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/meeting_duration_tv"
+                                android:layout_marginTop="10dp"
+                                android:text="Duration"
+                                android:textColor="@color/light_orange" />
+
+
+                        </RelativeLayout>
+
+                    </RelativeLayout>
+
+                    <View
+                        android:id="@+id/duration_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/duration_rl"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:background="@color/blue_grey_800" />
+
+
+                    <RelativeLayout
+                        android:id="@+id/location_rl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/duration_view"
+                        android:padding="12dp">
+
+                        <ImageView
+                            android:id="@+id/location_imageView"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/icon_location_black" />
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="20dp"
+                            android:layout_toRightOf="@+id/location_imageView">
+
+                            <com.frissbi.Utility.CustomBoldTextView
+                                android:id="@+id/place_name_tv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_horizontal"
+                                android:text=""
+                                android:textColor="@color/black"
+                                android:textStyle="bold" />
+
+                            <com.frissbi.Utility.CustomFontTextView
+                                android:id="@+id/meeting_place_tv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/place_name_tv"
+                                android:gravity="center_horizontal"
+                                android:text="Select Location"
+                                android:textColor="@color/black"
+                                android:textStyle="bold" />
+
+                            <com.frissbi.Utility.CustomFontTextView
+                                android:id="@+id/place_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/meeting_place_tv"
+                                android:layout_marginTop="10dp"
+                                android:text="Location"
+                                android:textColor="@color/light_orange" />
+
+                            <com.frissbi.Utility.CustomFontTextView
+                                android:id="@+id/change_place_tv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_alignParentRight="true"
+                                android:layout_below="@+id/meeting_place_tv"
+                                android:layout_marginTop="10dp"
+                                android:text="Change"
+                                android:textColor="@color/bg_color"
+                                android:visibility="visible" />
+
+                        </RelativeLayout>
+
+                    </RelativeLayout>
+
+                    <View
+                        android:id="@+id/location_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@+id/location_rl"
+                        android:layout_marginLeft="16dp"
+                        android:layout_marginRight="16dp"
+                        android:background="@color/blue_grey_800" />
+
+                    <RelativeLayout
+                        android:id="@+id/description_rl"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@+id/location_view"
+                        android:padding="12dp">
+
+                        <ImageView
+                            android:id="@+id/description_imageView"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:src="@drawable/icon_message_chat" />
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="20dp"
+                            android:layout_toRightOf="@+id/description_imageView">
+
+                            <com.frissbi.Utility.CustomFontTextView
+                                android:id="@+id/meeting_title_tv"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_horizontal"
+                                android:text="Select Title"
+                                android:textColor="@color/black"
+                                android:textStyle="bold" />
+
+                            <com.frissbi.Utility.CustomFontTextView
+                                android:id="@+id/title_text"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_below="@+id/meeting_title_tv"
+                                android:layout_marginTop="10dp"
+                                android:text="Title"
+                                android:textColor="@color/light_orange" />
+
+                        </RelativeLayout>
+
+                    </RelativeLayout>
+
 
                 </RelativeLayout>
 
 
-            </RelativeLayout>
+            </android.support.v7.widget.CardView>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/attendee_rl"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/accept_meeting_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/button_background_blue"
+                android:text="Accept"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
+
+            <Button
+                android:id="@+id/ignore_meeting_button"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="30dp"
+                android:layout_weight="1"
+                android:background="@drawable/button_background_grey"
+                android:text="Ignore"
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:textSize="16sp" />
 
 
-        </android.support.v7.widget.CardView>
-
+        </LinearLayout>
     </RelativeLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/attendee_rl"
-        android:weightSum="2">
-
-        <Button
-            android:id="@+id/accept_meeting_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginRight="10dp"
-            android:layout_weight="1"
-            android:background="@drawable/button_background_blue"
-            android:text="Accept"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-
-        <Button
-            android:id="@+id/ignore_meeting_button"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="30dp"
-            android:layout_weight="1"
-            android:background="@drawable/button_background_grey"
-            android:text="Ignore"
-            android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:textSize="16sp" />
-
-
-    </LinearLayout>
-
-</RelativeLayout>
+</ScrollView>

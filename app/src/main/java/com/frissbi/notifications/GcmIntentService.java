@@ -16,6 +16,7 @@ import android.widget.Toast;
 
 import com.frissbi.R;
 import com.frissbi.Utility.FLog;
+import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.TSLocationManager;
 import com.frissbi.Utility.Utility;
 import com.frissbi.activities.GroupDetailsActivity;
@@ -39,13 +40,12 @@ public class GcmIntentService extends IntentService {
     public static final String TAG = "GcmIntentService";
     private boolean isLocationSelected;
     private SharedPreferences mSharedPreferences;
-    private String mUserId;
+    private Long mUserId;
     private String locationSuggestionJsonString;
     private boolean isLocationUpdate;
     private Long friendUserId;
     private Long groupId;
     private Uri soundUri;
-    private String meetingFriendsArray;
     private String meetingMessage;
 
     //  Bitmap bm = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
@@ -62,15 +62,17 @@ public class GcmIntentService extends IntentService {
 
         String msg = intent.getStringExtra("message");
         mSharedPreferences = getSharedPreferences("PREF_NAME", Context.MODE_PRIVATE);
-        mUserId = mSharedPreferences.getString("USERID_FROM", "editor");
+        mUserId = SharedPreferenceHandler.getInstance(this).getUserId();
         mNotificationName = intent.getStringExtra("NotificationName");
         msg2 = intent.getStringExtra("userName");
-        mMeetingId = Long.parseLong(intent.getStringExtra("meetingId"));
+        if (intent.getExtras().containsKey("meetingId") && intent.getStringExtra("meetingId") != null) {
+            mMeetingId = Long.parseLong(intent.getStringExtra("meetingId"));
+        }
         msg4 = intent.getStringExtra("userId");
 
         if (intent.getExtras().containsKey("locationSuggestionJson")) {
+            Log.d("GcmIntentService", "locationSuggestionJson" + intent.getExtras().getString("locationSuggestionJson"));
             locationSuggestionJsonString = intent.getExtras().getString("locationSuggestionJson");
-            meetingFriendsArray = intent.getExtras().getString("meetingFriendsArray");
             meetingMessage = intent.getExtras().getString("meetingMessage");
             try {
                 JSONObject jsonObject = new JSONObject(locationSuggestionJsonString);
@@ -83,9 +85,8 @@ public class GcmIntentService extends IntentService {
         }
 
         if (intent.getExtras().containsKey("isLocationSelected")) {
-            Log.d(TAG, "isLocationSelected---String" + intent.getExtras().getString("isLocationSelected"));
+            Log.d(TAG, "isLocationSelected" + intent.getExtras().getString("isLocationSelected"));
             isLocationSelected = Boolean.valueOf(intent.getExtras().getString("isLocationSelected"));
-            FLog.d(TAG, "isLocationSelected" + isLocationSelected);
         }
 
         if (intent.getExtras().containsKey("friendUserId")) {
@@ -134,21 +135,20 @@ public class GcmIntentService extends IntentService {
     }
 
     private void sendNotification(String msg) {
-
-
+        Log.d("GcmIntentService", "mNotificationName" + mNotificationName);
         mNotificationManager = (NotificationManager) this.getSystemService(Context.NOTIFICATION_SERVICE);
         mNotificationManager.cancel(NOTIFICATION_ID);
         if (mNotificationName.equalsIgnoreCase(NotificationType.FRIEND_PENDING_REQUESTS.toString())) {
             Intent intent = new Intent(this, ProfileActivity.class);
             intent.putExtra("friendUserId", friendUserId);
+            intent.putExtra("status", "CONFIRM");
             showNotification(intent, msg);
 
         } else if (mNotificationName.equalsIgnoreCase(NotificationType.FRIEND_REQUEST_ACCEPTANCE.toString())) {
-
             Intent intent = new Intent(this, ProfileActivity.class);
             intent.putExtra("friendUserId", friendUserId);
+            intent.putExtra("status", "ACCEPTED");
             showNotification(intent, msg);
-
 
         } else if (mNotificationName.equalsIgnoreCase(NotificationType.MEETING_PENDING_REQUESTS.toString())) {
             Intent intent = new Intent(this, MeetingDetailsActivity.class);
@@ -166,10 +166,8 @@ public class GcmIntentService extends IntentService {
             if (!isLocationSelected) {
                 sendUserDetailsForMeetingSummaryToServer();
             } else {
-
                 Intent intent = new Intent(this, MeetingDetailsActivity.class);
                 intent.putExtra("meetingId", mMeetingId);
-
                 showNotification(intent, msg);
             }
         } else if (mNotificationName.equals(NotificationType.MEETING_REJECTED.toString())) {
@@ -187,8 +185,7 @@ public class GcmIntentService extends IntentService {
             } else {
                 intent = new Intent(this, SuggestionsActivity.class);
                 intent.putExtra("meetingId", mMeetingId);
-                intent.putExtra("locationSuggestionJson", locationSuggestionJsonString.toString());
-                intent.putExtra("meetingFriendsArray", meetingFriendsArray.toString());
+                intent.putExtra("locationSuggestionJson", locationSuggestionJsonString);
                 intent.putExtra("meetingMessage", meetingMessage);
             }
             showNotification(intent, msg);
@@ -224,19 +221,19 @@ public class GcmIntentService extends IntentService {
             jsonObject.put("meetingId", mMeetingId);
             jsonObject.put("isLocationSelected", isLocationSelected);
             Location location = TSLocationManager.getInstance(this).getCurrentLocation();
+            Log.d("GcmIntentService", "location" + location);
             if (location != null) {
                 jsonObject.put("latitude", location.getLatitude());
                 jsonObject.put("longitude", location.getLongitude());
-                String url = Utility.REST_URI + "/" + "rest" + Utility.MEETING_SUMMARY_BY_LOCATION;
+                String url = Utility.REST_URI + Utility.MEETING_SUMMARY_BY_LOCATION;
                 TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
                     @Override
                     public void handleResponse(TSNetworkHandler.TSResponse response) {
-                        if (response != null) {
-                            Log.d(TAG, "response" + response.response);
-                            Toast.makeText(GcmIntentService.this, response.message, Toast.LENGTH_SHORT).show();
-                        }
+
                     }
                 });
+            } else {
+                Toast.makeText(context, "Enable your location", Toast.LENGTH_SHORT).show();
             }
 
 
@@ -255,8 +252,6 @@ public class GcmIntentService extends IntentService {
                 .setContentTitle("FRISSBI")
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(msg))
                 .setSound(soundUri)
-               /* .addAction(R.drawable.noti, "View", contentIntent)
-                .addAction(0, "Remind", contentIntent)*/
                 .setContentIntent(contentIntent)
                 .setContentText(msg)
                 .setAutoCancel(true);

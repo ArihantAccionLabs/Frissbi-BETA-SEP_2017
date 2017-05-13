@@ -5,6 +5,7 @@
     android:id="@+id/profile_swipeRefreshLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/bg_color"
     tools:context="com.frissbi.activities.ProfileActivity">
 
     <RelativeLayout
@@ -14,7 +15,8 @@
         <com.frissbi.Utility.EndlessScrollView
             android:id="@+id/profile_nestedScrollView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            >
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -210,6 +212,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_below="@+id/activities_rl"
+                        android:layout_marginBottom="60dp"
                         android:layout_marginTop="20dp" />
 
                     <!--<Button

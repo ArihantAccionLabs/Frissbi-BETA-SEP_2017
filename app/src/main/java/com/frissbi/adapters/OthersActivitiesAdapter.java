@@ -13,7 +13,8 @@ import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.ImageCacheHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.enums.ActivityType;
-import com.frissbi.interfaces.MeetingDetailsListener;
+import com.frissbi.fragments.TimeLineFragment;
+import com.frissbi.interfaces.ShowLocationOnMapListener;
 import com.frissbi.interfaces.ViewImageListener;
 import com.frissbi.models.Activities;
 
@@ -39,8 +40,9 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
     private Calendar mCalendar;
     private String mCurrentDay;
     private ViewImageListener mViewImageListener;
+    private ShowLocationOnMapListener mShowLocationOnMapListener;
 
-    public OthersActivitiesAdapter(Context context, List<Activities> activitiesList, ViewImageListener viewImageListener) {
+    public OthersActivitiesAdapter(Context context, List<Activities> activitiesList, TimeLineFragment timeLineFragment) {
         mContext = context;
         mActivitiesList = activitiesList;
         mDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
@@ -49,7 +51,8 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
         mDateMonthFormat = new SimpleDateFormat("dd MMM", Locale.ENGLISH);
         mCalendar = Calendar.getInstance(Locale.ENGLISH);
         mCurrentDay = mDateFormat.format(mCalendar.getTime());
-        mViewImageListener = viewImageListener;
+        mViewImageListener = (ViewImageListener) timeLineFragment;
+        mShowLocationOnMapListener = (ShowLocationOnMapListener) timeLineFragment;
     }
 
     @Override
@@ -186,7 +189,10 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
                 ImageCacheHandler.getInstance(mContext).setImage(((FreeTimeViewHolder) holder).timelineItemProfileImage, activities.getUserProfileImageId());
             }
         } else if (holder instanceof LocationViewHolder) {
-            ((LocationViewHolder) holder).checkInAddressTv.setText(activities.getLocationAddress());
+            ((LocationViewHolder) holder).checkInAddressTv.setText("Check In at " + activities.getLocationAddress());
+            if (activities.getDescription() != null) {
+                ((LocationViewHolder) holder).description.setText(activities.getDescription());
+            }
             ((LocationViewHolder) holder).locationTimeTv.setText(postedDate);
             ((LocationViewHolder) holder).profileNameTv.setText(activities.getUserName());
             if (activities.getUserProfileImageId() != null) {
@@ -203,9 +209,12 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
                     mViewImageListener.viewImage(activities.getCoverImageId());
                 } else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.UPLOAD_TYPE.toString()).ordinal()) {
                     mViewImageListener.viewImage(activities.getUploadedImageId());
+                } else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.LOCATION_TYPE.toString()).ordinal()) {
+                    mShowLocationOnMapListener.showLocation(activities.getLatitude(), activities.getLongitude());
                 }
             }
         });
+
 
     }
 
@@ -291,6 +300,7 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
         private TextView locationTimeTv;
         private final ImageView timelineItemProfileImage;
         private final TextView profileNameTv;
+        private TextView description;
 
         LocationViewHolder(View itemView) {
             super(itemView);
@@ -298,6 +308,7 @@ public class OthersActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.V
             locationTimeTv = (TextView) itemView.findViewById(R.id.location_postedTime_tv);
             timelineItemProfileImage = (ImageView) itemView.findViewById(R.id.timeline_item_profile_image);
             profileNameTv = (TextView) itemView.findViewById(R.id.profileName_tv);
+            description = (TextView) itemView.findViewById(R.id.description_tv);
         }
     }
 

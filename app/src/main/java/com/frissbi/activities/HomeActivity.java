@@ -33,7 +33,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -215,7 +214,6 @@ public class HomeActivity extends AppCompatActivity
         });
 
 
-
         fab = (android.support.design.widget.FloatingActionButton) findViewById(R.id.add_floating_button);
 
         fab.setOnClickListener(new View.OnClickListener() {
@@ -391,6 +389,8 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void saveAllContactsInLocal() {
+        Toast.makeText(HomeActivity.this, "Yayy!! We're In..", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "We're getting things ready for you..", Toast.LENGTH_SHORT).show();
         if (ConnectionDetector.getInstance(this).isConnectedToInternet()) {
             getFriendsFromServer();
         } else {
@@ -500,7 +500,10 @@ public class HomeActivity extends AppCompatActivity
         } else if (id == R.id.nav_reminder) {
             Intent intent = new Intent(HomeActivity.this, RemindersActivity.class);
             startActivity(intent);
-        } else if (id == R.id.nav_setting) {
+        } else if (id == R.id.nav_myplaces) {
+            Intent intent = new Intent(getApplication(), MySavedPlacesActivity.class);
+            startActivity(intent);
+        }else if (id == R.id.nav_setting) {
             Intent intent = new Intent(getApplication(), SettingsActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_logout) {
@@ -569,6 +572,7 @@ public class HomeActivity extends AppCompatActivity
 
 
     private void getFriendsFromServer() {
+        Toast.makeText(HomeActivity.this, "Getting your friends..", Toast.LENGTH_SHORT).show();
         FrissbiContact.deleteAll(FrissbiContact.class);
         mProgressDialog.show();
         String url = Utility.REST_URI + Utility.USER_FRIENDSLIST + mUserId;
@@ -598,7 +602,6 @@ public class HomeActivity extends AppCompatActivity
                                     frissbiContact.save();
                                 }
                             }
-
                             getAllGroupsFromServer();
 
                         } catch (JSONException e) {
@@ -617,6 +620,7 @@ public class HomeActivity extends AppCompatActivity
     }
 
     private void getAllGroupsFromServer() {
+        Toast.makeText(HomeActivity.this, "Setting up your friends and groups..", Toast.LENGTH_SHORT).show();
         FrissbiGroup.deleteAll(FrissbiGroup.class);
         Participant.deleteAll(Participant.class);
         String url = Utility.REST_URI + Utility.GROUPS + mUserId;
@@ -662,6 +666,7 @@ public class HomeActivity extends AppCompatActivity
                                     participant.save();
                                 }
                             }
+                            Toast.makeText(HomeActivity.this, "Setting up more friends..", Toast.LENGTH_SHORT).show();
                             mEmailIdsAsync.execute();
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -684,6 +689,7 @@ public class HomeActivity extends AppCompatActivity
 
         @Override
         protected String doInBackground(Void... params) {
+
             ArrayList<String> emlRecs = new ArrayList<String>();
             HashSet<String> emlRecsHS = new HashSet<String>();
             Context context = HomeActivity.this;

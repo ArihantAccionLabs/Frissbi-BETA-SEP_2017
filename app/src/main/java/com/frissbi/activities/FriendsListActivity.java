@@ -117,9 +117,6 @@ public class FriendsListActivity extends AppCompatActivity implements SearchView
             case 1:
                 mMyContactsFragment.filterContacts(newText);
                 break;
-            case 2:
-                mPeopleFragment.searchFriends(newText);
-                break;
         }
         return false;
     }

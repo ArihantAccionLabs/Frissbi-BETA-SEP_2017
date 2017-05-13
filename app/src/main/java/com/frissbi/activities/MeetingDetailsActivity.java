@@ -3,6 +3,7 @@ package com.frissbi.activities;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -15,14 +16,12 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frissbi.R;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
-import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.GroupParticipantAdapter;
@@ -56,7 +55,6 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
     private TextView mMeetingDetailsDateTextView;
     private TextView mMeetingDetailsTimeTextView;
     private TextView mMeetingDetailsAtTextView;
-    private LinearLayout mMeetingStatusLayout;
     private View mStatusView;
     //private Button mMoreFriendsButton;
     private TextView mMeetingDetailsFriendTextView;
@@ -71,6 +69,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
     private TextView mMeetingTitleTextView;
     private RecyclerView mMeetingAttendeesRecyclerView;
     private List<FrissbiContact> mFrissbiContactsList;
+    private TextView placeNameTv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,11 +115,13 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
         mMeetingDetailsTitleTextView = (TextView) findViewById(R.id.meeting_title_tv);
         mMeetingAcceptButton = (Button) findViewById(R.id.accept_meeting_button);
         mMeetingIgnoreButton = (Button) findViewById(R.id.ignore_meeting_button);
+        placeNameTv = (TextView) findViewById(R.id.place_name_tv);
         mMeetingAttendeesRecyclerView = (RecyclerView) findViewById(R.id.meeting_attendees_recyclerView);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
         mMeetingAttendeesRecyclerView.setLayoutManager(layoutManager);
         mMeetingAcceptButton.setOnClickListener(this);
         mMeetingIgnoreButton.setOnClickListener(this);
+        findViewById(R.id.location_rl).setOnClickListener(this);
     }
 
     private void setMeetingObject(JSONObject meetingJsonObject) {
@@ -138,9 +139,13 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             mMeeting.setToTime(meetingJsonObject.getString("to"));
             mMeeting.setDuration(meetingJsonObject.getString("meetingDuration"));
             mMeeting.setDescription(meetingJsonObject.getString("description"));
+            mMeeting.setMeetingType(meetingJsonObject.getString("meetingType"));
             if (meetingJsonObject.getBoolean("isLocationSelected")) {
                 mMeeting.setLocationSelected(meetingJsonObject.getBoolean("isLocationSelected"));
                 mMeeting.setAddress(meetingJsonObject.getString("address"));
+                if (meetingJsonObject.has("placeName")) {
+                    mMeeting.setPlaceName(meetingJsonObject.getString("placeName"));
+                }
                 mMeeting.setLatitude(meetingJsonObject.getDouble("latitude"));
                 mMeeting.setLongitude(meetingJsonObject.getDouble("longitude"));
             } else {
@@ -184,50 +189,15 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
             }
 
 
-
-            /*if (friendsLength > 0) {
-                for (int j = 0; j < friendsLength; j++) {
-                    MeetingFriends meetingFriends = new MeetingFriends();
-                    JSONObject jsonObject = friendsJsonArray.getJSONObject(j);
-                    meetingFriends.setName(jsonObject.getString("fullName"));
-                    meetingFriends.setStatus(jsonObject.getInt("status"));
-                    meetingFriends.setType("friend");
-                    meetingFriendsList.add(meetingFriends);
+            if (meetingJsonObject.has("updateCount")) {
+                if (meetingJsonObject.getInt("updateCount") != 0 && meetingJsonObject.getInt("updateCount") != 2) {
+                    mChangePlaceButton.setVisibility(View.VISIBLE);
+                } else {
+                    mChangePlaceButton.setVisibility(View.GONE);
                 }
             }
 
-            JSONArray emailIdJsonArray = meetingJsonObject.getJSONArray("emailIdJsonArray");
-            int emailIdsLength = emailIdJsonArray.length();
-            if (emailIdsLength > 0) {
-                for (int j = 0; j < emailIdsLength; j++) {
-                    MeetingFriends meetingFriends = new MeetingFriends();
-                    meetingFriends.setName(emailIdJsonArray.getString(j));
-                    meetingFriends.setType("email");
-                    meetingFriendsList.add(meetingFriends);
-                }
-            }
-            JSONArray contactsJsonArray = meetingJsonObject.getJSONArray("contactsJsonArray");
-            int contactsLength = contactsJsonArray.length();
-            if (contactsLength > 0) {
-                for (int j = 0; j < contactsLength; j++) {
-                    MeetingFriends meetingFriends = new MeetingFriends();
-                    meetingFriends.setName(contactsJsonArray.getString(j));
-                    meetingFriends.setType("contact");
-                    meetingFriendsList.add(meetingFriends);
-                }
-            }
-            mMeeting.setMeetingFriendsList(meetingFriendsList);*/
-            if (!meetingJsonObject.getBoolean("isLocationSelected")) {
-                if (meetingJsonObject.has("updateCount")) {
-                    if (meetingJsonObject.getInt("updateCount") != 0 && meetingJsonObject.getInt("updateCount") != 2) {
-                        mChangePlaceButton.setVisibility(View.VISIBLE);
-                    } else {
-                        mChangePlaceButton.setVisibility(View.GONE);
-                    }
-                }
-            }
 
-            // setViewWithValues();
             setData();
         } catch (Exception e) {
             e.printStackTrace();
@@ -236,14 +206,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
     }
 
     private void setData() {
-       /* mMeetingFriendsList = mMeeting.getMeetingFriendsList();
-        if (mMeetingFriendsList.size() > 1) {
-            mMeetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
-            mMoreFriendsButton.setVisibility(View.VISIBLE);
-        } else {
-            mMeetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
-            mMoreFriendsButton.setVisibility(View.GONE);
-        }*/
+        Log.d("MeetingDetailsActivity", "mUserId" + mUserId + "mMeeting" + mMeeting);
 
         GroupParticipantAdapter groupParticipantAdapter = new GroupParticipantAdapter(MeetingDetailsActivity.this, mFrissbiContactsList, true);
         mMeetingAttendeesRecyclerView.setAdapter(groupParticipantAdapter);
@@ -252,81 +215,36 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
         mMeetingDetailsDateTextView.setText(mMeeting.getDate());
         mMeetingDurationTextView.setText(mMeeting.getDuration());
         mMeetingDetailsTimeTextView.setText(Utility.getInstance().convertTime(mMeeting.getFromTime()));
-        if (mMeeting.isLocationSelected()) {
-            mMeetingDetailsAtTextView.setText(mMeeting.getAddress());
-        } else {
-            mMeetingDetailsAtTextView.setText("Any Place");
+        if (!mMeeting.getMeetingType().equalsIgnoreCase("ONLINE")) {
+            if (mMeeting.isLocationSelected()) {
+                if (mMeeting.getPlaceName() != null) {
+                    placeNameTv.setText(mMeeting.getPlaceName());
+                }
+                mMeetingDetailsAtTextView.setText(mMeeting.getAddress());
+            } else {
+                mMeetingDetailsAtTextView.setText("Any Place");
+            }
+        }else {
+            mMeetingDetailsAtTextView.setText("Online");
         }
 
 
         if (!mMeeting.getMeetingSenderId().equals(mUserId)) {
-            mMeetingStatusLayout.setVisibility(View.VISIBLE);
-            mStatusView.setVisibility(View.VISIBLE);
             if (mMeeting.getMeetingStatus() == Utility.STATUS_PENDING) {
-                // mMeetingDetailsStatusTextView.setText("PENDING");
-                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.light_orange));
+                mMeetingAcceptButton.setVisibility(View.VISIBLE);
+                mMeetingIgnoreButton.setVisibility(View.VISIBLE);
             } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
-                //mMeetingDetailsStatusTextView.setText("ACCEPTED");
-                //mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
-                mMeetingAcceptButton.setVisibility(View.GONE);
-            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_REJECT) {
-                //mMeetingDetailsStatusTextView.setText("REJECTED");
                 mMeetingAcceptButton.setVisibility(View.GONE);
                 mMeetingIgnoreButton.setVisibility(View.GONE);
-                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.red));
+            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_REJECT) {
+                mMeetingAcceptButton.setVisibility(View.GONE);
+                mMeetingIgnoreButton.setVisibility(View.GONE);
             }
         } else {
             mMeetingAcceptButton.setVisibility(View.GONE);
-            mMeetingStatusLayout.setVisibility(View.GONE);
+            mMeetingIgnoreButton.setVisibility(View.GONE);
         }
 
-    }
-
-    private void setViewWithValues() {
-        FLog.d("MeetingDetailsActivity", "meeting" + mMeeting);
-        mMeetingFriendsList = mMeeting.getMeetingFriendsList();
-       /* if (mMeetingFriendsList.size() > 1) {
-            mMeetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
-            mMoreFriendsButton.setVisibility(View.VISIBLE);
-        } else {
-            mMeetingDetailsFriendTextView.setText(mMeetingFriendsList.get(0).getName());
-            mMoreFriendsButton.setVisibility(View.GONE);
-        }*/
-        mMeetingDetailsTitleTextView.setText(mMeeting.getDescription());
-        mMeetingDetailsDateTextView.setText(mMeeting.getDate());
-        mMeetingDetailsTimeTextView.setText(Utility.getInstance().convertTime(mMeeting.getFromTime()) + " to " + Utility.getInstance().convertTime(mMeeting.getToTime()));
-        if (mMeeting.isLocationSelected()) {
-            mMeetingDetailsAtTextView.setText(mMeeting.getAddress());
-        } else {
-            mMeetingDetailsAtTextView.setText("Any Place");
-        }
-
-        if (!mMeeting.getMeetingSenderId().equals(mUserId)) {
-            mMeetingStatusLayout.setVisibility(View.VISIBLE);
-            mStatusView.setVisibility(View.VISIBLE);
-            if (mMeeting.getMeetingStatus() == Utility.STATUS_PENDING) {
-                // mMeetingDetailsStatusTextView.setText("PENDING");
-                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.light_orange));
-            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
-                //mMeetingDetailsStatusTextView.setText("ACCEPTED");
-                //mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
-                mMeetingAcceptButton.setVisibility(View.GONE);
-            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_REJECT) {
-                //mMeetingDetailsStatusTextView.setText("REJECTED");
-                mMeetingAcceptButton.setVisibility(View.GONE);
-                mMeetingIgnoreButton.setVisibility(View.GONE);
-                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.red));
-            } else if (mMeeting.getMeetingStatus() == Utility.STATUS_ACCEPT) {
-                // mMeetingDetailsStatusTextView.setText("COMPLETED");
-                mMeetingAcceptButton.setVisibility(View.GONE);
-                mMeetingIgnoreButton.setVisibility(View.GONE);
-                // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.blue));
-            }
-        } else {
-            mMeetingAcceptButton.setVisibility(View.GONE);
-            mMeetingStatusLayout.setVisibility(View.GONE);
-            mStatusView.setVisibility(View.GONE);
-        }
     }
 
 
@@ -384,9 +302,15 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
                 showRejectConformationAlert();
 
                 break;
-            /*case R.id.more_friends_button:
-                showFriendsListAlertDialog();
-                break;*/
+            case R.id.location_rl:
+                if (mMeeting.getLatitude() != null && mMeeting.getLongitude() != null) {
+                    String urlAddress = "http://maps.google.com/maps?q=" + mMeeting.getLatitude() + "," + mMeeting.getLongitude();
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlAddress));
+                    intent.setPackage("com.google.android.apps.maps");
+                    startActivity(intent);
+                }
+
+                break;
             case R.id.change_place_tv:
                 redirectToSuggestPlaces();
                 break;
@@ -398,6 +322,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
         Intent intent = new Intent(this, SuggestionsActivity.class);
         intent.putExtra("isCallFromSummary", true);
         intent.putExtra("summaryMeetingId", mMeetingId);
+        intent.putExtra("title", mMeeting.getDescription());
         startActivity(intent);
 
     }
@@ -478,6 +403,7 @@ public class MeetingDetailsActivity extends AppCompatActivity implements View.On
                                 //mMeetingDetailsStatusTextView.setText("ACCEPTED");
                                 // mMeetingDetailsStatusTextView.setTextColor(getResources().getColor(R.color.green));
                                 mMeetingAcceptButton.setVisibility(View.GONE);
+                                mMeetingIgnoreButton.setVisibility(View.GONE);
                                 Toast.makeText(MeetingDetailsActivity.this, responseJsonObject.getString("message"), Toast.LENGTH_SHORT).show();
                             } else {
                                 showConflictingAlertDialog(responseJsonObject.getString("message"), responseJsonObject.getJSONArray("meetingIdsJsonArray"));

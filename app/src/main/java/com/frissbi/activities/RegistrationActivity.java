@@ -287,7 +287,7 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                                         if (mTermsConditionsCheckBox.isChecked()) {
                                             return true;
                                         } else {
-                                            Toast.makeText(this, "Please check terms and condition", Toast.LENGTH_SHORT).show();
+                                            Toast.makeText(this, "Please check terms and conditions", Toast.LENGTH_SHORT).show();
                                         }
                                     } else {
                                         Toast.makeText(this, "Please select DOB", Toast.LENGTH_SHORT).show();
@@ -297,13 +297,13 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
                                 }
 
                             } else {
-                                Toast.makeText(this, "Password must be 6 characters with atleast  on special character", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Password must be 6 characters with at-least one special character", Toast.LENGTH_SHORT).show();
                             }
                         } else {
                             Toast.makeText(this, "Please enter password", Toast.LENGTH_SHORT).show();
                         }
                     } else {
-                        Toast.makeText(this, "Please login through google", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "Please login via Google Sign-In", Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     Toast.makeText(this, "Please enter valid email", Toast.LENGTH_SHORT).show();
@@ -337,22 +337,15 @@ public class RegistrationActivity extends AppCompatActivity implements View.OnCl
 
     private void emailReset() {
         AlertDialog.Builder builder = new AlertDialog.Builder(RegistrationActivity.this);
-        builder.setTitle("Alert!");
-        builder.setMessage("Please check mail and login..");
-        builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+        builder.setTitle("Congratulations !!...");
+        builder.setMessage("Please check your email inbox to activate the account.");
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 mAlertDialog.dismiss();
                 onBackPressed();
             }
         });
-        builder.setNegativeButton("No", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                mAlertDialog.dismiss();
-            }
-        });
-
         mAlertDialog = builder.create();
         mAlertDialog.show();
 

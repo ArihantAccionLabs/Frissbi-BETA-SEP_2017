@@ -4,13 +4,13 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.frissbi.R;
+import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.GroupParticipantAdapter;
 import com.frissbi.adapters.LocationSuggestionAdapter;
@@ -34,8 +34,11 @@ public class SuggestionsActivity extends AppCompatActivity {
     private long mMeetingId;
     private Button mSubmitPlaceButton;
     private LocationSuggestionAdapter mLocationSuggestionAdapter;
-    private String locationSuggestionJson;
+    private JSONObject locationSuggestionJson;
     private boolean isFromMeetingSummary;
+    private RecyclerView mMeetingFriendsRecyclerView;
+    private String title;
+    private TextView suggestionMeetingDesTv;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,31 +46,36 @@ public class SuggestionsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_suggestions);
         mLocationSuggestionList = new ArrayList<>();
         mLocationSuggestionRecyclerView = (RecyclerView) findViewById(R.id.location_suggestion_recyclerView);
+        mMeetingFriendsRecyclerView = (RecyclerView) findViewById(R.id.meeting_friends_recyclerView);
         mLoadPlacesButton = (Button) findViewById(R.id.load_places_button);
         mSubmitPlaceButton = (Button) findViewById(R.id.submit_place_button);
-        TextView suggestionMeetingDesTv = (TextView) findViewById(R.id.suggestion_meeting_des_tv);
+        suggestionMeetingDesTv = (TextView) findViewById(R.id.suggestion_meeting_des_tv);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         mLocationSuggestionRecyclerView.setLayoutManager(layoutManager);
+        RecyclerView.LayoutManager layoutManager1 = new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false);
+        mMeetingFriendsRecyclerView.setLayoutManager(layoutManager1);
         Bundle bundle = getIntent().getExtras();
         if (bundle.containsKey("locationSuggestionJson")) {
-            locationSuggestionJson = bundle.getString("locationSuggestionJson");
-            setMeetingFriends(bundle.getString("meetingFriendsArray"));
-            suggestionMeetingDesTv.setText(bundle.getString("meetingMessage"));
+            String jsonObject = bundle.getString("locationSuggestionJson");
             try {
-                setSuggestedLocations(new JSONObject(locationSuggestionJson));
+                locationSuggestionJson = new JSONObject(jsonObject);
+                setMeetingFriends(locationSuggestionJson.getJSONArray("friendsJsonArray"));
             } catch (JSONException e) {
                 e.printStackTrace();
             }
+
+            suggestionMeetingDesTv.setText(bundle.getString("meetingMessage"));
+            setSuggestedLocations(locationSuggestionJson);
             if (bundle.containsKey("meetingId")) {
-                mMeetingId = Long.parseLong(getIntent().getExtras().getString("meetingId"));
-                Log.d("SuggestionsActivity", "meetingId" + mMeetingId);
+                mMeetingId = bundle.getLong("meetingId");
             }
         }
 
 
         if (bundle.containsKey("isCallFromSummary")) {
             if (bundle.getBoolean("isCallFromSummary")) {
-                mMeetingId = getIntent().getExtras().getLong("summaryMeetingId");
+                mMeetingId = bundle.getLong("summaryMeetingId");
+                title = bundle.getString("title");
                 isFromMeetingSummary = true;
                 getMorePlacesFromServer(0);
             }
@@ -95,24 +103,27 @@ public class SuggestionsActivity extends AppCompatActivity {
 
     }
 
-    private void setMeetingFriends(String meetingFriendsArray) {
+    private void setMeetingFriends(JSONArray friendsJsonArray) {
         List<FrissbiContact> frissbiContactList = new ArrayList<>();
         try {
-            JSONArray meetingFriendsJsonArray = new JSONArray(meetingFriendsArray);
-            for (int i = 0; i < meetingFriendsArray.length(); i++) {
-                JSONObject jsonObject = meetingFriendsJsonArray.getJSONObject(i);
-                FrissbiContact frissbiContact = new FrissbiContact();
-                frissbiContact.setUserId(jsonObject.getLong("userId"));
-                frissbiContact.setName(jsonObject.getString("fullName"));
-                frissbiContact.setImageId(jsonObject.getString("profileImageId"));
-                frissbiContactList.add(frissbiContact);
+            if (friendsJsonArray.length() > 0) {
+                for (int i = 0; i < friendsJsonArray.length(); i++) {
+                    JSONObject jsonObject = friendsJsonArray.getJSONObject(i);
+                    FrissbiContact frissbiContact = new FrissbiContact();
+                    frissbiContact.setUserId(jsonObject.getLong("userId"));
+                    frissbiContact.setName(jsonObject.getString("fullName"));
+                    if (jsonObject.has("profileImageId")) {
+                        frissbiContact.setImageId(jsonObject.getString("profileImageId"));
+                    }
+                    frissbiContactList.add(frissbiContact);
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
         GroupParticipantAdapter groupParticipantAdapter = new GroupParticipantAdapter(this, frissbiContactList);
-        mLocationSuggestionRecyclerView.setAdapter(groupParticipantAdapter);
+        mMeetingFriendsRecyclerView.setAdapter(groupParticipantAdapter);
     }
 
     private void submitSelectedPlace() {
@@ -120,9 +131,11 @@ public class SuggestionsActivity extends AppCompatActivity {
             LocationSuggestion locationSuggestion = mLocationSuggestionAdapter.getSelectedLocation();
             JSONObject jsonObject = new JSONObject();
             try {
+
                 jsonObject.put("meetingId", mMeetingId);
                 jsonObject.put("latitude", locationSuggestion.getLatitude());
                 jsonObject.put("longitude", locationSuggestion.getLongitude());
+                jsonObject.put("placeName", locationSuggestion.getName());
                 jsonObject.put("address", locationSuggestion.getAddress());
                 jsonObject.put("isFromMeetingSummary", isFromMeetingSummary);
 
@@ -136,6 +149,10 @@ public class SuggestionsActivity extends AppCompatActivity {
                                     if (responseJsonObject.has("isLocationUpdate")) {
                                         if (responseJsonObject.getBoolean("isLocationUpdate")) {
                                             Toast.makeText(SuggestionsActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                                            onBackPressed();
+                                        } else {
+                                            Toast.makeText(SuggestionsActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                                            onBackPressed();
                                         }
                                     }
                                 } catch (JSONException e) {
@@ -146,7 +163,7 @@ public class SuggestionsActivity extends AppCompatActivity {
                             }
 
                         } else {
-                            Toast.makeText(SuggestionsActivity.this, "Something went wrong at server side", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SuggestionsActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -161,7 +178,7 @@ public class SuggestionsActivity extends AppCompatActivity {
     }
 
     private void getMorePlacesFromServer(int size) {
-        String url = Utility.REST_URI  + Utility.MORE_LOCATIONS + mMeetingId + "/" + size;
+        String url = Utility.REST_URI + Utility.MORE_LOCATIONS + mMeetingId + "/" + size + "/" + SharedPreferenceHandler.getInstance(this).getUserId();
         TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {
@@ -206,6 +223,10 @@ public class SuggestionsActivity extends AppCompatActivity {
             }
             mLocationSuggestionAdapter = new LocationSuggestionAdapter(SuggestionsActivity.this, mLocationSuggestionList);
             mLocationSuggestionRecyclerView.setAdapter(mLocationSuggestionAdapter);
+            if (isFromMeetingSummary) {
+                setMeetingFriends(locationSuggestionJson.getJSONArray("friendsJsonArray"));
+                suggestionMeetingDesTv.setText(title);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

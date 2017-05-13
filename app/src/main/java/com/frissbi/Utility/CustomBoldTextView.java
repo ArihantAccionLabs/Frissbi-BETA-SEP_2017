@@ -28,7 +28,7 @@ public class CustomBoldTextView extends android.support.v7.widget.AppCompatTextV
 
     private void init(AttributeSet attrs) {
         if (attrs != null) {
-            Typeface myTypeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/Karla-Regular.ttf");
+            Typeface myTypeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/Karla-Bold.ttf");
             setTypeface(myTypeface);
         }
     }

@@ -7,7 +7,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -19,7 +18,6 @@ import android.widget.Toast;
 
 import com.frissbi.R;
 import com.frissbi.Utility.CustomProgressDialog;
-import com.frissbi.Utility.FLog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.GroupsAdapter;
@@ -73,6 +71,7 @@ public class GroupsActivity extends AppCompatActivity implements GroupDetailsLis
             public void onClick(View v) {
                 Intent intent = new Intent(GroupsActivity.this, CreateGroupActivity.class);
                 startActivity(intent);
+                finish();
             }
         });
     }
@@ -126,7 +125,9 @@ public class GroupsActivity extends AppCompatActivity implements GroupDetailsLis
                                     participant.setGroupId(groupJsonObject.getLong("groupId"));
                                     participant.setParticipantId(participantJsonObject.getLong("userId"));
                                     participant.setFullName(participantJsonObject.getString("fullName"));
-                                    participant.setImage(participantJsonObject.getString("profileImage"));
+                                    if (participantJsonObject.has("profileImageId")) {
+                                        participant.setImage(participantJsonObject.getString("profileImageId"));
+                                    }
                                     participant.save();
                                 }
 

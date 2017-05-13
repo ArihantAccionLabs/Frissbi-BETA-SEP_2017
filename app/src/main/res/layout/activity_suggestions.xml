@@ -4,31 +4,45 @@
     android:id="@+id/activity_suggestions"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/triangle_bg"
     tools:context="com.frissbi.activities.SuggestionsActivity">
 
-    <com.frissbi.Utility.CustomFontTextView
-        android:id="@+id/suggestion_meeting_des_tv"
+    <com.frissbi.Utility.EndlessScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:padding="6dp"
-        android:text="Meeting Description"
-        android:textColor="@color/black" />
+        android:layout_height="match_parent">
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/meeting_friends_recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/suggestion_meeting_des_tv" />
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.frissbi.Utility.CustomBoldTextView
+                android:id="@+id/suggestion_meeting_des_tv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:padding="6dp"
+                android:text="Meeting Description"
+                android:textColor="@color/white" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/meeting_friends_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/suggestion_meeting_des_tv" />
 
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/location_suggestion_recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/load_more_ll"
-        android:layout_below="@+id/meeting_friends_recyclerView"
-        android:layout_marginTop="10dp" />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/location_suggestion_recyclerView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@+id/meeting_friends_recyclerView"
+                android:layout_marginTop="10dp" />
+
+
+        </RelativeLayout>
+
+
+    </com.frissbi.Utility.EndlessScrollView>
 
     <LinearLayout
         android:id="@+id/load_more_ll"
@@ -62,5 +76,4 @@
             android:textColor="@color/white" />
 
     </LinearLayout>
-
 </RelativeLayout>

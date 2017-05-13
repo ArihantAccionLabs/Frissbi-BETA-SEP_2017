@@ -39,6 +39,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.util.Calendar;
+import java.util.HashMap;
 
 import static com.frissbi.Utility.Utility.CAMERA_REQUEST;
 import static com.frissbi.Utility.Utility.SELECT_FILE;
@@ -57,6 +58,7 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     private Calendar calendar;
     private TextView mDobTextView;
     private ProgressDialog mProgressDialog;
+    private Profile profile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,15 +107,11 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void setUpValues() {
-        Profile profile = Profile.first(Profile.class);
-        Log.d("SettingsActivity", "profile" + profile);
-        mUsernameEt.setText(profile.getUserName());
-        mEmailEt.setText(profile.getEmail());
-        if (profile.getContactNumber() != null) {
-            mPhoneEt.setText(profile.getContactNumber());
-        }
-        if (profile.getImageId() != null) {
-            ImageCacheHandler.getInstance(SettingsActivity.this).setImage(mProfileUserImageView, profile.getImageId());
+        profile = Profile.first(Profile.class);
+        if (profile != null) {
+            setProfileDetails();
+        } else {
+            getProfileDetails();
         }
     }
 
@@ -319,6 +317,80 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
             default:
                 return super.onOptionsItemSelected(item);
 
+        }
+    }
+
+
+    /*To Get Profile Details
+    */
+    private void getProfileDetails() {
+        mProgressDialog.show();
+        String url = Utility.REST_URI + Utility.VIEW_PROFILE + SharedPreferenceHandler.getInstance(this).getUserId();
+        TSNetworkHandler.getInstance(this).getResponse(url, new HashMap<String, String>(), TSNetworkHandler.TYPE_GET, new TSNetworkHandler.ResponseHandler() {
+            @Override
+            public void handleResponse(TSNetworkHandler.TSResponse response) {
+
+                if (response != null) {
+                    if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
+                        try {
+                            JSONObject responseJsonObject = new JSONObject(response.response);
+                            FLog.d("ProfileActivity", "responseJsonObject" + responseJsonObject);
+                            Profile.deleteAll(Profile.class);
+                            Profile profile = new Profile();
+                            JSONObject profileJsonObject = responseJsonObject.getJSONObject("viewProfile");
+                            profile.setUserName(profileJsonObject.getString("userName"));
+                            profile.setFirstName(profileJsonObject.getString("firstName"));
+                            if (profileJsonObject.has("lastName")) {
+                                profile.setLastName(profileJsonObject.getString("lastName"));
+                            }
+                            profile.setEmail(profileJsonObject.getString("email"));
+                            if (profileJsonObject.has("contactNumber")) {
+                                profile.setContactNumber(profileJsonObject.getString("contactNumber"));
+                            }
+
+                            if (profileJsonObject.has("profileImageId")) {
+                                profile.setImageId(profileJsonObject.getString("profileImageId"));
+                            }
+
+                            if (profileJsonObject.has("coverImageId")) {
+                                profile.setCoverImageId(profileJsonObject.getString("coverImageId"));
+                            }
+
+                            if (profileJsonObject.has("gender")) {
+                                profile.setGender(profileJsonObject.getString("gender"));
+                            }
+
+                            if (profileJsonObject.has("dob")) {
+                                profile.setDob(profileJsonObject.getString("dob"));
+                            }
+
+                            if (profileJsonObject.has("isGmailLogin")) {
+                                profile.setGmailLogin(profileJsonObject.getBoolean("isGmailLogin"));
+                            }
+
+                            profile.save();
+                            setProfileDetails();
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    } else if (response.status == TSNetworkHandler.TSResponse.STATUS_FAIL) {
+                        Toast.makeText(SettingsActivity.this, response.message, Toast.LENGTH_SHORT).show();
+                    }
+                }
+                mProgressDialog.dismiss();
+            }
+        });
+    }
+
+    private void setProfileDetails() {
+        mUsernameEt.setText(profile.getUserName());
+        mEmailEt.setText(profile.getEmail());
+        if (profile.getContactNumber() != null) {
+            mPhoneEt.setText(profile.getContactNumber());
+        }
+        if (profile.getImageId() != null) {
+            ImageCacheHandler.getInstance(SettingsActivity.this).setImage(mProfileUserImageView, profile.getImageId());
         }
     }
 

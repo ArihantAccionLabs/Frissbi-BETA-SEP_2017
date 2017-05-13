@@ -16,15 +16,24 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_marginTop="20dp"
-        android:text="friss.bi"
+        android:text="www.friss.bi"
         android:textColor="@android:color/white"
         android:textSize="30sp" />
 
-    <LinearLayout
-        android:layout_marginTop="10dp"
+    <Button
+        android:id="@+id/like_facebook"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/fb_like"
+        android:textColor="@android:color/black" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp">
 
         <com.frissbi.Utility.CustomFontTextView
             android:id="@+id/terms_conditions_tv"

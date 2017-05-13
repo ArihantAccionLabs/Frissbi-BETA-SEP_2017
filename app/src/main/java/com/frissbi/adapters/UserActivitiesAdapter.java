@@ -14,6 +14,7 @@ import com.frissbi.Utility.ImageCacheHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.enums.ActivityType;
 import com.frissbi.interfaces.MeetingDetailsListener;
+import com.frissbi.interfaces.ShowLocationOnMapListener;
 import com.frissbi.interfaces.ViewImageListener;
 import com.frissbi.models.Activities;
 
@@ -40,6 +41,7 @@ public class UserActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
     private String mCurrentDay;
     private MeetingDetailsListener mMeetingDetailsListener;
     private ViewImageListener mViewImageListener;
+    private ShowLocationOnMapListener mShowLocationOnMapListener;
 
     public UserActivitiesAdapter(Context context, List<Activities> activitiesList, MeetingDetailsListener meetingDetailsListener, ViewImageListener viewImageListener) {
         mContext = context;
@@ -52,6 +54,7 @@ public class UserActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
         mCurrentDay = mDateFormat.format(mCalendar.getTime());
         mMeetingDetailsListener = meetingDetailsListener;
         mViewImageListener = viewImageListener;
+        mShowLocationOnMapListener= (ShowLocationOnMapListener) context;
     }
 
     @Override
@@ -175,6 +178,8 @@ public class UserActivitiesAdapter extends RecyclerView.Adapter<RecyclerView.Vie
                     mViewImageListener.viewImage(activities.getCoverImageId());
                 } else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.UPLOAD_TYPE.toString()).ordinal()) {
                     mViewImageListener.viewImage(activities.getUploadedImageId());
+                }else if (getItemViewType(position) == ActivityType.valueOf(ActivityType.LOCATION_TYPE.toString()).ordinal()) {
+                    mShowLocationOnMapListener.showLocation(activities.getLatitude(), activities.getLongitude());
                 }
             }
         });

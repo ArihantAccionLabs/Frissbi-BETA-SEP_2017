@@ -3,12 +3,14 @@ package com.frissbi.fragments;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +31,7 @@ import com.frissbi.adapters.UpcomingMeetingAdapter;
 import com.frissbi.enums.ActivityType;
 import com.frissbi.interfaces.EndlessScrollListener;
 import com.frissbi.interfaces.MeetingDetailsListener;
+import com.frissbi.interfaces.ShowLocationOnMapListener;
 import com.frissbi.interfaces.ViewImageListener;
 import com.frissbi.models.Activities;
 import com.frissbi.models.Meeting;
@@ -47,7 +50,10 @@ import java.util.List;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class TimeLineFragment extends Fragment implements MeetingDetailsListener, ViewImageListener, View.OnClickListener, SwipeRefreshLayout.OnRefreshListener, EndlessScrollListener {
+public class TimeLineFragment extends Fragment implements MeetingDetailsListener,
+        ViewImageListener, View.OnClickListener,
+        SwipeRefreshLayout.OnRefreshListener, EndlessScrollListener,
+        ShowLocationOnMapListener {
 
 
     private RecyclerView mUpcomingMeetingRecyclerView;
@@ -57,7 +63,6 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
     private RecyclerView mOthersActivitiesRecyclerView;
     private Long mUserId;
     private List<Activities> mActivitiesList;
-    private ViewImageListener mViewImageListener;
     private OthersActivitiesAdapter mOthersActivitiesAdapter;
     private int mOtherActivityOffSetValue;
     private FloatingActionButton mTimelineScrollTopFloatingButton;
@@ -80,7 +85,6 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_time_line, container, false);
         mMeetingDetailsListener = (MeetingDetailsListener) this;
-        mViewImageListener = (ViewImageListener) this;
         mProgressDialog = new CustomProgressDialog(getActivity());
         mMeetingList = new ArrayList<>();
         mUserId = SharedPreferenceHandler.getInstance(getActivity()).getUserId();
@@ -235,30 +239,43 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
                                         activities.setStatusMessage(userActivityJsonObject.getString("status"));
                                         activities.setDate(userActivityJsonObject.getString("date"));
                                         activities.setType(ActivityType.valueOf(ActivityType.STATUS_TYPE.toString()).ordinal());
+                                        activities.setUserId(userActivityJsonObject.getLong("userId"));
                                     } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.MEETING_TYPE.toString())) {
                                         activities.setMeetingMessage(userActivityJsonObject.getString("meetingMessage"));
                                         activities.setMeetingId(userActivityJsonObject.getLong("meetingId"));
+                                        activities.setUserId(userActivityJsonObject.getLong("userId"));
                                         activities.setType(ActivityType.valueOf(ActivityType.MEETING_TYPE.toString()).ordinal());
                                     } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.PROFILE_TYPE.toString())) {
                                         activities.setProfileImageId(userActivityJsonObject.getString("profileImageId"));
+                                        activities.setUserId(userActivityJsonObject.getLong("userId"));
                                         activities.setType(ActivityType.valueOf(ActivityType.PROFILE_TYPE.toString()).ordinal());
                                     } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.COVER_TYPE.toString())) {
                                         activities.setCoverImageId(userActivityJsonObject.getString("coverImageId"));
+                                        activities.setUserId(userActivityJsonObject.getLong("userId"));
                                         activities.setType(ActivityType.valueOf(ActivityType.COVER_TYPE.toString()).ordinal());
                                     } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.UPLOAD_TYPE.toString())) {
                                         activities.setImageCaption(userActivityJsonObject.getString("imageDescription"));
                                         activities.setUploadedImageId(userActivityJsonObject.getString("imageId"));
+                                        activities.setUserId(userActivityJsonObject.getLong("userId"));
                                         activities.setType(ActivityType.valueOf(ActivityType.UPLOAD_TYPE.toString()).ordinal());
                                     } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.LOCATION_TYPE.toString())) {
                                         activities.setLocationAddress(userActivityJsonObject.getString("address"));
+                                        activities.setUserId(userActivityJsonObject.getLong("userId"));
+                                        if (userActivityJsonObject.has("description")) {
+                                            activities.setDescription(userActivityJsonObject.getString("description"));
+                                        }
+                                        activities.setLatitude(userActivityJsonObject.getDouble("latitude"));
+                                        activities.setLongitude(userActivityJsonObject.getDouble("longitude"));
                                         activities.setType(ActivityType.valueOf(ActivityType.LOCATION_TYPE.toString()).ordinal());
                                     } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.FREE_TIME_TYPE.toString())) {
                                         activities.setFreeTimeDate(userActivityJsonObject.getString("freeDate"));
                                         activities.setFreeTimeFromTime(userActivityJsonObject.getString("freeFromTime"));
                                         activities.setFreeTimeToTime(userActivityJsonObject.getString("freeToTime"));
+                                        activities.setUserId(userActivityJsonObject.getLong("userId"));
                                         activities.setType(ActivityType.valueOf(ActivityType.FREE_TIME_TYPE.toString()).ordinal());
                                     } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.JOIN_DATE_TYPE.toString())) {
                                         activities.setJoinedDate(userActivityJsonObject.getString("registrationDate"));
+                                        activities.setUserId(userActivityJsonObject.getLong("userId"));
                                         activities.setType(ActivityType.valueOf(ActivityType.JOIN_DATE_TYPE.toString()).ordinal());
                                     }
                                     mActivitiesList.add(activities);
@@ -266,7 +283,7 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
 
                                 FLog.d("TimeLineFragment", "mActivitiesList" + mActivitiesList);
 
-                                mOthersActivitiesAdapter = new OthersActivitiesAdapter(getActivity(), mActivitiesList, mViewImageListener);
+                                mOthersActivitiesAdapter = new OthersActivitiesAdapter(getActivity(), mActivitiesList, TimeLineFragment.this);
                                 mOthersActivitiesRecyclerView.setAdapter(mOthersActivitiesAdapter);
 
                                 if (resposeJsonObject.getBoolean("isNextActivityExist")) {
@@ -319,35 +336,48 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
                                 if (userActivityJsonObject.has("userProfileImageId")) {
                                     activities.setUserProfileImageId(userActivityJsonObject.getString("userProfileImageId"));
                                 }
-                                activities.setUserProfileImageId(userActivityJsonObject.getString("userFullName"));
+                                activities.setUserName(userActivityJsonObject.getString("userFullName"));
                                 if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.STATUS_TYPE.toString())) {
                                     activities.setStatusMessage(userActivityJsonObject.getString("status"));
                                     activities.setDate(userActivityJsonObject.getString("date"));
+                                    activities.setUserId(userActivityJsonObject.getLong("userId"));
                                     activities.setType(ActivityType.valueOf(ActivityType.STATUS_TYPE.toString()).ordinal());
                                 } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.MEETING_TYPE.toString())) {
                                     activities.setMeetingMessage(userActivityJsonObject.getString("meetingMessage"));
                                     activities.setMeetingId(userActivityJsonObject.getLong("meetingId"));
+                                    activities.setUserId(userActivityJsonObject.getLong("userId"));
                                     activities.setType(ActivityType.valueOf(ActivityType.MEETING_TYPE.toString()).ordinal());
                                 } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.PROFILE_TYPE.toString())) {
                                     activities.setProfileImageId(userActivityJsonObject.getString("profileImageId"));
+                                    activities.setUserId(userActivityJsonObject.getLong("userId"));
                                     activities.setType(ActivityType.valueOf(ActivityType.PROFILE_TYPE.toString()).ordinal());
                                 } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.COVER_TYPE.toString())) {
                                     activities.setCoverImageId(userActivityJsonObject.getString("coverImageId"));
+                                    activities.setUserId(userActivityJsonObject.getLong("userId"));
                                     activities.setType(ActivityType.valueOf(ActivityType.COVER_TYPE.toString()).ordinal());
                                 } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.UPLOAD_TYPE.toString())) {
                                     activities.setImageCaption(userActivityJsonObject.getString("imageDescription"));
                                     activities.setUploadedImageId(userActivityJsonObject.getString("imageId"));
+                                    activities.setUserId(userActivityJsonObject.getLong("userId"));
                                     activities.setType(ActivityType.valueOf(ActivityType.UPLOAD_TYPE.toString()).ordinal());
                                 } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.LOCATION_TYPE.toString())) {
                                     activities.setLocationAddress(userActivityJsonObject.getString("address"));
+                                    activities.setUserId(userActivityJsonObject.getLong("userId"));
+                                    if (userActivityJsonObject.has("description")) {
+                                        activities.setDescription(userActivityJsonObject.getString("description"));
+                                    }
+                                    activities.setLatitude(userActivityJsonObject.getDouble("latitude"));
+                                    activities.setLongitude(userActivityJsonObject.getDouble("longitude"));
                                     activities.setType(ActivityType.valueOf(ActivityType.LOCATION_TYPE.toString()).ordinal());
                                 } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.FREE_TIME_TYPE.toString())) {
                                     activities.setFreeTimeDate(userActivityJsonObject.getString("freeDate"));
                                     activities.setFreeTimeFromTime(userActivityJsonObject.getString("freeFromTime"));
                                     activities.setFreeTimeToTime(userActivityJsonObject.getString("freeToTime"));
+                                    activities.setUserId(userActivityJsonObject.getLong("userId"));
                                     activities.setType(ActivityType.valueOf(ActivityType.FREE_TIME_TYPE.toString()).ordinal());
                                 } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.JOIN_DATE_TYPE.toString())) {
                                     activities.setJoinedDate(userActivityJsonObject.getString("registrationDate"));
+                                    activities.setUserId(userActivityJsonObject.getLong("userId"));
                                     activities.setType(ActivityType.valueOf(ActivityType.JOIN_DATE_TYPE.toString()).ordinal());
                                 }
                                 activitiesList.add(activities);
@@ -435,10 +465,20 @@ public class TimeLineFragment extends Fragment implements MeetingDetailsListener
         // if diff is zero, then the bottom has been reached
         if (distanceToEnd == 0) {
             // do stuff your load more stuff
+            FLog.d("TimeLineFragment", "mIsNextActivityExist" + mIsNextActivityExist);
             if (mIsNextActivityExist) {
                 getMoreOtherActivities();
             }
         }
+    }
+
+    @Override
+    public void showLocation(double latitude, double longitude) {
+        Log.d("TimeLineFragment", "lat" + latitude + "lng" + longitude);
+        String urlAddress = "http://maps.google.com/maps?q=" + latitude + "," + longitude;
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlAddress));
+        intent.setPackage("com.google.android.apps.maps");
+        startActivity(intent);
     }
 }
 

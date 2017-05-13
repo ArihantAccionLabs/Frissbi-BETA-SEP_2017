@@ -2,6 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/triangle_bg"
     tools:context="com.frissbi.fragments.NewGroupFragment">
 
     <RelativeLayout
@@ -37,14 +38,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.frissbi.Utility.CustomFontTextView
+            <com.frissbi.Utility.CustomBoldTextView
                 android:id="@+id/select_participant_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_marginLeft="6dp"
                 android:text="Select participants"
-                android:textColor="@color/black" />
+                android:textColor="@color/white"
+                android:textSize="20sp" />
 
         </RelativeLayout>
 

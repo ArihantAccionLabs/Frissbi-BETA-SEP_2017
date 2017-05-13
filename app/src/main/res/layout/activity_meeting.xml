@@ -186,7 +186,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:gravity="center_horizontal"
-                            android:text="2 hours"
+                            android:text="--"
                             android:textColor="@color/black"
                             android:textStyle="bold" />
 
@@ -321,8 +321,8 @@
         android:layout_height="100dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="30dp"
         android:layout_below="@+id/attendee_rl"
+        android:layout_marginRight="30dp"
         android:src="@drawable/btn_arrow" />
 
 </RelativeLayout>

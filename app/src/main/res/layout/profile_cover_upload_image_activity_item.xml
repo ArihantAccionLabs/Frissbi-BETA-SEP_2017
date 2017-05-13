@@ -16,7 +16,7 @@
             android:layout_width="50dp"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
-            android:src="@drawable/icon_friends" />
+            android:src="@drawable/cam_icon" />
     </RelativeLayout>
 
     <RelativeLayout

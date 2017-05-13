@@ -26,6 +26,8 @@ public class Meeting extends SugarRecord implements Serializable {
     private String userStatus;
     private String month;
     private String duration;
+    private String placeName;
+    private String meetingType;
 
 
     public Meeting() {
@@ -155,6 +157,22 @@ public class Meeting extends SugarRecord implements Serializable {
         this.duration = duration;
     }
 
+    public String getPlaceName() {
+        return placeName;
+    }
+
+    public void setPlaceName(String placeName) {
+        this.placeName = placeName;
+    }
+
+    public String getMeetingType() {
+        return meetingType;
+    }
+
+    public void setMeetingType(String meetingType) {
+        this.meetingType = meetingType;
+    }
+
     @Override
     public String toString() {
         return "Meeting{" +
@@ -173,6 +191,8 @@ public class Meeting extends SugarRecord implements Serializable {
                 ", userStatus='" + userStatus + '\'' +
                 ", month='" + month + '\'' +
                 ", duration='" + duration + '\'' +
+                ", placeName='" + placeName + '\'' +
+                ", meetingType='" + meetingType + '\'' +
                 '}';
     }
 }

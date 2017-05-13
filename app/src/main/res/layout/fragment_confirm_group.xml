@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@drawable/triangle_bg"
     tools:context="com.frissbi.fragments.ConfirmGroupFragment">
 
     <RelativeLayout
@@ -17,7 +17,7 @@
             android:padding="6dp"
             android:src="@drawable/default_profile_image" />
 
-        <android.support.design.widget.TextInputLayout
+        <!--<android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
@@ -29,7 +29,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Group name" />
-        </android.support.design.widget.TextInputLayout>
+        </android.support.design.widget.TextInputLayout>-->
+
+        <EditText
+            android:id="@+id/group_name_et"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@id/group_icon"
+            android:hint="Group name"
+            android:textColor="@android:color/white"
+            android:textColorHint="@android:color/white" />
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -38,14 +50,14 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/group_rl">
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.Utility.CustomBoldTextView
             android:id="@+id/participant_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="Participants"
-            android:textColor="@color/black"
-            android:textSize="20dp" />
+            android:textColor="@android:color/white"
+            android:textSize="20sp" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/selected_participant_recyclerView"

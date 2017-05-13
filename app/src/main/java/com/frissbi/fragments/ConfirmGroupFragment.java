@@ -11,6 +11,7 @@ import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
@@ -31,7 +32,6 @@ import com.frissbi.activities.GroupsActivity;
 import com.frissbi.adapters.GroupParticipantAdapter;
 import com.frissbi.interfaces.CurrentGroupFragmentListener;
 import com.frissbi.interfaces.UploadPhotoListener;
-import com.frissbi.models.Friend;
 import com.frissbi.models.FrissbiContact;
 import com.frissbi.networkhandler.TSNetworkHandler;
 
@@ -210,10 +210,11 @@ public class ConfirmGroupFragment extends Fragment implements UploadPhotoListene
                 Environment.DIRECTORY_PICTURES);
         mPictureImagePath = storageDir.getAbsolutePath() + "/" + imageFileName;
         File file = new File(mPictureImagePath);
-        Uri outputFileUri = Uri.fromFile(file);
+        // Uri outputFileUri = Uri.fromFile(file);
+        Uri outputFileUri = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, outputFileUri);
-        FLog.d("ConfirmGroupFragment", "CAMERA_REQUEST" + CAMERA_REQUEST);
+        cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivityForResult(cameraIntent, CAMERA_REQUEST);
     }
 
@@ -232,7 +233,8 @@ public class ConfirmGroupFragment extends Fragment implements UploadPhotoListene
         FLog.d("ConfirmGroupFragment", "onActivityResult-----" + requestCode + "resultCode" + resultCode);
         if (requestCode == CAMERA_REQUEST && resultCode == RESULT_OK) {
             File imgFile = new File(mPictureImagePath);
-            Bitmap bitmap = Utility.getInstance().decodeFile(imgFile);
+            Bitmap bitmap1 = Utility.getInstance().decodeFile(imgFile);
+            Bitmap bitmap = Utility.getInstance().rotateImage(bitmap1, mPictureImagePath);
             mGroupIcon.setImageBitmap(bitmap);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -247,7 +249,8 @@ public class ConfirmGroupFragment extends Fragment implements UploadPhotoListene
             cursor.moveToFirst();
             String selectedImagePath = cursor.getString(column_index);
             File imgFile = new File(selectedImagePath);
-            Bitmap bitmap = Utility.getInstance().decodeFile(imgFile);
+            Bitmap bitmap1 = Utility.getInstance().decodeFile(imgFile);
+            Bitmap bitmap = Utility.getInstance().rotateImage(bitmap1, selectedImagePath);
             mGroupIcon.setImageBitmap(bitmap);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);

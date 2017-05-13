@@ -29,7 +29,6 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.frissbi.R;
-import com.frissbi.models.SelectedContacts;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.FLog;
@@ -42,6 +41,7 @@ import com.frissbi.models.FrissbiContact;
 import com.frissbi.models.FrissbiGroup;
 import com.frissbi.models.MyPlaces;
 import com.frissbi.models.Participant;
+import com.frissbi.models.SelectedContacts;
 import com.frissbi.networkhandler.TSNetworkHandler;
 
 import org.json.JSONArray;
@@ -166,6 +166,15 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                 mMeetingPlaceTextView.setText(R.string.any_place);
             }
         });
+
+        view.findViewById(R.id.online_tv).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                alertDialog.dismiss();
+                mMeetingPlaceTextView.setText(R.string.online);
+            }
+        });
+
         alertDialog.show();
     }
 
@@ -427,7 +436,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
             Toast.makeText(this, "Please select meeting title", Toast.LENGTH_SHORT).show();
             return false;
         } else {
-            if (!mMeetingPlaceTextView.getText().toString().equalsIgnoreCase("Any Place") && mMeetingPlace == null) {
+            if (!mMeetingPlaceTextView.getText().toString().equalsIgnoreCase("Any Place") && !mMeetingPlaceTextView.getText().toString().equalsIgnoreCase("Online") && mMeetingPlace == null) {
                 Toast.makeText(this, "Please select a location", Toast.LENGTH_SHORT).show();
                 return false;
             } else {
@@ -435,10 +444,19 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
                     Toast.makeText(this, "Please select atleast one friend", Toast.LENGTH_SHORT).show();
                     return false;
                 } else {
-                    return true;
+                    if (mMeetingDurationTextView.getText().toString().equalsIgnoreCase("--")) {
+                        Toast.makeText(this, "Please select meeting duration", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (mMeetingTitleTextView.getText().toString().equalsIgnoreCase("Select Title")) {
+                            Toast.makeText(this, "Please select meeting title", Toast.LENGTH_SHORT).show();
+                        } else {
+                            return true;
+                        }
+                    }
                 }
             }
         }
+        return false;
 
     }
 
@@ -475,6 +493,7 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
        /* if (mFriendList.size() > 0) {
             for (int i = 0; i < mFriendList.size(); i++) {
                 friendsIdJsonArray.put(mFriendList.get(i).getUserId());
+            }
             }
         }
         if (mEmailContactsList.size() > 0) {
@@ -521,6 +540,11 @@ public class MeetingActivity extends AppCompatActivity implements View.OnClickLi
             jsonObject.put("friendsIdJsonArray", friendsIdJsonArray);
             jsonObject.put("emailIdJsonArray", emailIdJsonArray);
             jsonObject.put("contactsJsonArray", contactsJsonArray);
+            if (mMeetingPlaceTextView.getText().toString().equalsIgnoreCase("Online")) {
+                jsonObject.put("meetingType", "ONLINE");
+            } else {
+                jsonObject.put("meetingType", "OFFLINE");
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

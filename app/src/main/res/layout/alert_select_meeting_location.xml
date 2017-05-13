@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.frissbi.Utility.CustomFontTextView
+    <com.frissbi.Utility.CustomBoldTextView
         android:id="@+id/my_places_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -21,7 +21,7 @@
         android:layout_below="@+id/my_places_tv"
         android:background="@color/gray" />
 
-    <com.frissbi.Utility.CustomFontTextView
+    <com.frissbi.Utility.CustomBoldTextView
         android:id="@+id/any_place_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -33,24 +33,39 @@
         android:textSize="30sp"
         android:textStyle="bold" />
 
+    <com.frissbi.Utility.CustomFontTextView
+        android:id="@+id/suggest_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/any_place_tv"
+        android:layout_centerHorizontal="true"
+        android:text="@string/we_will_suggest_best_place_for_you" />
+
     <View
         android:id="@+id/view1"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:layout_below="@+id/any_place_tv"
+        android:layout_below="@+id/suggest_tv"
         android:background="@color/gray" />
 
-    <com.frissbi.Utility.CustomFontTextView
+    <com.frissbi.Utility.CustomBoldTextView
         android:id="@+id/online_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/view1"
         android:gravity="center"
         android:padding="20dp"
-        android:text="Online"
+        android:text="@string/online"
         android:textColor="@color/black"
         android:textSize="30sp"
         android:textStyle="bold" />
 
+    <com.frissbi.Utility.CustomFontTextView
+        android:id="@+id/online_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/online_tv"
+        android:layout_centerHorizontal="true"
+        android:text="@string/skype_webex" />
 
 </RelativeLayout>

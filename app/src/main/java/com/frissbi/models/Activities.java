@@ -6,6 +6,8 @@ package com.frissbi.models;
 
 public class Activities {
 
+    private Long userId;
+
     private String statusMessage;
 
     private String profileImageId;
@@ -20,6 +22,9 @@ public class Activities {
     private String freeTimeToTime;
 
     private String locationAddress;
+    private String description;
+    private double latitude;
+    private double longitude;
 
     private String uploadedImageId;
     private String imageCaption;
@@ -160,10 +165,43 @@ public class Activities {
         this.userName = userName;
     }
 
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
     @Override
     public String toString() {
         return "Activities{" +
-                "statusMessage='" + statusMessage + '\'' +
+                "userId=" + userId +
+                ", statusMessage='" + statusMessage + '\'' +
                 ", profileImageId='" + profileImageId + '\'' +
                 ", coverImageId='" + coverImageId + '\'' +
                 ", meetingId=" + meetingId +
@@ -172,6 +210,9 @@ public class Activities {
                 ", freeTimeFromTime='" + freeTimeFromTime + '\'' +
                 ", freeTimeToTime='" + freeTimeToTime + '\'' +
                 ", locationAddress='" + locationAddress + '\'' +
+                ", description='" + description + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
                 ", uploadedImageId='" + uploadedImageId + '\'' +
                 ", imageCaption='" + imageCaption + '\'' +
                 ", joinedDate='" + joinedDate + '\'' +

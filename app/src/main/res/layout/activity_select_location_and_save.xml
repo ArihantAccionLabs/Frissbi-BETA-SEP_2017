@@ -26,7 +26,8 @@
                 android:layout_toLeftOf="@+id/clk"
                 android:background="@null"
                 android:hint="Type a location"
-                android:padding="4dp" />
+                android:padding="4dp"
+                android:textColorHint="@android:color/black" />
 
             <ImageView
                 android:id="@+id/clk"

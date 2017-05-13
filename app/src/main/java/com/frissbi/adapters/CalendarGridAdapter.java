@@ -109,12 +109,13 @@ public class CalendarGridAdapter extends ArrayAdapter {
 
                         if (meetingDate.getCount() <= 2) {
                             GradientDrawable shape = (GradientDrawable) ContextCompat.getDrawable(mContext, R.drawable.circle_shape);
-                            shape.setColor(ContextCompat.getColor(mContext, R.color.light_orange));
+                            shape.setColor(ContextCompat.getColor(mContext, R.color.green));
+
                             cellNumber.setBackground(ContextCompat.getDrawable(mContext, R.drawable.circle_clip));
                             cellNumber.getBackground().setLevel(2500);
                         } else if (meetingDate.getCount() > 2 && meetingDate.getCount() <= 4) {
                             GradientDrawable shape = (GradientDrawable) ContextCompat.getDrawable(mContext, R.drawable.circle_shape);
-                            shape.setColor(ContextCompat.getColor(mContext, R.color.green));
+                            shape.setColor(ContextCompat.getColor(mContext, R.color.light_orange));
                             cellNumber.setBackground(ContextCompat.getDrawable(mContext, R.drawable.circle_clip));
                             cellNumber.getBackground().setLevel(5000);
                         } else if (meetingDate.getCount() >= 5) {

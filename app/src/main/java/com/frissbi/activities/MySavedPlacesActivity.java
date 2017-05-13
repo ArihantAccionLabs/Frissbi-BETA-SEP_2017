@@ -2,9 +2,9 @@ package com.frissbi.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -12,12 +12,12 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.frissbi.R;
-import com.frissbi.interfaces.SelectLocationListener;
 import com.frissbi.Utility.ConnectionDetector;
 import com.frissbi.Utility.CustomProgressDialog;
 import com.frissbi.Utility.SharedPreferenceHandler;
 import com.frissbi.Utility.Utility;
 import com.frissbi.adapters.MyPlacesAdapter;
+import com.frissbi.interfaces.SelectLocationListener;
 import com.frissbi.models.MyPlaces;
 import com.frissbi.networkhandler.TSNetworkHandler;
 
@@ -65,7 +65,7 @@ public class MySavedPlacesActivity extends AppCompatActivity implements SelectLo
 
     private void getMyPlacesFromServer() {
         mProgressDialog.show();
-        String url = Utility.REST_URI +Utility.SAVED_LOCATIONS + SharedPreferenceHandler.getInstance(this).getUserId();
+        String url = Utility.REST_URI + Utility.SAVED_LOCATIONS + SharedPreferenceHandler.getInstance(this).getUserId();
         TSNetworkHandler.getInstance(this).getResponse(url, new JSONObject(), "GET", new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {

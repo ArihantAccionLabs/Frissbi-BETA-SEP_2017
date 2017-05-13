@@ -8,6 +8,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -58,6 +59,7 @@ import com.frissbi.frissbi.Privacypolicy;
 import com.frissbi.interfaces.EndlessScrollListener;
 import com.frissbi.interfaces.MeetingDetailsListener;
 import com.frissbi.interfaces.PostFreeTimeListener;
+import com.frissbi.interfaces.ShowLocationOnMapListener;
 import com.frissbi.interfaces.UploadPhotoListener;
 import com.frissbi.interfaces.ViewImageListener;
 import com.frissbi.models.Activities;
@@ -77,7 +79,8 @@ import java.util.List;
 import static com.frissbi.Utility.Utility.CAMERA_REQUEST;
 import static com.frissbi.Utility.Utility.SELECT_FILE;
 
-public class ProfileActivity extends AppCompatActivity implements View.OnClickListener, UploadPhotoListener, PostFreeTimeListener, MeetingDetailsListener, ViewImageListener, SwipeRefreshLayout.OnRefreshListener, TextWatcher, EndlessScrollListener {
+public class ProfileActivity extends AppCompatActivity implements View.OnClickListener, UploadPhotoListener, PostFreeTimeListener, MeetingDetailsListener,
+        ViewImageListener, SwipeRefreshLayout.OnRefreshListener, TextWatcher, EndlessScrollListener, ShowLocationOnMapListener {
 
     private static final int REQUEST_WRITE_EXTERNAL_STORAGE = 1000;
     private ImageView mProfileUserImageView;
@@ -299,7 +302,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         TSNetworkHandler.getInstance(this).getResponse(url, jsonObject, new TSNetworkHandler.ResponseHandler() {
             @Override
             public void handleResponse(TSNetworkHandler.TSResponse response) {
-
                 if (response != null) {
                     if (response.status == TSNetworkHandler.TSResponse.STATUS_SUCCESS) {
                         Toast.makeText(ProfileActivity.this, response.message, Toast.LENGTH_SHORT).show();
@@ -631,6 +633,7 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
         View view = LayoutInflater.from(this).inflate(R.layout.about_alert, null);
         builder.setView(view);
         TextView urlTv = (TextView) view.findViewById(R.id.url_tv);
+        Button likeFacebook = (Button) view.findViewById(R.id.like_facebook);
         TextView versionTv = (TextView) view.findViewById(R.id.version_tv);
         view.findViewById(R.id.terms_conditions_tv).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -659,8 +662,18 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                 alertDialog.dismiss();
             }
         });
+        likeFacebook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Uri uri = Uri.parse("https://www.facebook.com/Frissbi/");
+                Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                startActivity(intent);
+            }
+        });
 
+        urlTv.setLinkTextColor(Color.WHITE);
         Linkify.addLinks(urlTv, Linkify.WEB_URLS);
+
         alertDialog = builder.create();
         alertDialog.show();
 
@@ -792,7 +805,6 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             Bitmap bitmap = Utility.getInstance().rotateImage(bitmap1, mPictureImagePath);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             if (mTypeOfImage == Utility.PROFILE_IMAGE) {
-
                 mProfileUserImageView.setImageBitmap(bitmap);
                 isProfileImageEdited = true;
                 mEditProfileImageButton.setBackground(ContextCompat.getDrawable(this, R.drawable.icon_tick));
@@ -817,7 +829,8 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
             cursor.moveToFirst();
             String selectedImagePath = cursor.getString(column_index);
             File imgFile = new File(selectedImagePath);
-            Bitmap bitmap = Utility.getInstance().decodeFile(imgFile);
+            Bitmap bitmap1 = Utility.getInstance().decodeFile(imgFile);
+            Bitmap bitmap = Utility.getInstance().rotateImage(bitmap1, selectedImagePath);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             if (mTypeOfImage == Utility.PROFILE_IMAGE) {
                 mProfileUserImageView.setImageBitmap(bitmap);
@@ -913,6 +926,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
                                     activities.setType(ActivityType.valueOf(ActivityType.UPLOAD_TYPE.toString()).ordinal());
                                 } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.LOCATION_TYPE.toString())) {
                                     activities.setLocationAddress(userActivityJsonObject.getString("address"));
+                                    if (userActivityJsonObject.has("description")) {
+                                        activities.setDescription(userActivityJsonObject.getString("description"));
+                                    }
+                                    activities.setLatitude(userActivityJsonObject.getDouble("latitude"));
+                                    activities.setLongitude(userActivityJsonObject.getDouble("longitude"));
                                     activities.setType(ActivityType.valueOf(ActivityType.LOCATION_TYPE.toString()).ordinal());
                                 } else if (userActivityJsonObject.getString("type").equalsIgnoreCase(ActivityType.FREE_TIME_TYPE.toString())) {
                                     activities.setFreeTimeDate(userActivityJsonObject.getString("freeDate"));
@@ -1116,4 +1134,11 @@ public class ProfileActivity extends AppCompatActivity implements View.OnClickLi
     }
 
 
+    @Override
+    public void showLocation(double latitude, double longitude) {
+        String urlAddress = "http://maps.google.com/maps?q=" + latitude + "," + longitude;
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(urlAddress));
+        intent.setPackage("com.google.android.apps.maps");
+        startActivity(intent);
+    }
 }

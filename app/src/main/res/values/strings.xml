@@ -70,7 +70,7 @@
     <string name="title_activity_friends">FriendsActivity</string>
     <string name="selected_location">Selected location</string>
     <string name="check_connection">Please check your network connection</string>
-    <string name="something_went_wrong">Something went wrong</string>
+    <string name="something_went_wrong">Something went wrong. We are fixing it for you.</string>
     <string name="enter_status">Please enter message</string>
     <string name="sun">SUN</string>
     <string name="mon">MON</string>
@@ -81,6 +81,10 @@
     <string name="sat">SAT</string>
     <string name="what_s_on_your_mind">What\'s on your mind?</string>
     <string name="search_for_people">Search for people in search bar \n Type atleast 3 characters</string>
+    <string name="online">Online</string>
+    <string name="check_in_at">Check In at...</string>
+    <string name="we_will_suggest_best_place_for_you">We will suggest the best place for you</string>
+    <string name="skype_webex">Skype, WebEx, Join.me etc..</string>
     <!-- invite -->
 
 
