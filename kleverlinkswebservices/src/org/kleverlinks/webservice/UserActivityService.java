@@ -109,7 +109,7 @@ public class UserActivityService {
 
 	@GET
 	@Path("/getUserActivity/{userId}")
-	@Produces(MediaType.TEXT_PLAIN)
+	@Produces(MediaType.APPLICATION_JSON)
 	public String getUserActivity(@PathParam("userId") Long userId) {
 		
 		JSONObject finalJson = new JSONObject();
@@ -178,6 +178,8 @@ public class UserActivityService {
 					json.put("type", ActivityType.UPLOAD_TYPE.toString());
 				}
 				else if (Utility.checkValidString(activityBean.getAddress())) {
+					json.put("latitude", activityBean.getLatitude());
+					json.put("longitude", activityBean.getLongitude());
 					json.put("address", activityBean.getAddress());
 					if(Utility.checkValidString(activityBean.getLocationDescription())){
 						json.put("description", activityBean.getLocationDescription());
@@ -268,7 +270,9 @@ public class UserActivityService {
 				  json.put("imageId",rs.getString("ImageID"));
 				  json.put("type", ActivityType.UPLOAD_TYPE.toString());
 			  } else if(Utility.checkValidString(rs.getString("Address"))){
-				  json.put("address", rs.getString("Address")); 
+				  json.put("address", rs.getString("Address"));
+				  json.put("latitude", rs.getString("Latitude"));
+				  json.put("longitude", rs.getString("Longitude")); 
 				  if(Utility.checkValidString(rs.getString("LocationDescription"))){
 						json.put("description", rs.getString("LocationDescription"));
 				  }
@@ -380,6 +384,8 @@ public class UserActivityService {
 				userActivityBean.setImage(rs.getString("ImageID"));
 				userActivityBean.setFromDate(rs.getString("FromDateTime"));
 				userActivityBean.setToDate(rs.getString("ToDateTime"));
+				userActivityBean.setLatitude(rs.getString("Latitude"));
+				userActivityBean.setLongitude(rs.getString("Longitude"));
 				userActivityBean.setAddress(rs.getString("Address"));
 				userActivityBean.setLocationDescription(rs.getString("LocationDescription"));
 				userActivityBean.setIsPrivate(rs.getInt("IsPrivate"));
@@ -458,7 +464,7 @@ public class UserActivityService {
 			deleteTemUserActivity(userId);
 			
 			conn = DataSourceConnection.getDBConnection();
-			String selectStoreProcedue = "{call usp_insertUserActivityToTempTable(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+			String selectStoreProcedue = "{call usp_insertUserActivityToTempTable(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(selectStoreProcedue);
 			
 			for (ActivityBean activityBean : activityBeanList) {
@@ -487,9 +493,11 @@ public class UserActivityService {
 				callableStatement.setString(10, activityBean.getImageDescription());
 				callableStatement.setString(11, activityBean.getImage());
 				callableStatement.setInt(12, activityBean.getIsPrivate());
-				callableStatement.setString(13, activityBean.getAddress());
-				callableStatement.setString(14, activityBean.getLocationDescription());
-				callableStatement.setString(15, dateTimeFormat.format(activityBean.getDate()));
+				callableStatement.setString(13, activityBean.getLatitude());
+				callableStatement.setString(14, activityBean.getLongitude());
+				callableStatement.setString(15, activityBean.getAddress());
+				callableStatement.setString(16, activityBean.getLocationDescription());
+				callableStatement.setString(17, dateTimeFormat.format(activityBean.getDate()));
 			
 				callableStatement.addBatch();
 			}

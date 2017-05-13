@@ -227,7 +227,7 @@ public class FriendActivityService {
 			conn = DataSourceConnection.getDBConnection();
 	    
 			String sql = "SELECT U.FirstName,U.LastName,U.ProfileImageID,UA.UserActivityID,UA.UserID,UA.StatusDescription,UA.ImageDescription,"
-					+ "UA.ImageID,UA.FromDateTime,UA.ToDateTime,UA.IsPrivate,Address,UA.LocationDescription,UA.CreatedDateTime"
+					+ "UA.ImageID,UA.FromDateTime,UA.ToDateTime,UA.IsPrivate,UA.Address,UA.Latitude,UA.Longitude,UA.LocationDescription,UA.CreatedDateTime"
 					+ " FROM tbl_UserActivity AS UA INNER JOIN tbl_users AS U ON U.UserID=UA.UserID WHERE UA.UserID IN ("+friendUserIds+")";
 			statement = conn.createStatement();
 			ResultSet rs = statement.executeQuery(sql);
@@ -242,6 +242,8 @@ public class FriendActivityService {
 				userActivityBean.setFromDate(rs.getString("FromDateTime"));
 				userActivityBean.setToDate(rs.getString("ToDateTime"));
 				userActivityBean.setAddress(rs.getString("Address"));
+				userActivityBean.setLatitude(rs.getString("Latitude"));
+				userActivityBean.setLongitude(rs.getString("Longitude"));
 				userActivityBean.setLocationDescription(rs.getString("LocationDescription"));
 				userActivityBean.setIsPrivate(rs.getInt("IsPrivate"));
 				userActivityBean.setDate(df.parse(rs.getString("CreatedDateTime")));
@@ -299,7 +301,7 @@ public class FriendActivityService {
 		DateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			String insertStoreProced = "{call usp_insertFriendActivityToTempTable(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
+			String insertStoreProced = "{call usp_insertFriendActivityToTempTable(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 			callableStatement = conn.prepareCall(insertStoreProced);
 			deleteTemUserActivity(friendUserIds);
 			
@@ -333,10 +335,12 @@ public class FriendActivityService {
 				callableStatement.setString(13, activityBean.getImage());
 				callableStatement.setInt(14, activityBean.getIsPrivate());
 				callableStatement.setString(15, activityBean.getAddress());
-				callableStatement.setString(16, activityBean.getLocationDescription());
-				callableStatement.setString(17, activityBean.getUserProfileImageId());
-				callableStatement.setString(18, activityBean.getUserFullName());
-				callableStatement.setString(19, dateTimeFormat.format(activityBean.getDate()));
+				callableStatement.setString(16, activityBean.getLatitude());
+				callableStatement.setString(17, activityBean.getLongitude());
+				callableStatement.setString(18, activityBean.getLocationDescription());
+				callableStatement.setString(19, activityBean.getUserProfileImageId());
+				callableStatement.setString(20, activityBean.getUserFullName());
+				callableStatement.setString(21, dateTimeFormat.format(activityBean.getDate()));
 			
 				callableStatement.addBatch();
 			}
@@ -408,6 +412,8 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 					json.put("type", ActivityType.UPLOAD_TYPE.toString());
 				}else if (Utility.checkValidString(activityBean.getAddress())) {
 					json.put("address", activityBean.getAddress());
+					json.put("latitude", activityBean.getLatitude());
+					json.put("longitude", activityBean.getLongitude());
 					if(Utility.checkValidString(activityBean.getLocationDescription())){
 						json.put("description", activityBean.getLocationDescription());
 					}
@@ -510,6 +516,8 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 					json.put("type", ActivityType.UPLOAD_TYPE.toString());
 				}else if (Utility.checkValidString(rs.getString("Address"))) {
 					json.put("address", rs.getString("Address"));
+					json.put("latitude", rs.getString("Latitude"));
+					json.put("longitude", rs.getString("Longitude"));
 					 if(Utility.checkValidString(rs.getString("LocationDescription"))){
 							json.put("description", rs.getString("LocationDescription"));
 					  }
@@ -534,7 +542,6 @@ public static JSONArray setUserActivity(List<ActivityBean> userActivityBeanList)
 				if(json.has("type")){
 					json.put("date", rs.getString("CreatedDateTime"));
 					json.put("userId", rs.getLong("UserID"));
-					json.put("userProfileImageId", rs.getString("UserProfileImageID"));
 					
 					if(Utility.checkValidString(rs.getString("UserProfileImageID"))){
 						json.put("userProfileImageId", rs.getString("UserProfileImageID"));

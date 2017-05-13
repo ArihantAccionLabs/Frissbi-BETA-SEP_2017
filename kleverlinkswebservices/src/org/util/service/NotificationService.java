@@ -118,7 +118,7 @@ public class NotificationService {
 
 		MeetingLogBean meetingLogBean = ServiceUtility.getMeetingDetailsByMeetingId(meetingId);
 		if (meetingLogBean != null) {
-
+            System.out.println("meeting desc :::   "+meetingLogBean.getDescription());
 			String message = meetingLogBean.getDescription() + " meeting with "
 					+ meetingLogBean.getFullName() ;/*+ " on " + meetingLogBean.getDate() + " from "
 					+ meetingLogBean.getStartTime() + " to " + meetingLogBean.getEndTime();*/
@@ -270,7 +270,7 @@ public class NotificationService {
 		return names;
 	}
 	
-	public static void sendMeetingNotificationBeforeTwoHour(NotificationInfoDTO notificationInfoDTO) {
+	public static void sendMeetingReminderForAddress(NotificationInfoDTO notificationInfoDTO) {
 
 		try {
 			int value = insertBatchNotification(notificationInfoDTO);
@@ -384,8 +384,10 @@ public class NotificationService {
 
 			NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
 			System.out.println(meetingCreatorLogBean.getSenderUserId()  +"  userIdSet=========" + userIdSet.toString());
-			if (!userIdSet.isEmpty()) {
-
+			if (!userIdSet.isEmpty() && userIdSet.size() >= 2) {
+				
+				 Utility.updateMeetingsReminder(addressMeetingList);
+				 
 				notificationInfoDTO.setMeetingId(meetingCreatorLogBean.getMeetingId());
 				notificationInfoDTO.setSenderUserId(0l);
 				notificationInfoDTO.setNotificationType(NotificationsEnum.MEETING_SUMMARY.toString());
@@ -410,28 +412,28 @@ public class NotificationService {
 									messages += notificationInfoDTO.getMeetingLogBean().getDescription() + " meeting with "
 											+ notificationInfoDTO.getMeetingLogBean().getFullName() + " and "
 											+ (notificationInfoDTO.getUserList().size() - 1) 
-											+" in the next 1 hour";
+											/*+" in the next 1 hour";*/
 											
-											/*" others on "
+											+" and others on "
 											+ notificationInfoDTO.getMeetingLogBean().getDate() + " from "
 											+ notificationInfoDTO.getMeetingLogBean().getStartTime() + " to "
-											+ notificationInfoDTO.getMeetingLogBean().getEndTime();*/
+											+ notificationInfoDTO.getMeetingLogBean().getEndTime();
 								} else {
 									messages += notificationInfoDTO.getMeetingLogBean().getDescription() + " meeting with "
 											+ fullName 
 											+ " and "
 											+ (notificationInfoDTO.getUserList().size() - 1) 
-											+" in the next 1 hour";
+											//+" in the next 1 hour";
 											
-											/* " on " + notificationInfoDTO.getMeetingLogBean().getDate()
+											+ " on " + notificationInfoDTO.getMeetingLogBean().getDate()
 											+ " from " + notificationInfoDTO.getMeetingLogBean().getStartTime() + " to "
-											+ notificationInfoDTO.getMeetingLogBean().getEndTime();*/
+											+ notificationInfoDTO.getMeetingLogBean().getEndTime();
 								}
 							}
 							Sender sender = new Sender(Constants.GCM_APIKEY);
 							String NotificationName = notificationInfoDTO.getNotificationType();
-							if (meetingCreatorLogBean.getLatitude() != null
-									&& !meetingCreatorLogBean.getLatitude().trim().isEmpty()) {
+							System.out.println(" ===  "+meetingCreatorLogBean.getAddress()+"   "+(Utility.checkValidString(meetingCreatorLogBean.getAddress())));
+							if (Utility.checkValidString(meetingCreatorLogBean.getAddress()) || meetingCreatorLogBean.getMeetingType().equals("ONLINE")) {
 								isLocationSelected = true;
 							}
 							Message message = new Message.Builder().timeToLive(3).delayWhileIdle(true).dryRun(true)
@@ -650,6 +652,7 @@ public class NotificationService {
 		Connection conn = null;
 		CallableStatement callableStatement = null;
 		String deviceRegistrationID = "";
+		System.out.println("userId  :::  "+userId);
 		try {
 			conn = DataSourceConnection.getDBConnection();
 			String insertStoreProc = "{call usp_GetDeviceRegistrationId(?)}";

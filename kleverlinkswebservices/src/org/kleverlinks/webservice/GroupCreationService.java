@@ -49,7 +49,7 @@ public class GroupCreationService {
 		try {
 			JSONObject jsonObject = new JSONObject(group);
 			GroupBean groupBean = new GroupBean(jsonObject);
-			System.out.println("jsonObject  : "+jsonObject.toString());
+			//System.out.println("jsonObject  : "+jsonObject.toString());
 			String groupImageId = null;
 			if(Utility.checkValidString(groupBean.getGroupImage())){
 				MongoDBJDBC mongoDBJDBC = new MongoDBJDBC();

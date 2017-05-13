@@ -43,7 +43,7 @@ public class CronScheduler {
     	   //This scheduler will run every minute
     	   JobKey meetingAddressJob = new JobKey("meetingAddressJob", "meetingAddressJob");
     	   JobDetail meetingAddressJobDetail = JobBuilder.newJob(MeetingAddressCronJob.class).withIdentity(meetingAddressJob).build();
-    	   Trigger meetingAddressJobTrigger = TriggerBuilder.newTrigger().withIdentity("meetingAddressJobTrigger", "meetingAddressJob").withSchedule(CronScheduleBuilder.cronSchedule("0 0/1 * 1/1 * ? *")).build();
+    	   Trigger meetingAddressJobTrigger = TriggerBuilder.newTrigger().withIdentity("meetingAddressJobTrigger", "meetingAddressJob").withSchedule(CronScheduleBuilder.cronSchedule("0 0/3 * 1/1 * ? *")).build();
     	   
     	   
     	 //This scheduler will run every night at 1:00:00 am

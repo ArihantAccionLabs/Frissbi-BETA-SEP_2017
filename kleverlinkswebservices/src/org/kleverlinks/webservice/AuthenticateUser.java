@@ -23,6 +23,7 @@ import org.kleverlinks.bean.AppUserBean;
 import org.kleverlinks.bean.CredentialBean;
 import org.util.Utility;
 import org.util.service.ServiceUtility;
+import org.util.service.TrackMeetingTime;
 @Path("AuthenticateUserService")
 public class AuthenticateUser {
 
@@ -33,9 +34,9 @@ public class AuthenticateUser {
 	@Path("/testMethod")
 	@Produces(MediaType.TEXT_PLAIN)
 	public String doSomething() throws Exception {
-		System.out.println("This project is running");
-		
-		//EmailService.sendMail("sunil@thrymr.net", "Testing email", "hiii");
+		//System.out.println("This project is running");
+		//Utility.updateMeetingsReminder();
+		TrackMeetingTime.getMeetingListBetweenTime();
 		
 	return "Youproject is running";	
 	}

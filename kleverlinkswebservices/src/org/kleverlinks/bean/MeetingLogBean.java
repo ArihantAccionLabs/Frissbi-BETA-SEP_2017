@@ -18,8 +18,12 @@ public class MeetingLogBean {
 	private Time meetingDuration;
 	private String description;
 	private String address;
+	private String placeName;
 	private String latitude;
 	private String longitude;
+	
+	private String meetingType;
+	
 	private String profileImageId;
 
 	private int meetingStatus;
@@ -68,6 +72,12 @@ public class MeetingLogBean {
 	public void setAddress(String address) {
 		this.address = address;
 	}
+	public String getPlaceName() {
+		return placeName;
+	}
+	public void setPlaceName(String placeName) {
+		this.placeName = placeName;
+	}
 	public String getLatitude() {
 		return latitude;
 	}
@@ -112,6 +122,12 @@ public class MeetingLogBean {
 
 	public void setMeetingStatus(int meetingStatus) {
 		this.meetingStatus = meetingStatus;
+	}
+	public String getMeetingType() {
+		return meetingType;
+	}
+	public void setMeetingType(String meetingType) {
+		this.meetingType = meetingType;
 	}
 	public String getProfileImageId() {
 		return profileImageId;

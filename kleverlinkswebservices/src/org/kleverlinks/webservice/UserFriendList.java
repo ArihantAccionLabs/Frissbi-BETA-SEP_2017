@@ -135,7 +135,7 @@ public class UserFriendList {
 			int value = callableStatement.executeUpdate();
 			System.out.println("value  :::  " + value);
 			if (value == 1) {
-				JSONObject receiverJsonObject = ServiceUtility.getUserDetailByUserId(friendBean.getFreindId());
+				JSONObject receiverJsonObject = ServiceUtility.getUserDetailByUserId(friendBean.getUserId());
 				// JSONObject senderJsonObject =
 				// ServiceUtility.getUserDetailByUserId(senderUserId);
 
@@ -148,8 +148,8 @@ public class UserFriendList {
 															 * Date());
 															 */
 				NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
-				notificationInfoDTO.setUserId(friendBean.getUserId());
-				notificationInfoDTO.setSenderUserId(friendBean.getFreindId());
+				notificationInfoDTO.setUserId(friendBean.getFreindId());//notification will trigger to this user id
+				notificationInfoDTO.setSenderUserId(friendBean.getUserId());
 				notificationInfoDTO.setNotificationType(NotificationsEnum.FRIEND_REQUEST_ACCEPTANCE.toString());
 				notificationInfoDTO.setMessage(message);
 

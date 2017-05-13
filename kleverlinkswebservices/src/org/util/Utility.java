@@ -21,6 +21,7 @@ import javax.ws.rs.PathParam;
 
 import org.json.JSONObject;
 import org.kleverlinks.bean.ActivityBean;
+import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.FriendStatusEnum;
 import org.kleverlinks.webservice.DataSourceConnection;
 import org.util.service.ServiceUtility;
@@ -208,7 +209,7 @@ public static String nextSessionId() {
 	return new BigInteger(130, random).toString(32);
 }
 
-public static JSONObject checkUserEmailVerification(@PathParam("emailId") String emailId) {
+public static JSONObject checkUserEmailVerification(String emailId) {
 
 	Connection conn = null;
 	CallableStatement callableStatement = null;
@@ -237,5 +238,63 @@ public static JSONObject checkUserEmailVerification(@PathParam("emailId") String
 	}
 	return jsonObject;
 }
+
+//if isReminderSent -> 0 reminder not yet sent , 1-> sent here making sure that reminder is already sent
+
+
+public static Boolean updateMeetingsReminder(List<MeetingLogBean> MeetingLogBeanList) { 
+	Connection conn = null;
+	CallableStatement callableStatement = null;
+	try {
+		conn = DataSourceConnection.getDBConnection();
+		String insertStoreProc = "{call usp_updateMeetingsReminder(?,?)}";
+		callableStatement = conn.prepareCall(insertStoreProc);
+		for(MeetingLogBean meetingLogBean : MeetingLogBeanList){
+			
+			callableStatement.setLong(1, meetingLogBean.getMeetingId());
+			callableStatement.setInt(2, 1);
+			callableStatement.addBatch();
+		}
+		int[] isMeetingReminderUpdated = callableStatement.executeBatch();
+		System.out.println("isMeetingReminderUpdated.length   "+isMeetingReminderUpdated.length);
+		if(isMeetingReminderUpdated.length != 0){
+			return true;
+		}
+
+	} catch(Exception e){
+		e.printStackTrace();
+	} finally {
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeCallableSatetment(callableStatement);
+	}
+	return false;
+}
+
+public static Boolean updateMeetingsReminder(Long meetingId) { 
+	Connection conn = null;
+	CallableStatement callableStatement = null;
+	try {
+		conn = DataSourceConnection.getDBConnection();
+		String insertStoreProc = "{call usp_updateMeetingsReminder(?,?)}";
+		callableStatement = conn.prepareCall(insertStoreProc);
+			
+			callableStatement.setLong(1, meetingId);
+			callableStatement.setInt(2, 1);
+		callableStatement.addBatch();
+		int isMeetingReminderUpdated = callableStatement.executeUpdate();
+		
+		if(isMeetingReminderUpdated != 0){
+			return true;
+		}
+
+	} catch(Exception e){
+		e.printStackTrace();
+	} finally {
+		ServiceUtility.closeConnection(conn);
+		ServiceUtility.closeCallableSatetment(callableStatement);
+	}
+	return false;
+}
+
 
 }

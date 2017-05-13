@@ -460,7 +460,6 @@ public class ServiceUtility {
 		 Map<String , JSONArray> map = new HashMap<>();
 		try {
 			conn = DataSourceConnection.getDBConnection();
-			//SELECT tbl_users.firstName,tbl_users.lastName,tbl_RecipientsDetails.Status FROM tbl_RecipientsDetails INNER JOIN tbl_users ON  tbl_RecipientsDetails.UserID=tbl_users.UserID WHERE MeetingID="+meetingId;
 			String storeProc = "{call usp_GetMeetingFriendsList_ByMeetingID(?)}"; 
 			callableStatement = conn.prepareCall(storeProc);
 			callableStatement.setLong(1, meetingId);
@@ -550,7 +549,9 @@ public class ServiceUtility {
 					meetingLogBean.setLatitude(rs.getString("Latitude"));
 					meetingLogBean.setLongitude(rs.getString("Longitude"));
 					meetingLogBean.setAddress(rs.getString("GoogleAddress"));
+					meetingLogBean.setPlaceName(rs.getString("PlaceName"));
 					meetingLogBean.setMeetingDuration(rs.getTime("ScheduledTimeSlot"));
+					meetingLogBean.setMeetingType(rs.getString("MeetingType"));
 			}
 		} catch(Exception  e){
 			e.printStackTrace();

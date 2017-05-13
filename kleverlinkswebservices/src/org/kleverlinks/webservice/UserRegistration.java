@@ -276,13 +276,44 @@ public class UserRegistration {
 	}
 
 	@GET
-	@Path("/testMethod")
+	@Path("/verifyemailaddress/{email}/{verificationcode}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String doSomething(){
-		System.out.println("test Method  :  ");
-	return "ok";	
+	public String verifyEmailAddress(@PathParam("email") String email,
+			@PathParam("verificationcode") String verificationCode) {
+		Connection conn = null;
+		CallableStatement callableStatement = null;
+		String txt = "";
+		try {
+			JSONObject jsonObject = Utility.checkUserEmailVerification(email);
+			if(jsonObject != null){
+             if(jsonObject.getInt("isEmailVerified") == 1){
+            	 return "You already successfully verfied your email account. Login to frissbi with your emailId and password"; 
+             }
+			if (jsonObject.getString("emailVerificationCode").equals(verificationCode)) {
+				conn = DataSourceConnection.getDBConnection();
+			    String storeProc = "{call usp_UpdateEmailVerification(?)}"  ; 
+				callableStatement = conn.prepareCall(storeProc);
+				callableStatement.setString(1, email);
+				
+			   int	value = callableStatement.executeUpdate();
+               if(value != 0){
+            	   txt = "You have successfully verfied your email account. Login to frissbi with your emailId and password";
+               }
+			} else {
+				txt = "There was some problem in verifying your email account";
+			}
+		}else{
+			txt = "This email account is not belong to you";
+		}
+		} catch(Exception e){
+			e.printStackTrace();
+		} finally {
+			ServiceUtility.closeConnection(conn);
+			ServiceUtility.closeCallableSatetment(callableStatement);
+		}
+		return txt;
 	}
-	
+
 	
 	@POST
 	@Path("/insertProfileImage")

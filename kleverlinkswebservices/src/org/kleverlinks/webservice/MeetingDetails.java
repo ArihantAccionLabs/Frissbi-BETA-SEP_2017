@@ -100,7 +100,7 @@ public class MeetingDetails {
 			CallableStatement callableStatement = null;
 			connection = DataSourceConnection.getDBConnection();
 			Long meetingId = 0l;
-			String insertStoreProc = "{call usp_InsertMeetingDetails(?,?,?,?,?,?,?,?,?,?,?,?)}";
+			String insertStoreProc = "{call usp_InsertMeetingDetails(?,?,?,?,?,?,?,?,?,?,?,?,?)}";
 			callableStatement = connection.prepareCall(insertStoreProc);
 			callableStatement.setLong(1, meetingCreationBean.getSenderUserId());
 			callableStatement.setTimestamp(2, new Timestamp(new Date().getTime()));
@@ -118,12 +118,13 @@ public class MeetingDetails {
 				callableStatement.setString(9, null);
 			}
 			callableStatement.setString(10, MeetingStatus.ACTIVE.toString());
-			callableStatement.registerOutParameter(11, Types.INTEGER);
-			callableStatement.registerOutParameter(12, Types.BIGINT);
+			callableStatement.setString(11, meetingCreationBean.getMeetingType());
+			callableStatement.registerOutParameter(12, Types.INTEGER);
+			callableStatement.registerOutParameter(13, Types.BIGINT);
 
 			int value = callableStatement.executeUpdate();
-			int isError = callableStatement.getInt(11);
-			meetingId = callableStatement.getLong(12);
+			int isError = callableStatement.getInt(12);
+			meetingId = callableStatement.getLong(13);
 			System.out.println(isError + "meetingId >>>>>>>>>>>>>>>>>> " + meetingId + "  value==" + value);
 
 			if (value != 0  && meetingId != 0l && meetingId != null) {
@@ -528,16 +529,13 @@ public class MeetingDetails {
 			if(meetingLogBean.getMeetingId() != null){
 				
 				JSONObject meetingJson = ServiceUtility.checkMeetingAddressUpdateByMeetingId(meetingId);
-				LocalDateTime meetingDateTime = ServiceUtility.convertStringToLocalDateTime(meetingJson.getString("senderFromDateTime"));
-				LocalDateTime currentDateTime = LocalDateTime.now().plusHours(2);
 				
-				if(currentDateTime.isAfter(meetingDateTime)){
-					 jsonObject.put("updateCount", meetingJson.getInt("updateCount"));	
-				}
+				jsonObject.put("updateCount", meetingJson.getInt("updateCount"));	
 				
 				 jsonObject.put("meetingId" , meetingLogBean.getMeetingId());
 				 jsonObject.put("meetingSenderId" , meetingLogBean.getSenderUserId());
 				 jsonObject.put("date" , meetingLogBean.getDate());
+				 jsonObject.put("meetingType" , meetingLogBean.getMeetingType());
 				 
 				 DateFormat  dateFormat = new SimpleDateFormat("HH:mm");
 				 jsonObject.put("meetingDuration" ,dateFormat.format(meetingLogBean.getMeetingDuration()));
@@ -551,6 +549,7 @@ public class MeetingDetails {
 					
 					jsonObject.put("isLocationSelected",true);
 					jsonObject.put("address" , meetingLogBean.getAddress());
+					jsonObject.put("placeName" , meetingLogBean.getPlaceName());
 					jsonObject.put("latitude" , meetingLogBean.getLatitude());
 					jsonObject.put("longitude" , meetingLogBean.getLongitude());
 				}else{
@@ -603,7 +602,7 @@ public class MeetingDetails {
 	@Consumes(MediaType.APPLICATION_JSON)
 	public String getMeetingSummary(String meetingDetails){
 		
-		System.out.println("meetingDetails============"+meetingDetails);
+		System.out.println("========   storeMeetingLatLngByUser method hitting   meetingDetails============          "+meetingDetails);
 		
 		JSONObject finalJson = new JSONObject();
 		JSONObject meetingUserDetail = new JSONObject(meetingDetails);
@@ -617,9 +616,8 @@ public class MeetingDetails {
 	     try{
 		  	conn = DataSourceConnection.getDBConnection();
 		  	Boolean isMeetingCreator = (meetingLogBean.getMeetingId() != null && meetingLogBean.getSenderUserId().equals(userId)) ? true : false ;
-		  	System.out.println("isMeetingCreator  :  "+isMeetingCreator);
 		  	
-		  	String updateMeetingSqlProc = "{call usp_UpdateMeetingAddress(?,?,?,?,?,?)}";
+		  	String updateMeetingSqlProc = "{call usp_UpdateMeetingLatLng(?,?,?,?,?,?)}";
 		  	callableStatement = conn.prepareCall(updateMeetingSqlProc);
 			callableStatement.setLong(1, meetingId);
 			callableStatement.setLong(2, userId);
@@ -630,7 +628,6 @@ public class MeetingDetails {
 		  	
 			updatedRow =	callableStatement.executeUpdate();
 			
-			System.out.println("updatedRow == "+updatedRow);
 			if(updatedRow == 0){
 				finalJson.put("status", false);
 				finalJson.put("message", "Something went wrong");
@@ -643,7 +640,7 @@ public class MeetingDetails {
 			ServiceUtility.closeCallableSatetment(callableStatement);
 		 }
 	    try{
-	     String countAddrStoreProc  = "{call usp_countMeetingAddress}"; 
+	     String countAddrStoreProc  = "{call usp_countMeetingAddress(?)}"; 
 	     conn = DataSourceConnection.getDBConnection();
          callableStatement = conn.prepareCall(countAddrStoreProc);
          callableStatement.setLong(1, meetingId);
@@ -669,6 +666,9 @@ public class MeetingDetails {
 		// LocalDateTime localDateTime = LocalDateTime.now().plusHours(2);
 		// System.out.println(meetingLogBean.getFromDate().plusMinutes(2)+"================="+meetingLogBean.getFromDate().plusMinutes(2).isBefore(localDateTime)+"   localDateTime=    "+localDateTime);
 		 //&& meetingLogBean.getFromDate().plusMinutes(2).isBefore(localDateTime)
+		 for (UserDTO userDTO2 : userAddressList) {
+			System.out.println(""+userDTO2.getLatitude()+"   "+userDTO2.getLongitude());
+		}
 		 System.out.println(" testing updated adress "+(userAddressList.size() >= 2 ));
 		 
 		 if(userAddressList.size() >= 2 ){
@@ -679,7 +679,6 @@ public class MeetingDetails {
 		  if(isLocationsaved){
 			  JSONArray frissbiLocationArray =  GoogleSearchPlaces.getFrissbiLocation(meetingId, 0); 
 			  
-			  System.out.println("frissbiLocationArray==================="+frissbiLocationArray.length());
 			  JSONArray friendsIdArray  = ServiceUtility.getReceptionistDetailsByMeetingId(meetingId);
 			  List<MeetingAcceptedUserBean> meetingAcceptedUserBeanList = new ArrayList<>();
 			  if(friendsIdArray.length() != 0){
@@ -720,6 +719,7 @@ public class MeetingDetails {
 					}else{
 						jsonObject2.put("isNextLocationExist", true);
 					}
+				 jsonObject2.put("friendsJsonArray", ServiceUtility.getReceiverDetailsByMeetingId(meetingId , userId).get("friendsArray"));
 				 jsonObject2.put("isLocationUpdate", false);
 				 jsonObject2.put("title", meetingLogBean.getDescription());
 				 jsonObject2.put("date", meetingLogBean.getDate());
@@ -727,7 +727,7 @@ public class MeetingDetails {
 				 jsonObject2.put("to", meetingLogBean.getEndTime());
 				 notificationInfoDTO.setJsonObject(jsonObject2);
 				 
-				 NotificationService.sendMeetingNotificationBeforeTwoHour(notificationInfoDTO);
+				 NotificationService.sendMeetingReminderForAddress(notificationInfoDTO);
 			  }
 		  }
 		 }
@@ -750,7 +750,7 @@ public class MeetingDetails {
 	public String updateMeetingAddress(String addressDetails){
 		
 		JSONObject addressJsonObject = new JSONObject(addressDetails);
-        System.out.println("addressJsonObject==========================="+addressJsonObject.toString());
+        System.out.println("  updateMeetingAddress  method ==========================="+addressJsonObject.toString());
         
 		JSONObject finalJson = new JSONObject();
 		
@@ -772,7 +772,8 @@ public class MeetingDetails {
 			 }else{
 				if(updateCount == 2){
 					finalJson.put("meetingId", meetingId);	
-					finalJson.put("isLocationUpdate", true);	
+					finalJson.put("status", true);	
+					finalJson.put("isLocationUpdate", false);	//already updated
 					finalJson.put("meetingId", meetingId);	
 					finalJson.put("message", "Location is already decided");	
 					return finalJson.toString();
@@ -787,11 +788,9 @@ public class MeetingDetails {
 				callableStatement.setString(2, addressJsonObject.getString("latitude"));
 				callableStatement.setString(3,  addressJsonObject.getString("longitude"));
 				callableStatement.setString(4, addressJsonObject.getString("address"));
-				callableStatement.setLong(5, (updateCount+1));
-				callableStatement.registerOutParameter(6, Types.INTEGER);
-				
+				callableStatement.setString(5, addressJsonObject.getString("placeName"));
+				callableStatement.setInt(6, updateCount+1);
 				int value = callableStatement.executeUpdate();
-				int isError = callableStatement.getInt(6);
 				
 				if(value != 0){
 					
@@ -814,6 +813,7 @@ public class MeetingDetails {
 						jsonObject.put("address" , meetingLogBean.getAddress());
 						jsonObject.put("latitude" , meetingLogBean.getLatitude());
 						jsonObject.put("longitude" , meetingLogBean.getLongitude());
+						
 						String message = "Location has been chosen for the "+meetingLogBean.getDescription() +" meeting";
 						
 						NotificationInfoDTO notificationInfoDTO = new NotificationInfoDTO();
@@ -824,8 +824,10 @@ public class MeetingDetails {
 						notificationInfoDTO.setJsonObject(jsonObject);
 						
 						NotificationService.sendMeetingNotification(notificationInfoDTO);
+						
 					}
 					finalJson.put("status", true);	
+					finalJson.put("isLocationUpdate", true);	
 					finalJson.put("meetingId", meetingId);	
 					finalJson.put("message", "Meeting address updated and selected");	
 					return finalJson.toString();
@@ -844,9 +846,9 @@ public class MeetingDetails {
 	
 	
     @GET	
-	@Path("/getFrissbiLocations/{meetingId}/{offSetValue}")
+	@Path("/getFrissbiLocations/{meetingId}/{offSetValue}/{userId}")
 	@Produces(MediaType.TEXT_PLAIN)
-	public String getMoreFrissbiLocations(@PathParam("meetingId") Long meetingId , @PathParam("offSetValue") int offSetValue){
+	public String getMoreFrissbiLocations(@PathParam("meetingId") Long meetingId , @PathParam("offSetValue") int offSetValue , @PathParam("userId") Long userId){
 		
 		JSONObject finalJson = new JSONObject();
 		try{
@@ -857,6 +859,7 @@ public class MeetingDetails {
 			}else{
 				finalJson.put("isNextLocationExist", true);
 			}
+			finalJson.put("friendsJsonArray", ServiceUtility.getReceiverDetailsByMeetingId(meetingId , userId).get("friendsArray"));
 			finalJson.put("frissbiLocationArray", frissbiLocations);
 			finalJson.put("status", true);	
 			finalJson.put("message", "Frissbi location fetched successfully");	

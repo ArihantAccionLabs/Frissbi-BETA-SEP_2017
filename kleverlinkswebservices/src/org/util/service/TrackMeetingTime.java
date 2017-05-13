@@ -15,15 +15,20 @@ import java.util.List;
 import org.kleverlinks.bean.MeetingLogBean;
 import org.kleverlinks.enums.MeetingStatus;
 import org.kleverlinks.webservice.DataSourceConnection;
+import org.util.Utility;
 
 public class TrackMeetingTime {
 
-	public static void getMeetingListBetweenTime(){
+	public static void getMeetingListBetweenTime(){//isReminderSent is the field ->0 no reminder sent , 1-> reminder sent
 		
-		List<MeetingLogBean> meetingList = new ArrayList<MeetingLogBean>();
+		List<MeetingLogBean> anyPlaceMeetingList = new ArrayList<MeetingLogBean>();//No address
+		List<MeetingLogBean> myPlaceMeetingList = new ArrayList<MeetingLogBean>();//address is selected 
+		List<MeetingLogBean> onlineMeetingList = new ArrayList<MeetingLogBean>();//address is selected 
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
-		LocalDateTime fromTime = LocalDateTime.now().plusHours(2);
-		System.out.println("fromTime===2 hour "+ formatter.format(fromTime));
+		LocalDateTime fromTime = LocalDateTime.now().plusMinutes(3);
+		LocalDateTime toTime = LocalDateTime.now().plusHours(2);
+		LocalDateTime beforOneHour = LocalDateTime.now().plusHours(1);
+		System.out.println("now === "+ formatter.format(fromTime)+"  toTime == "+ formatter.format(toTime));
 		
 		 Connection conn = null;
 		 CallableStatement callableStatement = null;
@@ -32,12 +37,10 @@ public class TrackMeetingTime {
 			String storeProc = "{call usp_GetMeetingList(?,?)}"; 
 			callableStatement = conn.prepareCall(storeProc);
 			callableStatement.setTimestamp(1 , Timestamp.valueOf(fromTime));
-			callableStatement.setTimestamp(2 , Timestamp.valueOf(fromTime));
+			callableStatement.setTimestamp(2 , Timestamp.valueOf(toTime));
 			
 			ResultSet rs = callableStatement.executeQuery();
 		   while(rs.next()){
-			   System.out.println("Latitude<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"+rs.getString("Latitude"));
-			   if(rs.getString("Latitude") == null || rs.getString("Latitude") == ""){
 				   
 				   MeetingLogBean meetingLogBean = new MeetingLogBean();
 				   meetingLogBean.setSenderUserId(rs.getLong("SenderUserID"));
@@ -48,19 +51,37 @@ public class TrackMeetingTime {
 				   meetingLogBean.setDate(fromTime1.toLocalDate());
 				   meetingLogBean.setStartTime(ServiceUtility.updateTime(fromTime1.getHour(), fromTime1.getMinute()));
 				   meetingLogBean.setEndTime(ServiceUtility.updateTime(toTime1.getHour(), toTime1.getMinute()));
+				   meetingLogBean.setFromDate(fromTime1);
 				   meetingLogBean.setDescription(rs.getString("MeetingDescription"));
-				/*   meetingLogBean.setLatitude(rs.getString("Latitude"));
-				   meetingLogBean.setLongitude(rs.getString("Longitude"));
-				   meetingLogBean.setAddress(rs.getString("GoogleAddress"));*/
+				   meetingLogBean.setMeetingType(rs.getString("MeetingType"));
 				   
-				   meetingList.add(meetingLogBean);
-			  }
+				   if(Utility.checkValidString(rs.getString("GoogleAddress")) && meetingLogBean.getFromDate().isBefore(beforOneHour)){
+					   
+					   meetingLogBean.setLatitude(rs.getString("Latitude"));
+					   meetingLogBean.setLongitude(rs.getString("Longitude"));
+					   meetingLogBean.setAddress(rs.getString("GoogleAddress"));
+					   
+					   myPlaceMeetingList.add(meetingLogBean);
+				   }else{
+					   if(meetingLogBean.getMeetingType().equals("ONLINE") && meetingLogBean.getFromDate().isBefore(beforOneHour)){
+						   onlineMeetingList.add(meetingLogBean);
+					   }else{
+						   anyPlaceMeetingList.add(meetingLogBean);
+					   }
+				   }
+			
 		   }
-		   if(! meetingList.isEmpty()){
-				  
-			   NotificationService.sendMeetingAlarmNotification(meetingList);
+		   System.out.println("onlineMeetingList ====   "+onlineMeetingList.size()+"      anyPlaceMeetingList ========   "+anyPlaceMeetingList.size()+"  myPlaceMeetingList===  "+ myPlaceMeetingList.size());
+		   if(! anyPlaceMeetingList.isEmpty()){
+			   NotificationService.sendMeetingAlarmNotification(anyPlaceMeetingList);
 		   }
-		   sendMeetingNotificationBeforeOneHour();
+		   if(! myPlaceMeetingList.isEmpty()){
+			   NotificationService.sendMeetingAlarmNotification(myPlaceMeetingList);
+		   }
+		   if(! onlineMeetingList.isEmpty()){
+			   NotificationService.sendMeetingAlarmNotification(onlineMeetingList);
+		   }
+		 //  sendMeetingNotificationBeforeOneHour();
 		
 	  } catch (Exception e) {
 		e.printStackTrace();
@@ -69,7 +90,7 @@ public class TrackMeetingTime {
 		   ServiceUtility.closeCallableSatetment(callableStatement);
 	}
 	}
-		public static void sendMeetingNotificationBeforeOneHour(){
+	/*	public static void sendMeetingNotificationBeforeOneHour(){
 			
 			List<MeetingLogBean> addressMeetingList = new ArrayList<MeetingLogBean>();
 			DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY-MM-dd HH:mm:ss");
@@ -116,7 +137,7 @@ public class TrackMeetingTime {
 				ServiceUtility.closeConnection(conn);
 				ServiceUtility.closeCallableSatetment(callableStatement);
 			}
-		}
+		}*/
 		
 		@SuppressWarnings("resource")
 		public static void completingMeetingAfterTimeOut(){
@@ -149,7 +170,8 @@ public class TrackMeetingTime {
                 preparedStatement.setTimestamp(2, new Timestamp(yesterdayTime.getTime().getTime()));
                 preparedStatement.setTimestamp(3, new Timestamp(todayTime.getTime().getTime()));
 
-				ResultSet rs = preparedStatement.executeQuery();
+		
+                ResultSet rs = preparedStatement.executeQuery();
 				List<Long> meetingIdList = new ArrayList<Long>();
 				while(rs.next()){
 					meetingIdList.add(rs.getLong("MeetingID"));

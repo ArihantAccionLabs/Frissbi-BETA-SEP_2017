@@ -16,6 +16,8 @@ public class ActivityBean {
 	private String userProfileImageId;
 	private String userFullName;
 	private String address;
+	private String latitude;
+	private String longitude;
 	private String locationDescription;
 	private int isPrivate;
 	private String imageDescription;
@@ -95,6 +97,18 @@ public class ActivityBean {
 	public void setAddress(String address) {
 		this.address = address;
 	}
+	public String getLatitude() {
+		return latitude;
+	}
+	public void setLatitude(String latitude) {
+		this.latitude = latitude;
+	}
+	public String getLongitude() {
+		return longitude;
+	}
+	public void setLongitude(String longitude) {
+		this.longitude = longitude;
+	}
 	public int getIsPrivate() {
 		return isPrivate;
 	}
@@ -145,12 +159,5 @@ public class ActivityBean {
 	public void setLocationDescription(String locationDescription) {
 		this.locationDescription = locationDescription;
 	}
-	@Override
-	public String toString() {
-		return "ActivityBean [userId=" + userId + ", activityId=" + activityId + ", date=" + date + ", profileImage="
-				+ profileImage + ", coverImage=" + coverImage + ", meetingId=" + meetingId + ", status=" + status
-				+ ", meetingMessage=" + meetingMessage + ", address=" + address + ", isPrivate=" + isPrivate
-				+ ", imageDescription=" + imageDescription + ", image=" + image + ", fromDate=" + fromDate + ", toDate="
-				+ toDate + ", registrationDate=" + registrationDate + "]";
-	}
+	
 }
