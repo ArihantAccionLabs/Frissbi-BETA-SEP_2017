@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp"
-    tools:context="com.frissbi.activities.GroupDetailsActivity">
+    tools:context=".app.activities.GroupDetailsActivity">
 
     <RelativeLayout
         android:id="@+id/group_details_rl"
@@ -18,7 +18,7 @@
             android:layout_height="100dp"
             android:src="@drawable/default_profile_image" />
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/group_details_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -34,7 +34,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/group_details_rl">
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/participant_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

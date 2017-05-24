@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/triangle_bg"
-    tools:context="com.frissbi.fragments.NewGroupFragment">
+    tools:context=".app.fragments.NewGroupFragment">
 
     <RelativeLayout
         android:id="@+id/participant_rl"
@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:visibility="gone">
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/participant_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.frissbi.Utility.CustomBoldTextView
+            <com.frissbi.app.Utility.CustomBoldTextView
                 android:id="@+id/select_participant_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

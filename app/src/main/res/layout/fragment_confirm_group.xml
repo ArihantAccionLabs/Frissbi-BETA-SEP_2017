@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/triangle_bg"
-    tools:context="com.frissbi.fragments.ConfirmGroupFragment">
+    tools:context=".app.fragments.ConfirmGroupFragment">
 
     <RelativeLayout
         android:id="@+id/group_rl"
@@ -50,7 +50,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/group_rl">
 
-        <com.frissbi.Utility.CustomBoldTextView
+        <com.frissbi.app.Utility.CustomBoldTextView
             android:id="@+id/participant_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

@@ -31,7 +31,7 @@
             android:layout_toLeftOf="@+id/loc_rating"
             android:layout_toRightOf="@+id/loc_image">
 
-            <com.frissbi.Utility.CustomFontTextView
+            <com.frissbi.app.Utility.CustomFontTextView
                 android:id="@+id/loc_name_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -39,7 +39,7 @@
                 android:textColor="@color/black"
                 android:textSize="16dp" />
 
-            <com.frissbi.Utility.CustomFontTextView
+            <com.frissbi.app.Utility.CustomFontTextView
                 android:id="@+id/loc_address_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

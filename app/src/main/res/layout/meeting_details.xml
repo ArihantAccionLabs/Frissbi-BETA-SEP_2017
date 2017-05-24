@@ -62,7 +62,7 @@
                             android:layout_toRightOf="@+id/calendar_imageView">
 
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/meeting_date_tv"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -70,7 +70,7 @@
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/date_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -114,7 +114,7 @@
                             android:layout_toRightOf="@+id/clock_imageView">
 
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/meeting_time_tv"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -124,7 +124,7 @@
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/time_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -167,7 +167,7 @@
                             android:layout_marginLeft="20dp"
                             android:layout_toRightOf="@+id/duration_imageView">
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/meeting_duration_tv"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -176,7 +176,7 @@
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/duration_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -220,7 +220,7 @@
                             android:layout_marginLeft="20dp"
                             android:layout_toRightOf="@+id/location_imageView">
 
-                            <com.frissbi.Utility.CustomBoldTextView
+                            <com.frissbi.app.Utility.CustomBoldTextView
                                 android:id="@+id/place_name_tv"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -229,7 +229,7 @@
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/meeting_place_tv"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -239,7 +239,7 @@
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/place_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -248,7 +248,7 @@
                                 android:text="Location"
                                 android:textColor="@color/light_orange" />
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/change_place_tv"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -292,7 +292,7 @@
                             android:layout_marginLeft="20dp"
                             android:layout_toRightOf="@+id/description_imageView">
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/meeting_title_tv"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -301,7 +301,7 @@
                                 android:textColor="@color/black"
                                 android:textStyle="bold" />
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/title_text"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"

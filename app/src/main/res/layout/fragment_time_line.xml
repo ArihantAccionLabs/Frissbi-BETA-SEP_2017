@@ -6,13 +6,13 @@
     android:layout_height="match_parent"
     android:background="@color/white"
     android:layout_marginBottom="50dp"
-    tools:context="com.frissbi.fragments.TimeLineFragment">
+    tools:context=".app.fragments.TimeLineFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.frissbi.Utility.EndlessScrollView
+        <com.frissbi.app.Utility.EndlessScrollView
             android:id="@+id/timeline_nestedScrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -21,7 +21,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
-                <com.frissbi.Utility.CustomBoldTextView
+                <com.frissbi.app.Utility.CustomBoldTextView
                     android:id="@+id/upcoming_meeting_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
                     android:layout_marginTop="10dp"
                     android:padding="6dp" />
 
-                <com.frissbi.Utility.CustomBoldTextView
+                <com.frissbi.app.Utility.CustomBoldTextView
                     android:id="@+id/others_doing_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -69,7 +69,7 @@
                     android:gravity="center"
                     android:visibility="gone">
 
-                    <com.frissbi.Utility.CustomFontTextView
+                    <com.frissbi.app.Utility.CustomFontTextView
                         android:id="@+id/no_friends_tv"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -105,7 +105,7 @@
                     android:text="View more"
                     android:visibility="gone" />
             </RelativeLayout>
-        </com.frissbi.Utility.EndlessScrollView>
+        </com.frissbi.app.Utility.EndlessScrollView>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/timeline_scroll_top_floating_button"

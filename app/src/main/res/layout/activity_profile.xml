@@ -6,13 +6,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/bg_color"
-    tools:context="com.frissbi.activities.ProfileActivity">
+    tools:context=".app.activities.ProfileActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <com.frissbi.Utility.EndlessScrollView
+        <com.frissbi.app.Utility.EndlessScrollView
             android:id="@+id/profile_nestedScrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -66,7 +66,7 @@
                             android:background="#eeffffff"
                             android:gravity="center_vertical">
 
-                            <com.frissbi.Utility.CustomFontTextView
+                            <com.frissbi.app.Utility.CustomFontTextView
                                 android:id="@+id/profile_username_tv"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -74,7 +74,7 @@
                                 android:text="User Name"
                                 android:textColor="@color/black" />
 
-                            <!--<com.frissbi.Utility.CustomFontTextView
+                            <!--<com.frissbi.app.Utility.CustomFontTextView
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_below="@+id/profile_username_tv"
@@ -171,7 +171,7 @@
                             android:src="@drawable/icon_tick"
                             android:visibility="gone" />
 
-                        <com.frissbi.Utility.CustomFontTextView
+                        <com.frissbi.app.Utility.CustomFontTextView
                             android:id="@+id/post_free_time_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -196,7 +196,7 @@
                             android:layout_height="20dp"
                             android:src="@drawable/icon_disclosure" />
 
-                        <com.frissbi.Utility.CustomFontTextView
+                        <com.frissbi.app.Utility.CustomFontTextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginLeft="16dp"
@@ -229,7 +229,7 @@
 
                 </RelativeLayout>
             </RelativeLayout>
-        </com.frissbi.Utility.EndlessScrollView>
+        </com.frissbi.app.Utility.EndlessScrollView>
 
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/scroll_top_floating_button"

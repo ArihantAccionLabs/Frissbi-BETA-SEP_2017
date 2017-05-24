@@ -34,7 +34,7 @@
                         android:scaleType="fitXY"
                         android:src="@drawable/default_profile_image" />
 
-                    <com.frissbi.Utility.CustomFontTextView
+                    <com.frissbi.app.Utility.CustomFontTextView
                         android:id="@+id/profile_imageUpdate_tv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -116,7 +116,7 @@
 
                 </android.support.design.widget.TextInputLayout>
 
-                <com.frissbi.Utility.CustomFontTextView
+                <com.frissbi.app.Utility.CustomFontTextView
                     android:id="@+id/dob_tv"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

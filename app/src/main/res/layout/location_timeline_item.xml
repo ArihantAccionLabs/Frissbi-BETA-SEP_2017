@@ -30,7 +30,7 @@
             android:layout_marginTop="10dp"
             android:layout_toRightOf="@+id/timeline_item_profile_image">
 
-            <com.frissbi.Utility.CustomFontTextView
+            <com.frissbi.app.Utility.CustomFontTextView
                 android:id="@+id/profileName_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
                 android:layout_toLeftOf="@+id/location_postedTime_tv"
                 android:text="Name" />
 
-            <com.frissbi.Utility.CustomFontTextView
+            <com.frissbi.app.Utility.CustomFontTextView
                 android:id="@+id/description_tv"
                 android:layout_marginTop="4dp"
                 android:layout_width="wrap_content"
@@ -49,7 +49,7 @@
                 android:textColor="@color/black"
                 android:textStyle="bold" />
 
-            <com.frissbi.Utility.CustomFontTextView
+            <com.frissbi.app.Utility.CustomFontTextView
                 android:id="@+id/check_in_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -60,7 +60,7 @@
                 android:textColor="@color/black"
                 android:textStyle="bold" />
 
-            <com.frissbi.Utility.CustomFontTextView
+            <com.frissbi.app.Utility.CustomFontTextView
                 android:id="@+id/location_postedTime_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

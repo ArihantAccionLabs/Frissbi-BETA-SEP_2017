@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:src="@drawable/logo1" />
 
-    <com.frissbi.Utility.CustomFontTextView
+    <com.frissbi.app.Utility.CustomFontTextView
         android:id="@+id/url_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
         android:layout_gravity="center_horizontal"
         android:layout_marginTop="10dp">
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/terms_conditions_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -44,7 +44,7 @@
             android:textColor="@android:color/black"
             android:textSize="13dp" />
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
@@ -53,7 +53,7 @@
             android:textSize="13dp" />
 
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/privacy_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

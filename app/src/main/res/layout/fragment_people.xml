@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.frissbi.fragments.PeopleFragment">
+    tools:context=".app.fragments.PeopleFragment">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -22,7 +22,7 @@
             android:layout_marginTop="10dp"
             android:padding="6dp" />
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/search_people_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

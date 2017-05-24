@@ -14,7 +14,7 @@
         android:background="@android:color/transparent"
         android:orientation="horizontal">
 
-        <com.frissbi.Utility.ProgressLogoImageView
+        <com.frissbi.app.Utility.ProgressLogoImageView
             android:id="@+id/animationImage"
             android:layout_width="60dp"
             android:layout_height="60dp"
@@ -22,7 +22,7 @@
             android:background="@drawable/ic_launcher" />
 
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/textView6"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -24,7 +24,7 @@
         android:layout_toRightOf="@+id/timeline_view"
         android:padding="10dp">
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/profileName_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -32,7 +32,7 @@
             android:layout_toLeftOf="@+id/profile_postedTime_tv"
             android:text="Name" />
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/profile_update_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -51,7 +51,7 @@
             android:src="@drawable/default_profile_image" />
 
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/profile_postedTime_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

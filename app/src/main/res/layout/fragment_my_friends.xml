@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:id="@+id/friends_swipeRefreshLayout"
     android:layout_height="match_parent"
-    tools:context="com.frissbi.fragments.MyFriendsFragment">
+    tools:context=".app.fragments.MyFriendsFragment">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/my_friends_recyclerView"

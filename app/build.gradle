@@ -5,12 +5,11 @@ android {
     buildToolsVersion '25.0.2'
 
     defaultConfig {
-        applicationId "com.frissbi"
+        applicationId "com.frissbi.app"
         minSdkVersion 16
-        versionCode 6
+        versionCode 1
         targetSdkVersion 25
-
-        versionName "1.0.5"
+        versionName "1.0.0"
         multiDexEnabled true
     }
     useLibrary 'org.apache.http.legacy'

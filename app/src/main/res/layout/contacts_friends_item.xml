@@ -22,7 +22,7 @@
             android:layout_marginLeft="20dp"
             android:layout_toRightOf="@+id/profile_imageView">
 
-            <com.frissbi.Utility.CustomFontTextView
+            <com.frissbi.app.Utility.CustomFontTextView
                 android:id="@+id/contact_name_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -30,7 +30,7 @@
                 android:textColor="@color/black"
                 android:textSize="16sp" />
 
-            <com.frissbi.Utility.CustomFontTextView
+            <com.frissbi.app.Utility.CustomFontTextView
                 android:id="@+id/phone_num_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

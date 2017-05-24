@@ -14,7 +14,7 @@
         android:layout_height="match_parent"
         android:padding="10dp">
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/meeting_description_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
             android:textColor="@color/white"
             android:textSize="20sp" />
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/upcoming_meeting_time_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

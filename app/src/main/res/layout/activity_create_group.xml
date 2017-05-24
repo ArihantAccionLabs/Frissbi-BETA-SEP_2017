@@ -4,6 +4,6 @@
     android:id="@+id/activity_create_group"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.frissbi.activities.CreateGroupActivity">
+    tools:context=".app.activities.CreateGroupActivity">
 
 </RelativeLayout>

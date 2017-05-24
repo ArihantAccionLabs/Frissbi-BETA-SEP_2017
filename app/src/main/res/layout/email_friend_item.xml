@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:buttonTint="@color/bg_color" />
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/email_id_tv"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

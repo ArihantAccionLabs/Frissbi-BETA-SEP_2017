@@ -5,7 +5,7 @@
     android:id="@+id/activity_my_saved_places"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.frissbi.activities.MySavedPlacesActivity">
+    tools:context=".app.activities.MySavedPlacesActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/myPlaces_recyclerView"

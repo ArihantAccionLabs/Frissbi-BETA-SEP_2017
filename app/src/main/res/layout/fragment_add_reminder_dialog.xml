@@ -2,9 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.frissbi.fragments.AddReminderDialogFragment">
+    tools:context=".app.fragments.AddReminderDialogFragment">
 
-    <com.frissbi.Utility.CustomFontTextView
+    <com.frissbi.app.Utility.CustomFontTextView
         android:id="@+id/remainder_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -89,7 +89,7 @@
                         android:layout_toRightOf="@+id/calendar_imageView">
 
 
-                        <com.frissbi.Utility.CustomFontTextView
+                        <com.frissbi.app.Utility.CustomFontTextView
                             android:id="@+id/remainder_date_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -97,7 +97,7 @@
                             android:textColor="@color/black"
                             android:textStyle="bold" />
 
-                        <com.frissbi.Utility.CustomFontTextView
+                        <com.frissbi.app.Utility.CustomFontTextView
                             android:id="@+id/date_text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -141,7 +141,7 @@
                         android:layout_toRightOf="@+id/clock_imageView">
 
 
-                        <com.frissbi.Utility.CustomFontTextView
+                        <com.frissbi.app.Utility.CustomFontTextView
                             android:id="@+id/remainder_time_tv"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -151,7 +151,7 @@
                             android:textColor="@color/black"
                             android:textStyle="bold" />
 
-                        <com.frissbi.Utility.CustomFontTextView
+                        <com.frissbi.app.Utility.CustomFontTextView
                             android:id="@+id/time_text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"

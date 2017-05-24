@@ -3,14 +3,14 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.frissbi.activities.RemindersActivity">
+    tools:context=".app.activities.RemindersActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/reminders_recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <com.frissbi.Utility.CustomFontTextView
+    <com.frissbi.app.Utility.CustomFontTextView
         android:id="@+id/no_reminder_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

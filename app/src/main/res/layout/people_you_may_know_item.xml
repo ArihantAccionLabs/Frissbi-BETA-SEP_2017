@@ -21,7 +21,7 @@
             android:layout_marginTop="10dp"
             android:src="@drawable/default_profile_image" />
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/people_userName_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -10,14 +10,14 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp">
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/you_are_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
             android:text="You are at " />
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/check_in_loc_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

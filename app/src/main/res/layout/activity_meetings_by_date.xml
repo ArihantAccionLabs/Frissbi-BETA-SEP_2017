@@ -4,7 +4,7 @@
     android:id="@+id/activity_meetings_by_date"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.frissbi.activities.MeetingsByDateActivity">
+    tools:context=".app.activities.MeetingsByDateActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/meeting_calendar_recyclerView"

@@ -27,7 +27,7 @@
         android:layout_weight="8"
         android:background="@color/white">
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/meeting_message_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -36,7 +36,7 @@
             android:textColor="@color/black"
             app:font="HelveticaNeue-Thin.ttf" />
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/meeting_posted_time_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

@@ -14,7 +14,7 @@
         android:background="@color/bg_color">
 
 
-        <com.frissbi.Utility.CustomFontTextView
+        <com.frissbi.app.Utility.CustomFontTextView
             android:id="@+id/text1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -59,7 +59,7 @@
                 android:orientation="vertical">
 
 
-                <com.frissbi.Utility.CustomFontTextView
+                <com.frissbi.app.Utility.CustomFontTextView
                     android:id="@+id/send"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

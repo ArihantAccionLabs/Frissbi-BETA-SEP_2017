@@ -5,9 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/triangle_bg"
-    tools:context="com.frissbi.activities.SuggestionsActivity">
+    tools:context=".app.activities.SuggestionsActivity">
 
-    <com.frissbi.Utility.EndlessScrollView
+    <com.frissbi.app.Utility.EndlessScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.frissbi.Utility.CustomBoldTextView
+            <com.frissbi.app.Utility.CustomBoldTextView
                 android:id="@+id/suggestion_meeting_des_tv"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -42,7 +42,7 @@
         </RelativeLayout>
 
 
-    </com.frissbi.Utility.EndlessScrollView>
+    </com.frissbi.app.Utility.EndlessScrollView>
 
     <LinearLayout
         android:id="@+id/load_more_ll"

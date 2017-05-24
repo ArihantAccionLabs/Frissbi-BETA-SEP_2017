@@ -4,7 +4,7 @@
     android:id="@+id/activity_check_in_location"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.frissbi.activities.CheckInLocationActivity">
+    tools:context=".app.activities.CheckInLocationActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/checkIn_recyclerView"

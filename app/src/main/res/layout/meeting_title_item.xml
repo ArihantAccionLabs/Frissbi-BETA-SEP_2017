@@ -4,7 +4,7 @@
     android:layout_margin="6dp"
     android:layout_height="wrap_content">
 
-    <com.frissbi.Utility.CustomFontTextView
+    <com.frissbi.app.Utility.CustomFontTextView
         android:id="@+id/title_item_tv"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

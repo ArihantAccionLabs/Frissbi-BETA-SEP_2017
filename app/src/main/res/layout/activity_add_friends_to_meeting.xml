@@ -5,7 +5,7 @@
     android:id="@+id/activity_add_friends_to_meeting"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.frissbi.activities.AddFriendsToMeetingActivity">
+    tools:context=".app.activities.AddFriendsToMeetingActivity">
 
     <android.support.design.widget.TabLayout
         android:id="@+id/add_friends_tabLayout"
