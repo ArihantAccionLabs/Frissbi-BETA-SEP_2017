@@ -106,18 +106,6 @@
             android:name=".frissbi.GetTermsandConditions"
             android:screenOrientation="portrait" />
 
-        <receiver
-            android:name=".notifications.GcmBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
-            <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
-                <category android:name="com.frissbi" />
-            </intent-filter>
-        </receiver>
-
-        <service android:name=".notifications.GcmIntentService" />
-
         <activity
             android:name=".activities.HomeActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -187,6 +175,16 @@
         <activity
             android:name=".activities.RegistrationActivity"
             android:label="New Account" />
+        <service android:name=".FirebaseIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
+        <service android:name=".MyFirebaseMessagingService">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>

@@ -45,7 +45,7 @@
 
     <!-- invite -->
 
-    <string name="link">"https://play.google.com/store/apps/details?id=com.frissbi"</string>
+    <string name="link">"https://play.google.com/store/apps/details?id=com.frissbi.app"</string>
     <string name="title_activity_home">Frissbi</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
